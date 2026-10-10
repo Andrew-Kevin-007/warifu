@@ -18,3 +18,4 @@ export * from "./approval";
 export * from "./policy";
 export * from "./lbc";
 export * from "./challenge";
+export * from "./json-schema";

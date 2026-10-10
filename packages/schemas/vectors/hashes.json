@@ -1,0 +1,1109 @@
+{
+  "$comment": "Object hashes (docs/05 §1: keccak256 over UTF-8 JCS bytes). `preimage` is the exact text that is hashed.",
+  "note": "Inputs are hand-written fixtures (test/fixtures.ts): illustrative values, not computed by packages/terms or bounds.ts. Outputs are computed by @symbolon/schemas and re-derived independently by scripts/xcheck-vectors.mjs (ethers + canonicalize).",
+  "generatedBy": "packages/schemas/scripts/build-vectors.ts (regenerate: pnpm --filter @symbolon/schemas vectors)",
+  "cases": [
+    {
+      "name": "termsHash/with-earlyPay",
+      "kind": "termsHash",
+      "spec": "docs/05 §2 Engagement.termsHash",
+      "input": {
+        "engagementId": "0xb12859002569adfbe571f936a09fa99860091f1c078570211dd7d6daabde09b3",
+        "tenantId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "owner": "0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed",
+        "payee": "0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359",
+        "payeeLabel": "Acme Design Studio",
+        "currency": "USDC",
+        "currencyDecimals": 6,
+        "capBaseUnits": "5000000000",
+        "start": "2026-10-01T00:00:00Z",
+        "end": "2026-12-31T23:59:59Z",
+        "sequential": true,
+        "milestones": [
+          {
+            "milestoneId": "0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc",
+            "slug": "design",
+            "description": "Homepage and pricing page design, 3 review rounds",
+            "amountBaseUnits": "1500000000",
+            "partialAllowed": false,
+            "immediate": false,
+            "dueDate": "2026-11-01T00:00:00Z",
+            "category": "design",
+            "evidenceSpec": [
+              {
+                "type": "OWNER_ACK"
+              },
+              {
+                "type": "ARTIFACT_HASH",
+                "sha256": "0x26ffe20674d854b848861bc75964d53a7e3192976ca321cdda1cb81dedfb3694"
+              }
+            ],
+            "status": "PENDING"
+          },
+          {
+            "milestoneId": "0x783b716b61272021cf52932edf965027828ff8c18e4adba6543bc7c5de05d600",
+            "slug": "build",
+            "description": "Next.js build — deploy to staging (ünïcödé, 中文, 😀)",
+            "amountBaseUnits": "3500000000",
+            "partialAllowed": true,
+            "immediate": false,
+            "dueDate": null,
+            "category": "engineering",
+            "evidenceSpec": [
+              {
+                "type": "CI_PASS",
+                "repo": "acme/site",
+                "ref": "main",
+                "workflow": "ci.yml"
+              },
+              {
+                "type": "URL_HEALTH",
+                "url": "https://staging.acme.example/health",
+                "expectStatus": 200
+              }
+            ],
+            "status": "PENDING"
+          }
+        ],
+        "paymentTerms": {
+          "netDays": 30,
+          "earlyPay": {
+            "discountBps": 200,
+            "withinDays": 10
+          },
+          "payBeforeDueBufferHours": 24,
+          "allowImmediate": false
+        },
+        "nonce": "1",
+        "termsHash": "0xeb2a5d09a10613ea74808343e20253b74bff2ed6f165c3d266846499122758a2",
+        "ownerSig": null,
+        "payeeSig": null,
+        "status": "DRAFT",
+        "registeredTx": null
+      },
+      "preimage": "{\"cap\":\"5000000000\",\"currency\":\"USDC\",\"currencyDecimals\":6,\"end\":\"2026-12-31T23:59:59Z\",\"engagementId\":\"0xb12859002569adfbe571f936a09fa99860091f1c078570211dd7d6daabde09b3\",\"milestones\":[{\"amountBaseUnits\":\"1500000000\",\"category\":\"design\",\"description\":\"Homepage and pricing page design, 3 review rounds\",\"dueDate\":\"2026-11-01T00:00:00Z\",\"evidenceSpec\":[{\"type\":\"OWNER_ACK\"},{\"sha256\":\"0x26ffe20674d854b848861bc75964d53a7e3192976ca321cdda1cb81dedfb3694\",\"type\":\"ARTIFACT_HASH\"}],\"immediate\":false,\"milestoneId\":\"0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc\",\"partialAllowed\":false,\"slug\":\"design\"},{\"amountBaseUnits\":\"3500000000\",\"category\":\"engineering\",\"description\":\"Next.js build — deploy to staging (ünïcödé, 中文, 😀)\",\"dueDate\":null,\"evidenceSpec\":[{\"ref\":\"main\",\"repo\":\"acme/site\",\"type\":\"CI_PASS\",\"workflow\":\"ci.yml\"},{\"expectStatus\":200,\"type\":\"URL_HEALTH\",\"url\":\"https://staging.acme.example/health\"}],\"immediate\":false,\"milestoneId\":\"0x783b716b61272021cf52932edf965027828ff8c18e4adba6543bc7c5de05d600\",\"partialAllowed\":true,\"slug\":\"build\"}],\"nonce\":\"1\",\"owner\":\"0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed\",\"payee\":\"0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359\",\"payeeLabel\":\"Acme Design Studio\",\"paymentTerms\":{\"allowImmediate\":false,\"earlyPay\":{\"discountBps\":200,\"withinDays\":10},\"netDays\":30,\"payBeforeDueBufferHours\":24},\"sequential\":true,\"start\":\"2026-10-01T00:00:00Z\"}",
+      "hash": "0xeb2a5d09a10613ea74808343e20253b74bff2ed6f165c3d266846499122758a2"
+    },
+    {
+      "name": "termsHash/without-earlyPay",
+      "kind": "termsHash",
+      "spec": "docs/05 §2 Engagement.termsHash",
+      "input": {
+        "engagementId": "0xb12859002569adfbe571f936a09fa99860091f1c078570211dd7d6daabde09b3",
+        "tenantId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "owner": "0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed",
+        "payee": "0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359",
+        "payeeLabel": "Acme Design Studio",
+        "currency": "USDC",
+        "currencyDecimals": 6,
+        "capBaseUnits": "5000000000",
+        "start": "2026-10-01T00:00:00Z",
+        "end": "2026-12-31T23:59:59Z",
+        "sequential": true,
+        "milestones": [
+          {
+            "milestoneId": "0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc",
+            "slug": "design",
+            "description": "Homepage and pricing page design, 3 review rounds",
+            "amountBaseUnits": "1500000000",
+            "partialAllowed": false,
+            "immediate": false,
+            "dueDate": "2026-11-01T00:00:00Z",
+            "category": "design",
+            "evidenceSpec": [
+              {
+                "type": "OWNER_ACK"
+              },
+              {
+                "type": "ARTIFACT_HASH",
+                "sha256": "0x26ffe20674d854b848861bc75964d53a7e3192976ca321cdda1cb81dedfb3694"
+              }
+            ],
+            "status": "PENDING"
+          },
+          {
+            "milestoneId": "0x783b716b61272021cf52932edf965027828ff8c18e4adba6543bc7c5de05d600",
+            "slug": "build",
+            "description": "Next.js build — deploy to staging (ünïcödé, 中文, 😀)",
+            "amountBaseUnits": "3500000000",
+            "partialAllowed": true,
+            "immediate": false,
+            "dueDate": null,
+            "category": "engineering",
+            "evidenceSpec": [
+              {
+                "type": "CI_PASS",
+                "repo": "acme/site",
+                "ref": "main",
+                "workflow": "ci.yml"
+              },
+              {
+                "type": "URL_HEALTH",
+                "url": "https://staging.acme.example/health",
+                "expectStatus": 200
+              }
+            ],
+            "status": "PENDING"
+          }
+        ],
+        "paymentTerms": {
+          "netDays": 30,
+          "earlyPay": null,
+          "payBeforeDueBufferHours": 24,
+          "allowImmediate": false
+        },
+        "nonce": "1",
+        "termsHash": "0xafcb141968da0a5da3ea4db3cbc078eb0def66a65e576b1efcb0948b61a80ec4",
+        "ownerSig": null,
+        "payeeSig": null,
+        "status": "DRAFT",
+        "registeredTx": null
+      },
+      "preimage": "{\"cap\":\"5000000000\",\"currency\":\"USDC\",\"currencyDecimals\":6,\"end\":\"2026-12-31T23:59:59Z\",\"engagementId\":\"0xb12859002569adfbe571f936a09fa99860091f1c078570211dd7d6daabde09b3\",\"milestones\":[{\"amountBaseUnits\":\"1500000000\",\"category\":\"design\",\"description\":\"Homepage and pricing page design, 3 review rounds\",\"dueDate\":\"2026-11-01T00:00:00Z\",\"evidenceSpec\":[{\"type\":\"OWNER_ACK\"},{\"sha256\":\"0x26ffe20674d854b848861bc75964d53a7e3192976ca321cdda1cb81dedfb3694\",\"type\":\"ARTIFACT_HASH\"}],\"immediate\":false,\"milestoneId\":\"0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc\",\"partialAllowed\":false,\"slug\":\"design\"},{\"amountBaseUnits\":\"3500000000\",\"category\":\"engineering\",\"description\":\"Next.js build — deploy to staging (ünïcödé, 中文, 😀)\",\"dueDate\":null,\"evidenceSpec\":[{\"ref\":\"main\",\"repo\":\"acme/site\",\"type\":\"CI_PASS\",\"workflow\":\"ci.yml\"},{\"expectStatus\":200,\"type\":\"URL_HEALTH\",\"url\":\"https://staging.acme.example/health\"}],\"immediate\":false,\"milestoneId\":\"0x783b716b61272021cf52932edf965027828ff8c18e4adba6543bc7c5de05d600\",\"partialAllowed\":true,\"slug\":\"build\"}],\"nonce\":\"1\",\"owner\":\"0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed\",\"payee\":\"0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359\",\"payeeLabel\":\"Acme Design Studio\",\"paymentTerms\":{\"allowImmediate\":false,\"earlyPay\":null,\"netDays\":30,\"payBeforeDueBufferHours\":24},\"sequential\":true,\"start\":\"2026-10-01T00:00:00Z\"}",
+      "hash": "0xafcb141968da0a5da3ea4db3cbc078eb0def66a65e576b1efcb0948b61a80ec4"
+    },
+    {
+      "name": "paymentTermsHash/with-earlyPay",
+      "kind": "jcs",
+      "spec": "docs/05 §2 Receipt.inputs.paymentTermsHash",
+      "input": {
+        "netDays": 30,
+        "earlyPay": {
+          "discountBps": 200,
+          "withinDays": 10
+        },
+        "payBeforeDueBufferHours": 24,
+        "allowImmediate": false
+      },
+      "preimage": "{\"allowImmediate\":false,\"earlyPay\":{\"discountBps\":200,\"withinDays\":10},\"netDays\":30,\"payBeforeDueBufferHours\":24}",
+      "hash": "0x117bdf15d8b27e9dcb9b110459e8dab11c1ce58fb0ca18876964d28f80b2a0c5"
+    },
+    {
+      "name": "paymentTermsHash/without-earlyPay",
+      "kind": "jcs",
+      "spec": "docs/05 §2 Receipt.inputs.paymentTermsHash",
+      "input": {
+        "netDays": 30,
+        "earlyPay": null,
+        "payBeforeDueBufferHours": 24,
+        "allowImmediate": false
+      },
+      "preimage": "{\"allowImmediate\":false,\"earlyPay\":null,\"netDays\":30,\"payBeforeDueBufferHours\":24}",
+      "hash": "0xa0c5e24f1ebcd679ccb3d12b1ab07072184eb76ef9843fd03e9287febfbe7644"
+    },
+    {
+      "name": "engagementId/slug",
+      "kind": "jcs",
+      "spec": "docs/05 §1 ids",
+      "input": {
+        "tenantId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "slug": "acme-site-redesign"
+      },
+      "preimage": "{\"slug\":\"acme-site-redesign\",\"tenantId\":\"7c9e6679-7425-40de-944b-e07fc1f90ae7\"}",
+      "hash": "0xb12859002569adfbe571f936a09fa99860091f1c078570211dd7d6daabde09b3"
+    },
+    {
+      "name": "milestoneId/uuid",
+      "kind": "jcs",
+      "spec": "docs/05 §1 ids",
+      "input": {
+        "tenantId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "uuid": "3f2504e0-4f89-41d3-9a0c-0305e82c3301"
+      },
+      "preimage": "{\"tenantId\":\"7c9e6679-7425-40de-944b-e07fc1f90ae7\",\"uuid\":\"3f2504e0-4f89-41d3-9a0c-0305e82c3301\"}",
+      "hash": "0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc"
+    },
+    {
+      "name": "intentId",
+      "kind": "jcs",
+      "spec": "docs/04 K-04",
+      "input": {
+        "engagementId": "0xb12859002569adfbe571f936a09fa99860091f1c078570211dd7d6daabde09b3",
+        "milestoneId": "0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc",
+        "normInvoiceNo": "INV20260042",
+        "amountBaseUnits": "1500000000",
+        "payee": "0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359"
+      },
+      "preimage": "{\"amountBaseUnits\":\"1500000000\",\"engagementId\":\"0xb12859002569adfbe571f936a09fa99860091f1c078570211dd7d6daabde09b3\",\"milestoneId\":\"0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc\",\"normInvoiceNo\":\"INV20260042\",\"payee\":\"0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359\"}",
+      "hash": "0xb26f991ff464c0981068c7698f3136fc08abc305dec5cf69963840f32fb2bac4"
+    },
+    {
+      "name": "planId",
+      "kind": "jcs",
+      "spec": "docs/03 §5.3",
+      "input": {
+        "intentId": "0xb26f991ff464c0981068c7698f3136fc08abc305dec5cf69963840f32fb2bac4",
+        "mode": "TAKE_DISCOUNT",
+        "payAt": "2026-10-12T09:00:00Z"
+      },
+      "preimage": "{\"intentId\":\"0xb26f991ff464c0981068c7698f3136fc08abc305dec5cf69963840f32fb2bac4\",\"mode\":\"TAKE_DISCOUNT\",\"payAt\":\"2026-10-12T09:00:00Z\"}",
+      "hash": "0x033fa21dc978af16ada67cb84436523d712fe0c64056d75319519d35a1fbeddf"
+    },
+    {
+      "name": "policyHash",
+      "kind": "jcs",
+      "spec": "docs/04 §7",
+      "input": {
+        "version": 1,
+        "tenant": "acme",
+        "currency": {
+          "code": "USDC",
+          "decimals": 6,
+          "treatUsdAsUsdc": true
+        },
+        "caps": {
+          "perTxHardCap": "2000.000000",
+          "dailyCap": "5000.000000",
+          "weeklyCap": "15000.000000",
+          "humanApprovalAbove": "1000.000000"
+        },
+        "velocity": {
+          "maxReleasesPerDay": 10,
+          "maxReleasesPerPayeePerDay": 3,
+          "maxAmountPerPayeePerDay": "4000.000000"
+        },
+        "newPayee": {
+          "firstPaymentMax": "500.000000",
+          "alwaysHuman": true
+        },
+        "categories": {
+          "design": "3000.000000",
+          "engineering": "8000.000000"
+        },
+        "reserve": {
+          "floor": "1000.000000",
+          "lookaheadDays": 14
+        },
+        "timing": {
+          "disputeWindowHours": 24,
+          "payBeforeDueBufferHours": 24,
+          "allowImmediate": false,
+          "defaultNetDays": 30,
+          "windowSafetyMarginMinutes": 30
+        },
+        "treasury": {
+          "costOfCapitalBps": 800
+        },
+        "escalation": {
+          "maxPerDay": 5,
+          "maxPerEngagementPerDay": 2
+        },
+        "limits": {
+          "maxDocChars": 20000
+        },
+        "evidence": {
+          "freshnessHours": 72,
+          "allowOwnerOverride": true,
+          "urlAllowlist": [
+            "https://staging.acme.example"
+          ]
+        },
+        "extraction": {
+          "allowSingle": false
+        },
+        "screening": {
+          "required": false,
+          "staleAfterHours": 24
+        },
+        "reconciliation": {
+          "ackWindowHours": 0.17
+        }
+      },
+      "preimage": "{\"caps\":{\"dailyCap\":\"5000.000000\",\"humanApprovalAbove\":\"1000.000000\",\"perTxHardCap\":\"2000.000000\",\"weeklyCap\":\"15000.000000\"},\"categories\":{\"design\":\"3000.000000\",\"engineering\":\"8000.000000\"},\"currency\":{\"code\":\"USDC\",\"decimals\":6,\"treatUsdAsUsdc\":true},\"escalation\":{\"maxPerDay\":5,\"maxPerEngagementPerDay\":2},\"evidence\":{\"allowOwnerOverride\":true,\"freshnessHours\":72,\"urlAllowlist\":[\"https://staging.acme.example\"]},\"extraction\":{\"allowSingle\":false},\"limits\":{\"maxDocChars\":20000},\"newPayee\":{\"alwaysHuman\":true,\"firstPaymentMax\":\"500.000000\"},\"reconciliation\":{\"ackWindowHours\":0.17},\"reserve\":{\"floor\":\"1000.000000\",\"lookaheadDays\":14},\"screening\":{\"required\":false,\"staleAfterHours\":24},\"tenant\":\"acme\",\"timing\":{\"allowImmediate\":false,\"defaultNetDays\":30,\"disputeWindowHours\":24,\"payBeforeDueBufferHours\":24,\"windowSafetyMarginMinutes\":30},\"treasury\":{\"costOfCapitalBps\":800},\"velocity\":{\"maxAmountPerPayeePerDay\":\"4000.000000\",\"maxReleasesPerDay\":10,\"maxReleasesPerPayeePerDay\":3},\"version\":1}",
+      "hash": "0xf4262cd1e0570f06c4236a1faf99cdba9147a9ccacecf96eea69687a22e13aa2"
+    },
+    {
+      "name": "receiptHash/escalation",
+      "kind": "jcs",
+      "spec": "docs/05 §2 receiptHash",
+      "input": {
+        "receiptVersion": 1,
+        "decision": {
+          "decisionId": "9b2e4c1a-6d3f-4a8b-9c7e-1f2a3b4c5d6e",
+          "tenantId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+          "intentId": "0xb26f991ff464c0981068c7698f3136fc08abc305dec5cf69963840f32fb2bac4",
+          "verdict": "ESCALATE",
+          "checks": [
+            {
+              "id": "K-01",
+              "name": "STRICT_SCHEMA",
+              "status": "PASS",
+              "onFail": null,
+              "code": null,
+              "detail": "ok",
+              "refs": []
+            },
+            {
+              "id": "K-12",
+              "name": "AUTHORITY_ENVELOPE",
+              "status": "FAIL",
+              "onFail": "ESCALATE",
+              "code": "HUMAN_REQUIRED",
+              "detail": "amount 1,500.00 > humanApprovalAbove 1,000.00",
+              "refs": [
+                "policy:caps.humanApprovalAbove"
+              ]
+            }
+          ],
+          "reasons": [
+            "HUMAN_REQUIRED"
+          ],
+          "engagementId": "0xb12859002569adfbe571f936a09fa99860091f1c078570211dd7d6daabde09b3",
+          "milestoneId": "0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc",
+          "payee": "0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359",
+          "amountBaseUnits": "1500000000",
+          "payAt": "2026-10-12T09:00:00Z",
+          "timingSource": "AGENT",
+          "releaseAmountBaseUnits": "1470000000",
+          "planId": "0x033fa21dc978af16ada67cb84436523d712fe0c64056d75319519d35a1fbeddf",
+          "plannerFallback": false,
+          "invoiceReceivedAt": "2026-10-05T10:15:00Z",
+          "policyHash": "0xf4262cd1e0570f06c4236a1faf99cdba9147a9ccacecf96eea69687a22e13aa2",
+          "kernelVersion": "0.1.0",
+          "patternsVersion": "patterns-1",
+          "contextHash": "0x8bb3ed18767ad66df04eb5296183192056825060805aeaac70b851bea0b055d6",
+          "agentRecommendation": {
+            "verdict": "RELEASE",
+            "reasons": [
+              "Evidence complete; discount window open"
+            ]
+          },
+          "supersedes": null,
+          "createdAt": "2026-10-05T10:15:07Z"
+        },
+        "humanExplanationHash": "0x1d35bcc0eee02f60949dad936291ee69ca200199e856cc9bfd047c575d802238",
+        "inputs": {
+          "docHash": "0xc550ba015c04e114d4243156a0802151f97920906ca989dcad88e81ba45e5d98",
+          "extractionHashA": "0x08879336922cc46c48384527dca66a231ddb1ce62df5d8c3022bdd47ad2fe444",
+          "extractionHashB": "0x687e61db0c2160df6e38b5bc9734ffc844d9e660a47880673e1798ed7ed1014d",
+          "promptHashA": "0x4062dee56190ea5452b78ab623e4eacfb43e0c63d8d02a8710227c7b4238ac3a",
+          "promptHashB": "0xda5eb83113936b34c44d3bc9bf4dbaf232e2ff04f9e352ee9d5e6f4044a19cfe",
+          "modelA": "fixture-model-a",
+          "modelB": "fixture-model-b",
+          "evidence": [
+            {
+              "evidenceId": "6ba7b810-9dad-41d1-80b4-00c04fd430c8",
+              "payloadHash": "0xc5ebdc1593829c07e2b02887c2aeb3dbb8f053056ae08baaa48630a57571375a",
+              "result": "PASS"
+            }
+          ],
+          "engagementTermsHash": "0xeb2a5d09a10613ea74808343e20253b74bff2ed6f165c3d266846499122758a2",
+          "normalizedDocHash": "0xb0ae6c8e9367b08f5379d22d045053678d912ec7373689fc07932c63ac77d2ee",
+          "paymentTermsHash": "0x117bdf15d8b27e9dcb9b110459e8dab11c1ce58fb0ca18876964d28f80b2a0c5",
+          "planEvaluationHash": "0x27d7c63eb56be6268e8c24765bfff6e5c2210b7b4e65548177a42dcfef7507a2",
+          "profile": "production"
+        },
+        "issuedAt": "2026-10-05T10:15:07Z"
+      },
+      "preimage": "{\"decision\":{\"agentRecommendation\":{\"reasons\":[\"Evidence complete; discount window open\"],\"verdict\":\"RELEASE\"},\"amountBaseUnits\":\"1500000000\",\"checks\":[{\"code\":null,\"detail\":\"ok\",\"id\":\"K-01\",\"name\":\"STRICT_SCHEMA\",\"onFail\":null,\"refs\":[],\"status\":\"PASS\"},{\"code\":\"HUMAN_REQUIRED\",\"detail\":\"amount 1,500.00 > humanApprovalAbove 1,000.00\",\"id\":\"K-12\",\"name\":\"AUTHORITY_ENVELOPE\",\"onFail\":\"ESCALATE\",\"refs\":[\"policy:caps.humanApprovalAbove\"],\"status\":\"FAIL\"}],\"contextHash\":\"0x8bb3ed18767ad66df04eb5296183192056825060805aeaac70b851bea0b055d6\",\"createdAt\":\"2026-10-05T10:15:07Z\",\"decisionId\":\"9b2e4c1a-6d3f-4a8b-9c7e-1f2a3b4c5d6e\",\"engagementId\":\"0xb12859002569adfbe571f936a09fa99860091f1c078570211dd7d6daabde09b3\",\"intentId\":\"0xb26f991ff464c0981068c7698f3136fc08abc305dec5cf69963840f32fb2bac4\",\"invoiceReceivedAt\":\"2026-10-05T10:15:00Z\",\"kernelVersion\":\"0.1.0\",\"milestoneId\":\"0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc\",\"patternsVersion\":\"patterns-1\",\"payAt\":\"2026-10-12T09:00:00Z\",\"payee\":\"0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359\",\"planId\":\"0x033fa21dc978af16ada67cb84436523d712fe0c64056d75319519d35a1fbeddf\",\"plannerFallback\":false,\"policyHash\":\"0xf4262cd1e0570f06c4236a1faf99cdba9147a9ccacecf96eea69687a22e13aa2\",\"reasons\":[\"HUMAN_REQUIRED\"],\"releaseAmountBaseUnits\":\"1470000000\",\"supersedes\":null,\"tenantId\":\"7c9e6679-7425-40de-944b-e07fc1f90ae7\",\"timingSource\":\"AGENT\",\"verdict\":\"ESCALATE\"},\"humanExplanationHash\":\"0x1d35bcc0eee02f60949dad936291ee69ca200199e856cc9bfd047c575d802238\",\"inputs\":{\"docHash\":\"0xc550ba015c04e114d4243156a0802151f97920906ca989dcad88e81ba45e5d98\",\"engagementTermsHash\":\"0xeb2a5d09a10613ea74808343e20253b74bff2ed6f165c3d266846499122758a2\",\"evidence\":[{\"evidenceId\":\"6ba7b810-9dad-41d1-80b4-00c04fd430c8\",\"payloadHash\":\"0xc5ebdc1593829c07e2b02887c2aeb3dbb8f053056ae08baaa48630a57571375a\",\"result\":\"PASS\"}],\"extractionHashA\":\"0x08879336922cc46c48384527dca66a231ddb1ce62df5d8c3022bdd47ad2fe444\",\"extractionHashB\":\"0x687e61db0c2160df6e38b5bc9734ffc844d9e660a47880673e1798ed7ed1014d\",\"modelA\":\"fixture-model-a\",\"modelB\":\"fixture-model-b\",\"normalizedDocHash\":\"0xb0ae6c8e9367b08f5379d22d045053678d912ec7373689fc07932c63ac77d2ee\",\"paymentTermsHash\":\"0x117bdf15d8b27e9dcb9b110459e8dab11c1ce58fb0ca18876964d28f80b2a0c5\",\"planEvaluationHash\":\"0x27d7c63eb56be6268e8c24765bfff6e5c2210b7b4e65548177a42dcfef7507a2\",\"profile\":\"production\",\"promptHashA\":\"0x4062dee56190ea5452b78ab623e4eacfb43e0c63d8d02a8710227c7b4238ac3a\",\"promptHashB\":\"0xda5eb83113936b34c44d3bc9bf4dbaf232e2ff04f9e352ee9d5e6f4044a19cfe\"},\"issuedAt\":\"2026-10-05T10:15:07Z\",\"receiptVersion\":1}",
+      "hash": "0xfba7623376f2de0a40aa89eb8998b9e26a99ccfe99f83e35d19e35d171cd1c83"
+    },
+    {
+      "name": "receiptHash/release",
+      "kind": "jcs",
+      "spec": "docs/05 §2 receiptHash",
+      "input": {
+        "receiptVersion": 1,
+        "decision": {
+          "decisionId": "1b4e28ba-2fa1-41d2-883f-0016d3cca427",
+          "tenantId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+          "intentId": "0xb26f991ff464c0981068c7698f3136fc08abc305dec5cf69963840f32fb2bac4",
+          "verdict": "RELEASE",
+          "checks": [
+            {
+              "id": "K-01",
+              "name": "STRICT_SCHEMA",
+              "status": "PASS",
+              "onFail": null,
+              "code": null,
+              "detail": "ok",
+              "refs": []
+            },
+            {
+              "id": "K-12",
+              "name": "AUTHORITY_ENVELOPE",
+              "status": "PASS",
+              "onFail": null,
+              "code": null,
+              "detail": "owner approval verified",
+              "refs": []
+            }
+          ],
+          "reasons": [],
+          "engagementId": "0xb12859002569adfbe571f936a09fa99860091f1c078570211dd7d6daabde09b3",
+          "milestoneId": "0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc",
+          "payee": "0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359",
+          "amountBaseUnits": "1500000000",
+          "payAt": "2026-10-12T09:00:00Z",
+          "timingSource": "AGENT",
+          "releaseAmountBaseUnits": "1470000000",
+          "planId": "0x033fa21dc978af16ada67cb84436523d712fe0c64056d75319519d35a1fbeddf",
+          "plannerFallback": false,
+          "invoiceReceivedAt": "2026-10-05T10:15:00Z",
+          "policyHash": "0xf4262cd1e0570f06c4236a1faf99cdba9147a9ccacecf96eea69687a22e13aa2",
+          "kernelVersion": "0.1.0",
+          "patternsVersion": "patterns-1",
+          "contextHash": "0x8bb3ed18767ad66df04eb5296183192056825060805aeaac70b851bea0b055d6",
+          "agentRecommendation": {
+            "verdict": "RELEASE",
+            "reasons": [
+              "Evidence complete; discount window open"
+            ]
+          },
+          "supersedes": "9b2e4c1a-6d3f-4a8b-9c7e-1f2a3b4c5d6e",
+          "createdAt": "2026-10-12T09:00:03Z"
+        },
+        "humanExplanationHash": null,
+        "inputs": {
+          "docHash": "0xc550ba015c04e114d4243156a0802151f97920906ca989dcad88e81ba45e5d98",
+          "extractionHashA": "0x08879336922cc46c48384527dca66a231ddb1ce62df5d8c3022bdd47ad2fe444",
+          "extractionHashB": "0x687e61db0c2160df6e38b5bc9734ffc844d9e660a47880673e1798ed7ed1014d",
+          "promptHashA": "0x4062dee56190ea5452b78ab623e4eacfb43e0c63d8d02a8710227c7b4238ac3a",
+          "promptHashB": "0xda5eb83113936b34c44d3bc9bf4dbaf232e2ff04f9e352ee9d5e6f4044a19cfe",
+          "modelA": "fixture-model-a",
+          "modelB": "fixture-model-b",
+          "evidence": [
+            {
+              "evidenceId": "6ba7b810-9dad-41d1-80b4-00c04fd430c8",
+              "payloadHash": "0xc5ebdc1593829c07e2b02887c2aeb3dbb8f053056ae08baaa48630a57571375a",
+              "result": "PASS"
+            }
+          ],
+          "engagementTermsHash": "0xeb2a5d09a10613ea74808343e20253b74bff2ed6f165c3d266846499122758a2",
+          "normalizedDocHash": "0xb0ae6c8e9367b08f5379d22d045053678d912ec7373689fc07932c63ac77d2ee",
+          "paymentTermsHash": "0x117bdf15d8b27e9dcb9b110459e8dab11c1ce58fb0ca18876964d28f80b2a0c5",
+          "planEvaluationHash": "0x27d7c63eb56be6268e8c24765bfff6e5c2210b7b4e65548177a42dcfef7507a2",
+          "profile": "production"
+        },
+        "issuedAt": "2026-10-12T09:00:03Z"
+      },
+      "preimage": "{\"decision\":{\"agentRecommendation\":{\"reasons\":[\"Evidence complete; discount window open\"],\"verdict\":\"RELEASE\"},\"amountBaseUnits\":\"1500000000\",\"checks\":[{\"code\":null,\"detail\":\"ok\",\"id\":\"K-01\",\"name\":\"STRICT_SCHEMA\",\"onFail\":null,\"refs\":[],\"status\":\"PASS\"},{\"code\":null,\"detail\":\"owner approval verified\",\"id\":\"K-12\",\"name\":\"AUTHORITY_ENVELOPE\",\"onFail\":null,\"refs\":[],\"status\":\"PASS\"}],\"contextHash\":\"0x8bb3ed18767ad66df04eb5296183192056825060805aeaac70b851bea0b055d6\",\"createdAt\":\"2026-10-12T09:00:03Z\",\"decisionId\":\"1b4e28ba-2fa1-41d2-883f-0016d3cca427\",\"engagementId\":\"0xb12859002569adfbe571f936a09fa99860091f1c078570211dd7d6daabde09b3\",\"intentId\":\"0xb26f991ff464c0981068c7698f3136fc08abc305dec5cf69963840f32fb2bac4\",\"invoiceReceivedAt\":\"2026-10-05T10:15:00Z\",\"kernelVersion\":\"0.1.0\",\"milestoneId\":\"0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc\",\"patternsVersion\":\"patterns-1\",\"payAt\":\"2026-10-12T09:00:00Z\",\"payee\":\"0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359\",\"planId\":\"0x033fa21dc978af16ada67cb84436523d712fe0c64056d75319519d35a1fbeddf\",\"plannerFallback\":false,\"policyHash\":\"0xf4262cd1e0570f06c4236a1faf99cdba9147a9ccacecf96eea69687a22e13aa2\",\"reasons\":[],\"releaseAmountBaseUnits\":\"1470000000\",\"supersedes\":\"9b2e4c1a-6d3f-4a8b-9c7e-1f2a3b4c5d6e\",\"tenantId\":\"7c9e6679-7425-40de-944b-e07fc1f90ae7\",\"timingSource\":\"AGENT\",\"verdict\":\"RELEASE\"},\"humanExplanationHash\":null,\"inputs\":{\"docHash\":\"0xc550ba015c04e114d4243156a0802151f97920906ca989dcad88e81ba45e5d98\",\"engagementTermsHash\":\"0xeb2a5d09a10613ea74808343e20253b74bff2ed6f165c3d266846499122758a2\",\"evidence\":[{\"evidenceId\":\"6ba7b810-9dad-41d1-80b4-00c04fd430c8\",\"payloadHash\":\"0xc5ebdc1593829c07e2b02887c2aeb3dbb8f053056ae08baaa48630a57571375a\",\"result\":\"PASS\"}],\"extractionHashA\":\"0x08879336922cc46c48384527dca66a231ddb1ce62df5d8c3022bdd47ad2fe444\",\"extractionHashB\":\"0x687e61db0c2160df6e38b5bc9734ffc844d9e660a47880673e1798ed7ed1014d\",\"modelA\":\"fixture-model-a\",\"modelB\":\"fixture-model-b\",\"normalizedDocHash\":\"0xb0ae6c8e9367b08f5379d22d045053678d912ec7373689fc07932c63ac77d2ee\",\"paymentTermsHash\":\"0x117bdf15d8b27e9dcb9b110459e8dab11c1ce58fb0ca18876964d28f80b2a0c5\",\"planEvaluationHash\":\"0x27d7c63eb56be6268e8c24765bfff6e5c2210b7b4e65548177a42dcfef7507a2\",\"profile\":\"production\",\"promptHashA\":\"0x4062dee56190ea5452b78ab623e4eacfb43e0c63d8d02a8710227c7b4238ac3a\",\"promptHashB\":\"0xda5eb83113936b34c44d3bc9bf4dbaf232e2ff04f9e352ee9d5e6f4044a19cfe\"},\"issuedAt\":\"2026-10-12T09:00:03Z\",\"receiptVersion\":1}",
+      "hash": "0x15ce51f6c3aff491fef023bc3b63f11ba5a795ade808d91b2cf865da1d22dc29"
+    },
+    {
+      "name": "humanExplanationHash",
+      "kind": "utf8",
+      "spec": "docs/05 §2 Receipt.humanExplanationHash",
+      "input": "Held for owner approval: 1,500.00 USDC is above the 1,000.00 USDC approval threshold.",
+      "preimage": "Held for owner approval: 1,500.00 USDC is above the 1,000.00 USDC approval threshold.",
+      "hash": "0x1d35bcc0eee02f60949dad936291ee69ca200199e856cc9bfd047c575d802238"
+    },
+    {
+      "name": "normalizedHash",
+      "kind": "utf8",
+      "spec": "docs/05 §2 Document.normalizedHash",
+      "input": "INVOICE INV-2026-0042\nAcme Design Studio Ltd\nTotal: 1,500.00 USDC\nTerms: 2/10 net 30",
+      "preimage": "INVOICE INV-2026-0042\nAcme Design Studio Ltd\nTotal: 1,500.00 USDC\nTerms: 2/10 net 30",
+      "hash": "0xb0ae6c8e9367b08f5379d22d045053678d912ec7373689fc07932c63ac77d2ee"
+    },
+    {
+      "name": "certHash",
+      "kind": "certHash",
+      "spec": "docs/16 §3",
+      "input": {
+        "schema": "lbc/1",
+        "algorithm": {
+          "id": "symbolon-bounds",
+          "version": "1.0.0",
+          "gitSha": "0b02ff9",
+          "detectionLatencySeconds": 300
+        },
+        "subject": {
+          "vault": "0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB",
+          "chainId": 31337,
+          "token": "0x52908400098527886E0F7030069857D2E4169EE7",
+          "tokenDecimals": 6
+        },
+        "asOf": {
+          "blockNumber": 1234567,
+          "blockHash": "0x5019cb0b2ef433930514b4c3164af0726cf5cfc073a73c9d99774a99c9b9ce0c",
+          "timestamp": 1791158400
+        },
+        "inputs": {
+          "configHash": "0xd445c184703b0a66bd8f737809519d6748076c0db997f78e06110124c564dff7",
+          "engagementsDigest": "0xd85f43bae6a17bf55ca69e230c55985c5e494ab277284e3449f94aee4b1a714d",
+          "policyHash": "0xf4262cd1e0570f06c4236a1faf99cdba9147a9ccacecf96eea69687a22e13aa2",
+          "balanceBaseUnits": "10000000000",
+          "limits": {
+            "perTxCap": "2000000000",
+            "dailyCap": "5000000000",
+            "hourlyCap": "0",
+            "humanThreshold": "1000000000",
+            "ringSize": 64
+          },
+          "sumRemainingBaseUnits": "5000000000",
+          "activeEngagements": 1
+        },
+        "bounds": {
+          "T1": {
+            "unauthorizedLoss": "0",
+            "assumes": [
+              "A-EVID",
+              "A-OWNER-KEY"
+            ],
+            "weakEvidenceExposure": "NOT_COMPUTED"
+          },
+          "T2": {
+            "loss": "0",
+            "liveness": "censorable"
+          },
+          "T3c": {
+            "perReleaseUnapproved": "1000000000",
+            "perDay": "5000000000",
+            "horizons": [
+              {
+                "label": "1h",
+                "seconds": 3600,
+                "value": "2000000000",
+                "binding": [
+                  "daily"
+                ]
+              },
+              {
+                "label": "24h",
+                "seconds": 86400,
+                "value": "5000000000",
+                "binding": [
+                  "daily",
+                  "engagements"
+                ]
+              }
+            ],
+            "timeToEmpty": {
+              "days": 2,
+              "limitedBy": "daily"
+            },
+            "alarmed": {
+              "seconds": 300,
+              "value": "2000000000",
+              "assumes": [
+                "A-MON"
+              ]
+            }
+          },
+          "T3_ownerExposed": [
+            {
+              "label": "1h",
+              "seconds": 3600,
+              "value": "2000000000",
+              "binding": [
+                "daily"
+              ]
+            },
+            {
+              "label": "24h",
+              "seconds": 86400,
+              "value": "5000000000",
+              "binding": [
+                "daily",
+                "engagements"
+              ]
+            }
+          ]
+        },
+        "assumptions": [
+          {
+            "id": "A-EVID",
+            "text": "Fixture assumption text (evidence sources are honest)."
+          },
+          {
+            "id": "A-MON",
+            "text": "Fixture assumption text (monitoring alarms within the stated latency)."
+          },
+          {
+            "id": "A-OWNER-KEY",
+            "text": "Fixture assumption text (owner key not compromised)."
+          }
+        ],
+        "exclusions": [
+          {
+            "id": "X-FIXTURE",
+            "text": "Fixture exclusion text."
+          }
+        ],
+        "notes": [
+          "Fixture certificate for canonicalization vectors; numbers are not computed by bounds.ts."
+        ],
+        "validation": null,
+        "validity": {
+          "status": "UNVERIFIED",
+          "reasons": [
+            "CODE_NOT_VALIDATED"
+          ],
+          "checkedAt": 1791158460,
+          "freshnessSeconds": 3600
+        },
+        "certHash": "0x81af9aa667ce430282789eee834e64c0ed79e0a77924767ba0bdde5a294f7b5e"
+      },
+      "preimage": "{\"algorithm\":{\"detectionLatencySeconds\":300,\"gitSha\":\"0b02ff9\",\"id\":\"symbolon-bounds\",\"version\":\"1.0.0\"},\"asOf\":{\"blockHash\":\"0x5019cb0b2ef433930514b4c3164af0726cf5cfc073a73c9d99774a99c9b9ce0c\",\"blockNumber\":1234567,\"timestamp\":1791158400},\"assumptions\":[{\"id\":\"A-EVID\",\"text\":\"Fixture assumption text (evidence sources are honest).\"},{\"id\":\"A-MON\",\"text\":\"Fixture assumption text (monitoring alarms within the stated latency).\"},{\"id\":\"A-OWNER-KEY\",\"text\":\"Fixture assumption text (owner key not compromised).\"}],\"bounds\":{\"T1\":{\"assumes\":[\"A-EVID\",\"A-OWNER-KEY\"],\"unauthorizedLoss\":\"0\",\"weakEvidenceExposure\":\"NOT_COMPUTED\"},\"T2\":{\"liveness\":\"censorable\",\"loss\":\"0\"},\"T3_ownerExposed\":[{\"binding\":[\"daily\"],\"label\":\"1h\",\"seconds\":3600,\"value\":\"2000000000\"},{\"binding\":[\"daily\",\"engagements\"],\"label\":\"24h\",\"seconds\":86400,\"value\":\"5000000000\"}],\"T3c\":{\"alarmed\":{\"assumes\":[\"A-MON\"],\"seconds\":300,\"value\":\"2000000000\"},\"horizons\":[{\"binding\":[\"daily\"],\"label\":\"1h\",\"seconds\":3600,\"value\":\"2000000000\"},{\"binding\":[\"daily\",\"engagements\"],\"label\":\"24h\",\"seconds\":86400,\"value\":\"5000000000\"}],\"perDay\":\"5000000000\",\"perReleaseUnapproved\":\"1000000000\",\"timeToEmpty\":{\"days\":2,\"limitedBy\":\"daily\"}}},\"exclusions\":[{\"id\":\"X-FIXTURE\",\"text\":\"Fixture exclusion text.\"}],\"inputs\":{\"activeEngagements\":1,\"balanceBaseUnits\":\"10000000000\",\"configHash\":\"0xd445c184703b0a66bd8f737809519d6748076c0db997f78e06110124c564dff7\",\"engagementsDigest\":\"0xd85f43bae6a17bf55ca69e230c55985c5e494ab277284e3449f94aee4b1a714d\",\"limits\":{\"dailyCap\":\"5000000000\",\"hourlyCap\":\"0\",\"humanThreshold\":\"1000000000\",\"perTxCap\":\"2000000000\",\"ringSize\":64},\"policyHash\":\"0xf4262cd1e0570f06c4236a1faf99cdba9147a9ccacecf96eea69687a22e13aa2\",\"sumRemainingBaseUnits\":\"5000000000\"},\"notes\":[\"Fixture certificate for canonicalization vectors; numbers are not computed by bounds.ts.\"],\"schema\":\"lbc/1\",\"subject\":{\"chainId\":31337,\"token\":\"0x52908400098527886E0F7030069857D2E4169EE7\",\"tokenDecimals\":6,\"vault\":\"0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB\"},\"validation\":null}",
+      "hash": "0x81af9aa667ce430282789eee834e64c0ed79e0a77924767ba0bdde5a294f7b5e"
+    },
+    {
+      "name": "bundleHash",
+      "kind": "bundleHash",
+      "spec": "docs/15 §7",
+      "input": {
+        "version": 1,
+        "builtAt": "2026-10-05T12:00:00Z",
+        "gitSha": "0b02ff9",
+        "harnessVersions": {
+          "attack-suite": "0.0.0"
+        },
+        "attackMatrix": {},
+        "holdout": {
+          "seedHash": "0xb315ccc9354075b0eb8ac81b06911f2b16b8562a8954dc3eada4bf5f2b8af8f1",
+          "n": 0,
+          "losses": 0,
+          "upper95": 0
+        },
+        "scenarios": [
+          {
+            "scenarioId": "S-A",
+            "title": "Fixture scenario",
+            "engagement": {
+              "engagementId": "0xb12859002569adfbe571f936a09fa99860091f1c078570211dd7d6daabde09b3",
+              "tenantId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+              "owner": "0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed",
+              "payee": "0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359",
+              "payeeLabel": "Acme Design Studio",
+              "currency": "USDC",
+              "currencyDecimals": 6,
+              "capBaseUnits": "5000000000",
+              "start": "2026-10-01T00:00:00Z",
+              "end": "2026-12-31T23:59:59Z",
+              "sequential": true,
+              "milestones": [
+                {
+                  "milestoneId": "0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc",
+                  "slug": "design",
+                  "description": "Homepage and pricing page design, 3 review rounds",
+                  "amountBaseUnits": "1500000000",
+                  "partialAllowed": false,
+                  "immediate": false,
+                  "dueDate": "2026-11-01T00:00:00Z",
+                  "category": "design",
+                  "evidenceSpec": [
+                    {
+                      "type": "OWNER_ACK"
+                    },
+                    {
+                      "type": "ARTIFACT_HASH",
+                      "sha256": "0x26ffe20674d854b848861bc75964d53a7e3192976ca321cdda1cb81dedfb3694"
+                    }
+                  ],
+                  "status": "PENDING"
+                },
+                {
+                  "milestoneId": "0x783b716b61272021cf52932edf965027828ff8c18e4adba6543bc7c5de05d600",
+                  "slug": "build",
+                  "description": "Next.js build — deploy to staging (ünïcödé, 中文, 😀)",
+                  "amountBaseUnits": "3500000000",
+                  "partialAllowed": true,
+                  "immediate": false,
+                  "dueDate": null,
+                  "category": "engineering",
+                  "evidenceSpec": [
+                    {
+                      "type": "CI_PASS",
+                      "repo": "acme/site",
+                      "ref": "main",
+                      "workflow": "ci.yml"
+                    },
+                    {
+                      "type": "URL_HEALTH",
+                      "url": "https://staging.acme.example/health",
+                      "expectStatus": 200
+                    }
+                  ],
+                  "status": "PENDING"
+                }
+              ],
+              "paymentTerms": {
+                "netDays": 30,
+                "earlyPay": {
+                  "discountBps": 200,
+                  "withinDays": 10
+                },
+                "payBeforeDueBufferHours": 24,
+                "allowImmediate": false
+              },
+              "nonce": "1",
+              "termsHash": "0xeb2a5d09a10613ea74808343e20253b74bff2ed6f165c3d266846499122758a2",
+              "ownerSig": null,
+              "payeeSig": null,
+              "status": "DRAFT",
+              "registeredTx": null
+            },
+            "milestones": [
+              {
+                "milestoneId": "0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc",
+                "slug": "design",
+                "description": "Homepage and pricing page design, 3 review rounds",
+                "amountBaseUnits": "1500000000",
+                "partialAllowed": false,
+                "immediate": false,
+                "dueDate": "2026-11-01T00:00:00Z",
+                "category": "design",
+                "evidenceSpec": [
+                  {
+                    "type": "OWNER_ACK"
+                  },
+                  {
+                    "type": "ARTIFACT_HASH",
+                    "sha256": "0x26ffe20674d854b848861bc75964d53a7e3192976ca321cdda1cb81dedfb3694"
+                  }
+                ],
+                "status": "PENDING"
+              },
+              {
+                "milestoneId": "0x783b716b61272021cf52932edf965027828ff8c18e4adba6543bc7c5de05d600",
+                "slug": "build",
+                "description": "Next.js build — deploy to staging (ünïcödé, 中文, 😀)",
+                "amountBaseUnits": "3500000000",
+                "partialAllowed": true,
+                "immediate": false,
+                "dueDate": null,
+                "category": "engineering",
+                "evidenceSpec": [
+                  {
+                    "type": "CI_PASS",
+                    "repo": "acme/site",
+                    "ref": "main",
+                    "workflow": "ci.yml"
+                  },
+                  {
+                    "type": "URL_HEALTH",
+                    "url": "https://staging.acme.example/health",
+                    "expectStatus": 200
+                  }
+                ],
+                "status": "PENDING"
+              }
+            ],
+            "paymentTerms": {
+              "netDays": 30,
+              "earlyPay": {
+                "discountBps": 200,
+                "withinDays": 10
+              },
+              "payBeforeDueBufferHours": 24,
+              "allowImmediate": false
+            },
+            "policy": {
+              "caps": {
+                "perTxHardCap": "25.000000",
+                "dailyCap": "60.000000"
+              }
+            },
+            "clock": {
+              "mode": "fixed",
+              "start": "2026-10-05T10:00:00Z"
+            },
+            "evidenceFixtures": [
+              {
+                "fixtureId": "owner-ack-1",
+                "milestoneId": "0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc",
+                "requirement": {
+                  "type": "OWNER_ACK"
+                },
+                "result": "PASS",
+                "payload": {
+                  "ack": true
+                },
+                "details": "fixture owner ack",
+                "availableAt": null
+              }
+            ],
+            "groundTruth": {
+              "legitPayee": "0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359",
+              "legitAmountByMilestone": {
+                "0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc": "1500000000"
+              },
+              "allowedWindow": {
+                "start": "2026-10-05T10:15:00Z",
+                "end": "2026-11-04T10:15:00Z"
+              }
+            },
+            "oracleVersion": "oracle-v1"
+          }
+        ],
+        "attempts": [],
+        "receipts": [
+          {
+            "receipt": {
+              "receiptVersion": 1,
+              "decision": {
+                "decisionId": "1b4e28ba-2fa1-41d2-883f-0016d3cca427",
+                "tenantId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+                "intentId": "0xb26f991ff464c0981068c7698f3136fc08abc305dec5cf69963840f32fb2bac4",
+                "verdict": "RELEASE",
+                "checks": [
+                  {
+                    "id": "K-01",
+                    "name": "STRICT_SCHEMA",
+                    "status": "PASS",
+                    "onFail": null,
+                    "code": null,
+                    "detail": "ok",
+                    "refs": []
+                  },
+                  {
+                    "id": "K-12",
+                    "name": "AUTHORITY_ENVELOPE",
+                    "status": "PASS",
+                    "onFail": null,
+                    "code": null,
+                    "detail": "owner approval verified",
+                    "refs": []
+                  }
+                ],
+                "reasons": [],
+                "engagementId": "0xb12859002569adfbe571f936a09fa99860091f1c078570211dd7d6daabde09b3",
+                "milestoneId": "0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc",
+                "payee": "0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359",
+                "amountBaseUnits": "1500000000",
+                "payAt": "2026-10-12T09:00:00Z",
+                "timingSource": "AGENT",
+                "releaseAmountBaseUnits": "1470000000",
+                "planId": "0x033fa21dc978af16ada67cb84436523d712fe0c64056d75319519d35a1fbeddf",
+                "plannerFallback": false,
+                "invoiceReceivedAt": "2026-10-05T10:15:00Z",
+                "policyHash": "0xf4262cd1e0570f06c4236a1faf99cdba9147a9ccacecf96eea69687a22e13aa2",
+                "kernelVersion": "0.1.0",
+                "patternsVersion": "patterns-1",
+                "contextHash": "0x8bb3ed18767ad66df04eb5296183192056825060805aeaac70b851bea0b055d6",
+                "agentRecommendation": {
+                  "verdict": "RELEASE",
+                  "reasons": [
+                    "Evidence complete; discount window open"
+                  ]
+                },
+                "supersedes": "9b2e4c1a-6d3f-4a8b-9c7e-1f2a3b4c5d6e",
+                "createdAt": "2026-10-12T09:00:03Z"
+              },
+              "humanExplanationHash": null,
+              "inputs": {
+                "docHash": "0xc550ba015c04e114d4243156a0802151f97920906ca989dcad88e81ba45e5d98",
+                "extractionHashA": "0x08879336922cc46c48384527dca66a231ddb1ce62df5d8c3022bdd47ad2fe444",
+                "extractionHashB": "0x687e61db0c2160df6e38b5bc9734ffc844d9e660a47880673e1798ed7ed1014d",
+                "promptHashA": "0x4062dee56190ea5452b78ab623e4eacfb43e0c63d8d02a8710227c7b4238ac3a",
+                "promptHashB": "0xda5eb83113936b34c44d3bc9bf4dbaf232e2ff04f9e352ee9d5e6f4044a19cfe",
+                "modelA": "fixture-model-a",
+                "modelB": "fixture-model-b",
+                "evidence": [
+                  {
+                    "evidenceId": "6ba7b810-9dad-41d1-80b4-00c04fd430c8",
+                    "payloadHash": "0xc5ebdc1593829c07e2b02887c2aeb3dbb8f053056ae08baaa48630a57571375a",
+                    "result": "PASS"
+                  }
+                ],
+                "engagementTermsHash": "0xeb2a5d09a10613ea74808343e20253b74bff2ed6f165c3d266846499122758a2",
+                "normalizedDocHash": "0xb0ae6c8e9367b08f5379d22d045053678d912ec7373689fc07932c63ac77d2ee",
+                "paymentTermsHash": "0x117bdf15d8b27e9dcb9b110459e8dab11c1ce58fb0ca18876964d28f80b2a0c5",
+                "planEvaluationHash": "0x27d7c63eb56be6268e8c24765bfff6e5c2210b7b4e65548177a42dcfef7507a2",
+                "profile": "production"
+              },
+              "issuedAt": "2026-10-12T09:00:03Z"
+            },
+            "receiptHash": "0x15ce51f6c3aff491fef023bc3b63f11ba5a795ade808d91b2cf865da1d22dc29",
+            "signature": "0xcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+            "signer": "0x8617E340B3D01FA5F11F306F4090FD50E238070D"
+          }
+        ],
+        "decisions": [
+          {
+            "decisionId": "1b4e28ba-2fa1-41d2-883f-0016d3cca427",
+            "tenantId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+            "intentId": "0xb26f991ff464c0981068c7698f3136fc08abc305dec5cf69963840f32fb2bac4",
+            "verdict": "RELEASE",
+            "checks": [
+              {
+                "id": "K-01",
+                "name": "STRICT_SCHEMA",
+                "status": "PASS",
+                "onFail": null,
+                "code": null,
+                "detail": "ok",
+                "refs": []
+              },
+              {
+                "id": "K-12",
+                "name": "AUTHORITY_ENVELOPE",
+                "status": "PASS",
+                "onFail": null,
+                "code": null,
+                "detail": "owner approval verified",
+                "refs": []
+              }
+            ],
+            "reasons": [],
+            "engagementId": "0xb12859002569adfbe571f936a09fa99860091f1c078570211dd7d6daabde09b3",
+            "milestoneId": "0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc",
+            "payee": "0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359",
+            "amountBaseUnits": "1500000000",
+            "payAt": "2026-10-12T09:00:00Z",
+            "timingSource": "AGENT",
+            "releaseAmountBaseUnits": "1470000000",
+            "planId": "0x033fa21dc978af16ada67cb84436523d712fe0c64056d75319519d35a1fbeddf",
+            "plannerFallback": false,
+            "invoiceReceivedAt": "2026-10-05T10:15:00Z",
+            "policyHash": "0xf4262cd1e0570f06c4236a1faf99cdba9147a9ccacecf96eea69687a22e13aa2",
+            "kernelVersion": "0.1.0",
+            "patternsVersion": "patterns-1",
+            "contextHash": "0x8bb3ed18767ad66df04eb5296183192056825060805aeaac70b851bea0b055d6",
+            "agentRecommendation": {
+              "verdict": "RELEASE",
+              "reasons": [
+                "Evidence complete; discount window open"
+              ]
+            },
+            "humanExplanation": null,
+            "supersedes": "9b2e4c1a-6d3f-4a8b-9c7e-1f2a3b4c5d6e",
+            "createdAt": "2026-10-12T09:00:03Z"
+          }
+        ],
+        "extractionOutputs": [],
+        "certificate": {
+          "schema": "lbc/1",
+          "algorithm": {
+            "id": "symbolon-bounds",
+            "version": "1.0.0",
+            "gitSha": "0b02ff9",
+            "detectionLatencySeconds": 300
+          },
+          "subject": {
+            "vault": "0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB",
+            "chainId": 31337,
+            "token": "0x52908400098527886E0F7030069857D2E4169EE7",
+            "tokenDecimals": 6
+          },
+          "asOf": {
+            "blockNumber": 1234567,
+            "blockHash": "0x5019cb0b2ef433930514b4c3164af0726cf5cfc073a73c9d99774a99c9b9ce0c",
+            "timestamp": 1791158400
+          },
+          "inputs": {
+            "configHash": "0xd445c184703b0a66bd8f737809519d6748076c0db997f78e06110124c564dff7",
+            "engagementsDigest": "0xd85f43bae6a17bf55ca69e230c55985c5e494ab277284e3449f94aee4b1a714d",
+            "policyHash": "0xf4262cd1e0570f06c4236a1faf99cdba9147a9ccacecf96eea69687a22e13aa2",
+            "balanceBaseUnits": "10000000000",
+            "limits": {
+              "perTxCap": "2000000000",
+              "dailyCap": "5000000000",
+              "hourlyCap": "0",
+              "humanThreshold": "1000000000",
+              "ringSize": 64
+            },
+            "sumRemainingBaseUnits": "5000000000",
+            "activeEngagements": 1
+          },
+          "bounds": {
+            "T1": {
+              "unauthorizedLoss": "0",
+              "assumes": [
+                "A-EVID",
+                "A-OWNER-KEY"
+              ],
+              "weakEvidenceExposure": "NOT_COMPUTED"
+            },
+            "T2": {
+              "loss": "0",
+              "liveness": "censorable"
+            },
+            "T3c": {
+              "perReleaseUnapproved": "1000000000",
+              "perDay": "5000000000",
+              "horizons": [
+                {
+                  "label": "1h",
+                  "seconds": 3600,
+                  "value": "2000000000",
+                  "binding": [
+                    "daily"
+                  ]
+                },
+                {
+                  "label": "24h",
+                  "seconds": 86400,
+                  "value": "5000000000",
+                  "binding": [
+                    "daily",
+                    "engagements"
+                  ]
+                }
+              ],
+              "timeToEmpty": {
+                "days": 2,
+                "limitedBy": "daily"
+              },
+              "alarmed": {
+                "seconds": 300,
+                "value": "2000000000",
+                "assumes": [
+                  "A-MON"
+                ]
+              }
+            },
+            "T3_ownerExposed": [
+              {
+                "label": "1h",
+                "seconds": 3600,
+                "value": "2000000000",
+                "binding": [
+                  "daily"
+                ]
+              },
+              {
+                "label": "24h",
+                "seconds": 86400,
+                "value": "5000000000",
+                "binding": [
+                  "daily",
+                  "engagements"
+                ]
+              }
+            ]
+          },
+          "assumptions": [
+            {
+              "id": "A-EVID",
+              "text": "Fixture assumption text (evidence sources are honest)."
+            },
+            {
+              "id": "A-MON",
+              "text": "Fixture assumption text (monitoring alarms within the stated latency)."
+            },
+            {
+              "id": "A-OWNER-KEY",
+              "text": "Fixture assumption text (owner key not compromised)."
+            }
+          ],
+          "exclusions": [
+            {
+              "id": "X-FIXTURE",
+              "text": "Fixture exclusion text."
+            }
+          ],
+          "notes": [
+            "Fixture certificate for canonicalization vectors; numbers are not computed by bounds.ts."
+          ],
+          "validation": null,
+          "validity": {
+            "status": "UNVERIFIED",
+            "reasons": [
+              "CODE_NOT_VALIDATED"
+            ],
+            "checkedAt": 1791158460,
+            "freshnessSeconds": 3600
+          },
+          "certHash": "0x81af9aa667ce430282789eee834e64c0ed79e0a77924767ba0bdde5a294f7b5e"
+        },
+        "txs": [],
+        "plannerReport": {},
+        "bundleHash": "0xcb801f0e07cd9e11fc44a659c5d140bc8e641d958e31566968af11d1dd57b1d9"
+      },
+      "preimage": "{\"attackMatrix\":{},\"attempts\":[],\"builtAt\":\"2026-10-05T12:00:00Z\",\"certificate\":{\"algorithm\":{\"detectionLatencySeconds\":300,\"gitSha\":\"0b02ff9\",\"id\":\"symbolon-bounds\",\"version\":\"1.0.0\"},\"asOf\":{\"blockHash\":\"0x5019cb0b2ef433930514b4c3164af0726cf5cfc073a73c9d99774a99c9b9ce0c\",\"blockNumber\":1234567,\"timestamp\":1791158400},\"assumptions\":[{\"id\":\"A-EVID\",\"text\":\"Fixture assumption text (evidence sources are honest).\"},{\"id\":\"A-MON\",\"text\":\"Fixture assumption text (monitoring alarms within the stated latency).\"},{\"id\":\"A-OWNER-KEY\",\"text\":\"Fixture assumption text (owner key not compromised).\"}],\"bounds\":{\"T1\":{\"assumes\":[\"A-EVID\",\"A-OWNER-KEY\"],\"unauthorizedLoss\":\"0\",\"weakEvidenceExposure\":\"NOT_COMPUTED\"},\"T2\":{\"liveness\":\"censorable\",\"loss\":\"0\"},\"T3_ownerExposed\":[{\"binding\":[\"daily\"],\"label\":\"1h\",\"seconds\":3600,\"value\":\"2000000000\"},{\"binding\":[\"daily\",\"engagements\"],\"label\":\"24h\",\"seconds\":86400,\"value\":\"5000000000\"}],\"T3c\":{\"alarmed\":{\"assumes\":[\"A-MON\"],\"seconds\":300,\"value\":\"2000000000\"},\"horizons\":[{\"binding\":[\"daily\"],\"label\":\"1h\",\"seconds\":3600,\"value\":\"2000000000\"},{\"binding\":[\"daily\",\"engagements\"],\"label\":\"24h\",\"seconds\":86400,\"value\":\"5000000000\"}],\"perDay\":\"5000000000\",\"perReleaseUnapproved\":\"1000000000\",\"timeToEmpty\":{\"days\":2,\"limitedBy\":\"daily\"}}},\"certHash\":\"0x81af9aa667ce430282789eee834e64c0ed79e0a77924767ba0bdde5a294f7b5e\",\"exclusions\":[{\"id\":\"X-FIXTURE\",\"text\":\"Fixture exclusion text.\"}],\"inputs\":{\"activeEngagements\":1,\"balanceBaseUnits\":\"10000000000\",\"configHash\":\"0xd445c184703b0a66bd8f737809519d6748076c0db997f78e06110124c564dff7\",\"engagementsDigest\":\"0xd85f43bae6a17bf55ca69e230c55985c5e494ab277284e3449f94aee4b1a714d\",\"limits\":{\"dailyCap\":\"5000000000\",\"hourlyCap\":\"0\",\"humanThreshold\":\"1000000000\",\"perTxCap\":\"2000000000\",\"ringSize\":64},\"policyHash\":\"0xf4262cd1e0570f06c4236a1faf99cdba9147a9ccacecf96eea69687a22e13aa2\",\"sumRemainingBaseUnits\":\"5000000000\"},\"notes\":[\"Fixture certificate for canonicalization vectors; numbers are not computed by bounds.ts.\"],\"schema\":\"lbc/1\",\"subject\":{\"chainId\":31337,\"token\":\"0x52908400098527886E0F7030069857D2E4169EE7\",\"tokenDecimals\":6,\"vault\":\"0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB\"},\"validation\":null,\"validity\":{\"checkedAt\":1791158460,\"freshnessSeconds\":3600,\"reasons\":[\"CODE_NOT_VALIDATED\"],\"status\":\"UNVERIFIED\"}},\"decisions\":[{\"agentRecommendation\":{\"reasons\":[\"Evidence complete; discount window open\"],\"verdict\":\"RELEASE\"},\"amountBaseUnits\":\"1500000000\",\"checks\":[{\"code\":null,\"detail\":\"ok\",\"id\":\"K-01\",\"name\":\"STRICT_SCHEMA\",\"onFail\":null,\"refs\":[],\"status\":\"PASS\"},{\"code\":null,\"detail\":\"owner approval verified\",\"id\":\"K-12\",\"name\":\"AUTHORITY_ENVELOPE\",\"onFail\":null,\"refs\":[],\"status\":\"PASS\"}],\"contextHash\":\"0x8bb3ed18767ad66df04eb5296183192056825060805aeaac70b851bea0b055d6\",\"createdAt\":\"2026-10-12T09:00:03Z\",\"decisionId\":\"1b4e28ba-2fa1-41d2-883f-0016d3cca427\",\"engagementId\":\"0xb12859002569adfbe571f936a09fa99860091f1c078570211dd7d6daabde09b3\",\"humanExplanation\":null,\"intentId\":\"0xb26f991ff464c0981068c7698f3136fc08abc305dec5cf69963840f32fb2bac4\",\"invoiceReceivedAt\":\"2026-10-05T10:15:00Z\",\"kernelVersion\":\"0.1.0\",\"milestoneId\":\"0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc\",\"patternsVersion\":\"patterns-1\",\"payAt\":\"2026-10-12T09:00:00Z\",\"payee\":\"0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359\",\"planId\":\"0x033fa21dc978af16ada67cb84436523d712fe0c64056d75319519d35a1fbeddf\",\"plannerFallback\":false,\"policyHash\":\"0xf4262cd1e0570f06c4236a1faf99cdba9147a9ccacecf96eea69687a22e13aa2\",\"reasons\":[],\"releaseAmountBaseUnits\":\"1470000000\",\"supersedes\":\"9b2e4c1a-6d3f-4a8b-9c7e-1f2a3b4c5d6e\",\"tenantId\":\"7c9e6679-7425-40de-944b-e07fc1f90ae7\",\"timingSource\":\"AGENT\",\"verdict\":\"RELEASE\"}],\"extractionOutputs\":[],\"gitSha\":\"0b02ff9\",\"harnessVersions\":{\"attack-suite\":\"0.0.0\"},\"holdout\":{\"losses\":0,\"n\":0,\"seedHash\":\"0xb315ccc9354075b0eb8ac81b06911f2b16b8562a8954dc3eada4bf5f2b8af8f1\",\"upper95\":0},\"plannerReport\":{},\"receipts\":[{\"receipt\":{\"decision\":{\"agentRecommendation\":{\"reasons\":[\"Evidence complete; discount window open\"],\"verdict\":\"RELEASE\"},\"amountBaseUnits\":\"1500000000\",\"checks\":[{\"code\":null,\"detail\":\"ok\",\"id\":\"K-01\",\"name\":\"STRICT_SCHEMA\",\"onFail\":null,\"refs\":[],\"status\":\"PASS\"},{\"code\":null,\"detail\":\"owner approval verified\",\"id\":\"K-12\",\"name\":\"AUTHORITY_ENVELOPE\",\"onFail\":null,\"refs\":[],\"status\":\"PASS\"}],\"contextHash\":\"0x8bb3ed18767ad66df04eb5296183192056825060805aeaac70b851bea0b055d6\",\"createdAt\":\"2026-10-12T09:00:03Z\",\"decisionId\":\"1b4e28ba-2fa1-41d2-883f-0016d3cca427\",\"engagementId\":\"0xb12859002569adfbe571f936a09fa99860091f1c078570211dd7d6daabde09b3\",\"intentId\":\"0xb26f991ff464c0981068c7698f3136fc08abc305dec5cf69963840f32fb2bac4\",\"invoiceReceivedAt\":\"2026-10-05T10:15:00Z\",\"kernelVersion\":\"0.1.0\",\"milestoneId\":\"0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc\",\"patternsVersion\":\"patterns-1\",\"payAt\":\"2026-10-12T09:00:00Z\",\"payee\":\"0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359\",\"planId\":\"0x033fa21dc978af16ada67cb84436523d712fe0c64056d75319519d35a1fbeddf\",\"plannerFallback\":false,\"policyHash\":\"0xf4262cd1e0570f06c4236a1faf99cdba9147a9ccacecf96eea69687a22e13aa2\",\"reasons\":[],\"releaseAmountBaseUnits\":\"1470000000\",\"supersedes\":\"9b2e4c1a-6d3f-4a8b-9c7e-1f2a3b4c5d6e\",\"tenantId\":\"7c9e6679-7425-40de-944b-e07fc1f90ae7\",\"timingSource\":\"AGENT\",\"verdict\":\"RELEASE\"},\"humanExplanationHash\":null,\"inputs\":{\"docHash\":\"0xc550ba015c04e114d4243156a0802151f97920906ca989dcad88e81ba45e5d98\",\"engagementTermsHash\":\"0xeb2a5d09a10613ea74808343e20253b74bff2ed6f165c3d266846499122758a2\",\"evidence\":[{\"evidenceId\":\"6ba7b810-9dad-41d1-80b4-00c04fd430c8\",\"payloadHash\":\"0xc5ebdc1593829c07e2b02887c2aeb3dbb8f053056ae08baaa48630a57571375a\",\"result\":\"PASS\"}],\"extractionHashA\":\"0x08879336922cc46c48384527dca66a231ddb1ce62df5d8c3022bdd47ad2fe444\",\"extractionHashB\":\"0x687e61db0c2160df6e38b5bc9734ffc844d9e660a47880673e1798ed7ed1014d\",\"modelA\":\"fixture-model-a\",\"modelB\":\"fixture-model-b\",\"normalizedDocHash\":\"0xb0ae6c8e9367b08f5379d22d045053678d912ec7373689fc07932c63ac77d2ee\",\"paymentTermsHash\":\"0x117bdf15d8b27e9dcb9b110459e8dab11c1ce58fb0ca18876964d28f80b2a0c5\",\"planEvaluationHash\":\"0x27d7c63eb56be6268e8c24765bfff6e5c2210b7b4e65548177a42dcfef7507a2\",\"profile\":\"production\",\"promptHashA\":\"0x4062dee56190ea5452b78ab623e4eacfb43e0c63d8d02a8710227c7b4238ac3a\",\"promptHashB\":\"0xda5eb83113936b34c44d3bc9bf4dbaf232e2ff04f9e352ee9d5e6f4044a19cfe\"},\"issuedAt\":\"2026-10-12T09:00:03Z\",\"receiptVersion\":1},\"receiptHash\":\"0x15ce51f6c3aff491fef023bc3b63f11ba5a795ade808d91b2cf865da1d22dc29\",\"signature\":\"0xcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"signer\":\"0x8617E340B3D01FA5F11F306F4090FD50E238070D\"}],\"scenarios\":[{\"clock\":{\"mode\":\"fixed\",\"start\":\"2026-10-05T10:00:00Z\"},\"engagement\":{\"capBaseUnits\":\"5000000000\",\"currency\":\"USDC\",\"currencyDecimals\":6,\"end\":\"2026-12-31T23:59:59Z\",\"engagementId\":\"0xb12859002569adfbe571f936a09fa99860091f1c078570211dd7d6daabde09b3\",\"milestones\":[{\"amountBaseUnits\":\"1500000000\",\"category\":\"design\",\"description\":\"Homepage and pricing page design, 3 review rounds\",\"dueDate\":\"2026-11-01T00:00:00Z\",\"evidenceSpec\":[{\"type\":\"OWNER_ACK\"},{\"sha256\":\"0x26ffe20674d854b848861bc75964d53a7e3192976ca321cdda1cb81dedfb3694\",\"type\":\"ARTIFACT_HASH\"}],\"immediate\":false,\"milestoneId\":\"0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc\",\"partialAllowed\":false,\"slug\":\"design\",\"status\":\"PENDING\"},{\"amountBaseUnits\":\"3500000000\",\"category\":\"engineering\",\"description\":\"Next.js build — deploy to staging (ünïcödé, 中文, 😀)\",\"dueDate\":null,\"evidenceSpec\":[{\"ref\":\"main\",\"repo\":\"acme/site\",\"type\":\"CI_PASS\",\"workflow\":\"ci.yml\"},{\"expectStatus\":200,\"type\":\"URL_HEALTH\",\"url\":\"https://staging.acme.example/health\"}],\"immediate\":false,\"milestoneId\":\"0x783b716b61272021cf52932edf965027828ff8c18e4adba6543bc7c5de05d600\",\"partialAllowed\":true,\"slug\":\"build\",\"status\":\"PENDING\"}],\"nonce\":\"1\",\"owner\":\"0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed\",\"ownerSig\":null,\"payee\":\"0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359\",\"payeeLabel\":\"Acme Design Studio\",\"payeeSig\":null,\"paymentTerms\":{\"allowImmediate\":false,\"earlyPay\":{\"discountBps\":200,\"withinDays\":10},\"netDays\":30,\"payBeforeDueBufferHours\":24},\"registeredTx\":null,\"sequential\":true,\"start\":\"2026-10-01T00:00:00Z\",\"status\":\"DRAFT\",\"tenantId\":\"7c9e6679-7425-40de-944b-e07fc1f90ae7\",\"termsHash\":\"0xeb2a5d09a10613ea74808343e20253b74bff2ed6f165c3d266846499122758a2\"},\"evidenceFixtures\":[{\"availableAt\":null,\"details\":\"fixture owner ack\",\"fixtureId\":\"owner-ack-1\",\"milestoneId\":\"0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc\",\"payload\":{\"ack\":true},\"requirement\":{\"type\":\"OWNER_ACK\"},\"result\":\"PASS\"}],\"groundTruth\":{\"allowedWindow\":{\"end\":\"2026-11-04T10:15:00Z\",\"start\":\"2026-10-05T10:15:00Z\"},\"legitAmountByMilestone\":{\"0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc\":\"1500000000\"},\"legitPayee\":\"0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359\"},\"milestones\":[{\"amountBaseUnits\":\"1500000000\",\"category\":\"design\",\"description\":\"Homepage and pricing page design, 3 review rounds\",\"dueDate\":\"2026-11-01T00:00:00Z\",\"evidenceSpec\":[{\"type\":\"OWNER_ACK\"},{\"sha256\":\"0x26ffe20674d854b848861bc75964d53a7e3192976ca321cdda1cb81dedfb3694\",\"type\":\"ARTIFACT_HASH\"}],\"immediate\":false,\"milestoneId\":\"0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc\",\"partialAllowed\":false,\"slug\":\"design\",\"status\":\"PENDING\"},{\"amountBaseUnits\":\"3500000000\",\"category\":\"engineering\",\"description\":\"Next.js build — deploy to staging (ünïcödé, 中文, 😀)\",\"dueDate\":null,\"evidenceSpec\":[{\"ref\":\"main\",\"repo\":\"acme/site\",\"type\":\"CI_PASS\",\"workflow\":\"ci.yml\"},{\"expectStatus\":200,\"type\":\"URL_HEALTH\",\"url\":\"https://staging.acme.example/health\"}],\"immediate\":false,\"milestoneId\":\"0x783b716b61272021cf52932edf965027828ff8c18e4adba6543bc7c5de05d600\",\"partialAllowed\":true,\"slug\":\"build\",\"status\":\"PENDING\"}],\"oracleVersion\":\"oracle-v1\",\"paymentTerms\":{\"allowImmediate\":false,\"earlyPay\":{\"discountBps\":200,\"withinDays\":10},\"netDays\":30,\"payBeforeDueBufferHours\":24},\"policy\":{\"caps\":{\"dailyCap\":\"60.000000\",\"perTxHardCap\":\"25.000000\"}},\"scenarioId\":\"S-A\",\"title\":\"Fixture scenario\"}],\"txs\":[],\"version\":1}",
+      "hash": "0xcb801f0e07cd9e11fc44a659c5d140bc8e641d958e31566968af11d1dd57b1d9"
+    }
+  ]
+}

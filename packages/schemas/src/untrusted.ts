@@ -156,8 +156,10 @@ export interface SanitizeOptions {
   readonly maxWords?: number;
 }
 
-const LINK_TOKEN = "[link]";
-const REMOVED_TOKEN = "[removed]";
+// Braces, not brackets: a "[removed]" token followed by ":" would be read as a markdown link definition on
+// the next pass and delete the rest of the line (found by the idempotence property test).
+const LINK_TOKEN = "{link}";
+const REMOVED_TOKEN = "{removed}";
 const URL_END = "[^\\s<>\"'`)\\]]*";
 
 const HTML_RULES: ReadonlyArray<readonly [RegExp, string]> = [
@@ -175,8 +177,11 @@ const MARKDOWN_RULES: ReadonlyArray<readonly [RegExp, string]> = [
 ];
 
 const URL_RULES: ReadonlyArray<readonly [RegExp, string]> = [
-  [new RegExp(`\\b[a-z][a-z0-9+.-]*://${URL_END}`, "gi"), LINK_TOKEN],
-  [new RegExp(`\\b(?:javascript|data|vbscript|file|blob|mailto|tel|sms|intent):${URL_END}`, "gi"), LINK_TOKEN],
+  // No \b: "0https://x" has no word boundary before the scheme.
+  [new RegExp(`[a-z][a-z0-9+.-]*://${URL_END}`, "gi"), LINK_TOKEN],
+  // Script-capable schemes match even when glued to a preceding word (e.g. "t" left over from a removed link).
+  [new RegExp(`(?:javascript|vbscript|data):${URL_END}`, "gi"), LINK_TOKEN],
+  [new RegExp(`\\b(?:file|blob|mailto|tel|sms|intent):${URL_END}`, "gi"), LINK_TOKEN],
   [new RegExp(`\\bwww\\.${URL_END}`, "gi"), LINK_TOKEN],
   [new RegExp(`\\b[a-z0-9][a-z0-9-]{0,62}(?:\\.[a-z0-9][a-z0-9-]{0,62})*\\.[a-z]{2,24}/${URL_END}`, "gi"), LINK_TOKEN],
 ];

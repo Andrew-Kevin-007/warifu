@@ -1,0 +1,109 @@
+{
+  "$comment": "RFC 8785 JCS cases. canonical = jcs(JSON.parse(input)); keccak256/sha256 over UTF-8(canonical).",
+  "generatedBy": "packages/schemas/scripts/build-vectors.ts (regenerate: pnpm --filter @symbolon/schemas vectors)",
+  "cases": [
+    {
+      "name": "rfc8785-primitives-example",
+      "source": "RFC 8785 §3.2.2 example",
+      "input": "{\"numbers\": [333333333.33333329, 1E30, 4.50, 2e-3, 0.000000000000000000000000001], \"string\": \"\\u20ac$\\u000f\\u000aA'\\u0042\\u0022\\u005c\\\\\\\"\\/\", \"literals\": [null, true, false]}",
+      "canonical": "{\"literals\":[null,true,false],\"numbers\":[333333333.3333333,1e+30,4.5,0.002,1e-27],\"string\":\"€$\\u000f\\nA'B\\\"\\\\\\\\\\\"/\"}",
+      "keccak256": "0x95fb19ff3efb4a4ce1ee009fc6b7f4cce4b5839e069b096f296fc9bffbbd0162",
+      "sha256": "0x2d5e01a318d0f0879ab568c4be289c8b1f64ef8921a53c6277d5e069978baacb"
+    },
+    {
+      "name": "rfc8785-sorting-example",
+      "source": "RFC 8785 §3.2.3 example",
+      "input": "{\"\\u20ac\": \"Euro Sign\", \"\\r\": \"Carriage Return\", \"\\ufb33\": \"Hebrew Letter Dalet With Dagesh\", \"1\": \"One\", \"\\ud83d\\ude00\": \"Emoji: Grinning Face\", \"\\u0080\": \"Control\", \"\\u00f6\": \"Latin Small Letter O With Diaeresis\"}",
+      "canonical": "{\"\\r\":\"Carriage Return\",\"1\":\"One\",\"\":\"Control\",\"ö\":\"Latin Small Letter O With Diaeresis\",\"€\":\"Euro Sign\",\"😀\":\"Emoji: Grinning Face\",\"דּ\":\"Hebrew Letter Dalet With Dagesh\"}",
+      "keccak256": "0xa0a138a7404c34122e9e872cd2a11429272c1ad2a592c0c8c47cf059164bb78f",
+      "sha256": "0x5e321556d22018a9656991a9e94f77ec175fa193e52a2429d312f8419ec8b08c"
+    },
+    {
+      "name": "sort-utf16-not-codepoint",
+      "input": "{\"\\uff61\": \"U+FF61\", \"\\ud800\\udc00\": \"U+10000 sorts first by UTF-16 code unit\", \"a\": 1}",
+      "canonical": "{\"a\":1,\"𐀀\":\"U+10000 sorts first by UTF-16 code unit\",\"｡\":\"U+FF61\"}",
+      "keccak256": "0xb9a3e0de6ccd10e783a8c3d1863222d4dc19cda10cfcbc7e2ad42ef6c9c3d8d0",
+      "sha256": "0xe8eef7965c7e72b0b0626a01ad3d809e41f8190df89954add552f74f09041a20"
+    },
+    {
+      "name": "whitespace-and-nesting",
+      "input": " { \"b\" : [ 1 , { \"d\" : 2 , \"c\" : 3 } ] , \"a\" : \"x\" , \"e\" : { } , \"f\" : [ ] } ",
+      "canonical": "{\"a\":\"x\",\"b\":[1,{\"c\":3,\"d\":2}],\"e\":{},\"f\":[]}",
+      "keccak256": "0x78d811d66781ccdfa7a0482a4c96b9d95ab43d6b75cc00791f11bcca922013d2",
+      "sha256": "0x7e2aa5ada1925ea490cc454e6173d75b0df0d21fcf270ebae51456e4f1e140c6"
+    },
+    {
+      "name": "number-forms",
+      "input": "[-0, 0.0, 1.0, 100, 1e21, 1e20, 123e-20, 9007199254740991, -1.5e-7, 0.1, 1e-6, 1e-7, 5e-324]",
+      "canonical": "[0,0,1,100,1e+21,100000000000000000000,1.23e-18,9007199254740991,-1.5e-7,0.1,0.000001,1e-7,5e-324]",
+      "keccak256": "0x720475bfe555effa3da88d0c1ba17c09486dd137cb6b16b92ab2c386d52353f2",
+      "sha256": "0x46ba926d4eb4d5f361c8af49f4b4c1dc6327d443cd3e6115fde1aba8cb5a7841"
+    },
+    {
+      "name": "string-escapes",
+      "input": "[\"\\u0000\\u0007\\b\\t\\n\\u000b\\f\\r\\u001f\", \"\\u007f\\u0080\\u2028\\u2029\", \"quote\\\" backslash\\\\ slash\\/\", \"\\u00e9 vs e\\u0301\"]",
+      "canonical": "[\"\\u0000\\u0007\\b\\t\\n\\u000b\\f\\r\\u001f\",\"  \",\"quote\\\" backslash\\\\ slash/\",\"é vs é\"]",
+      "keccak256": "0x72eb0cc86738c1681dc25da32860620b5065b87a82deaaa298026f05ea0b394b",
+      "sha256": "0x823c71d4d929a09421e1b6ec331e9d46fd27c1cdaeffccc08960c7074f7481e2"
+    },
+    {
+      "name": "unicode-literals",
+      "input": "{\"emoji\": \"\\ud83d\\ude00\", \"cjk\": \"\\u4e2d\\u6587\", \"rtl\": \"\\u05e9\\u05dc\\u05d5\\u05dd\"}",
+      "canonical": "{\"cjk\":\"中文\",\"emoji\":\"😀\",\"rtl\":\"שלום\"}",
+      "keccak256": "0x364f79a2d9ec8a01f3bc4fc53f0ba5861d3ca227a0b8020ae13d830ba91974c9",
+      "sha256": "0xd5ff44bc26861f3fc3b86feb39a03432f6870bd2b3f4829c143a6730433a2ade"
+    },
+    {
+      "name": "deep-nesting",
+      "input": "[[[[[]]]], {\"a\": {\"b\": {\"c\": {}}}}]",
+      "canonical": "[[[[[]]]],{\"a\":{\"b\":{\"c\":{}}}}]",
+      "keccak256": "0xbe59eea09235d38216de208edc91b2a592916108d414ef62c16e210a1b07abd9",
+      "sha256": "0x095b3e144a24fe4766374aa4e100e213a9bd4e79ae8befbc873c791a6ab413f1"
+    },
+    {
+      "name": "top-level-string",
+      "input": "\"plain\"",
+      "canonical": "\"plain\"",
+      "keccak256": "0x59701da80c14f884d74f09d1b3ce30c44bc7fbb41a231ec7a0a58cec2b9329b0",
+      "sha256": "0x945603a8f587786b463c3f94fce115c0fae88fac2728cc96ddf5981cf7f61741"
+    },
+    {
+      "name": "top-level-number",
+      "input": "42",
+      "canonical": "42",
+      "keccak256": "0xccb1f717aa77602faf03a594761a36956b1c4cf44c6b336d1db57da799b331b8",
+      "sha256": "0x73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049"
+    },
+    {
+      "name": "top-level-null",
+      "input": "null",
+      "canonical": "null",
+      "keccak256": "0xefbde2c3aee204a69b7696d4b10ff31137fe78e3946306284f806e2dfc68b805",
+      "sha256": "0x74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    {
+      "name": "symbolon-amount-object",
+      "input": "{\"currency\": \"USDC\", \"decimals\": 6, \"amountBaseUnits\": \"1500000000\"}",
+      "canonical": "{\"amountBaseUnits\":\"1500000000\",\"currency\":\"USDC\",\"decimals\":6}",
+      "keccak256": "0x1b684273243ac130028c530b884b2703f31b1acc2031f6a8ed7c59aab29de36e",
+      "sha256": "0x2dfd901aeb4e7c8309e637f7047a36cd15837bcea73f7fb073d04d00b71428c6"
+    }
+  ],
+  "errors": [
+    {
+      "name": "lone-high-surrogate-value",
+      "input": "\"\\ud800\"",
+      "reason": "lone UTF-16 surrogate (I-JSON)"
+    },
+    {
+      "name": "lone-low-surrogate-key",
+      "input": "{\"\\udc00\": 1}",
+      "reason": "lone UTF-16 surrogate (I-JSON)"
+    },
+    {
+      "name": "number-overflow",
+      "input": "[1e400]",
+      "reason": "parses to Infinity, which JSON cannot represent"
+    }
+  ]
+}

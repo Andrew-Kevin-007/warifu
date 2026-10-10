@@ -9,7 +9,9 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit -p ."
+    "typecheck": "tsc --noEmit -p .",
+    "vectors": "vitest run --config vitest.vectors.config.ts",
+    "xcheck": "node scripts/xcheck-vectors.mjs"
   },
   "dependencies": {
     "viem": "2.56.9",

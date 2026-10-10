@@ -1,0 +1,68 @@
+{
+  "$id": "https://symbolon.dev/schemas/v1/StatedTerms.schema.json",
+  "title": "StatedTerms",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "raw": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 256
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "netDays": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3650
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "earlyPay": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "discountBps": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000
+            },
+            "withinDays": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3650
+            }
+          },
+          "required": [
+            "discountBps",
+            "withinDays"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ambiguous": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "raw",
+    "netDays",
+    "earlyPay",
+    "ambiguous"
+  ],
+  "additionalProperties": false
+}

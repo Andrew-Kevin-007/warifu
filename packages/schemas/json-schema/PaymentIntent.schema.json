@@ -1,0 +1,940 @@
+{
+  "$id": "https://symbolon.dev/schemas/v1/PaymentIntent.schema.json",
+  "title": "PaymentIntent",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "tenantId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "documentId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "docHash": {
+      "type": "string",
+      "pattern": "^0x[0-9a-f]{64}$"
+    },
+    "extraction": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "type": "object",
+          "properties": {
+            "docType": {
+              "type": "string",
+              "enum": [
+                "INVOICE",
+                "CREDIT_NOTE",
+                "STATEMENT",
+                "OTHER"
+              ]
+            },
+            "invoiceNumber": {
+              "type": "string",
+              "maxLength": 128
+            },
+            "issueDate": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "dueDate": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "payee": {
+              "type": "object",
+              "properties": {
+                "legalName": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "walletAddress": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^0x[0-9a-fA-F]{40}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "claimsAddressChange": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "legalName",
+                "walletAddress",
+                "claimsAddressChange"
+              ],
+              "additionalProperties": false
+            },
+            "amount": {
+              "type": "object",
+              "properties": {
+                "printed": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "currencyPrinted": {
+                  "type": "string",
+                  "maxLength": 32
+                },
+                "decimalSeparatorGuess": {
+                  "type": "string",
+                  "enum": [
+                    ".",
+                    ",",
+                    "none",
+                    "ambiguous"
+                  ]
+                },
+                "parsedBaseUnits": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^(0|[1-9][0-9]{0,29})$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "decimals": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 255
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "printed",
+                "currencyPrinted",
+                "decimalSeparatorGuess",
+                "parsedBaseUnits",
+                "decimals"
+              ],
+              "additionalProperties": false
+            },
+            "references": {
+              "type": "object",
+              "properties": {
+                "engagementId": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 128
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "milestoneId": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 128
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "poNumber": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 128
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "engagementId",
+                "milestoneId",
+                "poNumber"
+              ],
+              "additionalProperties": false
+            },
+            "statedTerms": {
+              "type": "object",
+              "properties": {
+                "raw": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "netDays": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 3650
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "earlyPay": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "discountBps": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 10000
+                        },
+                        "withinDays": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 3650
+                        }
+                      },
+                      "required": [
+                        "discountBps",
+                        "withinDays"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "ambiguous": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "raw",
+                "netDays",
+                "earlyPay",
+                "ambiguous"
+              ],
+              "additionalProperties": false
+            },
+            "lineItems": {
+              "maxItems": 200,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string",
+                    "maxLength": 500
+                  },
+                  "amountPrinted": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 64
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "description",
+                  "amountPrinted"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "anomalies": {
+              "maxItems": 50,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "enum": [
+                      "INSTRUCTION_IN_DOC",
+                      "ADDRESS_CHANGE",
+                      "AMOUNT_AMBIGUOUS",
+                      "MISSING_FIELD",
+                      "HIDDEN_CHARS",
+                      "TERMS_CLAIM",
+                      "OTHER"
+                    ]
+                  },
+                  "quote": {
+                    "type": "string",
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "code",
+                  "quote"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "required": [
+            "docType",
+            "invoiceNumber",
+            "issueDate",
+            "dueDate",
+            "payee",
+            "amount",
+            "references",
+            "statedTerms",
+            "lineItems",
+            "anomalies",
+            "confidence"
+          ],
+          "additionalProperties": false
+        },
+        "b": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "docType": {
+                  "type": "string",
+                  "enum": [
+                    "INVOICE",
+                    "CREDIT_NOTE",
+                    "STATEMENT",
+                    "OTHER"
+                  ]
+                },
+                "invoiceNumber": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "issueDate": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "dueDate": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "payee": {
+                  "type": "object",
+                  "properties": {
+                    "legalName": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 256
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "walletAddress": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^0x[0-9a-fA-F]{40}$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "claimsAddressChange": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "legalName",
+                    "walletAddress",
+                    "claimsAddressChange"
+                  ],
+                  "additionalProperties": false
+                },
+                "amount": {
+                  "type": "object",
+                  "properties": {
+                    "printed": {
+                      "type": "string",
+                      "maxLength": 64
+                    },
+                    "currencyPrinted": {
+                      "type": "string",
+                      "maxLength": 32
+                    },
+                    "decimalSeparatorGuess": {
+                      "type": "string",
+                      "enum": [
+                        ".",
+                        ",",
+                        "none",
+                        "ambiguous"
+                      ]
+                    },
+                    "parsedBaseUnits": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^(0|[1-9][0-9]{0,29})$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "decimals": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 255
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "printed",
+                    "currencyPrinted",
+                    "decimalSeparatorGuess",
+                    "parsedBaseUnits",
+                    "decimals"
+                  ],
+                  "additionalProperties": false
+                },
+                "references": {
+                  "type": "object",
+                  "properties": {
+                    "engagementId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 128
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "milestoneId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 128
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "poNumber": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 128
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "engagementId",
+                    "milestoneId",
+                    "poNumber"
+                  ],
+                  "additionalProperties": false
+                },
+                "statedTerms": {
+                  "type": "object",
+                  "properties": {
+                    "raw": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 256
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "netDays": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 3650
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "earlyPay": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "discountBps": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 10000
+                            },
+                            "withinDays": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 3650
+                            }
+                          },
+                          "required": [
+                            "discountBps",
+                            "withinDays"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "ambiguous": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "raw",
+                    "netDays",
+                    "earlyPay",
+                    "ambiguous"
+                  ],
+                  "additionalProperties": false
+                },
+                "lineItems": {
+                  "maxItems": 200,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "description": {
+                        "type": "string",
+                        "maxLength": 500
+                      },
+                      "amountPrinted": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "maxLength": 64
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "description",
+                      "amountPrinted"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "anomalies": {
+                  "maxItems": 50,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "string",
+                        "enum": [
+                          "INSTRUCTION_IN_DOC",
+                          "ADDRESS_CHANGE",
+                          "AMOUNT_AMBIGUOUS",
+                          "MISSING_FIELD",
+                          "HIDDEN_CHARS",
+                          "TERMS_CLAIM",
+                          "OTHER"
+                        ]
+                      },
+                      "quote": {
+                        "type": "string",
+                        "maxLength": 500
+                      }
+                    },
+                    "required": [
+                      "code",
+                      "quote"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "confidence": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              },
+              "required": [
+                "docType",
+                "invoiceNumber",
+                "issueDate",
+                "dueDate",
+                "payee",
+                "amount",
+                "references",
+                "statedTerms",
+                "lineItems",
+                "anomalies",
+                "confidence"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "modelA": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9._:/@-]+$"
+        },
+        "modelB": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9._:/@-]+$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "promptHashA": {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{64}$"
+        },
+        "promptHashB": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^0x[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "a",
+        "b",
+        "modelA",
+        "modelB",
+        "promptHashA",
+        "promptHashB"
+      ],
+      "additionalProperties": false
+    },
+    "consensus": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "AGREE",
+            "DISAGREE",
+            "SINGLE"
+          ]
+        },
+        "diffs": {
+          "maxItems": 10,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string",
+                "enum": [
+                  "payee.walletAddress",
+                  "amount.printed",
+                  "amount.parsedBaseUnits",
+                  "invoiceNumber",
+                  "docType",
+                  "references.engagementId",
+                  "references.milestoneId",
+                  "references.poNumber",
+                  "statedTerms.netDays",
+                  "statedTerms.earlyPay"
+                ]
+              },
+              "a": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "b": {
+                "type": "string",
+                "maxLength": 2000
+              }
+            },
+            "required": [
+              "field",
+              "a",
+              "b"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "status",
+        "diffs"
+      ],
+      "additionalProperties": false
+    },
+    "engagementId": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "milestoneId": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "timingProposal": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "payAt": {
+              "type": "string",
+              "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+            },
+            "rationale": {
+              "type": "string",
+              "maxLength": 600
+            }
+          },
+          "required": [
+            "payAt",
+            "rationale"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "planSelection": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "planId": {
+              "type": "string",
+              "pattern": "^0x[0-9a-f]{64}$"
+            },
+            "rationale": {
+              "type": "string",
+              "maxLength": 600
+            },
+            "factorsConsidered": {
+              "maxItems": 8,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "due_date",
+                  "discount_window",
+                  "implied_apr",
+                  "liquidity",
+                  "payee_history",
+                  "evidence_status",
+                  "policy_rule",
+                  "delivery_risk"
+                ]
+              }
+            },
+            "riskFlags": {
+              "maxItems": 5,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "DELIVERY_UNCERTAIN",
+                  "VENDOR_HISTORY_POOR",
+                  "LIQUIDITY_TIGHT",
+                  "TERMS_AMBIGUOUS",
+                  "OTHER"
+                ]
+              }
+            },
+            "deviatesFromEvaluator": {
+              "type": "boolean"
+            },
+            "deviationReason": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 600
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "planId",
+            "rationale",
+            "factorsConsidered",
+            "riskFlags",
+            "deviatesFromEvaluator",
+            "deviationReason"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "agentRecommendation": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "verdict": {
+              "type": "string",
+              "enum": [
+                "RELEASE",
+                "HOLD",
+                "ESCALATE"
+              ]
+            },
+            "reasons": {
+              "maxItems": 10,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 500
+              }
+            }
+          },
+          "required": [
+            "verdict",
+            "reasons"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "submittedAt": {
+      "type": "string",
+      "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "tenantId",
+    "documentId",
+    "docHash",
+    "extraction",
+    "consensus",
+    "engagementId",
+    "milestoneId",
+    "timingProposal",
+    "planSelection",
+    "agentRecommendation",
+    "submittedAt"
+  ],
+  "additionalProperties": false
+}

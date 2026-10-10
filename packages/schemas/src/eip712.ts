@@ -5,9 +5,10 @@
 // uintN values as canonical decimal strings, bytes32 as lowercase hex, addresses EIP-55. That object is
 // what gets JCS-hashed (ApprovalView.typedDataHash) and what wallets sign; eip712Digest() hashes it
 // per EIP-712 via viem. ethers' TypedDataEncoder reproduces every digest in vectors/eip712.json (xcheck).
-import { hashTypedData } from "viem";
+import { hashDomain, hashStruct, hashTypedData } from "viem";
 import * as z from "zod";
 import { VERDICT_CODE, type Verdict } from "./enums";
+import { keccak256Utf8 } from "./hash";
 import { AddressSchema, ChainIdSchema, Hex32Schema, Uint256StringSchema, Uint64StringSchema, type Address, type Hex32 } from "./primitives";
 
 export const EIP712_DOMAIN_NAME = "SymbolonVault";
@@ -230,20 +231,40 @@ function toViemValue(type: string, v: unknown): unknown {
   return v;
 }
 
-/** EIP-712 digest (`\x19\x01 ‖ domainSeparator ‖ hashStruct(message)`) of a typed-data JSON object. */
-export function eip712Digest(td: TypedDataJson): Hex32 {
-  const primaryType = td.primaryType;
-  const parsed = TYPED_DATA_SCHEMAS[primaryType].parse(td) as unknown as TypedDataJson;
-  const fields = EIP712_TYPES[primaryType];
+function toViemArgs<P extends Eip712PrimaryType>(td: TypedDataJson<P>) {
+  const primaryType: Eip712PrimaryType = td.primaryType;
+  const parsed = TYPED_DATA_SCHEMAS[primaryType].parse(td) as unknown as TypedDataJson<P>;
+  const fields = EIP712_TYPES[primaryType].map((f) => ({ name: f.name, type: f.type }));
   const message: Record<string, unknown> = {};
   const raw = parsed.message as Record<string, unknown>;
   for (const f of fields) message[f.name] = toViemValue(f.type, raw[f.name]);
-  return hashTypedData({
-    domain: { ...parsed.domain, chainId: BigInt(parsed.domain.chainId) },
-    types: { [primaryType]: fields.map((f) => ({ name: f.name, type: f.type })) },
-    primaryType,
-    message,
+  return { domain: { ...parsed.domain, chainId: BigInt(parsed.domain.chainId) }, fields, primaryType, message };
+}
+
+/** EIP-712 digest (`\x19\x01 ‖ domainSeparator ‖ hashStruct(message)`) of a typed-data JSON object. */
+export function eip712Digest<P extends Eip712PrimaryType>(td: TypedDataJson<P>): Hex32 {
+  const { domain, fields, primaryType, message } = toViemArgs(td);
+  return hashTypedData({ domain, types: { [primaryType]: fields }, primaryType, message });
+}
+
+/** keccak256(encodeType(primaryType)): the constant a Solidity `*_TYPEHASH` must equal. */
+export function eip712TypeHash(primaryType: Eip712PrimaryType): Hex32 {
+  return keccak256Utf8(eip712TypeString(primaryType));
+}
+
+/** hashStruct(EIP712Domain, domain): what OZ `EIP712._domainSeparatorV4()` returns for the vault. */
+export function eip712DomainSeparator(domain: Eip712Domain): Hex32 {
+  const d = Eip712DomainSchema.parse(domain);
+  return hashDomain({
+    domain: { ...d, chainId: BigInt(d.chainId) },
+    types: { EIP712Domain: EIP712_DOMAIN_TYPE.map((f) => ({ name: f.name, type: f.type })) },
   });
+}
+
+/** hashStruct(primaryType, message) of a typed-data JSON object (the digest without the domain). */
+export function eip712StructHash<P extends Eip712PrimaryType>(td: TypedDataJson<P>): Hex32 {
+  const { fields, primaryType, message } = toViemArgs(td);
+  return hashStruct({ data: message, primaryType, types: { [primaryType]: fields } });
 }
 
 /** Convenience: the EIP-712 Receipt message for a receipt hash (verdict → uint8 code; issuedAt in epoch seconds). */

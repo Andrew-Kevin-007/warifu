@@ -1,0 +1,345 @@
+{
+  "$id": "https://symbolon.dev/schemas/v1/ChallengeAttempt.schema.json",
+  "title": "ChallengeAttempt",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "attemptId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "scenarioId": {
+      "type": "string",
+      "enum": [
+        "S-A",
+        "S-B",
+        "S-C"
+      ]
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "human",
+        "house",
+        "oneclick"
+      ]
+    },
+    "attackId": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 32,
+          "pattern": "^[A-Z0-9-]+$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ipHash": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "textHash": {
+      "type": "string",
+      "pattern": "^0x[0-9a-f]{64}$"
+    },
+    "textLength": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "excerpt": {
+      "type": "string",
+      "maxLength": 240
+    },
+    "extraction": {
+      "type": "object",
+      "properties": {
+        "modelA": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9._:/@-]+$"
+        },
+        "modelB": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9._:/@-]+$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "promptHashA": {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{64}$"
+        },
+        "promptHashB": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^0x[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "outputHashA": {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{64}$"
+        },
+        "outputHashB": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^0x[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "modelA",
+        "modelB",
+        "promptHashA",
+        "promptHashB",
+        "outputHashA",
+        "outputHashB"
+      ],
+      "additionalProperties": false
+    },
+    "decisionId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "RELEASE",
+        "HOLD",
+        "ESCALATE",
+        "REJECT",
+        "REPLAY"
+      ]
+    },
+    "reasons": {
+      "maxItems": 64,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "SCHEMA_INVALID",
+          "NON_ASCII_DIGITS",
+          "SCIENTIFIC",
+          "REFUSE_ROUND",
+          "AMOUNT_AMBIGUOUS",
+          "EXTRACTION_PARSE_MISMATCH",
+          "LINEITEM_SUM_MISMATCH",
+          "CREDIT_NOTE",
+          "NOT_PAYABLE",
+          "DUPLICATE_DOC",
+          "NEAR_DUPLICATE",
+          "MILESTONE_ALREADY_PAID",
+          "NO_ENGAGEMENT",
+          "ENGAGEMENT_INACTIVE",
+          "OUT_OF_WINDOW",
+          "MILESTONE_ORDER",
+          "UNKNOWN_MILESTONE",
+          "PAYEE_MISMATCH",
+          "ADDRESS_CHANGE_CLAIMED",
+          "PAYEE_CHANGE_PENDING",
+          "CURRENCY_UNSUPPORTED",
+          "DECIMALS_MISMATCH",
+          "SCALE_ABSURD",
+          "OVERPAY",
+          "UNDERPAY_PARTIAL",
+          "EVIDENCE_MISSING",
+          "EVIDENCE_FAILED",
+          "EVIDENCE_HASH_MISMATCH",
+          "EXTRACTION_DISAGREE",
+          "SINGLE_EXTRACTION",
+          "INSTRUCTION_IN_DOC",
+          "CAP_PER_TX",
+          "CAP_DAILY",
+          "CAP_WEEKLY",
+          "CATEGORY_BUDGET",
+          "VELOCITY",
+          "HUMAN_REQUIRED",
+          "FIRST_PAYMENT_LARGE",
+          "SCREENING_PENDING",
+          "SCREEN_HIT",
+          "SCREENING_DISABLED",
+          "LIQUIDITY",
+          "TIMING_CLAMPED",
+          "LATE",
+          "BREAKER_HALTED",
+          "KERNEL_ERROR",
+          "TERMS_NOT_SIGNED",
+          "TERMS_MISMATCH",
+          "DISCOUNT_WINDOW_CLOSED",
+          "EVIDENCE_SOURCE_DENIED",
+          "ESCALATION_BUDGET_EXCEEDED",
+          "PLAN_OUT_OF_ENVELOPE"
+        ]
+      }
+    },
+    "checksFired": {
+      "maxItems": 16,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "K-01",
+          "K-02",
+          "K-03",
+          "K-04",
+          "K-05",
+          "K-06",
+          "K-07",
+          "K-08",
+          "K-09",
+          "K-10",
+          "K-11",
+          "K-12",
+          "K-13",
+          "K-14",
+          "K-15",
+          "K-16"
+        ]
+      }
+    },
+    "receiptHash": {
+      "type": "string",
+      "pattern": "^0x[0-9a-f]{64}$"
+    },
+    "vaultSimulation": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "ok": {
+              "type": "boolean"
+            },
+            "revertError": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "ok",
+            "revertError"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "txHash": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "oracle": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "const": "oracle-v1"
+        },
+        "result": {
+          "type": "string",
+          "enum": [
+            "NO_LOSS",
+            "LOSS"
+          ]
+        },
+        "predicates": {
+          "maxItems": 8,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "O1",
+              "O2",
+              "O3",
+              "O4",
+              "O5",
+              "O6",
+              "O7",
+              "O8"
+            ]
+          }
+        }
+      },
+      "required": [
+        "version",
+        "result",
+        "predicates"
+      ],
+      "additionalProperties": false
+    },
+    "benignControl": {
+      "type": "boolean"
+    },
+    "publishable": {
+      "type": "boolean"
+    },
+    "createdAt": {
+      "type": "string",
+      "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+    }
+  },
+  "required": [
+    "attemptId",
+    "scenarioId",
+    "source",
+    "attackId",
+    "ipHash",
+    "textHash",
+    "textLength",
+    "excerpt",
+    "extraction",
+    "decisionId",
+    "verdict",
+    "reasons",
+    "checksFired",
+    "receiptHash",
+    "vaultSimulation",
+    "txHash",
+    "oracle",
+    "benignControl",
+    "publishable",
+    "createdAt"
+  ],
+  "additionalProperties": false
+}

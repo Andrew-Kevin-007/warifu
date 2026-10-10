@@ -1,0 +1,59 @@
+{
+  "$id": "https://symbolon.dev/schemas/v1/ConsensusResult.schema.json",
+  "title": "ConsensusResult",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": [
+        "AGREE",
+        "DISAGREE",
+        "SINGLE"
+      ]
+    },
+    "diffs": {
+      "maxItems": 10,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "enum": [
+              "payee.walletAddress",
+              "amount.printed",
+              "amount.parsedBaseUnits",
+              "invoiceNumber",
+              "docType",
+              "references.engagementId",
+              "references.milestoneId",
+              "references.poNumber",
+              "statedTerms.netDays",
+              "statedTerms.earlyPay"
+            ]
+          },
+          "a": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "b": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "field",
+          "a",
+          "b"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "status",
+    "diffs"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,1030 @@
+{
+  "$id": "https://symbolon.dev/schemas/v1/ChallengeScenario.schema.json",
+  "title": "ChallengeScenario",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "scenarioId": {
+      "type": "string",
+      "enum": [
+        "S-A",
+        "S-B",
+        "S-C"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "engagement": {
+      "type": "object",
+      "properties": {
+        "engagementId": {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{64}$"
+        },
+        "tenantId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "owner": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{40}$"
+        },
+        "payee": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{40}$"
+        },
+        "payeeLabel": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "currency": {
+          "type": "string",
+          "const": "USDC"
+        },
+        "currencyDecimals": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "capBaseUnits": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,29})$"
+        },
+        "start": {
+          "type": "string",
+          "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+        },
+        "end": {
+          "type": "string",
+          "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+        },
+        "sequential": {
+          "type": "boolean"
+        },
+        "milestones": {
+          "minItems": 1,
+          "maxItems": 64,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "milestoneId": {
+                "type": "string",
+                "pattern": "^0x[0-9a-f]{64}$"
+              },
+              "slug": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[a-z0-9][a-z0-9-]*$"
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "amountBaseUnits": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]{0,29})$"
+              },
+              "partialAllowed": {
+                "type": "boolean"
+              },
+              "immediate": {
+                "type": "boolean"
+              },
+              "dueDate": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "category": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[a-z0-9][a-z0-9_-]*$"
+              },
+              "evidenceSpec": {
+                "maxItems": 16,
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "OWNER_ACK"
+                        }
+                      },
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "CI_PASS"
+                        },
+                        "repo": {
+                          "type": "string",
+                          "maxLength": 200,
+                          "pattern": "^[A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+$"
+                        },
+                        "ref": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 255,
+                          "pattern": "^[A-Za-z0-9._/-]+$"
+                        },
+                        "workflow": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 255,
+                          "pattern": "^[A-Za-z0-9._/ -]+$"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "repo",
+                        "ref"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "URL_HEALTH"
+                        },
+                        "url": {
+                          "type": "string",
+                          "maxLength": 2048,
+                          "pattern": "^https:\\/\\/[^\\s/?#@]+(?:[/?#][^\\s]*)?$"
+                        },
+                        "expectStatus": {
+                          "type": "integer",
+                          "minimum": 100,
+                          "maximum": 599
+                        },
+                        "contentSha256": {
+                          "type": "string",
+                          "pattern": "^0x[0-9a-f]{64}$"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url",
+                        "expectStatus"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "ARTIFACT_HASH"
+                        },
+                        "sha256": {
+                          "type": "string",
+                          "pattern": "^0x[0-9a-f]{64}$"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "sha256"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "PENDING",
+                  "EVIDENCE_OK",
+                  "PAID",
+                  "DISPUTED",
+                  "CANCELLED"
+                ]
+              }
+            },
+            "required": [
+              "milestoneId",
+              "slug",
+              "description",
+              "amountBaseUnits",
+              "partialAllowed",
+              "immediate",
+              "dueDate",
+              "category",
+              "evidenceSpec",
+              "status"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "paymentTerms": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "netDays": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 365
+                },
+                "earlyPay": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "discountBps": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 2000
+                        },
+                        "withinDays": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 365
+                        }
+                      },
+                      "required": [
+                        "discountBps",
+                        "withinDays"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "payBeforeDueBufferHours": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 8760
+                },
+                "allowImmediate": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "netDays",
+                "earlyPay",
+                "payBeforeDueBufferHours",
+                "allowImmediate"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "termsHash": {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{64}$"
+        },
+        "ownerSig": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 8194,
+              "pattern": "^0x(?:[0-9a-f]{2})*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "payeeSig": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 8194,
+              "pattern": "^0x(?:[0-9a-f]{2})*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "nonce": {
+          "type": "string",
+          "maxLength": 78,
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "DRAFT",
+            "AWAITING_PAYEE",
+            "REGISTERING",
+            "ACTIVE",
+            "CLOSED",
+            "CANCELLED"
+          ]
+        },
+        "registeredTx": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^0x[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "engagementId",
+        "tenantId",
+        "owner",
+        "payee",
+        "payeeLabel",
+        "currency",
+        "currencyDecimals",
+        "capBaseUnits",
+        "start",
+        "end",
+        "sequential",
+        "milestones",
+        "paymentTerms",
+        "termsHash",
+        "ownerSig",
+        "payeeSig",
+        "nonce",
+        "status",
+        "registeredTx"
+      ],
+      "additionalProperties": false
+    },
+    "milestones": {
+      "minItems": 1,
+      "maxItems": 64,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "milestoneId": {
+            "type": "string",
+            "pattern": "^0x[0-9a-f]{64}$"
+          },
+          "slug": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "amountBaseUnits": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,29})$"
+          },
+          "partialAllowed": {
+            "type": "boolean"
+          },
+          "immediate": {
+            "type": "boolean"
+          },
+          "dueDate": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "category": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[a-z0-9][a-z0-9_-]*$"
+          },
+          "evidenceSpec": {
+            "maxItems": 16,
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "const": "OWNER_ACK"
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "const": "CI_PASS"
+                    },
+                    "repo": {
+                      "type": "string",
+                      "maxLength": 200,
+                      "pattern": "^[A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+$"
+                    },
+                    "ref": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 255,
+                      "pattern": "^[A-Za-z0-9._/-]+$"
+                    },
+                    "workflow": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 255,
+                      "pattern": "^[A-Za-z0-9._/ -]+$"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "repo",
+                    "ref"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "const": "URL_HEALTH"
+                    },
+                    "url": {
+                      "type": "string",
+                      "maxLength": 2048,
+                      "pattern": "^https:\\/\\/[^\\s/?#@]+(?:[/?#][^\\s]*)?$"
+                    },
+                    "expectStatus": {
+                      "type": "integer",
+                      "minimum": 100,
+                      "maximum": 599
+                    },
+                    "contentSha256": {
+                      "type": "string",
+                      "pattern": "^0x[0-9a-f]{64}$"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "url",
+                    "expectStatus"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "const": "ARTIFACT_HASH"
+                    },
+                    "sha256": {
+                      "type": "string",
+                      "pattern": "^0x[0-9a-f]{64}$"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "sha256"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "EVIDENCE_OK",
+              "PAID",
+              "DISPUTED",
+              "CANCELLED"
+            ]
+          }
+        },
+        "required": [
+          "milestoneId",
+          "slug",
+          "description",
+          "amountBaseUnits",
+          "partialAllowed",
+          "immediate",
+          "dueDate",
+          "category",
+          "evidenceSpec",
+          "status"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "paymentTerms": {
+      "type": "object",
+      "properties": {
+        "netDays": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 365
+        },
+        "earlyPay": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "discountBps": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 2000
+                },
+                "withinDays": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 365
+                }
+              },
+              "required": [
+                "discountBps",
+                "withinDays"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "payBeforeDueBufferHours": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8760
+        },
+        "allowImmediate": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "netDays",
+        "earlyPay",
+        "payBeforeDueBufferHours",
+        "allowImmediate"
+      ],
+      "additionalProperties": false
+    },
+    "policy": {
+      "type": "object",
+      "properties": {
+        "caps": {
+          "type": "object",
+          "properties": {
+            "perTxHardCap": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+            },
+            "dailyCap": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+            },
+            "hourlyCap": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+            },
+            "weeklyCap": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+            },
+            "humanApprovalAbove": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+            }
+          },
+          "additionalProperties": false
+        },
+        "velocity": {
+          "type": "object",
+          "properties": {
+            "maxReleasesPerDay": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000
+            },
+            "maxReleasesPerPayeePerDay": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000
+            },
+            "maxAmountPerPayeePerDay": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+            }
+          },
+          "additionalProperties": false
+        },
+        "newPayee": {
+          "type": "object",
+          "properties": {
+            "firstPaymentMax": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+            },
+            "alwaysHuman": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "reserve": {
+          "type": "object",
+          "properties": {
+            "floor": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+            },
+            "lookaheadDays": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3650
+            }
+          },
+          "additionalProperties": false
+        },
+        "timing": {
+          "type": "object",
+          "properties": {
+            "disputeWindowHours": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 87600
+            },
+            "payBeforeDueBufferHours": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 87600
+            },
+            "allowImmediate": {
+              "type": "boolean"
+            },
+            "defaultNetDays": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 365
+            },
+            "windowSafetyMarginMinutes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 525600
+            }
+          },
+          "additionalProperties": false
+        },
+        "escalation": {
+          "type": "object",
+          "properties": {
+            "maxPerDay": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000
+            },
+            "maxPerEngagementPerDay": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000
+            }
+          },
+          "additionalProperties": false
+        },
+        "limits": {
+          "type": "object",
+          "properties": {
+            "maxDocChars": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20000
+            }
+          },
+          "additionalProperties": false
+        },
+        "evidence": {
+          "type": "object",
+          "properties": {
+            "freshnessHours": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 87600
+            },
+            "allowOwnerOverride": {
+              "type": "boolean"
+            },
+            "urlAllowlist": {
+              "maxItems": 64,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 2048,
+                "pattern": "^https:\\/\\/[^\\s/?#@]+$"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "clock": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "fixed",
+            "advancing"
+          ]
+        },
+        "start": {
+          "type": "string",
+          "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+        }
+      },
+      "required": [
+        "mode",
+        "start"
+      ],
+      "additionalProperties": false
+    },
+    "evidenceFixtures": {
+      "maxItems": 64,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "fixtureId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[A-Za-z0-9._-]+$"
+          },
+          "milestoneId": {
+            "type": "string",
+            "pattern": "^0x[0-9a-f]{64}$"
+          },
+          "requirement": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "OWNER_ACK"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "CI_PASS"
+                  },
+                  "repo": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "pattern": "^[A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+$"
+                  },
+                  "ref": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 255,
+                    "pattern": "^[A-Za-z0-9._/-]+$"
+                  },
+                  "workflow": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 255,
+                    "pattern": "^[A-Za-z0-9._/ -]+$"
+                  }
+                },
+                "required": [
+                  "type",
+                  "repo",
+                  "ref"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "URL_HEALTH"
+                  },
+                  "url": {
+                    "type": "string",
+                    "maxLength": 2048,
+                    "pattern": "^https:\\/\\/[^\\s/?#@]+(?:[/?#][^\\s]*)?$"
+                  },
+                  "expectStatus": {
+                    "type": "integer",
+                    "minimum": 100,
+                    "maximum": 599
+                  },
+                  "contentSha256": {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{64}$"
+                  }
+                },
+                "required": [
+                  "type",
+                  "url",
+                  "expectStatus"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "ARTIFACT_HASH"
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{64}$"
+                  }
+                },
+                "required": [
+                  "type",
+                  "sha256"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "result": {
+            "type": "string",
+            "enum": [
+              "PASS",
+              "FAIL",
+              "ERROR"
+            ]
+          },
+          "payload": {
+            "$ref": "#/$defs/__schema0"
+          },
+          "details": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "availableAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "fixtureId",
+          "milestoneId",
+          "requirement",
+          "result",
+          "payload",
+          "details",
+          "availableAt"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "groundTruth": {
+      "type": "object",
+      "properties": {
+        "legitPayee": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{40}$"
+        },
+        "legitAmountByMilestone": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^0x[0-9a-f]{64}$"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,29})$"
+          }
+        },
+        "allowedWindow": {
+          "type": "object",
+          "properties": {
+            "start": {
+              "type": "string",
+              "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+            },
+            "end": {
+              "type": "string",
+              "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+            }
+          },
+          "required": [
+            "start",
+            "end"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "legitPayee",
+        "legitAmountByMilestone",
+        "allowedWindow"
+      ],
+      "additionalProperties": false
+    },
+    "oracleVersion": {
+      "type": "string",
+      "const": "oracle-v1"
+    }
+  },
+  "required": [
+    "scenarioId",
+    "title",
+    "engagement",
+    "milestones",
+    "paymentTerms",
+    "policy",
+    "clock",
+    "evidenceFixtures",
+    "groundTruth",
+    "oracleVersion"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "__schema0": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/__schema0"
+          }
+        },
+        {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/__schema0"
+          }
+        }
+      ]
+    }
+  }
+}
