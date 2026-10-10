@@ -3,6 +3,21 @@
 Owner: ORCH. Updated: **2026-10-10 22:00 IST**. Every ~3 h and at every gate: update this table, `docs/CHANGELOG_SWARM.md` and post the 10-line status (`docs/10` §7). If a usage limit hits mid-WP: commit WIP to the branch, write the state here, stop.
 **LEAN MODE (Claude Pro):** max **2 terminals, at most 1 on Opus**. Routing = `docs/17` §4 JSON (lean), launch lines below copied from the regenerated `kickoff/INDEX.md` (if they disagree, INDEX wins). Spawn order: `docs/SPAWN_PLAN_W0_W1.md`. Decisions: `docs/QUESTIONS.md` ("FINAL ANSWERS").
 
+**Sessions:** standing terminals are **T1 Opus xhigh: WP-01 (now)** and **T2 Sonnet medium: WP-27 (now)**, then WP-22, WP-16, WP-09 after WP-01 v0 merges. ORCH is an on-demand Sonnet session at gate checkpoints, never a standing third terminal.
+
+**Calibration run = WP-01 (Kevin, 2026-10-10).** Fill in from `/usage` before and after; no re-baseline tonight.
+
+| Field | Value |
+|---|---|
+| WP-01 estimate (`docs/10` §4) | 5 agent-hours |
+| WP-01 actual wall-clock (start → v0 merged) | _start: ___ · v0 merged: ___ · = ___ h_ |
+| Plan usage before WP-01 (session % / weekly %) | ___ / ___ |
+| Plan usage after WP-01 v0 (session % / weekly %) | ___ / ___ |
+| **Projected weekly %** = (weekly % WP-01 used ÷ 5 h) × remaining estimate hours | ___ |
+| Capacity to G2 | **~16 productive hours** (Kevin sleeps), × terminals, not 26 |
+
+**If the projection is over ~70 % of the weekly allowance or over 16 h × terminals**, pull levers in this order and tell Kevin which: (a) `xhigh` → `high` on G2-path WPs whose acceptance is fully gated by golden/property tests (keep `xhigh` for WP-01, the kernel severity/ordering core and the vault release path WP-14); (b) a second Opus terminal, only after WP-01 v0 has merged and only with Kevin's approval; (c) move non-safety deliverables from G2 to G3; (d) slip G2 by ≤ 12 h with G3 fixed (Kevin's explicit OK). Never trade away the never-cut list, INV/RT coverage or the SEC set.
+
 **Status legend:** `DONE` merged on `main` · `READY` deps met · `NEXT` queued for the named slot · `WAIT` starts when the named dep merges · `BLOCKED` deps not merged · `HOLD` waiting on Kevin · `FROZEN` not to be started (DEC-018) · `IN PROGRESS` / `IN REVIEW` set by ORCH.
 
 **Gate clock (IST):** G0 Sat 20:00 (missed; see QUESTIONS) · **WP-01 v0 merges tonight** · **G1 schemas freeze Sun 09:00** (moved from Sat 23:59, Kevin) · G2 Sun 23:59 (no slip) · G3 Mon 23:59 (no slip) · G3.5 Tue 23:59 · G4 Wed 23:59 · G5 Thu 18:00 · G6 deploy freeze Sat Oct 17 22:00. Deadline confirmed Sep 27 – Oct 17 (official Tameion page).

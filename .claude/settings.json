@@ -4,7 +4,22 @@
     "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
   },
   "permissions": {
+    "allow": [
+      "Bash(pnpm *)",
+      "Bash(forge build*)",
+      "Bash(forge test*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git diff*)"
+    ],
     "deny": [
+      "WebFetch",
+      "WebSearch",
+      "Bash(curl *)",
+      "Bash(wget *)",
+      "Bash(Invoke-WebRequest*)",
+      "Bash(iwr *)",
+      "Bash(git push*)",
       "Read(**/.env)",
       "Read(**/.env.local)",
       "Read(**/.env.production)",
