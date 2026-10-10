@@ -1,0 +1,10 @@
+{
+  "name": "@symbolon/blast-radius",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Closed-form bounds, T3 simulator, red-team loop (owner: BLAST)",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": { "typecheck": "tsc --noEmit -p ." }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "@symbolon/sec-suite",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Platform-security tests SEC-01..14, XSS/SSRF corpora, claims lint helpers (owner: SEC; docs/13 §4.6)",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p .",
+    "sec:local": "vitest run --root ../.. packages/sec-suite"
+  }
+}

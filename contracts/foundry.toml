@@ -1,0 +1,30 @@
+# SymbolonVault — build with Arc Foundry (arc-forge). See docs/06_CONTRACTS_AND_CIRCLE.md Part A.
+[profile.default]
+src = "src"
+test = "test"
+script = "script"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.28"
+optimizer = true
+optimizer_runs = 200
+# v2 (docs/16 §2.4, WP-07): byte-reproducible builds so a Loss Bound Certificate can match deployed code.
+# VERIFY(WP-07): confirm arc-forge accepts these keys (Foundry: bytecode_hash, cbor_metadata).
+bytecode_hash = "none"
+cbor_metadata = false
+# VERIFY: confirm the EVM version Arc supports (docs.arc.io evm-differences) before setting evm_version.
+# evm_version = "..."
+remappings = [
+  "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+]
+
+[fuzz]
+runs = 1000
+
+[invariant]
+runs = 256
+depth = 64
+fail_on_revert = false
+
+[profile.ci.fuzz]
+runs = 5000

@@ -1,0 +1,15 @@
+node_modules/
+.next/
+dist/
+coverage/
+out/
+cache/
+broadcast/
+.env
+.env.*
+!.env.example
+*.recovery_file*
+recovery_file*
+.DS_Store
+.vitest-cache/
+.claude/settings.local.json

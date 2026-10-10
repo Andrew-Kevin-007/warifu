@@ -1,0 +1,10 @@
+{
+  "name": "@symbolon/receipts",
+  "version": "0.0.0",
+  "private": true,
+  "description": "RFC 8785 JCS -> keccak256 -> EIP-712 receipts and verifier (owner: KERNEL-CORE)",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": { "typecheck": "tsc --noEmit -p ." }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "@symbolon/policy",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Policy loader, hash and vault-consistency assertion (owner: KERNEL-CORE)",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": { "typecheck": "tsc --noEmit -p ." }
+}

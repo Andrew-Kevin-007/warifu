@@ -1,0 +1,97 @@
+/** Boundary rules (docs/02_ARCHITECTURE.md trust boundaries; AGENTS.md §0). */
+module.exports = {
+  forbidden: [
+    {
+      name: "no-circular",
+      severity: "error",
+      from: {},
+      to: { circular: true },
+    },
+    {
+      name: "kernel-core-is-pure",
+      comment: "kernel-core must not depend on LLM/extractor, web, services or chain code (INV-8/9).",
+      severity: "error",
+      from: { path: "^packages/kernel-core/" },
+      to: { path: "^(packages/(extractor|chain|attack-suite|blast-radius)|apps|services)/" },
+    },
+    {
+      name: "schemas-is-a-leaf",
+      comment: "schemas is the root of the spine; it may not import other workspace packages.",
+      severity: "error",
+      from: { path: "^packages/schemas/" },
+      to: { path: "^(packages|apps|services)/(?!schemas/)" },
+    },
+    {
+      name: "packages-do-not-import-apps-or-services",
+      severity: "error",
+      from: { path: "^packages/" },
+      to: { path: "^(apps|services)/" },
+    },
+    {
+      name: "web-never-imports-kernel-service",
+      comment: "apps/web holds zero payment secrets and talks to the kernel over HTTP only (INV-11, TB-2).",
+      severity: "error",
+      from: { path: "^apps/web/" },
+      to: { path: "^services/" },
+    },
+    {
+      name: "terms-is-pure",
+      comment: "packages/terms is pure bigint math; it may import only packages/schemas (INV-9/10/19).",
+      severity: "error",
+      from: { path: "^packages/terms/" },
+      to: { path: "^(packages/(?!(schemas|terms)/)|apps/|services/)" },
+    },
+    {
+      name: "oracle-is-pure",
+      comment: "packages/oracle (oracle-v1) may import only packages/schemas (docs/15 §2, 02 component table).",
+      severity: "error",
+      from: { path: "^packages/oracle/" },
+      to: { path: "^(packages/(?!(schemas|oracle)/)|apps/|services/)" },
+    },
+    {
+      name: "oracle-is-independent",
+      comment: "The loss oracle is the independent judge: no defender package may import it (it could be tuned against), and the only services path allowed to is the sandbox challenge orchestrator.",
+      severity: "error",
+      from: {
+        path: "^(packages/(kernel-core|terms|policy|receipts|chain|extractor|blast-radius)|services|apps)/",
+        pathNot: "^services/kernel/src/challenge/",
+      },
+      to: { path: "^packages/oracle/" },
+    },
+    {
+      name: "services-do-not-import-extractor",
+      comment: "LLM code is advisory and lives behind the web/agent boundary. The ONLY services path allowed to import it is the sandbox challenge orchestrator (services/kernel/src/challenge/**; INV-8, WP-32).",
+      severity: "error",
+      from: { path: "^services/", pathNot: "^services/kernel/src/challenge/" },
+      to: { path: "^packages/extractor/" },
+    },
+    {
+      name: "challenge-and-replay-never-import-wallet",
+      comment: "The public challenge/replay surface contains no wallet or signing code (INV-16).",
+      severity: "error",
+      from: { path: "^apps/web/src/(challenge|replay)/" },
+      to: { path: "^apps/web/src/wallet/" },
+    },
+    {
+      name: "sec-suite-is-test-only",
+      comment: "packages/sec-suite is a test/tooling package; nothing may import it.",
+      severity: "error",
+      from: { pathNot: "^packages/sec-suite/" },
+      to: { path: "^packages/sec-suite/" },
+    },
+    {
+      name: "extractor-cannot-reach-release-path",
+      comment: "LLM code is advisory; it must not import the kernel service or chain writers (INV-8).",
+      severity: "error",
+      from: { path: "^packages/extractor/" },
+      to: { path: "^(services|apps)/|^packages/chain/" },
+    },
+  ],
+  options: {
+    doNotFollow: { path: "node_modules" },
+    tsConfig: { fileName: "tsconfig.base.json" },
+    tsPreCompilationDeps: true,
+    enhancedResolveOptions: { exportsFields: ["exports"], conditionNames: ["import", "require", "node", "default"] },
+    exclude: { path: "(^|/)(test|node_modules)/" },
+  },
+};

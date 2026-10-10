@@ -1,0 +1,10 @@
+{
+  "name": "@symbolon/oracle",
+  "version": "0.0.0",
+  "private": true,
+  "description": "oracle-v1: the loss predicates O1..O8 that decide whether an attempt was a loss (owner: ATTACK; pure; imports only @symbolon/schemas)",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": { "typecheck": "tsc --noEmit -p ." }
+}

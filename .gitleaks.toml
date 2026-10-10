@@ -1,0 +1,13 @@
+title = "symbolon gitleaks"
+[extend]
+useDefault = true
+
+[[rules]]
+id = "evm-private-key-assignment"
+description = "64-hex value assigned to a *KEY / *PRIVATE* variable"
+regex = '''(?i)(private[_-]?key|signer[_-]?key|guardian[_-]?key)\s*[:=]\s*["']?(0x)?[0-9a-f]{64}'''
+tags = ["key", "evm"]
+
+[allowlist]
+description = "Public test vectors and docs"
+paths = ['''packages/schemas/vectors/.*''', '''docs/.*''', '''contracts/lib/.*''']

@@ -1,0 +1,10 @@
+{
+  "name": "@symbolon/attack-suite",
+  "version": "0.0.0",
+  "private": true,
+  "description": "ATK-01..24 fixtures + hold-out runner, baselines B0/B1/B2, harness, honest corpus (owner: ATTACK)",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": { "typecheck": "tsc --noEmit -p ." }
+}

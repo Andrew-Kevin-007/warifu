@@ -1,0 +1,10 @@
+{
+  "name": "@symbolon/kernel-service",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Kernel HTTP service: context assembly, evidence, scheduler, relayer (owner: KERNEL-SVC)",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": { "typecheck": "tsc --noEmit -p ." }
+}

@@ -1,0 +1,57 @@
+name: ci
+on:
+  push: { branches: [main] }
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  js:
+    name: lint · typecheck · test · web-env · claude-config · claims-lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint          # eslint purity rules + dependency-cruiser boundaries
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm test:web-env  # INV-11
+      - run: pnpm claude:check  # docs/17 routing <-> .claude/agents + settings + kickoff headers (SEC-11 static)
+      - run: pnpm claims:lint   # DEC-012 wording (INV-18). `pnpm claims` (numbers) arrives with WP-28.
+      - name: kickoff + .claude/agents are generated, not hand-edited
+        run: |
+          python3 scripts/gen-kickoff.py
+          git diff --exit-code -- kickoff .claude/agents
+      - run: pnpm audit --audit-level=high --prod
+        continue-on-error: true  # tighten at G4
+
+  secrets:
+    name: gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  contracts:
+    name: contracts (arc-forge)
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('contracts/src/**/*.sol') != '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { submodules: recursive }
+      # VERIFY(WP-00): install Arc Foundry per https://docs.arc.io/arc/tutorials/install-arc-foundry.md
+      # and replace this step with the documented install. Until then this job is skipped
+      # automatically (no .sol files) and WP-07 owns turning it on.
+      - name: Install Arc Foundry
+        run: |
+          echo "TODO(WP-07 / V-xx) - add the documented Arc Foundry install here"
+          exit 1
+      - run: cd contracts && arc-forge build && FOUNDRY_PROFILE=ci arc-forge test

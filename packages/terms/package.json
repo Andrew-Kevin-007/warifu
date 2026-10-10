@@ -1,0 +1,10 @@
+{
+  "name": "@symbolon/terms",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Pure payment-terms math: amountDue, discount window, implied APR, feasiblePlans (owner: KERNEL-CORE; INV-9/10/19)",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": { "typecheck": "tsc --noEmit -p ." }
+}

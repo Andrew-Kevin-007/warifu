@@ -1,0 +1,10 @@
+{
+  "name": "@symbolon/extractor",
+  "version": "0.0.0",
+  "private": true,
+  "description": "LLM extraction, timing, explainer + eval harness; advisory only (owner: AGENT)",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": { "typecheck": "tsc --noEmit -p ." }
+}

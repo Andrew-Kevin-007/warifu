@@ -1,0 +1,38 @@
+{
+  "name": "symbolon",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Evidence-gated treasury kernel for agent-run payments on Arc, with Blast Radius analysis.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "lint": "eslint . && depcruise --config .dependency-cruiser.cjs packages services apps",
+    "typecheck": "pnpm -r --if-present typecheck && tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:web-env": "node scripts/web-env-check.mjs",
+    "format": "prettier --write .",
+    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:web-env && pnpm claude:check && pnpm claims:lint",
+    "kickoff": "python3 scripts/gen-kickoff.py",
+    "claude:check": "node scripts/check-claude-config.mjs",
+    "claims:lint": "node scripts/claims-lint.mjs",
+    "sec:local": "pnpm --filter @symbolon/sec-suite run sec:local",
+    "sec:sandbox": "node scripts/sec-sandbox.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.4",
+    "@vitest/coverage-v8": "^5.0.3",
+    "dependency-cruiser": "^18.5.0",
+    "eslint": "^10.12.0",
+    "fast-check": "^4.10.2",
+    "prettier": "^3.9.9",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.71.1",
+    "vitest": "^5.0.3"
+  }
+}
