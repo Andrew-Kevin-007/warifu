@@ -1,0 +1,321 @@
+{
+  "$id": "https://symbolon.dev/schemas/v1/Policy.schema.json",
+  "title": "Policy",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "number",
+      "const": 1
+    },
+    "tenant": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "currency": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "const": "USDC"
+        },
+        "decimals": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "treatUsdAsUsdc": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code",
+        "decimals",
+        "treatUsdAsUsdc"
+      ],
+      "additionalProperties": false
+    },
+    "caps": {
+      "type": "object",
+      "properties": {
+        "perTxHardCap": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+        },
+        "dailyCap": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+        },
+        "hourlyCap": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+        },
+        "weeklyCap": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+        },
+        "humanApprovalAbove": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+        }
+      },
+      "required": [
+        "perTxHardCap",
+        "dailyCap",
+        "weeklyCap",
+        "humanApprovalAbove"
+      ],
+      "additionalProperties": false
+    },
+    "velocity": {
+      "type": "object",
+      "properties": {
+        "maxReleasesPerDay": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "maxReleasesPerPayeePerDay": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "maxAmountPerPayeePerDay": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+        }
+      },
+      "required": [
+        "maxReleasesPerDay",
+        "maxReleasesPerPayeePerDay",
+        "maxAmountPerPayeePerDay"
+      ],
+      "additionalProperties": false
+    },
+    "newPayee": {
+      "type": "object",
+      "properties": {
+        "firstPaymentMax": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+        },
+        "alwaysHuman": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "firstPaymentMax",
+        "alwaysHuman"
+      ],
+      "additionalProperties": false
+    },
+    "categories": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "maxLength": 64,
+        "pattern": "^[a-z0-9][a-z0-9_-]*$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+      }
+    },
+    "reserve": {
+      "type": "object",
+      "properties": {
+        "floor": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+        },
+        "lookaheadDays": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3650
+        }
+      },
+      "required": [
+        "floor",
+        "lookaheadDays"
+      ],
+      "additionalProperties": false
+    },
+    "timing": {
+      "type": "object",
+      "properties": {
+        "disputeWindowHours": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 87600
+        },
+        "payBeforeDueBufferHours": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 87600
+        },
+        "allowImmediate": {
+          "type": "boolean"
+        },
+        "defaultNetDays": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 365
+        },
+        "windowSafetyMarginMinutes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 525600
+        }
+      },
+      "required": [
+        "disputeWindowHours",
+        "payBeforeDueBufferHours",
+        "allowImmediate",
+        "defaultNetDays",
+        "windowSafetyMarginMinutes"
+      ],
+      "additionalProperties": false
+    },
+    "treasury": {
+      "type": "object",
+      "properties": {
+        "costOfCapitalBps": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        }
+      },
+      "required": [
+        "costOfCapitalBps"
+      ],
+      "additionalProperties": false
+    },
+    "escalation": {
+      "type": "object",
+      "properties": {
+        "maxPerDay": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "maxPerEngagementPerDay": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        }
+      },
+      "required": [
+        "maxPerDay",
+        "maxPerEngagementPerDay"
+      ],
+      "additionalProperties": false
+    },
+    "limits": {
+      "type": "object",
+      "properties": {
+        "maxDocChars": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20000
+        }
+      },
+      "required": [
+        "maxDocChars"
+      ],
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "object",
+      "properties": {
+        "freshnessHours": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 87600
+        },
+        "allowOwnerOverride": {
+          "type": "boolean"
+        },
+        "urlAllowlist": {
+          "maxItems": 64,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 2048,
+            "pattern": "^https:\\/\\/[^\\s/?#@]+$"
+          }
+        }
+      },
+      "required": [
+        "freshnessHours",
+        "allowOwnerOverride",
+        "urlAllowlist"
+      ],
+      "additionalProperties": false
+    },
+    "extraction": {
+      "type": "object",
+      "properties": {
+        "allowSingle": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "allowSingle"
+      ],
+      "additionalProperties": false
+    },
+    "screening": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "staleAfterHours": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 87600
+        }
+      },
+      "required": [
+        "required",
+        "staleAfterHours"
+      ],
+      "additionalProperties": false
+    },
+    "reconciliation": {
+      "type": "object",
+      "properties": {
+        "ackWindowHours": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 87600
+        }
+      },
+      "required": [
+        "ackWindowHours"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "version",
+    "tenant",
+    "currency",
+    "caps",
+    "velocity",
+    "newPayee",
+    "categories",
+    "reserve",
+    "timing",
+    "treasury",
+    "escalation",
+    "limits",
+    "evidence",
+    "extraction",
+    "screening",
+    "reconciliation"
+  ],
+  "additionalProperties": false
+}

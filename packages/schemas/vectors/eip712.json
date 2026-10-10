@@ -1,0 +1,811 @@
+{
+  "$comment": "EIP-712 typed data for every Symbolon struct (docs/05 §2). typedData is the eth_signTypedData_v4 JSON form (uintN as decimal strings). digest = keccak256(0x1901 ‖ domainSeparator ‖ structHash).",
+  "note": "Inputs are hand-written fixtures (test/fixtures.ts): illustrative values, not computed by packages/terms or bounds.ts. Outputs are computed by @symbolon/schemas and re-derived independently by scripts/xcheck-vectors.mjs (ethers + canonicalize).",
+  "generatedBy": "packages/schemas/scripts/build-vectors.ts (regenerate: pnpm --filter @symbolon/schemas vectors)",
+  "cases": [
+    {
+      "name": "EngagementTerms",
+      "primaryType": "EngagementTerms",
+      "encodeType": "EngagementTerms(bytes32 engagementId,address owner,address payee,uint256 cap,uint64 start,uint64 end,bytes32 termsHash,uint256 nonce)",
+      "typeHash": "0xaeb6fde85e6dddcf4c20808992d9902d71888cfeec38beab5ea2277e1635d8d6",
+      "domainSeparator": "0x9c0729e180eff9462a73242d8d9779dbf19fca5da31abacd400a00126bc1ffe0",
+      "structHash": "0xd42084461e54f4ad79b380623ca7d7365ea19542b54e53994281d432634da808",
+      "digest": "0xa80546a8a25dd586bb1aef9d864189d31d379799f10b14b7710d84aa50413755",
+      "typedData": {
+        "domain": {
+          "name": "SymbolonVault",
+          "version": "1",
+          "chainId": 31337,
+          "verifyingContract": "0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB"
+        },
+        "types": {
+          "EIP712Domain": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "version",
+              "type": "string"
+            },
+            {
+              "name": "chainId",
+              "type": "uint256"
+            },
+            {
+              "name": "verifyingContract",
+              "type": "address"
+            }
+          ],
+          "EngagementTerms": [
+            {
+              "name": "engagementId",
+              "type": "bytes32"
+            },
+            {
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "name": "payee",
+              "type": "address"
+            },
+            {
+              "name": "cap",
+              "type": "uint256"
+            },
+            {
+              "name": "start",
+              "type": "uint64"
+            },
+            {
+              "name": "end",
+              "type": "uint64"
+            },
+            {
+              "name": "termsHash",
+              "type": "bytes32"
+            },
+            {
+              "name": "nonce",
+              "type": "uint256"
+            }
+          ]
+        },
+        "primaryType": "EngagementTerms",
+        "message": {
+          "engagementId": "0xb12859002569adfbe571f936a09fa99860091f1c078570211dd7d6daabde09b3",
+          "owner": "0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed",
+          "payee": "0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359",
+          "cap": "5000000000",
+          "start": "1790812800",
+          "end": "1798761599",
+          "termsHash": "0xeb2a5d09a10613ea74808343e20253b74bff2ed6f165c3d266846499122758a2",
+          "nonce": "1"
+        }
+      }
+    },
+    {
+      "name": "Attestation",
+      "primaryType": "Attestation",
+      "encodeType": "Attestation(bytes32 intentId,bytes32 engagementId,bytes32 milestoneId,address payee,uint256 amount,bytes32 receiptHash,uint64 deadline)",
+      "typeHash": "0x2782c058aa5d63dfcedf831ba0d10162e9fdae8f76ebc0c9916ca3202bdb3efb",
+      "domainSeparator": "0x9c0729e180eff9462a73242d8d9779dbf19fca5da31abacd400a00126bc1ffe0",
+      "structHash": "0x31bfa107c45dad979a88aa5a41d5009c524a0247580a737b3b719e34824a97c9",
+      "digest": "0xd502f0b9eba0ad83605a09e404ba8bf86387c93c8f10ce5d69fbc8daee992531",
+      "typedData": {
+        "domain": {
+          "name": "SymbolonVault",
+          "version": "1",
+          "chainId": 31337,
+          "verifyingContract": "0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB"
+        },
+        "types": {
+          "EIP712Domain": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "version",
+              "type": "string"
+            },
+            {
+              "name": "chainId",
+              "type": "uint256"
+            },
+            {
+              "name": "verifyingContract",
+              "type": "address"
+            }
+          ],
+          "Attestation": [
+            {
+              "name": "intentId",
+              "type": "bytes32"
+            },
+            {
+              "name": "engagementId",
+              "type": "bytes32"
+            },
+            {
+              "name": "milestoneId",
+              "type": "bytes32"
+            },
+            {
+              "name": "payee",
+              "type": "address"
+            },
+            {
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "name": "receiptHash",
+              "type": "bytes32"
+            },
+            {
+              "name": "deadline",
+              "type": "uint64"
+            }
+          ]
+        },
+        "primaryType": "Attestation",
+        "message": {
+          "intentId": "0xb26f991ff464c0981068c7698f3136fc08abc305dec5cf69963840f32fb2bac4",
+          "engagementId": "0xb12859002569adfbe571f936a09fa99860091f1c078570211dd7d6daabde09b3",
+          "milestoneId": "0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc",
+          "payee": "0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359",
+          "amount": "1470000000",
+          "receiptHash": "0x15ce51f6c3aff491fef023bc3b63f11ba5a795ade808d91b2cf865da1d22dc29",
+          "deadline": "1791796203"
+        }
+      }
+    },
+    {
+      "name": "OwnerApproval",
+      "primaryType": "OwnerApproval",
+      "encodeType": "OwnerApproval(bytes32 intentId,bytes32 receiptHash,uint256 amount,uint64 deadline)",
+      "typeHash": "0x82f642c40e60e7234b68c523277b528c04aa8cbd6fecdff87e49c488fc07aeed",
+      "domainSeparator": "0x9c0729e180eff9462a73242d8d9779dbf19fca5da31abacd400a00126bc1ffe0",
+      "structHash": "0x447185a251e3e0468f0ddc8afea9c14ffe0ea9523f7e14820481c167c1033ba9",
+      "digest": "0x01f0a93dc529c9a6997288c58db4b45e31e6c8a2ccc7a203c207faecd1bcb85e",
+      "typedData": {
+        "domain": {
+          "name": "SymbolonVault",
+          "version": "1",
+          "chainId": 31337,
+          "verifyingContract": "0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB"
+        },
+        "types": {
+          "EIP712Domain": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "version",
+              "type": "string"
+            },
+            {
+              "name": "chainId",
+              "type": "uint256"
+            },
+            {
+              "name": "verifyingContract",
+              "type": "address"
+            }
+          ],
+          "OwnerApproval": [
+            {
+              "name": "intentId",
+              "type": "bytes32"
+            },
+            {
+              "name": "receiptHash",
+              "type": "bytes32"
+            },
+            {
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "name": "deadline",
+              "type": "uint64"
+            }
+          ]
+        },
+        "primaryType": "OwnerApproval",
+        "message": {
+          "intentId": "0xb26f991ff464c0981068c7698f3136fc08abc305dec5cf69963840f32fb2bac4",
+          "receiptHash": "0xfba7623376f2de0a40aa89eb8998b9e26a99ccfe99f83e35d19e35d171cd1c83",
+          "amount": "1470000000",
+          "deadline": "1791281707"
+        }
+      }
+    },
+    {
+      "name": "PayeeChange",
+      "primaryType": "PayeeChange",
+      "encodeType": "PayeeChange(bytes32 engagementId,address oldPayee,address newPayee,uint256 nonce)",
+      "typeHash": "0x422603f2a49cba447527877bf08e9b1cc231aef33a67fdae55317deb530d6ffc",
+      "domainSeparator": "0x9c0729e180eff9462a73242d8d9779dbf19fca5da31abacd400a00126bc1ffe0",
+      "structHash": "0x18e6d63708b85b4fcc2594c2f1e42858a57a92d4ced8fc86a52eef3eaade2d42",
+      "digest": "0x5e49f04ce966fd63a9c1ac0179ecafd9fbd0c04f028ccb25f9abbc7f6d8feb9a",
+      "typedData": {
+        "domain": {
+          "name": "SymbolonVault",
+          "version": "1",
+          "chainId": 31337,
+          "verifyingContract": "0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB"
+        },
+        "types": {
+          "EIP712Domain": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "version",
+              "type": "string"
+            },
+            {
+              "name": "chainId",
+              "type": "uint256"
+            },
+            {
+              "name": "verifyingContract",
+              "type": "address"
+            }
+          ],
+          "PayeeChange": [
+            {
+              "name": "engagementId",
+              "type": "bytes32"
+            },
+            {
+              "name": "oldPayee",
+              "type": "address"
+            },
+            {
+              "name": "newPayee",
+              "type": "address"
+            },
+            {
+              "name": "nonce",
+              "type": "uint256"
+            }
+          ]
+        },
+        "primaryType": "PayeeChange",
+        "message": {
+          "engagementId": "0xb12859002569adfbe571f936a09fa99860091f1c078570211dd7d6daabde09b3",
+          "oldPayee": "0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359",
+          "newPayee": "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
+          "nonce": "2"
+        }
+      }
+    },
+    {
+      "name": "MilestoneAck",
+      "primaryType": "MilestoneAck",
+      "encodeType": "MilestoneAck(bytes32 milestoneId,bytes32 artifactHash,bool override,uint64 deadline)",
+      "typeHash": "0xbe7808688bad102415c97420fb07bf6bce83ef070023e34610dd12e79938608d",
+      "domainSeparator": "0x9c0729e180eff9462a73242d8d9779dbf19fca5da31abacd400a00126bc1ffe0",
+      "structHash": "0xa11fec7fee8d67e36716618a9131aa80473b486fbebbd0f74c7b678fba06d6b1",
+      "digest": "0xe3c20391acdcd53802c9e02f3c41eff4dd3bf1a03ae1748397e3cc39e2a2c87d",
+      "typedData": {
+        "domain": {
+          "name": "SymbolonVault",
+          "version": "1",
+          "chainId": 31337,
+          "verifyingContract": "0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB"
+        },
+        "types": {
+          "EIP712Domain": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "version",
+              "type": "string"
+            },
+            {
+              "name": "chainId",
+              "type": "uint256"
+            },
+            {
+              "name": "verifyingContract",
+              "type": "address"
+            }
+          ],
+          "MilestoneAck": [
+            {
+              "name": "milestoneId",
+              "type": "bytes32"
+            },
+            {
+              "name": "artifactHash",
+              "type": "bytes32"
+            },
+            {
+              "name": "override",
+              "type": "bool"
+            },
+            {
+              "name": "deadline",
+              "type": "uint64"
+            }
+          ]
+        },
+        "primaryType": "MilestoneAck",
+        "message": {
+          "milestoneId": "0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc",
+          "artifactHash": "0x26ffe20674d854b848861bc75964d53a7e3192976ca321cdda1cb81dedfb3694",
+          "override": true,
+          "deadline": "1791244800"
+        }
+      }
+    },
+    {
+      "name": "ReceiptAck",
+      "primaryType": "ReceiptAck",
+      "encodeType": "ReceiptAck(bytes32 receiptHash,address payee,uint64 signedAt)",
+      "typeHash": "0x125b92bc38d8e3d8b4bae8386c8597f9f452a94e0b864d622e6a7bd6f1f2a9bb",
+      "domainSeparator": "0x9c0729e180eff9462a73242d8d9779dbf19fca5da31abacd400a00126bc1ffe0",
+      "structHash": "0x639a0e88de6051ee98310ee3cbf8a7ee0a52e14a91845ad52064f9bf49fd188e",
+      "digest": "0x00785ca0efa6e338cd5dedcf3f7a0045f70c74338d7e278ef8ccac13ee834901",
+      "typedData": {
+        "domain": {
+          "name": "SymbolonVault",
+          "version": "1",
+          "chainId": 31337,
+          "verifyingContract": "0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB"
+        },
+        "types": {
+          "EIP712Domain": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "version",
+              "type": "string"
+            },
+            {
+              "name": "chainId",
+              "type": "uint256"
+            },
+            {
+              "name": "verifyingContract",
+              "type": "address"
+            }
+          ],
+          "ReceiptAck": [
+            {
+              "name": "receiptHash",
+              "type": "bytes32"
+            },
+            {
+              "name": "payee",
+              "type": "address"
+            },
+            {
+              "name": "signedAt",
+              "type": "uint64"
+            }
+          ]
+        },
+        "primaryType": "ReceiptAck",
+        "message": {
+          "receiptHash": "0x15ce51f6c3aff491fef023bc3b63f11ba5a795ade808d91b2cf865da1d22dc29",
+          "payee": "0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359",
+          "signedAt": "1791799200"
+        }
+      }
+    },
+    {
+      "name": "Receipt",
+      "primaryType": "Receipt",
+      "encodeType": "Receipt(bytes32 receiptHash,bytes32 intentId,uint8 verdict,bytes32 policyHash,uint64 issuedAt)",
+      "typeHash": "0xff3a1ecf9c499171b8dc0a6360e41639657a5074168110b4c9899929295cfdfc",
+      "domainSeparator": "0x9c0729e180eff9462a73242d8d9779dbf19fca5da31abacd400a00126bc1ffe0",
+      "structHash": "0x4191c6361a683ed2db2ddd2c728245eedb96fb630b4dadb5dfaf28073c1d67d7",
+      "digest": "0x10783d8acdb137ba42d1172df95f15baaa313444405a3028f52ba8274d4d9a75",
+      "typedData": {
+        "domain": {
+          "name": "SymbolonVault",
+          "version": "1",
+          "chainId": 31337,
+          "verifyingContract": "0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB"
+        },
+        "types": {
+          "EIP712Domain": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "version",
+              "type": "string"
+            },
+            {
+              "name": "chainId",
+              "type": "uint256"
+            },
+            {
+              "name": "verifyingContract",
+              "type": "address"
+            }
+          ],
+          "Receipt": [
+            {
+              "name": "receiptHash",
+              "type": "bytes32"
+            },
+            {
+              "name": "intentId",
+              "type": "bytes32"
+            },
+            {
+              "name": "verdict",
+              "type": "uint8"
+            },
+            {
+              "name": "policyHash",
+              "type": "bytes32"
+            },
+            {
+              "name": "issuedAt",
+              "type": "uint64"
+            }
+          ]
+        },
+        "primaryType": "Receipt",
+        "message": {
+          "receiptHash": "0x15ce51f6c3aff491fef023bc3b63f11ba5a795ade808d91b2cf865da1d22dc29",
+          "intentId": "0xb26f991ff464c0981068c7698f3136fc08abc305dec5cf69963840f32fb2bac4",
+          "verdict": "1",
+          "policyHash": "0xf4262cd1e0570f06c4236a1faf99cdba9147a9ccacecf96eea69687a22e13aa2",
+          "issuedAt": "1791795603"
+        }
+      }
+    },
+    {
+      "name": "EngagementTerms/max-uint-bounds",
+      "primaryType": "EngagementTerms",
+      "encodeType": "EngagementTerms(bytes32 engagementId,address owner,address payee,uint256 cap,uint64 start,uint64 end,bytes32 termsHash,uint256 nonce)",
+      "typeHash": "0xaeb6fde85e6dddcf4c20808992d9902d71888cfeec38beab5ea2277e1635d8d6",
+      "domainSeparator": "0x9c0729e180eff9462a73242d8d9779dbf19fca5da31abacd400a00126bc1ffe0",
+      "structHash": "0x5fd6aee2d8f7bf3a744548148f56116f1216a111ba3f278963d190e27c5d047f",
+      "digest": "0xfacb3c7c9c866bf67620514689f1d3f6c8129540c2ed297661a1a37f46f653d6",
+      "typedData": {
+        "domain": {
+          "name": "SymbolonVault",
+          "version": "1",
+          "chainId": 31337,
+          "verifyingContract": "0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB"
+        },
+        "types": {
+          "EIP712Domain": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "version",
+              "type": "string"
+            },
+            {
+              "name": "chainId",
+              "type": "uint256"
+            },
+            {
+              "name": "verifyingContract",
+              "type": "address"
+            }
+          ],
+          "EngagementTerms": [
+            {
+              "name": "engagementId",
+              "type": "bytes32"
+            },
+            {
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "name": "payee",
+              "type": "address"
+            },
+            {
+              "name": "cap",
+              "type": "uint256"
+            },
+            {
+              "name": "start",
+              "type": "uint64"
+            },
+            {
+              "name": "end",
+              "type": "uint64"
+            },
+            {
+              "name": "termsHash",
+              "type": "bytes32"
+            },
+            {
+              "name": "nonce",
+              "type": "uint256"
+            }
+          ]
+        },
+        "primaryType": "EngagementTerms",
+        "message": {
+          "engagementId": "0xb12859002569adfbe571f936a09fa99860091f1c078570211dd7d6daabde09b3",
+          "owner": "0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed",
+          "payee": "0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359",
+          "cap": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "start": "0",
+          "end": "18446744073709551615",
+          "termsHash": "0xeb2a5d09a10613ea74808343e20253b74bff2ed6f165c3d266846499122758a2",
+          "nonce": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+        }
+      }
+    },
+    {
+      "name": "Receipt/verdict-REPLAY",
+      "primaryType": "Receipt",
+      "encodeType": "Receipt(bytes32 receiptHash,bytes32 intentId,uint8 verdict,bytes32 policyHash,uint64 issuedAt)",
+      "typeHash": "0xff3a1ecf9c499171b8dc0a6360e41639657a5074168110b4c9899929295cfdfc",
+      "domainSeparator": "0x9c0729e180eff9462a73242d8d9779dbf19fca5da31abacd400a00126bc1ffe0",
+      "structHash": "0x566437171e732f2ab74091a86eeee2a85a5f7adfe6a101b5f11ee205c2bf2280",
+      "digest": "0xd1240cfbbd913d0482d73785c0f434498108bed96c6aecac26ca7fce1439aae9",
+      "typedData": {
+        "domain": {
+          "name": "SymbolonVault",
+          "version": "1",
+          "chainId": 31337,
+          "verifyingContract": "0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB"
+        },
+        "types": {
+          "EIP712Domain": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "version",
+              "type": "string"
+            },
+            {
+              "name": "chainId",
+              "type": "uint256"
+            },
+            {
+              "name": "verifyingContract",
+              "type": "address"
+            }
+          ],
+          "Receipt": [
+            {
+              "name": "receiptHash",
+              "type": "bytes32"
+            },
+            {
+              "name": "intentId",
+              "type": "bytes32"
+            },
+            {
+              "name": "verdict",
+              "type": "uint8"
+            },
+            {
+              "name": "policyHash",
+              "type": "bytes32"
+            },
+            {
+              "name": "issuedAt",
+              "type": "uint64"
+            }
+          ]
+        },
+        "primaryType": "Receipt",
+        "message": {
+          "receiptHash": "0x15ce51f6c3aff491fef023bc3b63f11ba5a795ade808d91b2cf865da1d22dc29",
+          "intentId": "0xb26f991ff464c0981068c7698f3136fc08abc305dec5cf69963840f32fb2bac4",
+          "verdict": "5",
+          "policyHash": "0xf4262cd1e0570f06c4236a1faf99cdba9147a9ccacecf96eea69687a22e13aa2",
+          "issuedAt": "1791795603"
+        }
+      }
+    },
+    {
+      "name": "MilestoneAck/override-false",
+      "primaryType": "MilestoneAck",
+      "encodeType": "MilestoneAck(bytes32 milestoneId,bytes32 artifactHash,bool override,uint64 deadline)",
+      "typeHash": "0xbe7808688bad102415c97420fb07bf6bce83ef070023e34610dd12e79938608d",
+      "domainSeparator": "0x9c0729e180eff9462a73242d8d9779dbf19fca5da31abacd400a00126bc1ffe0",
+      "structHash": "0x0c05229768fd2ae62225b1bc3074f8fe20f1df33f6e83d9b7256e40fdd22830d",
+      "digest": "0xcf55d0737b00200e2d17c7a9b351771e69c65a172ca111fb986b4ac9beed0dc7",
+      "typedData": {
+        "domain": {
+          "name": "SymbolonVault",
+          "version": "1",
+          "chainId": 31337,
+          "verifyingContract": "0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB"
+        },
+        "types": {
+          "EIP712Domain": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "version",
+              "type": "string"
+            },
+            {
+              "name": "chainId",
+              "type": "uint256"
+            },
+            {
+              "name": "verifyingContract",
+              "type": "address"
+            }
+          ],
+          "MilestoneAck": [
+            {
+              "name": "milestoneId",
+              "type": "bytes32"
+            },
+            {
+              "name": "artifactHash",
+              "type": "bytes32"
+            },
+            {
+              "name": "override",
+              "type": "bool"
+            },
+            {
+              "name": "deadline",
+              "type": "uint64"
+            }
+          ]
+        },
+        "primaryType": "MilestoneAck",
+        "message": {
+          "milestoneId": "0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc",
+          "artifactHash": "0x26ffe20674d854b848861bc75964d53a7e3192976ca321cdda1cb81dedfb3694",
+          "override": false,
+          "deadline": "1791244800"
+        }
+      }
+    },
+    {
+      "name": "OwnerApproval/domain-chainId-1",
+      "primaryType": "OwnerApproval",
+      "encodeType": "OwnerApproval(bytes32 intentId,bytes32 receiptHash,uint256 amount,uint64 deadline)",
+      "typeHash": "0x82f642c40e60e7234b68c523277b528c04aa8cbd6fecdff87e49c488fc07aeed",
+      "domainSeparator": "0x915b9155d6b326563f5f26793a2023a2b71cae0dbe3ac310a472928917b2e74a",
+      "structHash": "0x447185a251e3e0468f0ddc8afea9c14ffe0ea9523f7e14820481c167c1033ba9",
+      "digest": "0xd744255162c6084c6ea3590a08cb3f4add79aa5a05a2a8046d36e17b79b2ab38",
+      "typedData": {
+        "domain": {
+          "name": "SymbolonVault",
+          "version": "1",
+          "chainId": 1,
+          "verifyingContract": "0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB"
+        },
+        "types": {
+          "EIP712Domain": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "version",
+              "type": "string"
+            },
+            {
+              "name": "chainId",
+              "type": "uint256"
+            },
+            {
+              "name": "verifyingContract",
+              "type": "address"
+            }
+          ],
+          "OwnerApproval": [
+            {
+              "name": "intentId",
+              "type": "bytes32"
+            },
+            {
+              "name": "receiptHash",
+              "type": "bytes32"
+            },
+            {
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "name": "deadline",
+              "type": "uint64"
+            }
+          ]
+        },
+        "primaryType": "OwnerApproval",
+        "message": {
+          "intentId": "0xb26f991ff464c0981068c7698f3136fc08abc305dec5cf69963840f32fb2bac4",
+          "receiptHash": "0xfba7623376f2de0a40aa89eb8998b9e26a99ccfe99f83e35d19e35d171cd1c83",
+          "amount": "1470000000",
+          "deadline": "1791281707"
+        }
+      }
+    },
+    {
+      "name": "OwnerApproval/domain-other-vault",
+      "primaryType": "OwnerApproval",
+      "encodeType": "OwnerApproval(bytes32 intentId,bytes32 receiptHash,uint256 amount,uint64 deadline)",
+      "typeHash": "0x82f642c40e60e7234b68c523277b528c04aa8cbd6fecdff87e49c488fc07aeed",
+      "domainSeparator": "0xeb81c7b655f22d7188a2f58e8ecc430f757012e27b3b4cb61a21574e4ac33bb2",
+      "structHash": "0x447185a251e3e0468f0ddc8afea9c14ffe0ea9523f7e14820481c167c1033ba9",
+      "digest": "0xa714715c6ff4ced4852d5058a000a05027ed4e6d49cef531d430201616dd28f2",
+      "typedData": {
+        "domain": {
+          "name": "SymbolonVault",
+          "version": "1",
+          "chainId": 31337,
+          "verifyingContract": "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb"
+        },
+        "types": {
+          "EIP712Domain": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "version",
+              "type": "string"
+            },
+            {
+              "name": "chainId",
+              "type": "uint256"
+            },
+            {
+              "name": "verifyingContract",
+              "type": "address"
+            }
+          ],
+          "OwnerApproval": [
+            {
+              "name": "intentId",
+              "type": "bytes32"
+            },
+            {
+              "name": "receiptHash",
+              "type": "bytes32"
+            },
+            {
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "name": "deadline",
+              "type": "uint64"
+            }
+          ]
+        },
+        "primaryType": "OwnerApproval",
+        "message": {
+          "intentId": "0xb26f991ff464c0981068c7698f3136fc08abc305dec5cf69963840f32fb2bac4",
+          "receiptHash": "0xfba7623376f2de0a40aa89eb8998b9e26a99ccfe99f83e35d19e35d171cd1c83",
+          "amount": "1470000000",
+          "deadline": "1791281707"
+        }
+      }
+    }
+  ]
+}

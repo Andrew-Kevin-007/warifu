@@ -1,0 +1,50 @@
+{
+  "$id": "https://symbolon.dev/schemas/v1/PlanEvaluation.schema.json",
+  "title": "PlanEvaluation",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "plans": {
+      "maxItems": 64,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "planId": {
+            "type": "string",
+            "pattern": "^0x[0-9a-f]{64}$"
+          },
+          "netBenefitBase": {
+            "type": "string",
+            "pattern": "^(0|-?[1-9][0-9]{0,77})$"
+          },
+          "regretBase": {
+            "type": "string",
+            "pattern": "^(0|-?[1-9][0-9]{0,77})$"
+          }
+        },
+        "required": [
+          "planId",
+          "netBenefitBase",
+          "regretBase"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "topPlanId": {
+      "type": "string",
+      "pattern": "^0x[0-9a-f]{64}$"
+    },
+    "costOfCapitalBps": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000000
+    }
+  },
+  "required": [
+    "plans",
+    "topPlanId",
+    "costOfCapitalBps"
+  ],
+  "additionalProperties": false
+}

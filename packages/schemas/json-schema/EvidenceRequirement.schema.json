@@ -1,0 +1,99 @@
+{
+  "$id": "https://symbolon.dev/schemas/v1/EvidenceRequirement.schema.json",
+  "title": "EvidenceRequirement",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "OWNER_ACK"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "CI_PASS"
+        },
+        "repo": {
+          "type": "string",
+          "maxLength": 200,
+          "pattern": "^[A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+$"
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "^[A-Za-z0-9._/-]+$"
+        },
+        "workflow": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "^[A-Za-z0-9._/ -]+$"
+        }
+      },
+      "required": [
+        "type",
+        "repo",
+        "ref"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "URL_HEALTH"
+        },
+        "url": {
+          "type": "string",
+          "maxLength": 2048,
+          "pattern": "^https:\\/\\/[^\\s/?#@]+(?:[/?#][^\\s]*)?$"
+        },
+        "expectStatus": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 599
+        },
+        "contentSha256": {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "type",
+        "url",
+        "expectStatus"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "ARTIFACT_HASH"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "type",
+        "sha256"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}

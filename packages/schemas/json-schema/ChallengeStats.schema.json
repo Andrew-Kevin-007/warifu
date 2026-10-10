@@ -1,0 +1,297 @@
+{
+  "$id": "https://symbolon.dev/schemas/v1/ChallengeStats.schema.json",
+  "title": "ChallengeStats",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "asOf": {
+      "type": "string",
+      "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "live",
+        "recorded"
+      ]
+    },
+    "attempts": {
+      "type": "object",
+      "properties": {
+        "human": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "distinctHuman": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "house": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "oneClick": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "human",
+        "distinctHuman",
+        "house",
+        "oneClick"
+      ],
+      "additionalProperties": false
+    },
+    "outcomes": {
+      "type": "object",
+      "properties": {
+        "RELEASE": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "HOLD": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "ESCALATE": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "REJECT": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "REPLAY": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "RELEASE",
+        "HOLD",
+        "ESCALATE",
+        "REJECT",
+        "REPLAY"
+      ],
+      "additionalProperties": false
+    },
+    "lossEvents": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "byPredicate": {
+          "type": "object",
+          "properties": {
+            "O1": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "O2": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "O3": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "O4": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "O5": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "O6": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "O7": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "O8": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "O1",
+            "O2",
+            "O3",
+            "O4",
+            "O5",
+            "O6",
+            "O7",
+            "O8"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "total",
+        "byPredicate"
+      ],
+      "additionalProperties": false
+    },
+    "benign": {
+      "type": "object",
+      "properties": {
+        "n": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "falseRejects": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "n",
+        "falseRejects"
+      ],
+      "additionalProperties": false
+    },
+    "topReasonCodes": {
+      "maxItems": 64,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "SCHEMA_INVALID",
+              "NON_ASCII_DIGITS",
+              "SCIENTIFIC",
+              "REFUSE_ROUND",
+              "AMOUNT_AMBIGUOUS",
+              "EXTRACTION_PARSE_MISMATCH",
+              "LINEITEM_SUM_MISMATCH",
+              "CREDIT_NOTE",
+              "NOT_PAYABLE",
+              "DUPLICATE_DOC",
+              "NEAR_DUPLICATE",
+              "MILESTONE_ALREADY_PAID",
+              "NO_ENGAGEMENT",
+              "ENGAGEMENT_INACTIVE",
+              "OUT_OF_WINDOW",
+              "MILESTONE_ORDER",
+              "UNKNOWN_MILESTONE",
+              "PAYEE_MISMATCH",
+              "ADDRESS_CHANGE_CLAIMED",
+              "PAYEE_CHANGE_PENDING",
+              "CURRENCY_UNSUPPORTED",
+              "DECIMALS_MISMATCH",
+              "SCALE_ABSURD",
+              "OVERPAY",
+              "UNDERPAY_PARTIAL",
+              "EVIDENCE_MISSING",
+              "EVIDENCE_FAILED",
+              "EVIDENCE_HASH_MISMATCH",
+              "EXTRACTION_DISAGREE",
+              "SINGLE_EXTRACTION",
+              "INSTRUCTION_IN_DOC",
+              "CAP_PER_TX",
+              "CAP_DAILY",
+              "CAP_WEEKLY",
+              "CATEGORY_BUDGET",
+              "VELOCITY",
+              "HUMAN_REQUIRED",
+              "FIRST_PAYMENT_LARGE",
+              "SCREENING_PENDING",
+              "SCREEN_HIT",
+              "SCREENING_DISABLED",
+              "LIQUIDITY",
+              "TIMING_CLAMPED",
+              "LATE",
+              "BREAKER_HALTED",
+              "KERNEL_ERROR",
+              "TERMS_NOT_SIGNED",
+              "TERMS_MISMATCH",
+              "DISCOUNT_WINDOW_CLOSED",
+              "EVIDENCE_SOURCE_DENIED",
+              "ESCALATION_BUDGET_EXCEEDED",
+              "PLAN_OUT_OF_ENVELOPE"
+            ]
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "code",
+          "count"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "uniqueAttackers": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "certifiedBoundBaseUnits": {
+      "type": "string",
+      "maxLength": 78,
+      "pattern": "^(0|[1-9][0-9]*)$"
+    },
+    "observedMaxLossBaseUnits": {
+      "type": "string",
+      "maxLength": 78,
+      "pattern": "^(0|[1-9][0-9]*)$"
+    },
+    "upper95LossRate": {
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "asOf",
+    "source",
+    "attempts",
+    "outcomes",
+    "lossEvents",
+    "benign",
+    "topReasonCodes",
+    "uniqueAttackers",
+    "certifiedBoundBaseUnits",
+    "observedMaxLossBaseUnits",
+    "upper95LossRate"
+  ],
+  "additionalProperties": false
+}

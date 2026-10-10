@@ -1,0 +1,98 @@
+{
+  "$comment": "formatBaseUnits(units, decimals, options): the single bigint -> display formatter (docs/05 §2). Never rounds.",
+  "generatedBy": "packages/schemas/scripts/build-vectors.ts (regenerate: pnpm --filter @symbolon/schemas vectors)",
+  "cases": [
+    {
+      "units": "0",
+      "decimals": 6,
+      "expected": "0.00"
+    },
+    {
+      "units": "1",
+      "decimals": 6,
+      "expected": "0.000001"
+    },
+    {
+      "units": "5000000",
+      "decimals": 6,
+      "expected": "5.00"
+    },
+    {
+      "units": "1234567",
+      "decimals": 6,
+      "expected": "1.234567"
+    },
+    {
+      "units": "1470000000",
+      "decimals": 6,
+      "expected": "1,470.00"
+    },
+    {
+      "units": "1000000000000",
+      "decimals": 6,
+      "expected": "1,000,000.00"
+    },
+    {
+      "units": "-1500000",
+      "decimals": 6,
+      "expected": "-1.50"
+    },
+    {
+      "units": "7",
+      "decimals": 0,
+      "expected": "7"
+    },
+    {
+      "units": "5",
+      "decimals": 1,
+      "expected": "0.5"
+    },
+    {
+      "units": "1000000000000000000",
+      "decimals": 18,
+      "expected": "1.00"
+    },
+    {
+      "units": "123456789012345678901234567890",
+      "decimals": 18,
+      "expected": "123,456,789,012.34567890123456789"
+    },
+    {
+      "units": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      "decimals": 18,
+      "expected": "115,792,089,237,316,195,423,570,985,008,687,907,853,269,984,665,640,564,039,457.584007913129639935"
+    },
+    {
+      "units": "1000000000000",
+      "decimals": 6,
+      "options": {
+        "grouping": false
+      },
+      "expected": "1000000.00"
+    },
+    {
+      "units": "1500000",
+      "decimals": 6,
+      "options": {
+        "minFractionDigits": 0
+      },
+      "expected": "1.5"
+    },
+    {
+      "units": "1000000",
+      "decimals": 6,
+      "options": {
+        "minFractionDigits": 0
+      },
+      "expected": "1"
+    },
+    {
+      "units": "1000000",
+      "decimals": 6,
+      "options": {
+        "minFractionDigits": 6
+      },
+      "expected": "1.000000"
+    }
+  ]
+}

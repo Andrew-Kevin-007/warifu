@@ -1,0 +1,679 @@
+{
+  "$id": "https://symbolon.dev/schemas/v1/LossBoundCertificate.schema.json",
+  "title": "LossBoundCertificate",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "lbc/1"
+    },
+    "algorithm": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "const": "symbolon-bounds"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "gitSha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{7,40}$"
+        },
+        "detectionLatencySeconds": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "gitSha",
+        "detectionLatencySeconds"
+      ],
+      "additionalProperties": false
+    },
+    "subject": {
+      "type": "object",
+      "properties": {
+        "vault": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{40}$"
+        },
+        "chainId": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "token": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{40}$"
+        },
+        "tokenDecimals": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        }
+      },
+      "required": [
+        "vault",
+        "chainId",
+        "token",
+        "tokenDecimals"
+      ],
+      "additionalProperties": false
+    },
+    "asOf": {
+      "type": "object",
+      "properties": {
+        "blockNumber": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "blockHash": {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{64}$"
+        },
+        "timestamp": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "blockNumber",
+        "blockHash",
+        "timestamp"
+      ],
+      "additionalProperties": false
+    },
+    "inputs": {
+      "type": "object",
+      "properties": {
+        "configHash": {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{64}$"
+        },
+        "engagementsDigest": {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{64}$"
+        },
+        "policyHash": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^0x[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "balanceBaseUnits": {
+          "type": "string",
+          "maxLength": 78,
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "limits": {
+          "type": "object",
+          "properties": {
+            "perTxCap": {
+              "type": "string",
+              "maxLength": 78,
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "dailyCap": {
+              "type": "string",
+              "maxLength": 78,
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "hourlyCap": {
+              "type": "string",
+              "maxLength": 78,
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "humanThreshold": {
+              "type": "string",
+              "maxLength": 78,
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "ringSize": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "perTxCap",
+            "dailyCap",
+            "hourlyCap",
+            "humanThreshold",
+            "ringSize"
+          ],
+          "additionalProperties": false
+        },
+        "sumRemainingBaseUnits": {
+          "type": "string",
+          "maxLength": 78,
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "activeEngagements": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "configHash",
+        "engagementsDigest",
+        "policyHash",
+        "balanceBaseUnits",
+        "limits",
+        "sumRemainingBaseUnits",
+        "activeEngagements"
+      ],
+      "additionalProperties": false
+    },
+    "bounds": {
+      "type": "object",
+      "properties": {
+        "T1": {
+          "type": "object",
+          "properties": {
+            "unauthorizedLoss": {
+              "type": "string",
+              "maxLength": 78,
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "assumes": {
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "A-EVID",
+                  "A-MON",
+                  "A-OWNER-KEY",
+                  "A-TOKEN",
+                  "A-CHAIN",
+                  "A-MODEL"
+                ]
+              }
+            },
+            "weakEvidenceExposure": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 78,
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                },
+                {
+                  "type": "string",
+                  "const": "NOT_COMPUTED"
+                }
+              ]
+            }
+          },
+          "required": [
+            "unauthorizedLoss",
+            "assumes",
+            "weakEvidenceExposure"
+          ],
+          "additionalProperties": false
+        },
+        "T2": {
+          "type": "object",
+          "properties": {
+            "loss": {
+              "type": "string",
+              "maxLength": 78,
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "liveness": {
+              "type": "string",
+              "const": "censorable"
+            }
+          },
+          "required": [
+            "loss",
+            "liveness"
+          ],
+          "additionalProperties": false
+        },
+        "T3c": {
+          "type": "object",
+          "properties": {
+            "perReleaseUnapproved": {
+              "type": "string",
+              "maxLength": 78,
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "perDay": {
+              "type": "string",
+              "maxLength": 78,
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "horizons": {
+              "minItems": 1,
+              "maxItems": 16,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "enum": [
+                      "1m",
+                      "1h",
+                      "6h",
+                      "24h",
+                      "48h",
+                      "7d"
+                    ]
+                  },
+                  "seconds": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "value": {
+                    "type": "string",
+                    "maxLength": 78,
+                    "pattern": "^(0|[1-9][0-9]*)$"
+                  },
+                  "binding": {
+                    "minItems": 1,
+                    "maxItems": 4,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "balance",
+                        "daily",
+                        "engagements",
+                        "hourly"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "label",
+                  "seconds",
+                  "value",
+                  "binding"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "timeToEmpty": {
+              "type": "object",
+              "properties": {
+                "days": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "limitedBy": {
+                  "type": "string",
+                  "enum": [
+                    "balance",
+                    "daily",
+                    "engagements",
+                    "hourly"
+                  ]
+                }
+              },
+              "required": [
+                "days",
+                "limitedBy"
+              ],
+              "additionalProperties": false
+            },
+            "alarmed": {
+              "type": "object",
+              "properties": {
+                "seconds": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "value": {
+                  "type": "string",
+                  "maxLength": 78,
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                },
+                "assumes": {
+                  "maxItems": 6,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "A-EVID",
+                      "A-MON",
+                      "A-OWNER-KEY",
+                      "A-TOKEN",
+                      "A-CHAIN",
+                      "A-MODEL"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "seconds",
+                "value",
+                "assumes"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "perReleaseUnapproved",
+            "perDay",
+            "horizons",
+            "timeToEmpty",
+            "alarmed"
+          ],
+          "additionalProperties": false
+        },
+        "T3_ownerExposed": {
+          "minItems": 1,
+          "maxItems": 16,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "enum": [
+                  "1m",
+                  "1h",
+                  "6h",
+                  "24h",
+                  "48h",
+                  "7d"
+                ]
+              },
+              "seconds": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "value": {
+                "type": "string",
+                "maxLength": 78,
+                "pattern": "^(0|[1-9][0-9]*)$"
+              },
+              "binding": {
+                "minItems": 1,
+                "maxItems": 4,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "balance",
+                    "daily",
+                    "engagements",
+                    "hourly"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "label",
+              "seconds",
+              "value",
+              "binding"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "T1",
+        "T2",
+        "T3c",
+        "T3_ownerExposed"
+      ],
+      "additionalProperties": false
+    },
+    "assumptions": {
+      "minItems": 1,
+      "maxItems": 16,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "A-EVID",
+              "A-MON",
+              "A-OWNER-KEY",
+              "A-TOKEN",
+              "A-CHAIN",
+              "A-MODEL"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "id",
+          "text"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "exclusions": {
+      "maxItems": 32,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^X-[A-Z0-9-]{1,40}$"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "id",
+          "text"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "notes": {
+      "maxItems": 32,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 1000
+      }
+    },
+    "validation": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "t3Trials": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "t3Violations": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "upper95": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,20})(\\.[0-9]{1,20})?$"
+            },
+            "t3BestAttack24h": {
+              "type": "string",
+              "maxLength": 78,
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "tightness": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,20})(\\.[0-9]{1,20})?$"
+            },
+            "t1Plans": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "t1Losses": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "codeMatch": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "MATCH",
+                    "NOT_CHECKED",
+                    "MISMATCH"
+                  ]
+                },
+                "validatedCodeHash": {
+                  "type": "string",
+                  "pattern": "^0x[0-9a-f]{64}$"
+                },
+                "gitSha": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{7,40}$"
+                }
+              },
+              "required": [
+                "status",
+                "validatedCodeHash",
+                "gitSha"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "t3Trials",
+            "t3Violations",
+            "upper95",
+            "t3BestAttack24h",
+            "tightness",
+            "t1Plans",
+            "t1Losses",
+            "codeMatch"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "validity": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "VALID",
+            "STALE",
+            "UNVERIFIED"
+          ]
+        },
+        "reasons": {
+          "maxItems": 16,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "BLOCK_HASH_MISMATCH",
+              "CONFIG_CHANGED",
+              "ENGAGEMENTS_CHANGED",
+              "BALANCE_INCREASED",
+              "FRESHNESS_EXCEEDED",
+              "RPC_ERROR",
+              "CODE_NOT_VALIDATED"
+            ]
+          }
+        },
+        "checkedAt": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "freshnessSeconds": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "status",
+        "reasons",
+        "checkedAt",
+        "freshnessSeconds"
+      ],
+      "additionalProperties": false
+    },
+    "certHash": {
+      "type": "string",
+      "pattern": "^0x[0-9a-f]{64}$"
+    },
+    "publisher": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{40}$"
+        },
+        "sig": {
+          "type": "string",
+          "maxLength": 8194,
+          "pattern": "^0x(?:[0-9a-f]{2})*$"
+        }
+      },
+      "required": [
+        "address",
+        "sig"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema",
+    "algorithm",
+    "subject",
+    "asOf",
+    "inputs",
+    "bounds",
+    "assumptions",
+    "exclusions",
+    "notes",
+    "validation",
+    "validity",
+    "certHash"
+  ],
+  "additionalProperties": false
+}

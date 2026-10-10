@@ -1,0 +1,99 @@
+{
+  "$comment": "ApprovalView (INV-20) and its OwnerApproval typed data. typedDataHash = keccak256(UTF-8(JCS(typedData))) is shown beside the wallet prompt; digest is what the wallet signs.",
+  "note": "Inputs are hand-written fixtures (test/fixtures.ts): illustrative values, not computed by packages/terms or bounds.ts. Outputs are computed by @symbolon/schemas and re-derived independently by scripts/xcheck-vectors.mjs (ethers + canonicalize).",
+  "generatedBy": "packages/schemas/scripts/build-vectors.ts (regenerate: pnpm --filter @symbolon/schemas vectors)",
+  "view": {
+    "intentId": "0xb26f991ff464c0981068c7698f3136fc08abc305dec5cf69963840f32fb2bac4",
+    "receiptHash": "0xfba7623376f2de0a40aa89eb8998b9e26a99ccfe99f83e35d19e35d171cd1c83",
+    "engagementId": "0xb12859002569adfbe571f936a09fa99860091f1c078570211dd7d6daabde09b3",
+    "milestoneId": "0x4a4fe09193d3f6018f9305d37566274be75677467600e371b40a34a00128bdcc",
+    "payee": {
+      "address": "0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359",
+      "label": "Acme Design Studio"
+    },
+    "decimals": 6,
+    "grossBaseUnits": "1500000000",
+    "releaseBaseUnits": "1470000000",
+    "display": {
+      "gross": "1,500.00",
+      "release": "1,470.00"
+    },
+    "diffVsEngagement": [
+      {
+        "field": "payee.legalName",
+        "expected": "Acme Design Studio",
+        "actual": "Acme Design Studio Ltd"
+      }
+    ],
+    "reasons": [
+      "HUMAN_REQUIRED"
+    ],
+    "planSummary": {
+      "planId": "0x033fa21dc978af16ada67cb84436523d712fe0c64056d75319519d35a1fbeddf",
+      "mode": "TAKE_DISCOUNT",
+      "payAt": "2026-10-12T09:00:00Z",
+      "discountValue": "30000000"
+    },
+    "expiresAt": "2026-10-06T10:15:07Z",
+    "typedData": {
+      "domain": {
+        "name": "SymbolonVault",
+        "version": "1",
+        "chainId": 31337,
+        "verifyingContract": "0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB"
+      },
+      "types": {
+        "EIP712Domain": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "version",
+            "type": "string"
+          },
+          {
+            "name": "chainId",
+            "type": "uint256"
+          },
+          {
+            "name": "verifyingContract",
+            "type": "address"
+          }
+        ],
+        "OwnerApproval": [
+          {
+            "name": "intentId",
+            "type": "bytes32"
+          },
+          {
+            "name": "receiptHash",
+            "type": "bytes32"
+          },
+          {
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "name": "deadline",
+            "type": "uint64"
+          }
+        ]
+      },
+      "primaryType": "OwnerApproval",
+      "message": {
+        "intentId": "0xb26f991ff464c0981068c7698f3136fc08abc305dec5cf69963840f32fb2bac4",
+        "receiptHash": "0xfba7623376f2de0a40aa89eb8998b9e26a99ccfe99f83e35d19e35d171cd1c83",
+        "amount": "1470000000",
+        "deadline": "1791281707"
+      }
+    },
+    "typedDataHash": "0x93edb514386a9458e9ff4678c10472dd328a7d6aaec025f270de669c6c36273f",
+    "advisory": {
+      "text": "Vendor delivered on time twice before. Taking the 2% discount looks reasonable."
+    }
+  },
+  "typedDataJcs": "{\"domain\":{\"chainId\":31337,\"name\":\"SymbolonVault\",\"verifyingContract\":\"0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB\",\"version\":\"1\"},\"message\":{\"amount\":\"1470000000\",\"deadline\":\"1791281707\",\"intentId\":\"0xb26f991ff464c0981068c7698f3136fc08abc305dec5cf69963840f32fb2bac4\",\"receiptHash\":\"0xfba7623376f2de0a40aa89eb8998b9e26a99ccfe99f83e35d19e35d171cd1c83\"},\"primaryType\":\"OwnerApproval\",\"types\":{\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"},{\"name\":\"verifyingContract\",\"type\":\"address\"}],\"OwnerApproval\":[{\"name\":\"intentId\",\"type\":\"bytes32\"},{\"name\":\"receiptHash\",\"type\":\"bytes32\"},{\"name\":\"amount\",\"type\":\"uint256\"},{\"name\":\"deadline\",\"type\":\"uint64\"}]}}",
+  "typedDataHash": "0x93edb514386a9458e9ff4678c10472dd328a7d6aaec025f270de669c6c36273f",
+  "digest": "0x01f0a93dc529c9a6997288c58db4b45e31e6c8a2ccc7a203c207faecd1bcb85e"
+}

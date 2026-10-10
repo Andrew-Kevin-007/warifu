@@ -1,0 +1,162 @@
+{
+  "$id": "https://symbolon.dev/schemas/v1/PolicyOverrides.schema.json",
+  "title": "PolicyOverrides",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "caps": {
+      "type": "object",
+      "properties": {
+        "perTxHardCap": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+        },
+        "dailyCap": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+        },
+        "hourlyCap": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+        },
+        "weeklyCap": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+        },
+        "humanApprovalAbove": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "velocity": {
+      "type": "object",
+      "properties": {
+        "maxReleasesPerDay": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "maxReleasesPerPayeePerDay": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "maxAmountPerPayeePerDay": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "newPayee": {
+      "type": "object",
+      "properties": {
+        "firstPaymentMax": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+        },
+        "alwaysHuman": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "reserve": {
+      "type": "object",
+      "properties": {
+        "floor": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+        },
+        "lookaheadDays": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3650
+        }
+      },
+      "additionalProperties": false
+    },
+    "timing": {
+      "type": "object",
+      "properties": {
+        "disputeWindowHours": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 87600
+        },
+        "payBeforeDueBufferHours": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 87600
+        },
+        "allowImmediate": {
+          "type": "boolean"
+        },
+        "defaultNetDays": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 365
+        },
+        "windowSafetyMarginMinutes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 525600
+        }
+      },
+      "additionalProperties": false
+    },
+    "escalation": {
+      "type": "object",
+      "properties": {
+        "maxPerDay": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "maxPerEngagementPerDay": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        }
+      },
+      "additionalProperties": false
+    },
+    "limits": {
+      "type": "object",
+      "properties": {
+        "maxDocChars": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20000
+        }
+      },
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "object",
+      "properties": {
+        "freshnessHours": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 87600
+        },
+        "allowOwnerOverride": {
+          "type": "boolean"
+        },
+        "urlAllowlist": {
+          "maxItems": 64,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 2048,
+            "pattern": "^https:\\/\\/[^\\s/?#@]+$"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

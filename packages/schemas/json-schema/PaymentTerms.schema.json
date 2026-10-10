@@ -1,0 +1,55 @@
+{
+  "$id": "https://symbolon.dev/schemas/v1/PaymentTerms.schema.json",
+  "title": "PaymentTerms",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "netDays": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 365
+    },
+    "earlyPay": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "discountBps": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2000
+            },
+            "withinDays": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 365
+            }
+          },
+          "required": [
+            "discountBps",
+            "withinDays"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "payBeforeDueBufferHours": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 8760
+    },
+    "allowImmediate": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "netDays",
+    "earlyPay",
+    "payBeforeDueBufferHours",
+    "allowImmediate"
+  ],
+  "additionalProperties": false
+}

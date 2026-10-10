@@ -1,0 +1,70 @@
+{
+  "$id": "https://symbolon.dev/schemas/v1/PlanSelection.schema.json",
+  "title": "PlanSelection",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "planId": {
+      "type": "string",
+      "pattern": "^0x[0-9a-f]{64}$"
+    },
+    "rationale": {
+      "type": "string",
+      "maxLength": 600
+    },
+    "factorsConsidered": {
+      "maxItems": 8,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "due_date",
+          "discount_window",
+          "implied_apr",
+          "liquidity",
+          "payee_history",
+          "evidence_status",
+          "policy_rule",
+          "delivery_risk"
+        ]
+      }
+    },
+    "riskFlags": {
+      "maxItems": 5,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "DELIVERY_UNCERTAIN",
+          "VENDOR_HISTORY_POOR",
+          "LIQUIDITY_TIGHT",
+          "TERMS_AMBIGUOUS",
+          "OTHER"
+        ]
+      }
+    },
+    "deviatesFromEvaluator": {
+      "type": "boolean"
+    },
+    "deviationReason": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 600
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "planId",
+    "rationale",
+    "factorsConsidered",
+    "riskFlags",
+    "deviatesFromEvaluator",
+    "deviationReason"
+  ],
+  "additionalProperties": false
+}

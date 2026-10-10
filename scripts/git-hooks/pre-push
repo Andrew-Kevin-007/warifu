@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# pre-push: secrets scan with gitleaks (pinned v8.30.1, portable in D:\tools\gitleaks). Fails closed.
+# Enable once per clone: git config core.hooksPath scripts/git-hooks
+# Scans the patches of exactly the commits being pushed. git passes "<local ref> <local sha> <remote ref> <remote sha>"
+# lines on stdin. The commit list comes from git itself (rev-list) and the patches are piped into `gitleaks stdin`,
+# so a malformed range makes git fail and the push is blocked, rather than gitleaks silently scanning nothing.
+set -euo pipefail
+GL="$(command -v gitleaks || true)"
+[ -n "$GL" ] || GL=/d/tools/gitleaks/gitleaks.exe
+if [ ! -f "$GL" ]; then
+  echo "pre-push: gitleaks not found (expected on PATH or at D:\\tools\\gitleaks). Push blocked." >&2
+  exit 1
+fi
+zero=0000000000000000000000000000000000000000
+while read -r _lref lsha _rref rsha; do
+  [ "$lsha" = "$zero" ] && continue                         # branch deletion: nothing to scan
+  if [ "$rsha" = "$zero" ]; then revs=("$lsha" --not --remotes); else revs=("$rsha..$lsha"); fi
+  n="$(git rev-list --count "${revs[@]}")"                   # fails (and blocks) on a bad range
+  echo "pre-push: scanning $n commit(s) for secrets"
+  [ "$n" = "0" ] && continue
+  # Only ADDED lines are scanned (like `gitleaks git`): a removed line was already scanned when it was added.
+  if ! git log -p -m --no-color --no-ext-diff --no-textconv "${revs[@]}" \
+      | { grep -E '^[+]' || true; } \
+      | "$GL" stdin --redact --no-banner --config .gitleaks.toml; then
+    echo "pre-push: gitleaks found possible secrets (or failed). Push blocked. Fix them; never bypass with --no-verify." >&2
+    exit 1
+  fi
+done
