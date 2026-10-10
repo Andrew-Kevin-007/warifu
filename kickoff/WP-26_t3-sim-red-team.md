@@ -1,7 +1,7 @@
 ROLE: BLAST   WP: 26 — T3 sim, red-team loop, patch loop   BRANCH: wp-26/t3-sim-red-team   WORKTREE: yes
 PRIORITY: P0/P1   WAVE: W4–W5   EFFORT: ~8 agent-hours   DEPENDS ON: 08,23,25
-MODEL: opus   EFFORT LEVEL: high   (override: differential validation + patch loop)
-LAUNCH: claude --model opus --effort high
+MODEL: sonnet   EFFORT LEVEL: high   (override: differential validation + patch loop (lean: sonnet))
+LAUNCH: claude --model sonnet --effort high
 
 READ FIRST (in order):
   1. AGENTS.md  (prime directives §0.1-§0.12 — if a spec conflicts, the spec wins; log it in docs/QUESTIONS.md)

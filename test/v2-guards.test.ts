@@ -186,7 +186,11 @@ describe("claude config check (SEC-11 static / WP-39)", () => {
   it("rejects 'max' effort in the routing block", () => {
     const dir = clone();
     const p = join(dir, "docs/17_MODEL_AND_EFFORT_ROUTING.md");
-    writeFileSync(p, readFileSync(p, "utf8").replace('"SEC": {"model": "opus", "effort": "xhigh"}', '"SEC": {"model": "opus", "effort": "max"}'));
+    // Plant "max" whatever SEC's current routing is, and fail loudly if nothing was planted.
+    const before = readFileSync(p, "utf8");
+    const after = before.replace(/"SEC": \{"model": "(\w+)", "effort": "\w+"\}/, '"SEC": {"model": "$1", "effort": "max"}');
+    expect(after).not.toBe(before);
+    writeFileSync(p, after);
     expect(check(dir).join("\n")).toMatch(/role SEC: illegal effort "max"/);
     rmSync(dir, { recursive: true, force: true });
   });

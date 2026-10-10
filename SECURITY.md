@@ -12,7 +12,9 @@
 - Attack traffic is not customer traffic: the challenge never counts toward product traction.
 
 ## Reporting a real flaw
-Email **<security contact — Kevin to fill>** with steps to reproduce. We aim to acknowledge within 3 days. With your consent we will credit you in the changelog. Reports about real flaws (as opposed to scored challenge attempts) are very welcome.
+**Primary channel:** GitHub private vulnerability reporting on this repository (Security tab → "Report a vulnerability"). *(DRAFT note: GitHub offers this on public repositories; Kevin enables it when the repo goes public at submission.)*
+**Secondary channel:** email **p1legendary7+symbolon-security@gmail.com**.
+Include steps to reproduce. We aim to acknowledge within 3 days. With your consent we will credit you in the changelog. Reports about real flaws (as opposed to scored challenge attempts) are very welcome.
 
 ## What we claim, and what we do not
 We state loss bounds as **"calculated from on-chain state and empirically tested"** with the assumptions and exclusions listed beside every number (`docs/16`). The contracts are **unaudited**. We do not claim that the system cannot be broken or that funds cannot be lost; we publish the bound, its assumptions and our test results so you can check them.

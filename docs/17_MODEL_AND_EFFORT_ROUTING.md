@@ -26,15 +26,17 @@ Why this split (not "Opus xhigh + ultracode everywhere"):
 
 ## 3. Role defaults
 
+> **LEAN MODE (Kevin, 2026-10-10: Claude Pro, cannot upgrade).** This table and the JSON in §4 are the lean routing. Opus `xhigh` only for SCHEMAS, KERNEL-CORE, CONTRACTS, VERIFIER and WP-14; Opus `high` for SEC, ATTACK-ADV and WP-11/13/32/34/37; everything else Sonnet. `ultracodeWPs` is empty: ultracode runs only when Kevin types the `ultracode:` prompt himself. **Concurrency: max 2 terminals, at most 1 on Opus.** Revert to the v2 table (git history of this file) if the plan is upgraded (`docs/QUESTIONS.md`, "Pro lean routing").
+
 | Role | Model | Effort | Rationale |
 |---|---|---|---|
-| ORCH | `opus` | `high` | planning, merge judgment, cross-doc consistency |
+| ORCH | `sonnet` | `high` | planning, merge judgment, cross-doc consistency (lean) |
 | SCHEMAS | `opus` | `xhigh` | spine root; JCS/EIP-712 vectors must be right once |
 | KERNEL-CORE (incl. `packages/terms`) | `opus` | `xhigh` | pure money logic + property tests |
 | CONTRACTS | `opus` | `xhigh` | immutable-ish code holding funds |
-| SEC | `opus` | `xhigh` | adversarial reasoning; owns `packages/sec-suite` |
-| VERIFIER | `opus` | `xhigh` | independent re-derivation; final passes use `ultracode:` |
-| BLAST | `opus` | `high` | closed-form math + differential validation |
+| SEC | `opus` | `high` | adversarial reasoning; owns `packages/sec-suite` (lean) |
+| VERIFIER | `opus` | `xhigh` | independent re-derivation; `ultracode:` only if Kevin types it |
+| BLAST | `sonnet` | `high` | closed-form math + differential validation (lean) |
 | CHAIN | `sonnet` | `high` | decimals/`Money` bugs are subtle but spec-bound |
 | KERNEL-SVC | `sonnet` | `high` | big, well-specified service; money-critical WPs overridden below |
 | AGENT | `sonnet` | `high` | prompts/evals/planner; spec-bound |
@@ -50,13 +52,13 @@ Machine-readable (the kickoff generator reads this block; keep valid JSON):
 ```json routing
 {
   "roles": {
-    "ORCH": {"model": "opus", "effort": "high"},
+    "ORCH": {"model": "sonnet", "effort": "high"},
     "SCHEMAS": {"model": "opus", "effort": "xhigh"},
     "KERNEL-CORE": {"model": "opus", "effort": "xhigh"},
     "CONTRACTS": {"model": "opus", "effort": "xhigh"},
-    "SEC": {"model": "opus", "effort": "xhigh"},
+    "SEC": {"model": "opus", "effort": "high"},
     "VERIFIER": {"model": "opus", "effort": "xhigh"},
-    "BLAST": {"model": "opus", "effort": "high"},
+    "BLAST": {"model": "sonnet", "effort": "high"},
     "CHAIN": {"model": "sonnet", "effort": "high"},
     "KERNEL-SVC": {"model": "sonnet", "effort": "high"},
     "AGENT": {"model": "sonnet", "effort": "high"},
@@ -66,24 +68,24 @@ Machine-readable (the kickoff generator reads this block; keep valid JSON):
     "DOCS": {"model": "sonnet", "effort": "medium"}
   },
   "wpOverrides": {
-    "11": {"model": "opus", "effort": "xhigh", "why": "Circle adapter touches keys/signing"},
-    "12": {"model": "opus", "effort": "high", "why": "EIP-712 engagement flows"},
-    "13": {"model": "opus", "effort": "xhigh", "why": "SSRF guard on public input"},
+    "11": {"model": "opus", "effort": "high", "why": "Circle adapter touches keys/signing (lean: high)"},
+    "12": {"model": "sonnet", "effort": "high", "why": "EIP-712 engagement flows (lean: sonnet)"},
+    "13": {"model": "opus", "effort": "high", "why": "SSRF guard on public input (lean: high)"},
     "14": {"model": "opus", "effort": "xhigh", "why": "attestation signer + release path + TOCTOU"},
-    "15": {"model": "opus", "effort": "high", "why": "breaker/guardian safety logic"},
+    "15": {"model": "sonnet", "effort": "high", "why": "breaker/guardian safety logic (lean: sonnet)"},
     "19": {"model": "sonnet", "effort": "high", "why": "WYSIWYS approval screen (INV-20)"},
     "20": {"model": "sonnet", "effort": "high", "why": "client-side verifier must be correct"},
     "24": {"model": "sonnet", "effort": "high", "why": "honest-corpus metrics must be sound"},
-    "26": {"model": "opus", "effort": "high", "why": "differential validation + patch loop"},
-    "32": {"model": "opus", "effort": "xhigh", "why": "public attack surface, isolation, abuse controls"},
+    "26": {"model": "sonnet", "effort": "high", "why": "differential validation + patch loop (lean: sonnet)"},
+    "32": {"model": "opus", "effort": "high", "why": "public attack surface, isolation, abuse controls (lean: high)"},
     "33": {"model": "sonnet", "effort": "high", "why": "safe rendering of hostile text (INV-15)"},
     "34": {"model": "opus", "effort": "high", "why": "certificate soundness (INV-22)"},
     "35": {"model": "sonnet", "effort": "high", "why": "planner + simulated corpus"},
-    "36": {"model": "opus", "effort": "high", "why": "independent hold-out adversary"},
-    "37": {"model": "opus", "effort": "xhigh", "why": "security hardening + SEC suite"},
+    "36": {"model": "sonnet", "effort": "high", "why": "B0/B2 baselines + hold-out runner (lean: sonnet; the hold-out adversary itself stays ATTACK-ADV opus/high)"},
+    "37": {"model": "opus", "effort": "high", "why": "security hardening + SEC suite (lean: high)"},
     "38": {"model": "sonnet", "effort": "medium", "why": "static replay bundle"}
   },
-  "ultracodeWPs": ["29", "37"],
+  "ultracodeWPs": [],
   "subagentDefault": "sonnet"
 }
 ```
@@ -100,24 +102,26 @@ Machine-readable (the kickoff generator reads this block; keep valid JSON):
 | v1 → v2 reconcile (one-off) | ORCH | now | see `kickoff/V2_RECONCILE.md` |
 
 Everything else (feature WPs, UI, fixtures, docs) runs **without** ultracode.
+**Lean mode:** none of the passes above runs automatically. `ultracodeWPs` is `[]`, and a pass happens only if Kevin types the `ultracode:` prompt himself.
 
 ## 6. Escalation and de-escalation rules
 
 - **Escalate one WP, not the team.** If a Sonnet-owned WP fails VERIFIER twice, or an agent loops on the same failing test > 3 times, re-run *that WP* on `opus`/`xhigh`.
 - **Never escalate to `max`.**
-- **Burn guard.** ORCH checks usage at each wave boundary. If > 70 % of the weekly allowance is gone before Wed Oct 14: Opus `high` roles → `medium`, Sonnet `high` → `medium`, keep only CONTRACTS/SCHEMAS/KERNEL-CORE/SEC at `xhigh`, and stop all non-gate ultracode.
+- **Burn guard.** ORCH checks usage at each wave boundary. If > 70 % of the weekly allowance is gone before Wed Oct 14: Opus `high` roles → `medium`, Sonnet `high` → `medium`, keep only CONTRACTS/SCHEMAS/KERNEL-CORE (and WP-14) at `xhigh`, stop all non-gate verification and ultracode, tell Kevin, and cut in `docs/12` §4 order.
 - **Don't change effort mid-WP casually:** changing effort invalidates the prompt cache (official docs), which costs tokens.
 - Subagents spawned by an agent (explore/search/test-running) default to Sonnet via `CLAUDE_CODE_SUBAGENT_MODEL`; the explicit Opus role files in `.claude/agents/` override that.
 
 ## 7. Launch cheat-sheet (copy/paste, one terminal per worktree)
 
 ```bash
+# LEAN MODE (Pro): max 2 terminals, at most 1 on Opus
 # Opus xhigh lanes (money-critical)
-claude --model opus --effort xhigh      # SCHEMAS, KERNEL-CORE, CONTRACTS, SEC, VERIFIER, WP-11/13/14/32
+claude --model opus --effort xhigh      # SCHEMAS, KERNEL-CORE, CONTRACTS, VERIFIER, WP-14
 # Opus high lanes
-claude --model opus --effort high       # ORCH, BLAST, ATTACK-ADV, WP-12/15/26/34/36
+claude --model opus --effort high       # SEC, ATTACK-ADV, WP-11/13/32/34/37
 # Sonnet high lanes
-claude --model sonnet --effort high     # CHAIN, KERNEL-SVC, AGENT, ATTACK, WP-19/20/24/33/35
+claude --model sonnet --effort high     # ORCH, BLAST, CHAIN, KERNEL-SVC, AGENT, ATTACK, WP-12/15/19/20/24/26/33/35/36
 # Sonnet medium lanes
 claude --model sonnet --effort medium   # WEB, DOCS, WP-21/38
 # Optional: Opus plans, Sonnet executes (good for ORCH-driven feature work)
