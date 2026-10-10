@@ -10,7 +10,7 @@ Owner: ORCH. Updated: **2026-10-10 22:00 IST**. Every ~3 h and at every gate: up
 | Field | Value |
 |---|---|
 | WP-01 estimate (`docs/10` §4) | 5 agent-hours |
-| WP-01 actual wall-clock (start → v0 merged) | start 21:50 · paused 22:14 at the usage limit (WIP `db1c2f2`) · v0 merged: ___ · = ___ h |
+| WP-01 actual wall-clock (start → v0 merged) | start 21:50 · paused 22:14 (usage limit) · resumed after the reset · **v0 merged 01:14 Sun** (`2bd444a`) · = 3.4 h wall-clock incl. the pause |
 | Plan usage before WP-01 (session % / weekly %) | ___ / ___ |
 | Plan usage after WP-01 v0 (session % / weekly %) | ___ / ___ |
 | **Projected weekly %** = (weekly % WP-01 used ÷ 5 h) × remaining estimate hours | ___ |
@@ -29,33 +29,33 @@ Owner: ORCH. Updated: **2026-10-10 22:00 IST**. Every ~3 h and at every gate: up
 | WP | Title | Role | Wave | Deps | Status | Launch | Kickoff |
 |---|---|---|---|---|---|---|---|
 | 00 | Repo bootstrap, CI, lint rules, Makefile | ORCH | W0 | none | DONE on `main` (scaffold); Windows fix + plan in PR #1 | `claude --model sonnet --effort high` | `kickoff/WP-00_repo-bootstrap-ci-lint.md` |
-| 01 | Schemas + JCS + EIP-712 vectors (+ v2 shapes) | SCHEMAS | W0–W1 | 00 | IN PROGRESS (paused at usage limit 22:14): WIP `db1c2f2` = all src shapes + JCS + EIP-712 + `consensus` + pinned deps, typechecks, `pnpm verify` green. **Missing:** schema unit tests, `vectors/*.json`, ethers/canonicalize cross-check, CHANGELOG entry, v0 PR | `claude --model opus --effort xhigh` | `kickoff/WP-01_schemas-jcs-eip-712.md` |
-| 02 | Receipts (JCS/hash/sign/verify CLI) | KERNEL-CORE | W1 | 01 | WAIT: WP-01 v0 (Opus queue) | `claude --model opus --effort xhigh` | `kickoff/WP-02_receipts-jcs-hash-sign.md` |
-| 03 | Policy loader/hash/consistency (+ treasury/escalation keys) | KERNEL-CORE | W1 | 01 | WAIT: WP-01 v0 (Opus queue) | `claude --model opus --effort xhigh` | `kickoff/WP-03_policy-loader-hash-consistency.md` |
-| 04 | Kernel checks K-01..K-08 + algebra + `packages/terms` | KERNEL-CORE | W1 | 01,03 | WAIT: WP-01 v0 + WP-03 (Opus queue) | `claude --model opus --effort xhigh` | `kickoff/WP-04_kernel-checks-k-01.md` |
+| 01 | Schemas + JCS + EIP-712 vectors (+ v2 shapes) | SCHEMAS | W0–W1 | 00 | **DONE** (PR #2, `2bd444a`, 01:14 Sun; 246 tests, vectors cross-checked by ethers + canonicalize; verified locally, CI never ran). Freeze tag `schemas-v1.0` at G1 Sun 09:00 after ORCH reviews its QUESTIONS items | `claude --model opus --effort xhigh` | `kickoff/WP-01_schemas-jcs-eip-712.md` |
+| 02 | Receipts (JCS/hash/sign/verify CLI) | KERNEL-CORE | W1 | 01 | READY (Opus queue) | `claude --model opus --effort xhigh` | `kickoff/WP-02_receipts-jcs-hash-sign.md` |
+| 03 | Policy loader/hash/consistency (+ treasury/escalation keys) | KERNEL-CORE | W1 | 01 | READY (Opus queue) | `claude --model opus --effort xhigh` | `kickoff/WP-03_policy-loader-hash-consistency.md` |
+| 04 | Kernel checks K-01..K-08 + algebra + `packages/terms` | KERNEL-CORE | W1 | 01,03 | READY after WP-03 merges (Opus queue) | `claude --model opus --effort xhigh` | `kickoff/WP-04_kernel-checks-k-01.md` |
 | 05 | Kernel checks K-09..K-14, K-16 logic, patterns (+ terms binding, feasible plans, escalation budget, profiles) | KERNEL-CORE | W2 | 04 | BLOCKED: deps 04 | `claude --model opus --effort xhigh` | `kickoff/WP-05_kernel-checks-k-09.md` |
 | 06 | Chain package (Money, ABIs, decoders) | CHAIN | W1–W2 | 01,07 | BLOCKED: deps 01,07 | `claude --model sonnet --effort high` | `kickoff/WP-06_chain-package-money-abis.md` |
 | 07 | `SymbolonVault` + tests + deploy (+ certificate surface, reproducible build) | CONTRACTS | W1 | 01 | NEXT: Opus slot after WP-01 v0 (drafts Solidity; tests need Arc Foundry, Kevin installs) | `claude --model opus --effort xhigh` | `kickoff/WP-07_symbolonvault-tests-deploy-certificate.md` |
 | 08 | Vault hardening: invariants, fuzz, hourlyCap, ERC-1271 | CONTRACTS | W3–W5 | 07 | BLOCKED: deps 07 | `claude --model opus --effort xhigh` | `kickoff/WP-08_vault-hardening-invariants-fuzz.md` |
-| 09 | DB migrations + RLS + views (+ `0002_v2`: kinds, budget, challenge, certificates, replay) | KERNEL-SVC | W1 | 01 | WAIT: WP-01 v0 (Sonnet queue; portable Postgres pending Kevin's OK) | `claude --model sonnet --effort high` | `kickoff/WP-09_db-migrations-rls-views.md` |
+| 09 | DB migrations + RLS + views (+ `0002_v2`: kinds, budget, challenge, certificates, replay) | KERNEL-SVC | W1 | 01 | READY (Sonnet queue; portable Postgres pending Kevin's OK) | `claude --model sonnet --effort high` | `kickoff/WP-09_db-migrations-rls-views.md` |
 | 10 | Kernel service skeleton, auth, context assembler | KERNEL-SVC | W1–W2 | 04,09 | BLOCKED: deps 04,09 | `claude --model sonnet --effort high` | `kickoff/WP-10_kernel-service-skeleton-auth.md` |
 | 11 | Circle adapter (relayer, webhooks, wallet gen) | KERNEL-SVC | W2 | 06,10 | BLOCKED: deps 06,10 | `claude --model opus --effort high` | `kickoff/WP-11_circle-adapter-relayer-webhooks.md` |
 | 12 | Engagement service (sign flows, on-chain register, indexer) | KERNEL-SVC | W2 | 07,10 | BLOCKED: deps 07,10 | `claude --model sonnet --effort high` | `kickoff/WP-12_engagement-service-sign-flows.md` |
 | 13 | Evidence collectors + hardened SSRF guard + sandbox fixtures mode | KERNEL-SVC | W2 | 10 | BLOCKED: deps 10 | `claude --model opus --effort high` | `kickoff/WP-13_evidence-collectors-hardened-ssrf.md` |
 | 14 | Scheduler, TOCTOU re-eval (+ discount window), attestation signer, release | KERNEL-SVC | W2 | 05,11,12 | BLOCKED: deps 05,11,12 | `claude --model opus --effort xhigh` | `kickoff/WP-14_scheduler-toctou-re-eval.md` |
 | 15 | Reconciler + breaker + guardian pause | KERNEL-SVC | W3 | 14 | BLOCKED: deps 14 | `claude --model sonnet --effort high` | `kickoff/WP-15_reconciler-breaker-guardian-pause.md` |
-| 16 | Extractor + optional Advisory (AI) note validator + normalization/sanitization + eval harness (the templated explanation is built in WP-05) | AGENT | W1–W3 | 01 | WAIT: WP-01 v0 (Sonnet queue) | `claude --model sonnet --effort high` | `kickoff/WP-16_extractor-optional-advisory-ai.md` |
+| 16 | Extractor + optional Advisory (AI) note validator + normalization/sanitization + eval harness (the templated explanation is built in WP-05) | AGENT | W1–W3 | 01 | READY (Sonnet queue) | `claude --model sonnet --effort high` | `kickoff/WP-16_extractor-optional-advisory-ai.md` |
 | 17 | Web shell, wallet sign-in, design system (+ CSP, build profiles, lint bans) | WEB | W1 | 00,01 | HOLD: Kevin's template; then safety components (a)(b)(c) | `claude --model sonnet --effort medium` | `kickoff/WP-17_web-shell-wallet-sign.md` |
 | 18 | Web: engagements + payee signing | WEB | W2–W3 | 12,17 | BLOCKED: deps 12,17 | `claude --model sonnet --effort medium` | `kickoff/WP-18_web-engagements-payee-signing.md` |
 | 19 | Web: intents, decision detail, approvals (WYSIWYS) | WEB | W3 | 10,16,17 | BLOCKED: deps 10,16,17 · owns safety component (d) approval screen | `claude --model sonnet --effort high` | `kickoff/WP-19_web-intents-decision-detail.md` |
 | 20 | Web: dashboard, `/pilot`, `/audit` verifier | WEB | W3–W4 | 02,17 | BLOCKED: deps 02,17 · owns safety component (e) receipt verifier | `claude --model sonnet --effort high` | `kickoff/WP-20_web-dashboard-pilot-audit.md` |
 | 21 | Web: attack lab, blast radius, `/certificate`, `/judge` (5 cards) | WEB | W4–W5 | 23,25,34 | BLOCKED: deps 23,25,34 | `claude --model sonnet --effort medium` | `kickoff/WP-21_web-attack-lab-blast.md` |
-| 22 | Attack fixtures + generators (ATK-01..24) | ATTACK | W1–W3 | 01 | WAIT: WP-01 v0 (Sonnet queue) | `claude --model sonnet --effort high` | `kickoff/WP-22_attack-fixtures-generators-atk.md` |
+| 22 | Attack fixtures + generators (ATK-01..24) | ATTACK | W1–W3 | 01 | READY (Sonnet queue) | `claude --model sonnet --effort high` | `kickoff/WP-22_attack-fixtures-generators-atk.md` |
 | 23 | Baseline B1 + harness + `packages/oracle` (oracle-v1) + oracle-based report | ATTACK | W2–W4 | 22,10 | BLOCKED: deps 22,10 | `claude --model sonnet --effort high` | `kickoff/WP-23_baseline-b1-harness-packages.md` |
 | 24 | Honest corpus + eval metrics | ATTACK+AGENT | W3–W4 | 16,22 | BLOCKED: deps 16,22 | `claude --model sonnet --effort high` | `kickoff/WP-24_honest-corpus-eval-metrics.md` |
 | 25 | Blast Radius closed form + Lite | BLAST | W3–W4 | 03,07 | BLOCKED: deps 03,07 | `claude --model sonnet --effort high` | `kickoff/WP-25_blast-radius-closed-form.md` |
 | 26 | T3 sim, red-team loop, patch loop | BLAST | W4–W5 | 08,23,25 | BLOCKED: deps 08,23,25 · cut 7 applied (no LLM red-team loop) | `claude --model sonnet --effort high` | `kickoff/WP-26_t3-sim-red-team.md` |
-| 27 | Pilot kit (terms, scripts, tracker) | DOCS | W0–W1 | none | READY: **Sonnet slot, now** | `claude --model sonnet --effort medium` | `kickoff/WP-27_pilot-kit-terms-scripts.md` |
+| 27 | Pilot kit (terms, scripts, tracker) | DOCS | W0–W1 | none | IN REVIEW (PR #3; one CHANGELOG conflict to rebase) | `claude --model sonnet --effort medium` | `kickoff/WP-27_pilot-kit-terms-scripts.md` |
 | 28 | README, video script, judge copy, screenshots | DOCS | W5–W7 | all | BLOCKED: deps all | `claude --model sonnet --effort medium` | `kickoff/WP-28_readme-video-script-judge.md` |
 | 29 | Independent verification ×3 | VERIFIER | W3,W5,W6 | varies | BLOCKED: deps varies | `claude --model opus --effort xhigh` | `kickoff/WP-29_independent-verification-3.md` |
 | 30 | P1: payee ack, compliance, dispute draft, vendor memory (**frozen until G4**) | mixed | W5 | 14,16 | FROZEN until Gate G4 (DEC-018, cut 1) | `claude --model sonnet --effort high` | `kickoff/WP-30_p1-payee-ack-compliance.md` |
