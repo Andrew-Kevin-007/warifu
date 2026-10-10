@@ -10,7 +10,7 @@ Owner: ORCH. Updated: **2026-10-10 22:00 IST**. Every ~3 h and at every gate: up
 | Field | Value |
 |---|---|
 | WP-01 estimate (`docs/10` §4) | 5 agent-hours |
-| WP-01 actual wall-clock (start → v0 merged) | _start: ___ · v0 merged: ___ · = ___ h_ |
+| WP-01 actual wall-clock (start → v0 merged) | start 21:50 · paused 22:14 at the usage limit (WIP `db1c2f2`) · v0 merged: ___ · = ___ h |
 | Plan usage before WP-01 (session % / weekly %) | ___ / ___ |
 | Plan usage after WP-01 v0 (session % / weekly %) | ___ / ___ |
 | **Projected weekly %** = (weekly % WP-01 used ÷ 5 h) × remaining estimate hours | ___ |
@@ -29,7 +29,7 @@ Owner: ORCH. Updated: **2026-10-10 22:00 IST**. Every ~3 h and at every gate: up
 | WP | Title | Role | Wave | Deps | Status | Launch | Kickoff |
 |---|---|---|---|---|---|---|---|
 | 00 | Repo bootstrap, CI, lint rules, Makefile | ORCH | W0 | none | DONE on `main` (scaffold); Windows fix + plan in PR #1 | `claude --model sonnet --effort high` | `kickoff/WP-00_repo-bootstrap-ci-lint.md` |
-| 01 | Schemas + JCS + EIP-712 vectors (+ v2 shapes) | SCHEMAS | W0–W1 | 00 | READY: **Opus slot, now**. v0 must merge tonight | `claude --model opus --effort xhigh` | `kickoff/WP-01_schemas-jcs-eip-712.md` |
+| 01 | Schemas + JCS + EIP-712 vectors (+ v2 shapes) | SCHEMAS | W0–W1 | 00 | IN PROGRESS (paused at usage limit 22:14): WIP `db1c2f2` = all src shapes + JCS + EIP-712 + `consensus` + pinned deps, typechecks, `pnpm verify` green. **Missing:** schema unit tests, `vectors/*.json`, ethers/canonicalize cross-check, CHANGELOG entry, v0 PR | `claude --model opus --effort xhigh` | `kickoff/WP-01_schemas-jcs-eip-712.md` |
 | 02 | Receipts (JCS/hash/sign/verify CLI) | KERNEL-CORE | W1 | 01 | WAIT: WP-01 v0 (Opus queue) | `claude --model opus --effort xhigh` | `kickoff/WP-02_receipts-jcs-hash-sign.md` |
 | 03 | Policy loader/hash/consistency (+ treasury/escalation keys) | KERNEL-CORE | W1 | 01 | WAIT: WP-01 v0 (Opus queue) | `claude --model opus --effort xhigh` | `kickoff/WP-03_policy-loader-hash-consistency.md` |
 | 04 | Kernel checks K-01..K-08 + algebra + `packages/terms` | KERNEL-CORE | W1 | 01,03 | WAIT: WP-01 v0 + WP-03 (Opus queue) | `claude --model opus --effort xhigh` | `kickoff/WP-04_kernel-checks-k-01.md` |
