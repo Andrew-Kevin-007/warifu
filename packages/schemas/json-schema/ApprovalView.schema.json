@@ -1,0 +1,373 @@
+{
+  "$id": "https://symbolon.dev/schemas/v1/ApprovalView.schema.json",
+  "title": "ApprovalView",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "intentId": {
+      "type": "string",
+      "pattern": "^0x[0-9a-f]{64}$"
+    },
+    "receiptHash": {
+      "type": "string",
+      "pattern": "^0x[0-9a-f]{64}$"
+    },
+    "engagementId": {
+      "type": "string",
+      "pattern": "^0x[0-9a-f]{64}$"
+    },
+    "milestoneId": {
+      "type": "string",
+      "pattern": "^0x[0-9a-f]{64}$"
+    },
+    "payee": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{40}$"
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "address",
+        "label"
+      ],
+      "additionalProperties": false
+    },
+    "decimals": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "grossBaseUnits": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,29})$"
+    },
+    "releaseBaseUnits": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,29})$"
+    },
+    "display": {
+      "type": "object",
+      "properties": {
+        "gross": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "release": {
+          "type": "string",
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "gross",
+        "release"
+      ],
+      "additionalProperties": false
+    },
+    "diffVsEngagement": {
+      "maxItems": 32,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "expected": {
+            "type": "string",
+            "maxLength": 512
+          },
+          "actual": {
+            "type": "string",
+            "maxLength": 512
+          }
+        },
+        "required": [
+          "field",
+          "expected",
+          "actual"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "reasons": {
+      "maxItems": 64,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "SCHEMA_INVALID",
+          "NON_ASCII_DIGITS",
+          "SCIENTIFIC",
+          "REFUSE_ROUND",
+          "AMOUNT_AMBIGUOUS",
+          "EXTRACTION_PARSE_MISMATCH",
+          "LINEITEM_SUM_MISMATCH",
+          "CREDIT_NOTE",
+          "NOT_PAYABLE",
+          "DUPLICATE_DOC",
+          "NEAR_DUPLICATE",
+          "MILESTONE_ALREADY_PAID",
+          "NO_ENGAGEMENT",
+          "ENGAGEMENT_INACTIVE",
+          "OUT_OF_WINDOW",
+          "MILESTONE_ORDER",
+          "UNKNOWN_MILESTONE",
+          "PAYEE_MISMATCH",
+          "ADDRESS_CHANGE_CLAIMED",
+          "PAYEE_CHANGE_PENDING",
+          "CURRENCY_UNSUPPORTED",
+          "DECIMALS_MISMATCH",
+          "SCALE_ABSURD",
+          "OVERPAY",
+          "UNDERPAY_PARTIAL",
+          "EVIDENCE_MISSING",
+          "EVIDENCE_FAILED",
+          "EVIDENCE_HASH_MISMATCH",
+          "EXTRACTION_DISAGREE",
+          "SINGLE_EXTRACTION",
+          "INSTRUCTION_IN_DOC",
+          "CAP_PER_TX",
+          "CAP_DAILY",
+          "CAP_WEEKLY",
+          "CATEGORY_BUDGET",
+          "VELOCITY",
+          "HUMAN_REQUIRED",
+          "FIRST_PAYMENT_LARGE",
+          "SCREENING_PENDING",
+          "SCREEN_HIT",
+          "SCREENING_DISABLED",
+          "LIQUIDITY",
+          "TIMING_CLAMPED",
+          "LATE",
+          "BREAKER_HALTED",
+          "KERNEL_ERROR",
+          "TERMS_NOT_SIGNED",
+          "TERMS_MISMATCH",
+          "DISCOUNT_WINDOW_CLOSED",
+          "EVIDENCE_SOURCE_DENIED",
+          "ESCALATION_BUDGET_EXCEEDED",
+          "PLAN_OUT_OF_ENVELOPE"
+        ]
+      }
+    },
+    "planSummary": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "planId": {
+              "type": "string",
+              "pattern": "^0x[0-9a-f]{64}$"
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "TAKE_DISCOUNT",
+                "DUE_MINUS_BUFFER",
+                "IMMEDIATE",
+                "AFTER_EVIDENCE",
+                "AFTER_DISPUTE_WINDOW",
+                "HOLD"
+              ]
+            },
+            "payAt": {
+              "type": "string",
+              "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+            },
+            "discountValue": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,29})$"
+            }
+          },
+          "required": [
+            "planId",
+            "mode",
+            "payAt",
+            "discountValue"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "expiresAt": {
+      "type": "string",
+      "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+    },
+    "typedData": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "const": "SymbolonVault"
+            },
+            "version": {
+              "type": "string",
+              "const": "1"
+            },
+            "chainId": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "verifyingContract": {
+              "type": "string",
+              "pattern": "^0x[0-9a-fA-F]{40}$"
+            }
+          },
+          "required": [
+            "name",
+            "version",
+            "chainId",
+            "verifyingContract"
+          ],
+          "additionalProperties": false
+        },
+        "types": {
+          "type": "object",
+          "properties": {
+            "EIP712Domain": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "type"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "OwnerApproval": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "type"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "EIP712Domain",
+            "OwnerApproval"
+          ],
+          "additionalProperties": false
+        },
+        "primaryType": {
+          "type": "string",
+          "const": "OwnerApproval"
+        },
+        "message": {
+          "type": "object",
+          "properties": {
+            "intentId": {
+              "type": "string",
+              "pattern": "^0x[0-9a-f]{64}$"
+            },
+            "receiptHash": {
+              "type": "string",
+              "pattern": "^0x[0-9a-f]{64}$"
+            },
+            "amount": {
+              "type": "string",
+              "maxLength": 78,
+              "pattern": "^(0|[1-9][0-9]*)$"
+            },
+            "deadline": {
+              "type": "string",
+              "maxLength": 20,
+              "pattern": "^(0|[1-9][0-9]*)$"
+            }
+          },
+          "required": [
+            "intentId",
+            "receiptHash",
+            "amount",
+            "deadline"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "domain",
+        "types",
+        "primaryType",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "typedDataHash": {
+      "type": "string",
+      "pattern": "^0x[0-9a-f]{64}$"
+    },
+    "advisory": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string",
+              "maxLength": 600
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "intentId",
+    "receiptHash",
+    "engagementId",
+    "milestoneId",
+    "payee",
+    "decimals",
+    "grossBaseUnits",
+    "releaseBaseUnits",
+    "display",
+    "diffVsEngagement",
+    "reasons",
+    "planSummary",
+    "expiresAt",
+    "typedData",
+    "typedDataHash",
+    "advisory"
+  ],
+  "additionalProperties": false
+}

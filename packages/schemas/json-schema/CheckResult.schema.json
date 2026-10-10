@@ -1,0 +1,159 @@
+{
+  "$id": "https://symbolon.dev/schemas/v1/CheckResult.schema.json",
+  "title": "CheckResult",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "enum": [
+        "K-01",
+        "K-02",
+        "K-03",
+        "K-04",
+        "K-05",
+        "K-06",
+        "K-07",
+        "K-08",
+        "K-09",
+        "K-10",
+        "K-11",
+        "K-12",
+        "K-13",
+        "K-14",
+        "K-15",
+        "K-16"
+      ]
+    },
+    "name": {
+      "type": "string",
+      "enum": [
+        "STRICT_SCHEMA",
+        "PRECISION_EXACT",
+        "DOC_TYPE_SIGN",
+        "IDEMPOTENCY_DEDUPE",
+        "ENGAGEMENT_BINDING",
+        "PAYEE_BINDING",
+        "CURRENCY_DECIMALS",
+        "AMOUNT_CONFORMANCE",
+        "EVIDENCE_MATCH",
+        "EXTRACTION_CONSENSUS",
+        "INSTRUCTION_CHANGE_HEURISTIC",
+        "AUTHORITY_ENVELOPE",
+        "COUNTERPARTY_SCREEN",
+        "LIQUIDITY_AND_TIMING",
+        "RECONCILIATION_WITNESS",
+        "CIRCUIT_BREAKER"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL",
+        "SKIP"
+      ]
+    },
+    "onFail": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "REJECT",
+            "ESCALATE",
+            "HOLD"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "code": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "SCHEMA_INVALID",
+            "NON_ASCII_DIGITS",
+            "SCIENTIFIC",
+            "REFUSE_ROUND",
+            "AMOUNT_AMBIGUOUS",
+            "EXTRACTION_PARSE_MISMATCH",
+            "LINEITEM_SUM_MISMATCH",
+            "CREDIT_NOTE",
+            "NOT_PAYABLE",
+            "DUPLICATE_DOC",
+            "NEAR_DUPLICATE",
+            "MILESTONE_ALREADY_PAID",
+            "NO_ENGAGEMENT",
+            "ENGAGEMENT_INACTIVE",
+            "OUT_OF_WINDOW",
+            "MILESTONE_ORDER",
+            "UNKNOWN_MILESTONE",
+            "PAYEE_MISMATCH",
+            "ADDRESS_CHANGE_CLAIMED",
+            "PAYEE_CHANGE_PENDING",
+            "CURRENCY_UNSUPPORTED",
+            "DECIMALS_MISMATCH",
+            "SCALE_ABSURD",
+            "OVERPAY",
+            "UNDERPAY_PARTIAL",
+            "EVIDENCE_MISSING",
+            "EVIDENCE_FAILED",
+            "EVIDENCE_HASH_MISMATCH",
+            "EXTRACTION_DISAGREE",
+            "SINGLE_EXTRACTION",
+            "INSTRUCTION_IN_DOC",
+            "CAP_PER_TX",
+            "CAP_DAILY",
+            "CAP_WEEKLY",
+            "CATEGORY_BUDGET",
+            "VELOCITY",
+            "HUMAN_REQUIRED",
+            "FIRST_PAYMENT_LARGE",
+            "SCREENING_PENDING",
+            "SCREEN_HIT",
+            "SCREENING_DISABLED",
+            "LIQUIDITY",
+            "TIMING_CLAMPED",
+            "LATE",
+            "BREAKER_HALTED",
+            "KERNEL_ERROR",
+            "TERMS_NOT_SIGNED",
+            "TERMS_MISMATCH",
+            "DISCOUNT_WINDOW_CLOSED",
+            "EVIDENCE_SOURCE_DENIED",
+            "ESCALATION_BUDGET_EXCEEDED",
+            "PLAN_OUT_OF_ENVELOPE"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "detail": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "refs": {
+      "maxItems": 32,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 256
+      }
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "status",
+    "onFail",
+    "code",
+    "detail",
+    "refs"
+  ],
+  "additionalProperties": false
+}

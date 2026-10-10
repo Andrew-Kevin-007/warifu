@@ -1,0 +1,3295 @@
+{
+  "$id": "https://symbolon.dev/schemas/v1/ReplayBundle.schema.json",
+  "title": "ReplayBundle",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "number",
+      "const": 1
+    },
+    "builtAt": {
+      "type": "string",
+      "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+    },
+    "gitSha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{7,40}$"
+    },
+    "harnessVersions": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "maxLength": 64
+      },
+      "additionalProperties": {
+        "type": "string",
+        "maxLength": 64
+      }
+    },
+    "attackMatrix": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/__schema0"
+      }
+    },
+    "holdout": {
+      "type": "object",
+      "properties": {
+        "seedHash": {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{64}$"
+        },
+        "n": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "losses": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "upper95": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "seedHash",
+        "n",
+        "losses",
+        "upper95"
+      ],
+      "additionalProperties": false
+    },
+    "scenarios": {
+      "maxItems": 16,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "scenarioId": {
+            "type": "string",
+            "enum": [
+              "S-A",
+              "S-B",
+              "S-C"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "engagement": {
+            "type": "object",
+            "properties": {
+              "engagementId": {
+                "type": "string",
+                "pattern": "^0x[0-9a-f]{64}$"
+              },
+              "tenantId": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+              },
+              "owner": {
+                "type": "string",
+                "pattern": "^0x[0-9a-fA-F]{40}$"
+              },
+              "payee": {
+                "type": "string",
+                "pattern": "^0x[0-9a-fA-F]{40}$"
+              },
+              "payeeLabel": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "currency": {
+                "type": "string",
+                "const": "USDC"
+              },
+              "currencyDecimals": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 255
+              },
+              "capBaseUnits": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]{0,29})$"
+              },
+              "start": {
+                "type": "string",
+                "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+              },
+              "end": {
+                "type": "string",
+                "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+              },
+              "sequential": {
+                "type": "boolean"
+              },
+              "milestones": {
+                "minItems": 1,
+                "maxItems": 64,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "milestoneId": {
+                      "type": "string",
+                      "pattern": "^0x[0-9a-f]{64}$"
+                    },
+                    "slug": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64,
+                      "pattern": "^[a-z0-9][a-z0-9-]*$"
+                    },
+                    "description": {
+                      "type": "string",
+                      "maxLength": 2000
+                    },
+                    "amountBaseUnits": {
+                      "type": "string",
+                      "pattern": "^(0|[1-9][0-9]{0,29})$"
+                    },
+                    "partialAllowed": {
+                      "type": "boolean"
+                    },
+                    "immediate": {
+                      "type": "boolean"
+                    },
+                    "dueDate": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "category": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64,
+                      "pattern": "^[a-z0-9][a-z0-9_-]*$"
+                    },
+                    "evidenceSpec": {
+                      "maxItems": 16,
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "const": "OWNER_ACK"
+                              }
+                            },
+                            "required": [
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "const": "CI_PASS"
+                              },
+                              "repo": {
+                                "type": "string",
+                                "maxLength": 200,
+                                "pattern": "^[A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+$"
+                              },
+                              "ref": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 255,
+                                "pattern": "^[A-Za-z0-9._/-]+$"
+                              },
+                              "workflow": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 255,
+                                "pattern": "^[A-Za-z0-9._/ -]+$"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "repo",
+                              "ref"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "const": "URL_HEALTH"
+                              },
+                              "url": {
+                                "type": "string",
+                                "maxLength": 2048,
+                                "pattern": "^https:\\/\\/[^\\s/?#@]+(?:[/?#][^\\s]*)?$"
+                              },
+                              "expectStatus": {
+                                "type": "integer",
+                                "minimum": 100,
+                                "maximum": 599
+                              },
+                              "contentSha256": {
+                                "type": "string",
+                                "pattern": "^0x[0-9a-f]{64}$"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "url",
+                              "expectStatus"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "const": "ARTIFACT_HASH"
+                              },
+                              "sha256": {
+                                "type": "string",
+                                "pattern": "^0x[0-9a-f]{64}$"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "sha256"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "PENDING",
+                        "EVIDENCE_OK",
+                        "PAID",
+                        "DISPUTED",
+                        "CANCELLED"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "milestoneId",
+                    "slug",
+                    "description",
+                    "amountBaseUnits",
+                    "partialAllowed",
+                    "immediate",
+                    "dueDate",
+                    "category",
+                    "evidenceSpec",
+                    "status"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "paymentTerms": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "netDays": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 365
+                      },
+                      "earlyPay": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "discountBps": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 2000
+                              },
+                              "withinDays": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 365
+                              }
+                            },
+                            "required": [
+                              "discountBps",
+                              "withinDays"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "payBeforeDueBufferHours": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 8760
+                      },
+                      "allowImmediate": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "netDays",
+                      "earlyPay",
+                      "payBeforeDueBufferHours",
+                      "allowImmediate"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "termsHash": {
+                "type": "string",
+                "pattern": "^0x[0-9a-f]{64}$"
+              },
+              "ownerSig": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "maxLength": 8194,
+                    "pattern": "^0x(?:[0-9a-f]{2})*$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "payeeSig": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "maxLength": 8194,
+                    "pattern": "^0x(?:[0-9a-f]{2})*$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "nonce": {
+                "type": "string",
+                "maxLength": 78,
+                "pattern": "^(0|[1-9][0-9]*)$"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "DRAFT",
+                  "AWAITING_PAYEE",
+                  "REGISTERING",
+                  "ACTIVE",
+                  "CLOSED",
+                  "CANCELLED"
+                ]
+              },
+              "registeredTx": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{64}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "engagementId",
+              "tenantId",
+              "owner",
+              "payee",
+              "payeeLabel",
+              "currency",
+              "currencyDecimals",
+              "capBaseUnits",
+              "start",
+              "end",
+              "sequential",
+              "milestones",
+              "paymentTerms",
+              "termsHash",
+              "ownerSig",
+              "payeeSig",
+              "nonce",
+              "status",
+              "registeredTx"
+            ],
+            "additionalProperties": false
+          },
+          "milestones": {
+            "minItems": 1,
+            "maxItems": 64,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "milestoneId": {
+                  "type": "string",
+                  "pattern": "^0x[0-9a-f]{64}$"
+                },
+                "slug": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64,
+                  "pattern": "^[a-z0-9][a-z0-9-]*$"
+                },
+                "description": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "amountBaseUnits": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]{0,29})$"
+                },
+                "partialAllowed": {
+                  "type": "boolean"
+                },
+                "immediate": {
+                  "type": "boolean"
+                },
+                "dueDate": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "category": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64,
+                  "pattern": "^[a-z0-9][a-z0-9_-]*$"
+                },
+                "evidenceSpec": {
+                  "maxItems": 16,
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "const": "OWNER_ACK"
+                          }
+                        },
+                        "required": [
+                          "type"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "const": "CI_PASS"
+                          },
+                          "repo": {
+                            "type": "string",
+                            "maxLength": 200,
+                            "pattern": "^[A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+$"
+                          },
+                          "ref": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 255,
+                            "pattern": "^[A-Za-z0-9._/-]+$"
+                          },
+                          "workflow": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 255,
+                            "pattern": "^[A-Za-z0-9._/ -]+$"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "repo",
+                          "ref"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "const": "URL_HEALTH"
+                          },
+                          "url": {
+                            "type": "string",
+                            "maxLength": 2048,
+                            "pattern": "^https:\\/\\/[^\\s/?#@]+(?:[/?#][^\\s]*)?$"
+                          },
+                          "expectStatus": {
+                            "type": "integer",
+                            "minimum": 100,
+                            "maximum": 599
+                          },
+                          "contentSha256": {
+                            "type": "string",
+                            "pattern": "^0x[0-9a-f]{64}$"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "url",
+                          "expectStatus"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "const": "ARTIFACT_HASH"
+                          },
+                          "sha256": {
+                            "type": "string",
+                            "pattern": "^0x[0-9a-f]{64}$"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "sha256"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "PENDING",
+                    "EVIDENCE_OK",
+                    "PAID",
+                    "DISPUTED",
+                    "CANCELLED"
+                  ]
+                }
+              },
+              "required": [
+                "milestoneId",
+                "slug",
+                "description",
+                "amountBaseUnits",
+                "partialAllowed",
+                "immediate",
+                "dueDate",
+                "category",
+                "evidenceSpec",
+                "status"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "paymentTerms": {
+            "type": "object",
+            "properties": {
+              "netDays": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 365
+              },
+              "earlyPay": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "discountBps": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 2000
+                      },
+                      "withinDays": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 365
+                      }
+                    },
+                    "required": [
+                      "discountBps",
+                      "withinDays"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "payBeforeDueBufferHours": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 8760
+              },
+              "allowImmediate": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "netDays",
+              "earlyPay",
+              "payBeforeDueBufferHours",
+              "allowImmediate"
+            ],
+            "additionalProperties": false
+          },
+          "policy": {
+            "type": "object",
+            "properties": {
+              "caps": {
+                "type": "object",
+                "properties": {
+                  "perTxHardCap": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+                  },
+                  "dailyCap": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+                  },
+                  "hourlyCap": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+                  },
+                  "weeklyCap": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+                  },
+                  "humanApprovalAbove": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "velocity": {
+                "type": "object",
+                "properties": {
+                  "maxReleasesPerDay": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000
+                  },
+                  "maxReleasesPerPayeePerDay": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000
+                  },
+                  "maxAmountPerPayeePerDay": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "newPayee": {
+                "type": "object",
+                "properties": {
+                  "firstPaymentMax": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+                  },
+                  "alwaysHuman": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "reserve": {
+                "type": "object",
+                "properties": {
+                  "floor": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]{0,29})(\\.[0-9]{1,36})?$"
+                  },
+                  "lookaheadDays": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3650
+                  }
+                },
+                "additionalProperties": false
+              },
+              "timing": {
+                "type": "object",
+                "properties": {
+                  "disputeWindowHours": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 87600
+                  },
+                  "payBeforeDueBufferHours": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 87600
+                  },
+                  "allowImmediate": {
+                    "type": "boolean"
+                  },
+                  "defaultNetDays": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 365
+                  },
+                  "windowSafetyMarginMinutes": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 525600
+                  }
+                },
+                "additionalProperties": false
+              },
+              "escalation": {
+                "type": "object",
+                "properties": {
+                  "maxPerDay": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000
+                  },
+                  "maxPerEngagementPerDay": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000
+                  }
+                },
+                "additionalProperties": false
+              },
+              "limits": {
+                "type": "object",
+                "properties": {
+                  "maxDocChars": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20000
+                  }
+                },
+                "additionalProperties": false
+              },
+              "evidence": {
+                "type": "object",
+                "properties": {
+                  "freshnessHours": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 87600
+                  },
+                  "allowOwnerOverride": {
+                    "type": "boolean"
+                  },
+                  "urlAllowlist": {
+                    "maxItems": 64,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 2048,
+                      "pattern": "^https:\\/\\/[^\\s/?#@]+$"
+                    }
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          },
+          "clock": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "fixed",
+                  "advancing"
+                ]
+              },
+              "start": {
+                "type": "string",
+                "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+              }
+            },
+            "required": [
+              "mode",
+              "start"
+            ],
+            "additionalProperties": false
+          },
+          "evidenceFixtures": {
+            "maxItems": 64,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "fixtureId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64,
+                  "pattern": "^[A-Za-z0-9._-]+$"
+                },
+                "milestoneId": {
+                  "type": "string",
+                  "pattern": "^0x[0-9a-f]{64}$"
+                },
+                "requirement": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "OWNER_ACK"
+                        }
+                      },
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "CI_PASS"
+                        },
+                        "repo": {
+                          "type": "string",
+                          "maxLength": 200,
+                          "pattern": "^[A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+$"
+                        },
+                        "ref": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 255,
+                          "pattern": "^[A-Za-z0-9._/-]+$"
+                        },
+                        "workflow": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 255,
+                          "pattern": "^[A-Za-z0-9._/ -]+$"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "repo",
+                        "ref"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "URL_HEALTH"
+                        },
+                        "url": {
+                          "type": "string",
+                          "maxLength": 2048,
+                          "pattern": "^https:\\/\\/[^\\s/?#@]+(?:[/?#][^\\s]*)?$"
+                        },
+                        "expectStatus": {
+                          "type": "integer",
+                          "minimum": 100,
+                          "maximum": 599
+                        },
+                        "contentSha256": {
+                          "type": "string",
+                          "pattern": "^0x[0-9a-f]{64}$"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url",
+                        "expectStatus"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "ARTIFACT_HASH"
+                        },
+                        "sha256": {
+                          "type": "string",
+                          "pattern": "^0x[0-9a-f]{64}$"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "sha256"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "result": {
+                  "type": "string",
+                  "enum": [
+                    "PASS",
+                    "FAIL",
+                    "ERROR"
+                  ]
+                },
+                "payload": {
+                  "$ref": "#/$defs/__schema0"
+                },
+                "details": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "availableAt": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "fixtureId",
+                "milestoneId",
+                "requirement",
+                "result",
+                "payload",
+                "details",
+                "availableAt"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "groundTruth": {
+            "type": "object",
+            "properties": {
+              "legitPayee": {
+                "type": "string",
+                "pattern": "^0x[0-9a-fA-F]{40}$"
+              },
+              "legitAmountByMilestone": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string",
+                  "pattern": "^0x[0-9a-f]{64}$"
+                },
+                "additionalProperties": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]{0,29})$"
+                }
+              },
+              "allowedWindow": {
+                "type": "object",
+                "properties": {
+                  "start": {
+                    "type": "string",
+                    "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+                  },
+                  "end": {
+                    "type": "string",
+                    "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+                  }
+                },
+                "required": [
+                  "start",
+                  "end"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "legitPayee",
+              "legitAmountByMilestone",
+              "allowedWindow"
+            ],
+            "additionalProperties": false
+          },
+          "oracleVersion": {
+            "type": "string",
+            "const": "oracle-v1"
+          }
+        },
+        "required": [
+          "scenarioId",
+          "title",
+          "engagement",
+          "milestones",
+          "paymentTerms",
+          "policy",
+          "clock",
+          "evidenceFixtures",
+          "groundTruth",
+          "oracleVersion"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "attempts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "attemptId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+          },
+          "scenarioId": {
+            "type": "string",
+            "enum": [
+              "S-A",
+              "S-B",
+              "S-C"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "human",
+              "house",
+              "oneclick"
+            ]
+          },
+          "attackId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32,
+                "pattern": "^[A-Z0-9-]+$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ipHash": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^0x[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "textHash": {
+            "type": "string",
+            "pattern": "^0x[0-9a-f]{64}$"
+          },
+          "textLength": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "excerpt": {
+            "type": "string",
+            "maxLength": 240
+          },
+          "extraction": {
+            "type": "object",
+            "properties": {
+              "modelA": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[A-Za-z0-9._:/@-]+$"
+              },
+              "modelB": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "pattern": "^[A-Za-z0-9._:/@-]+$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "promptHashA": {
+                "type": "string",
+                "pattern": "^0x[0-9a-f]{64}$"
+              },
+              "promptHashB": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{64}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "outputHashA": {
+                "type": "string",
+                "pattern": "^0x[0-9a-f]{64}$"
+              },
+              "outputHashB": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{64}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "modelA",
+              "modelB",
+              "promptHashA",
+              "promptHashB",
+              "outputHashA",
+              "outputHashB"
+            ],
+            "additionalProperties": false
+          },
+          "decisionId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+          },
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "RELEASE",
+              "HOLD",
+              "ESCALATE",
+              "REJECT",
+              "REPLAY"
+            ]
+          },
+          "reasons": {
+            "maxItems": 64,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "SCHEMA_INVALID",
+                "NON_ASCII_DIGITS",
+                "SCIENTIFIC",
+                "REFUSE_ROUND",
+                "AMOUNT_AMBIGUOUS",
+                "EXTRACTION_PARSE_MISMATCH",
+                "LINEITEM_SUM_MISMATCH",
+                "CREDIT_NOTE",
+                "NOT_PAYABLE",
+                "DUPLICATE_DOC",
+                "NEAR_DUPLICATE",
+                "MILESTONE_ALREADY_PAID",
+                "NO_ENGAGEMENT",
+                "ENGAGEMENT_INACTIVE",
+                "OUT_OF_WINDOW",
+                "MILESTONE_ORDER",
+                "UNKNOWN_MILESTONE",
+                "PAYEE_MISMATCH",
+                "ADDRESS_CHANGE_CLAIMED",
+                "PAYEE_CHANGE_PENDING",
+                "CURRENCY_UNSUPPORTED",
+                "DECIMALS_MISMATCH",
+                "SCALE_ABSURD",
+                "OVERPAY",
+                "UNDERPAY_PARTIAL",
+                "EVIDENCE_MISSING",
+                "EVIDENCE_FAILED",
+                "EVIDENCE_HASH_MISMATCH",
+                "EXTRACTION_DISAGREE",
+                "SINGLE_EXTRACTION",
+                "INSTRUCTION_IN_DOC",
+                "CAP_PER_TX",
+                "CAP_DAILY",
+                "CAP_WEEKLY",
+                "CATEGORY_BUDGET",
+                "VELOCITY",
+                "HUMAN_REQUIRED",
+                "FIRST_PAYMENT_LARGE",
+                "SCREENING_PENDING",
+                "SCREEN_HIT",
+                "SCREENING_DISABLED",
+                "LIQUIDITY",
+                "TIMING_CLAMPED",
+                "LATE",
+                "BREAKER_HALTED",
+                "KERNEL_ERROR",
+                "TERMS_NOT_SIGNED",
+                "TERMS_MISMATCH",
+                "DISCOUNT_WINDOW_CLOSED",
+                "EVIDENCE_SOURCE_DENIED",
+                "ESCALATION_BUDGET_EXCEEDED",
+                "PLAN_OUT_OF_ENVELOPE"
+              ]
+            }
+          },
+          "checksFired": {
+            "maxItems": 16,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "K-01",
+                "K-02",
+                "K-03",
+                "K-04",
+                "K-05",
+                "K-06",
+                "K-07",
+                "K-08",
+                "K-09",
+                "K-10",
+                "K-11",
+                "K-12",
+                "K-13",
+                "K-14",
+                "K-15",
+                "K-16"
+              ]
+            }
+          },
+          "receiptHash": {
+            "type": "string",
+            "pattern": "^0x[0-9a-f]{64}$"
+          },
+          "vaultSimulation": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "ok": {
+                    "type": "boolean"
+                  },
+                  "revertError": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "ok",
+                  "revertError"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "txHash": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^0x[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "oracle": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "string",
+                "const": "oracle-v1"
+              },
+              "result": {
+                "type": "string",
+                "enum": [
+                  "NO_LOSS",
+                  "LOSS"
+                ]
+              },
+              "predicates": {
+                "maxItems": 8,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "O1",
+                    "O2",
+                    "O3",
+                    "O4",
+                    "O5",
+                    "O6",
+                    "O7",
+                    "O8"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "version",
+              "result",
+              "predicates"
+            ],
+            "additionalProperties": false
+          },
+          "benignControl": {
+            "type": "boolean"
+          },
+          "publishable": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+          }
+        },
+        "required": [
+          "attemptId",
+          "scenarioId",
+          "source",
+          "attackId",
+          "ipHash",
+          "textHash",
+          "textLength",
+          "excerpt",
+          "extraction",
+          "decisionId",
+          "verdict",
+          "reasons",
+          "checksFired",
+          "receiptHash",
+          "vaultSimulation",
+          "txHash",
+          "oracle",
+          "benignControl",
+          "publishable",
+          "createdAt"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "receipts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "receipt": {
+            "type": "object",
+            "properties": {
+              "receiptVersion": {
+                "type": "number",
+                "const": 1
+              },
+              "decision": {
+                "type": "object",
+                "properties": {
+                  "decisionId": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                  },
+                  "tenantId": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                  },
+                  "intentId": {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{64}$"
+                  },
+                  "verdict": {
+                    "type": "string",
+                    "enum": [
+                      "RELEASE",
+                      "HOLD",
+                      "ESCALATE",
+                      "REJECT",
+                      "REPLAY"
+                    ]
+                  },
+                  "checks": {
+                    "maxItems": 32,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "enum": [
+                            "K-01",
+                            "K-02",
+                            "K-03",
+                            "K-04",
+                            "K-05",
+                            "K-06",
+                            "K-07",
+                            "K-08",
+                            "K-09",
+                            "K-10",
+                            "K-11",
+                            "K-12",
+                            "K-13",
+                            "K-14",
+                            "K-15",
+                            "K-16"
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "enum": [
+                            "STRICT_SCHEMA",
+                            "PRECISION_EXACT",
+                            "DOC_TYPE_SIGN",
+                            "IDEMPOTENCY_DEDUPE",
+                            "ENGAGEMENT_BINDING",
+                            "PAYEE_BINDING",
+                            "CURRENCY_DECIMALS",
+                            "AMOUNT_CONFORMANCE",
+                            "EVIDENCE_MATCH",
+                            "EXTRACTION_CONSENSUS",
+                            "INSTRUCTION_CHANGE_HEURISTIC",
+                            "AUTHORITY_ENVELOPE",
+                            "COUNTERPARTY_SCREEN",
+                            "LIQUIDITY_AND_TIMING",
+                            "RECONCILIATION_WITNESS",
+                            "CIRCUIT_BREAKER"
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "PASS",
+                            "FAIL",
+                            "SKIP"
+                          ]
+                        },
+                        "onFail": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "REJECT",
+                                "ESCALATE",
+                                "HOLD"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "code": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "SCHEMA_INVALID",
+                                "NON_ASCII_DIGITS",
+                                "SCIENTIFIC",
+                                "REFUSE_ROUND",
+                                "AMOUNT_AMBIGUOUS",
+                                "EXTRACTION_PARSE_MISMATCH",
+                                "LINEITEM_SUM_MISMATCH",
+                                "CREDIT_NOTE",
+                                "NOT_PAYABLE",
+                                "DUPLICATE_DOC",
+                                "NEAR_DUPLICATE",
+                                "MILESTONE_ALREADY_PAID",
+                                "NO_ENGAGEMENT",
+                                "ENGAGEMENT_INACTIVE",
+                                "OUT_OF_WINDOW",
+                                "MILESTONE_ORDER",
+                                "UNKNOWN_MILESTONE",
+                                "PAYEE_MISMATCH",
+                                "ADDRESS_CHANGE_CLAIMED",
+                                "PAYEE_CHANGE_PENDING",
+                                "CURRENCY_UNSUPPORTED",
+                                "DECIMALS_MISMATCH",
+                                "SCALE_ABSURD",
+                                "OVERPAY",
+                                "UNDERPAY_PARTIAL",
+                                "EVIDENCE_MISSING",
+                                "EVIDENCE_FAILED",
+                                "EVIDENCE_HASH_MISMATCH",
+                                "EXTRACTION_DISAGREE",
+                                "SINGLE_EXTRACTION",
+                                "INSTRUCTION_IN_DOC",
+                                "CAP_PER_TX",
+                                "CAP_DAILY",
+                                "CAP_WEEKLY",
+                                "CATEGORY_BUDGET",
+                                "VELOCITY",
+                                "HUMAN_REQUIRED",
+                                "FIRST_PAYMENT_LARGE",
+                                "SCREENING_PENDING",
+                                "SCREEN_HIT",
+                                "SCREENING_DISABLED",
+                                "LIQUIDITY",
+                                "TIMING_CLAMPED",
+                                "LATE",
+                                "BREAKER_HALTED",
+                                "KERNEL_ERROR",
+                                "TERMS_NOT_SIGNED",
+                                "TERMS_MISMATCH",
+                                "DISCOUNT_WINDOW_CLOSED",
+                                "EVIDENCE_SOURCE_DENIED",
+                                "ESCALATION_BUDGET_EXCEEDED",
+                                "PLAN_OUT_OF_ENVELOPE"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "detail": {
+                          "type": "string",
+                          "maxLength": 2000
+                        },
+                        "refs": {
+                          "maxItems": 32,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "maxLength": 256
+                          }
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "status",
+                        "onFail",
+                        "code",
+                        "detail",
+                        "refs"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "reasons": {
+                    "maxItems": 64,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "SCHEMA_INVALID",
+                        "NON_ASCII_DIGITS",
+                        "SCIENTIFIC",
+                        "REFUSE_ROUND",
+                        "AMOUNT_AMBIGUOUS",
+                        "EXTRACTION_PARSE_MISMATCH",
+                        "LINEITEM_SUM_MISMATCH",
+                        "CREDIT_NOTE",
+                        "NOT_PAYABLE",
+                        "DUPLICATE_DOC",
+                        "NEAR_DUPLICATE",
+                        "MILESTONE_ALREADY_PAID",
+                        "NO_ENGAGEMENT",
+                        "ENGAGEMENT_INACTIVE",
+                        "OUT_OF_WINDOW",
+                        "MILESTONE_ORDER",
+                        "UNKNOWN_MILESTONE",
+                        "PAYEE_MISMATCH",
+                        "ADDRESS_CHANGE_CLAIMED",
+                        "PAYEE_CHANGE_PENDING",
+                        "CURRENCY_UNSUPPORTED",
+                        "DECIMALS_MISMATCH",
+                        "SCALE_ABSURD",
+                        "OVERPAY",
+                        "UNDERPAY_PARTIAL",
+                        "EVIDENCE_MISSING",
+                        "EVIDENCE_FAILED",
+                        "EVIDENCE_HASH_MISMATCH",
+                        "EXTRACTION_DISAGREE",
+                        "SINGLE_EXTRACTION",
+                        "INSTRUCTION_IN_DOC",
+                        "CAP_PER_TX",
+                        "CAP_DAILY",
+                        "CAP_WEEKLY",
+                        "CATEGORY_BUDGET",
+                        "VELOCITY",
+                        "HUMAN_REQUIRED",
+                        "FIRST_PAYMENT_LARGE",
+                        "SCREENING_PENDING",
+                        "SCREEN_HIT",
+                        "SCREENING_DISABLED",
+                        "LIQUIDITY",
+                        "TIMING_CLAMPED",
+                        "LATE",
+                        "BREAKER_HALTED",
+                        "KERNEL_ERROR",
+                        "TERMS_NOT_SIGNED",
+                        "TERMS_MISMATCH",
+                        "DISCOUNT_WINDOW_CLOSED",
+                        "EVIDENCE_SOURCE_DENIED",
+                        "ESCALATION_BUDGET_EXCEEDED",
+                        "PLAN_OUT_OF_ENVELOPE"
+                      ]
+                    }
+                  },
+                  "engagementId": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^0x[0-9a-f]{64}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "milestoneId": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^0x[0-9a-f]{64}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "payee": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^0x[0-9a-fA-F]{40}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "amountBaseUnits": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(0|[1-9][0-9]{0,29})$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "payAt": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "timingSource": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "AGENT",
+                          "CLAMPED",
+                          "DEFAULT"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "releaseAmountBaseUnits": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(0|[1-9][0-9]{0,29})$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "planId": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^0x[0-9a-f]{64}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "plannerFallback": {
+                    "type": "boolean"
+                  },
+                  "invoiceReceivedAt": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "policyHash": {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{64}$"
+                  },
+                  "kernelVersion": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "patternsVersion": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "contextHash": {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{64}$"
+                  },
+                  "agentRecommendation": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "verdict": {
+                            "type": "string",
+                            "enum": [
+                              "RELEASE",
+                              "HOLD",
+                              "ESCALATE"
+                            ]
+                          },
+                          "reasons": {
+                            "maxItems": 10,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 500
+                            }
+                          }
+                        },
+                        "required": [
+                          "verdict",
+                          "reasons"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "supersedes": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+                  }
+                },
+                "required": [
+                  "decisionId",
+                  "tenantId",
+                  "intentId",
+                  "verdict",
+                  "checks",
+                  "reasons",
+                  "engagementId",
+                  "milestoneId",
+                  "payee",
+                  "amountBaseUnits",
+                  "payAt",
+                  "timingSource",
+                  "releaseAmountBaseUnits",
+                  "planId",
+                  "plannerFallback",
+                  "invoiceReceivedAt",
+                  "policyHash",
+                  "kernelVersion",
+                  "patternsVersion",
+                  "contextHash",
+                  "agentRecommendation",
+                  "supersedes",
+                  "createdAt"
+                ],
+                "additionalProperties": false
+              },
+              "humanExplanationHash": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{64}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "inputs": {
+                "type": "object",
+                "properties": {
+                  "docHash": {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{64}$"
+                  },
+                  "extractionHashA": {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{64}$"
+                  },
+                  "extractionHashB": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^0x[0-9a-f]{64}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "promptHashA": {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{64}$"
+                  },
+                  "promptHashB": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^0x[0-9a-f]{64}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "modelA": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "pattern": "^[A-Za-z0-9._:/@-]+$"
+                  },
+                  "modelB": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 128,
+                        "pattern": "^[A-Za-z0-9._:/@-]+$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "evidence": {
+                    "maxItems": 64,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "evidenceId": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                        },
+                        "payloadHash": {
+                          "type": "string",
+                          "pattern": "^0x[0-9a-f]{64}$"
+                        },
+                        "result": {
+                          "type": "string",
+                          "enum": [
+                            "PASS",
+                            "FAIL",
+                            "ERROR"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "evidenceId",
+                        "payloadHash",
+                        "result"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "engagementTermsHash": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^0x[0-9a-f]{64}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "normalizedDocHash": {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-f]{64}$"
+                  },
+                  "paymentTermsHash": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^0x[0-9a-f]{64}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "planEvaluationHash": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^0x[0-9a-f]{64}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "profile": {
+                    "type": "string",
+                    "enum": [
+                      "production",
+                      "sandbox"
+                    ]
+                  }
+                },
+                "required": [
+                  "docHash",
+                  "extractionHashA",
+                  "extractionHashB",
+                  "promptHashA",
+                  "promptHashB",
+                  "modelA",
+                  "modelB",
+                  "evidence",
+                  "engagementTermsHash",
+                  "normalizedDocHash",
+                  "paymentTermsHash",
+                  "planEvaluationHash",
+                  "profile"
+                ],
+                "additionalProperties": false
+              },
+              "issuedAt": {
+                "type": "string",
+                "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+              }
+            },
+            "required": [
+              "receiptVersion",
+              "decision",
+              "humanExplanationHash",
+              "inputs",
+              "issuedAt"
+            ],
+            "additionalProperties": false
+          },
+          "receiptHash": {
+            "type": "string",
+            "pattern": "^0x[0-9a-f]{64}$"
+          },
+          "signature": {
+            "type": "string",
+            "maxLength": 8194,
+            "pattern": "^0x(?:[0-9a-f]{2})*$"
+          },
+          "signer": {
+            "type": "string",
+            "pattern": "^0x[0-9a-fA-F]{40}$"
+          }
+        },
+        "required": [
+          "receipt",
+          "receiptHash",
+          "signature",
+          "signer"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "decisionId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+          },
+          "tenantId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+          },
+          "intentId": {
+            "type": "string",
+            "pattern": "^0x[0-9a-f]{64}$"
+          },
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "RELEASE",
+              "HOLD",
+              "ESCALATE",
+              "REJECT",
+              "REPLAY"
+            ]
+          },
+          "checks": {
+            "maxItems": 32,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "enum": [
+                    "K-01",
+                    "K-02",
+                    "K-03",
+                    "K-04",
+                    "K-05",
+                    "K-06",
+                    "K-07",
+                    "K-08",
+                    "K-09",
+                    "K-10",
+                    "K-11",
+                    "K-12",
+                    "K-13",
+                    "K-14",
+                    "K-15",
+                    "K-16"
+                  ]
+                },
+                "name": {
+                  "type": "string",
+                  "enum": [
+                    "STRICT_SCHEMA",
+                    "PRECISION_EXACT",
+                    "DOC_TYPE_SIGN",
+                    "IDEMPOTENCY_DEDUPE",
+                    "ENGAGEMENT_BINDING",
+                    "PAYEE_BINDING",
+                    "CURRENCY_DECIMALS",
+                    "AMOUNT_CONFORMANCE",
+                    "EVIDENCE_MATCH",
+                    "EXTRACTION_CONSENSUS",
+                    "INSTRUCTION_CHANGE_HEURISTIC",
+                    "AUTHORITY_ENVELOPE",
+                    "COUNTERPARTY_SCREEN",
+                    "LIQUIDITY_AND_TIMING",
+                    "RECONCILIATION_WITNESS",
+                    "CIRCUIT_BREAKER"
+                  ]
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "PASS",
+                    "FAIL",
+                    "SKIP"
+                  ]
+                },
+                "onFail": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "REJECT",
+                        "ESCALATE",
+                        "HOLD"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "code": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "SCHEMA_INVALID",
+                        "NON_ASCII_DIGITS",
+                        "SCIENTIFIC",
+                        "REFUSE_ROUND",
+                        "AMOUNT_AMBIGUOUS",
+                        "EXTRACTION_PARSE_MISMATCH",
+                        "LINEITEM_SUM_MISMATCH",
+                        "CREDIT_NOTE",
+                        "NOT_PAYABLE",
+                        "DUPLICATE_DOC",
+                        "NEAR_DUPLICATE",
+                        "MILESTONE_ALREADY_PAID",
+                        "NO_ENGAGEMENT",
+                        "ENGAGEMENT_INACTIVE",
+                        "OUT_OF_WINDOW",
+                        "MILESTONE_ORDER",
+                        "UNKNOWN_MILESTONE",
+                        "PAYEE_MISMATCH",
+                        "ADDRESS_CHANGE_CLAIMED",
+                        "PAYEE_CHANGE_PENDING",
+                        "CURRENCY_UNSUPPORTED",
+                        "DECIMALS_MISMATCH",
+                        "SCALE_ABSURD",
+                        "OVERPAY",
+                        "UNDERPAY_PARTIAL",
+                        "EVIDENCE_MISSING",
+                        "EVIDENCE_FAILED",
+                        "EVIDENCE_HASH_MISMATCH",
+                        "EXTRACTION_DISAGREE",
+                        "SINGLE_EXTRACTION",
+                        "INSTRUCTION_IN_DOC",
+                        "CAP_PER_TX",
+                        "CAP_DAILY",
+                        "CAP_WEEKLY",
+                        "CATEGORY_BUDGET",
+                        "VELOCITY",
+                        "HUMAN_REQUIRED",
+                        "FIRST_PAYMENT_LARGE",
+                        "SCREENING_PENDING",
+                        "SCREEN_HIT",
+                        "SCREENING_DISABLED",
+                        "LIQUIDITY",
+                        "TIMING_CLAMPED",
+                        "LATE",
+                        "BREAKER_HALTED",
+                        "KERNEL_ERROR",
+                        "TERMS_NOT_SIGNED",
+                        "TERMS_MISMATCH",
+                        "DISCOUNT_WINDOW_CLOSED",
+                        "EVIDENCE_SOURCE_DENIED",
+                        "ESCALATION_BUDGET_EXCEEDED",
+                        "PLAN_OUT_OF_ENVELOPE"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "detail": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "refs": {
+                  "maxItems": 32,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "maxLength": 256
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "status",
+                "onFail",
+                "code",
+                "detail",
+                "refs"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reasons": {
+            "maxItems": 64,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "SCHEMA_INVALID",
+                "NON_ASCII_DIGITS",
+                "SCIENTIFIC",
+                "REFUSE_ROUND",
+                "AMOUNT_AMBIGUOUS",
+                "EXTRACTION_PARSE_MISMATCH",
+                "LINEITEM_SUM_MISMATCH",
+                "CREDIT_NOTE",
+                "NOT_PAYABLE",
+                "DUPLICATE_DOC",
+                "NEAR_DUPLICATE",
+                "MILESTONE_ALREADY_PAID",
+                "NO_ENGAGEMENT",
+                "ENGAGEMENT_INACTIVE",
+                "OUT_OF_WINDOW",
+                "MILESTONE_ORDER",
+                "UNKNOWN_MILESTONE",
+                "PAYEE_MISMATCH",
+                "ADDRESS_CHANGE_CLAIMED",
+                "PAYEE_CHANGE_PENDING",
+                "CURRENCY_UNSUPPORTED",
+                "DECIMALS_MISMATCH",
+                "SCALE_ABSURD",
+                "OVERPAY",
+                "UNDERPAY_PARTIAL",
+                "EVIDENCE_MISSING",
+                "EVIDENCE_FAILED",
+                "EVIDENCE_HASH_MISMATCH",
+                "EXTRACTION_DISAGREE",
+                "SINGLE_EXTRACTION",
+                "INSTRUCTION_IN_DOC",
+                "CAP_PER_TX",
+                "CAP_DAILY",
+                "CAP_WEEKLY",
+                "CATEGORY_BUDGET",
+                "VELOCITY",
+                "HUMAN_REQUIRED",
+                "FIRST_PAYMENT_LARGE",
+                "SCREENING_PENDING",
+                "SCREEN_HIT",
+                "SCREENING_DISABLED",
+                "LIQUIDITY",
+                "TIMING_CLAMPED",
+                "LATE",
+                "BREAKER_HALTED",
+                "KERNEL_ERROR",
+                "TERMS_NOT_SIGNED",
+                "TERMS_MISMATCH",
+                "DISCOUNT_WINDOW_CLOSED",
+                "EVIDENCE_SOURCE_DENIED",
+                "ESCALATION_BUDGET_EXCEEDED",
+                "PLAN_OUT_OF_ENVELOPE"
+              ]
+            }
+          },
+          "engagementId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^0x[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "milestoneId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^0x[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "payee": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^0x[0-9a-fA-F]{40}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "amountBaseUnits": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]{0,29})$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "payAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timingSource": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "AGENT",
+                  "CLAMPED",
+                  "DEFAULT"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "releaseAmountBaseUnits": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]{0,29})$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "planId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^0x[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "plannerFallback": {
+            "type": "boolean"
+          },
+          "invoiceReceivedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "policyHash": {
+            "type": "string",
+            "pattern": "^0x[0-9a-f]{64}$"
+          },
+          "kernelVersion": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "patternsVersion": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "contextHash": {
+            "type": "string",
+            "pattern": "^0x[0-9a-f]{64}$"
+          },
+          "agentRecommendation": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "verdict": {
+                    "type": "string",
+                    "enum": [
+                      "RELEASE",
+                      "HOLD",
+                      "ESCALATE"
+                    ]
+                  },
+                  "reasons": {
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 500
+                    }
+                  }
+                },
+                "required": [
+                  "verdict",
+                  "reasons"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "supersedes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+          },
+          "humanExplanation": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "decisionId",
+          "tenantId",
+          "intentId",
+          "verdict",
+          "checks",
+          "reasons",
+          "engagementId",
+          "milestoneId",
+          "payee",
+          "amountBaseUnits",
+          "payAt",
+          "timingSource",
+          "releaseAmountBaseUnits",
+          "planId",
+          "plannerFallback",
+          "invoiceReceivedAt",
+          "policyHash",
+          "kernelVersion",
+          "patternsVersion",
+          "contextHash",
+          "agentRecommendation",
+          "supersedes",
+          "createdAt",
+          "humanExplanation"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "extractionOutputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "propertyNames": {
+          "type": "string"
+        },
+        "additionalProperties": {
+          "$ref": "#/$defs/__schema0"
+        }
+      }
+    },
+    "certificate": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "schema": {
+              "type": "string",
+              "const": "lbc/1"
+            },
+            "algorithm": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "const": "symbolon-bounds"
+                },
+                "version": {
+                  "type": "string",
+                  "pattern": "^\\d+\\.\\d+\\.\\d+$"
+                },
+                "gitSha": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{7,40}$"
+                },
+                "detectionLatencySeconds": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "id",
+                "version",
+                "gitSha",
+                "detectionLatencySeconds"
+              ],
+              "additionalProperties": false
+            },
+            "subject": {
+              "type": "object",
+              "properties": {
+                "vault": {
+                  "type": "string",
+                  "pattern": "^0x[0-9a-fA-F]{40}$"
+                },
+                "chainId": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "token": {
+                  "type": "string",
+                  "pattern": "^0x[0-9a-fA-F]{40}$"
+                },
+                "tokenDecimals": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 255
+                }
+              },
+              "required": [
+                "vault",
+                "chainId",
+                "token",
+                "tokenDecimals"
+              ],
+              "additionalProperties": false
+            },
+            "asOf": {
+              "type": "object",
+              "properties": {
+                "blockNumber": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "blockHash": {
+                  "type": "string",
+                  "pattern": "^0x[0-9a-f]{64}$"
+                },
+                "timestamp": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "blockNumber",
+                "blockHash",
+                "timestamp"
+              ],
+              "additionalProperties": false
+            },
+            "inputs": {
+              "type": "object",
+              "properties": {
+                "configHash": {
+                  "type": "string",
+                  "pattern": "^0x[0-9a-f]{64}$"
+                },
+                "engagementsDigest": {
+                  "type": "string",
+                  "pattern": "^0x[0-9a-f]{64}$"
+                },
+                "policyHash": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^0x[0-9a-f]{64}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "balanceBaseUnits": {
+                  "type": "string",
+                  "maxLength": 78,
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                },
+                "limits": {
+                  "type": "object",
+                  "properties": {
+                    "perTxCap": {
+                      "type": "string",
+                      "maxLength": 78,
+                      "pattern": "^(0|[1-9][0-9]*)$"
+                    },
+                    "dailyCap": {
+                      "type": "string",
+                      "maxLength": 78,
+                      "pattern": "^(0|[1-9][0-9]*)$"
+                    },
+                    "hourlyCap": {
+                      "type": "string",
+                      "maxLength": 78,
+                      "pattern": "^(0|[1-9][0-9]*)$"
+                    },
+                    "humanThreshold": {
+                      "type": "string",
+                      "maxLength": 78,
+                      "pattern": "^(0|[1-9][0-9]*)$"
+                    },
+                    "ringSize": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "perTxCap",
+                    "dailyCap",
+                    "hourlyCap",
+                    "humanThreshold",
+                    "ringSize"
+                  ],
+                  "additionalProperties": false
+                },
+                "sumRemainingBaseUnits": {
+                  "type": "string",
+                  "maxLength": 78,
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                },
+                "activeEngagements": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "configHash",
+                "engagementsDigest",
+                "policyHash",
+                "balanceBaseUnits",
+                "limits",
+                "sumRemainingBaseUnits",
+                "activeEngagements"
+              ],
+              "additionalProperties": false
+            },
+            "bounds": {
+              "type": "object",
+              "properties": {
+                "T1": {
+                  "type": "object",
+                  "properties": {
+                    "unauthorizedLoss": {
+                      "type": "string",
+                      "maxLength": 78,
+                      "pattern": "^(0|[1-9][0-9]*)$"
+                    },
+                    "assumes": {
+                      "maxItems": 6,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "A-EVID",
+                          "A-MON",
+                          "A-OWNER-KEY",
+                          "A-TOKEN",
+                          "A-CHAIN",
+                          "A-MODEL"
+                        ]
+                      }
+                    },
+                    "weakEvidenceExposure": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 78,
+                          "pattern": "^(0|[1-9][0-9]*)$"
+                        },
+                        {
+                          "type": "string",
+                          "const": "NOT_COMPUTED"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "unauthorizedLoss",
+                    "assumes",
+                    "weakEvidenceExposure"
+                  ],
+                  "additionalProperties": false
+                },
+                "T2": {
+                  "type": "object",
+                  "properties": {
+                    "loss": {
+                      "type": "string",
+                      "maxLength": 78,
+                      "pattern": "^(0|[1-9][0-9]*)$"
+                    },
+                    "liveness": {
+                      "type": "string",
+                      "const": "censorable"
+                    }
+                  },
+                  "required": [
+                    "loss",
+                    "liveness"
+                  ],
+                  "additionalProperties": false
+                },
+                "T3c": {
+                  "type": "object",
+                  "properties": {
+                    "perReleaseUnapproved": {
+                      "type": "string",
+                      "maxLength": 78,
+                      "pattern": "^(0|[1-9][0-9]*)$"
+                    },
+                    "perDay": {
+                      "type": "string",
+                      "maxLength": 78,
+                      "pattern": "^(0|[1-9][0-9]*)$"
+                    },
+                    "horizons": {
+                      "minItems": 1,
+                      "maxItems": 16,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "label": {
+                            "type": "string",
+                            "enum": [
+                              "1m",
+                              "1h",
+                              "6h",
+                              "24h",
+                              "48h",
+                              "7d"
+                            ]
+                          },
+                          "seconds": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "value": {
+                            "type": "string",
+                            "maxLength": 78,
+                            "pattern": "^(0|[1-9][0-9]*)$"
+                          },
+                          "binding": {
+                            "minItems": 1,
+                            "maxItems": 4,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "balance",
+                                "daily",
+                                "engagements",
+                                "hourly"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "label",
+                          "seconds",
+                          "value",
+                          "binding"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "timeToEmpty": {
+                      "type": "object",
+                      "properties": {
+                        "days": {
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "limitedBy": {
+                          "type": "string",
+                          "enum": [
+                            "balance",
+                            "daily",
+                            "engagements",
+                            "hourly"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "days",
+                        "limitedBy"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "alarmed": {
+                      "type": "object",
+                      "properties": {
+                        "seconds": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "value": {
+                          "type": "string",
+                          "maxLength": 78,
+                          "pattern": "^(0|[1-9][0-9]*)$"
+                        },
+                        "assumes": {
+                          "maxItems": 6,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "enum": [
+                              "A-EVID",
+                              "A-MON",
+                              "A-OWNER-KEY",
+                              "A-TOKEN",
+                              "A-CHAIN",
+                              "A-MODEL"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "seconds",
+                        "value",
+                        "assumes"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "perReleaseUnapproved",
+                    "perDay",
+                    "horizons",
+                    "timeToEmpty",
+                    "alarmed"
+                  ],
+                  "additionalProperties": false
+                },
+                "T3_ownerExposed": {
+                  "minItems": 1,
+                  "maxItems": 16,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "enum": [
+                          "1m",
+                          "1h",
+                          "6h",
+                          "24h",
+                          "48h",
+                          "7d"
+                        ]
+                      },
+                      "seconds": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "value": {
+                        "type": "string",
+                        "maxLength": 78,
+                        "pattern": "^(0|[1-9][0-9]*)$"
+                      },
+                      "binding": {
+                        "minItems": 1,
+                        "maxItems": 4,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "balance",
+                            "daily",
+                            "engagements",
+                            "hourly"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "seconds",
+                      "value",
+                      "binding"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "T1",
+                "T2",
+                "T3c",
+                "T3_ownerExposed"
+              ],
+              "additionalProperties": false
+            },
+            "assumptions": {
+              "minItems": 1,
+              "maxItems": 16,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "enum": [
+                      "A-EVID",
+                      "A-MON",
+                      "A-OWNER-KEY",
+                      "A-TOKEN",
+                      "A-CHAIN",
+                      "A-MODEL"
+                    ]
+                  },
+                  "text": {
+                    "type": "string",
+                    "maxLength": 1000
+                  }
+                },
+                "required": [
+                  "id",
+                  "text"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "exclusions": {
+              "maxItems": 32,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^X-[A-Z0-9-]{1,40}$"
+                  },
+                  "text": {
+                    "type": "string",
+                    "maxLength": 1000
+                  }
+                },
+                "required": [
+                  "id",
+                  "text"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "notes": {
+              "maxItems": 32,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 1000
+              }
+            },
+            "validation": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "t3Trials": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "t3Violations": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "upper95": {
+                      "type": "string",
+                      "pattern": "^(0|[1-9][0-9]{0,20})(\\.[0-9]{1,20})?$"
+                    },
+                    "t3BestAttack24h": {
+                      "type": "string",
+                      "maxLength": 78,
+                      "pattern": "^(0|[1-9][0-9]*)$"
+                    },
+                    "tightness": {
+                      "type": "string",
+                      "pattern": "^(0|[1-9][0-9]{0,20})(\\.[0-9]{1,20})?$"
+                    },
+                    "t1Plans": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "t1Losses": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "codeMatch": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "MATCH",
+                            "NOT_CHECKED",
+                            "MISMATCH"
+                          ]
+                        },
+                        "validatedCodeHash": {
+                          "type": "string",
+                          "pattern": "^0x[0-9a-f]{64}$"
+                        },
+                        "gitSha": {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{7,40}$"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "validatedCodeHash",
+                        "gitSha"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "t3Trials",
+                    "t3Violations",
+                    "upper95",
+                    "t3BestAttack24h",
+                    "tightness",
+                    "t1Plans",
+                    "t1Losses",
+                    "codeMatch"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "validity": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "VALID",
+                    "STALE",
+                    "UNVERIFIED"
+                  ]
+                },
+                "reasons": {
+                  "maxItems": 16,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "BLOCK_HASH_MISMATCH",
+                      "CONFIG_CHANGED",
+                      "ENGAGEMENTS_CHANGED",
+                      "BALANCE_INCREASED",
+                      "FRESHNESS_EXCEEDED",
+                      "RPC_ERROR",
+                      "CODE_NOT_VALIDATED"
+                    ]
+                  }
+                },
+                "checkedAt": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "freshnessSeconds": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "status",
+                "reasons",
+                "checkedAt",
+                "freshnessSeconds"
+              ],
+              "additionalProperties": false
+            },
+            "certHash": {
+              "type": "string",
+              "pattern": "^0x[0-9a-f]{64}$"
+            },
+            "publisher": {
+              "type": "object",
+              "properties": {
+                "address": {
+                  "type": "string",
+                  "pattern": "^0x[0-9a-fA-F]{40}$"
+                },
+                "sig": {
+                  "type": "string",
+                  "maxLength": 8194,
+                  "pattern": "^0x(?:[0-9a-f]{2})*$"
+                }
+              },
+              "required": [
+                "address",
+                "sig"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "schema",
+            "algorithm",
+            "subject",
+            "asOf",
+            "inputs",
+            "bounds",
+            "assumptions",
+            "exclusions",
+            "notes",
+            "validation",
+            "validity",
+            "certHash"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "txs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^0x[0-9a-f]{64}$"
+      }
+    },
+    "plannerReport": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/__schema0"
+      }
+    },
+    "bundleHash": {
+      "type": "string",
+      "pattern": "^0x[0-9a-f]{64}$"
+    }
+  },
+  "required": [
+    "version",
+    "builtAt",
+    "gitSha",
+    "harnessVersions",
+    "attackMatrix",
+    "holdout",
+    "scenarios",
+    "attempts",
+    "receipts",
+    "decisions",
+    "extractionOutputs",
+    "certificate",
+    "txs",
+    "plannerReport",
+    "bundleHash"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "__schema0": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/__schema0"
+          }
+        },
+        {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/__schema0"
+          }
+        }
+      ]
+    }
+  }
+}

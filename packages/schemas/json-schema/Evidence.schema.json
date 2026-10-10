@@ -1,0 +1,102 @@
+{
+  "$id": "https://symbolon.dev/schemas/v1/Evidence.schema.json",
+  "title": "Evidence",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "evidenceId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "milestoneId": {
+      "type": "string",
+      "pattern": "^0x[0-9a-f]{64}$"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "OWNER_ACK",
+        "CI_PASS",
+        "URL_HEALTH",
+        "ARTIFACT_HASH"
+      ]
+    },
+    "collectedBy": {
+      "type": "string",
+      "const": "kernel"
+    },
+    "collectedAt": {
+      "type": "string",
+      "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})Z$"
+    },
+    "source": {
+      "type": "string",
+      "maxLength": 512
+    },
+    "payload": {
+      "$ref": "#/$defs/__schema0"
+    },
+    "payloadHash": {
+      "type": "string",
+      "pattern": "^0x[0-9a-f]{64}$"
+    },
+    "result": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL",
+        "ERROR"
+      ]
+    },
+    "details": {
+      "type": "string",
+      "maxLength": 2000
+    }
+  },
+  "required": [
+    "evidenceId",
+    "milestoneId",
+    "type",
+    "collectedBy",
+    "collectedAt",
+    "source",
+    "payload",
+    "payloadHash",
+    "result",
+    "details"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "__schema0": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/__schema0"
+          }
+        },
+        {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/__schema0"
+          }
+        }
+      ]
+    }
+  }
+}
