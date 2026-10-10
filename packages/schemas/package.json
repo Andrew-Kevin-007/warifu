@@ -5,6 +5,18 @@
   "description": "Zod schemas, JCS, keccak helpers, EIP-712 types and test vectors (owner: SCHEMAS)",
   "license": "Apache-2.0",
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
-  "scripts": { "typecheck": "tsc --noEmit -p ." }
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "viem": "2.56.9",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "canonicalize": "5.1.0",
+    "ethers": "6.17.0"
+  }
 }
