@@ -109,7 +109,7 @@ for line in redteam:
 SPECS = {
     "ORCH": ["10_SWARM_PLAN.md", "12_RISKS_AND_GATES.md", "13_TEST_PLAN.md", "17_MODEL_AND_EFFORT_ROUTING.md", "14_RED_TEAM_V2.md (§2 fix→WP map, §4 checklist)"],
     "SCHEMAS": ["05_DATA_MODELS_AND_API.md (incl. v2 shapes)", "04_KERNEL_SPEC.md (verdict algebra, reason codes)", "02_ARCHITECTURE.md (INV-1..23)", "16_LOSS_CERTIFICATE_SPEC.md (§3 schema)", "15_CHALLENGE_SPEC.md (§2 scenario types)"],
-    "KERNEL-CORE": ["04_KERNEL_SPEC.md", "03_AGENT_SPEC.md (§5 planner contract)", "05_DATA_MODELS_AND_API.md", "13_TEST_PLAN.md", "02_ARCHITECTURE.md (INV-8/9/10/19/20/23)"],
+    "KERNEL-CORE": ["04_KERNEL_SPEC.md", "03_AGENT_SPEC.md (§5 planner contract)", "05_DATA_MODELS_AND_API.md", "13_TEST_PLAN.md", "02_ARCHITECTURE.md (INV-8/9/10/19/20/23)"],  # gitleaks:allow (false positive: generic-api-key on a list of doc names)
     "CHAIN": ["06_CONTRACTS_AND_CIRCLE.md (B.4)", "05_DATA_MODELS_AND_API.md"],
     "CONTRACTS": ["06_CONTRACTS_AND_CIRCLE.md (Part A)", "16_LOSS_CERTIFICATE_SPEC.md (§2.4 contract surface)", "02_ARCHITECTURE.md (INV-1..7, INV-12)", "13_TEST_PLAN.md (§4.2)"],
     "KERNEL-SVC": ["05_DATA_MODELS_AND_API.md (§3b migration)", "06_CONTRACTS_AND_CIRCLE.md (Part B)", "02_ARCHITECTURE.md", "04_KERNEL_SPEC.md", "15_CHALLENGE_SPEC.md"],
