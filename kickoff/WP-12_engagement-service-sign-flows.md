@@ -1,7 +1,7 @@
 ROLE: KERNEL-SVC   WP: 12 — Engagement service (sign flows, on-chain register, indexer)   BRANCH: wp-12/engagement-service-sign-flows   WORKTREE: yes
 PRIORITY: P0   WAVE: W2   EFFORT: ~5 agent-hours   DEPENDS ON: 07,10
-MODEL: opus   EFFORT LEVEL: high   (override: EIP-712 engagement flows)
-LAUNCH: claude --model opus --effort high
+MODEL: sonnet   EFFORT LEVEL: high   (override: EIP-712 engagement flows (lean: sonnet))
+LAUNCH: claude --model sonnet --effort high
 
 READ FIRST (in order):
   1. AGENTS.md  (prime directives §0.1-§0.12 — if a spec conflicts, the spec wins; log it in docs/QUESTIONS.md)

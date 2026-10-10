@@ -1,7 +1,7 @@
 ROLE: ORCH   WP: 39 — Routing config: `.claude/agents/*`, `.claude/settings.json`, kickoff MODEL/EFFORT lines   BRANCH: wp-39/routing-config-claude-agents   WORKTREE: yes
 PRIORITY: P0   WAVE: W0   EFFORT: ~1 agent-hours   DEPENDS ON: none
-MODEL: opus   EFFORT LEVEL: high   (role default (ORCH))
-LAUNCH: claude --model opus --effort high
+MODEL: sonnet   EFFORT LEVEL: high   (role default (ORCH))
+LAUNCH: claude --model sonnet --effort high
 
 READ FIRST (in order):
   1. AGENTS.md  (prime directives §0.1-§0.12 — if a spec conflicts, the spec wins; log it in docs/QUESTIONS.md)

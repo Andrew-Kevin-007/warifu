@@ -1,0 +1,4 @@
+# Line endings: LF everywhere (CRLF breaks bash scripts, the CI generated-file drift check and hashed golden fixtures).
+* text=auto eol=lf
+*.sh text eol=lf
+Makefile text eol=lf

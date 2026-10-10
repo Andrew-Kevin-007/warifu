@@ -1,7 +1,7 @@
 ROLE: ATTACK   WP: 36 — Baselines B0/B2, hold-out set (ATTACK-ADV), statistics, `applicability.json`   BRANCH: wp-36/baselines-b0-b2-hold   WORKTREE: yes
 PRIORITY: P0   WAVE: W3–W4   EFFORT: ~6 agent-hours   DEPENDS ON: 23
-MODEL: opus   EFFORT LEVEL: high   (override: independent hold-out adversary)
-LAUNCH: claude --model opus --effort high
+MODEL: sonnet   EFFORT LEVEL: high   (override: B0/B2 baselines + hold-out runner (lean: sonnet; the hold-out adversary itself stays ATTACK-ADV opus/high))
+LAUNCH: claude --model sonnet --effort high
 NOTE (ATTACK-ADV): hold-out generation runs as a SEPARATE fresh session with `claude --model opus --effort high` and the charter in .claude/agents/attack-adv.md. That session must not read packages/kernel-core.
 
 READ FIRST (in order):

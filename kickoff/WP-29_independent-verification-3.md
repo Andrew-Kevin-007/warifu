@@ -2,7 +2,6 @@ ROLE: VERIFIER   WP: 29 — Independent verification ×3   BRANCH: wp-29/indepen
 PRIORITY: P0   WAVE: W3,W5,W6   EFFORT: ~6 agent-hours   DEPENDS ON: varies
 MODEL: opus   EFFORT LEVEL: xhigh   (role default (VERIFIER))
 LAUNCH: claude --model opus --effort xhigh
-ULTRACODE: allowed ONLY for the named verification pass in docs/17 §5 -- type the `ultracode:` prompt yourself (the keyword does not trigger via `claude -p`, scheduled tasks, webhooks or PR relays).
 
 READ FIRST (in order):
   1. AGENTS.md  (prime directives §0.1-§0.12 — if a spec conflicts, the spec wins; log it in docs/QUESTIONS.md)

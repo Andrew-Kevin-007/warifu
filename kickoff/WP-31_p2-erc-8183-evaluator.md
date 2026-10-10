@@ -1,7 +1,7 @@
 ROLE: mixed   WP: 31 — P2: ERC-8183 evaluator, ERC-8004, EURC, Memo (**frozen until G4**)   BRANCH: wp-31/p2-erc-8183-evaluator   WORKTREE: yes
 PRIORITY: P2   WAVE: W5+   EFFORT: ~8 agent-hours   DEPENDS ON: G2
-MODEL: opus   EFFORT LEVEL: high   (role default (ORCH))
-LAUNCH: claude --model opus --effort high
+MODEL: sonnet   EFFORT LEVEL: high   (role default (ORCH))
+LAUNCH: claude --model sonnet --effort high
 STATUS: FROZEN until Gate G4 (docs/12). DO NOT START before ORCH unfreezes this WP.
 
 READ FIRST (in order):

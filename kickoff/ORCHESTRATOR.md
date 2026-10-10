@@ -16,15 +16,17 @@ Clock (IST): it is **Sat Oct 10**. Gates are in `docs/12` (G0 Sat 20:00 → G5 f
 ## 1. Which Claude for which lane (full rules: `docs/17`)
 One terminal per worktree. **Each `kickoff/WP-nn_*.md` prints its own `LAUNCH:` line — use that.** Summary:
 
+**LEAN MODE (Claude Pro, 2026-10-10): max 2 terminals, at most 1 on Opus.** Revert if the plan is upgraded (`docs/QUESTIONS.md`, "Pro lean routing").
+
 | Lane | Launch |
 |---|---|
-| SCHEMAS · KERNEL-CORE · CONTRACTS · SEC · VERIFIER · WP-11/13/14/32/37 | `claude --model opus --effort xhigh` |
-| ORCH · BLAST · ATTACK-ADV · WP-12/15/26/34/36 | `claude --model opus --effort high` |
-| CHAIN · KERNEL-SVC · AGENT · ATTACK · WP-19/20/24/33/35 | `claude --model sonnet --effort high` |
+| SCHEMAS · KERNEL-CORE · CONTRACTS · VERIFIER · WP-14 | `claude --model opus --effort xhigh` |
+| SEC · ATTACK-ADV · WP-11/13/32/34/37 | `claude --model opus --effort high` |
+| ORCH · BLAST · CHAIN · KERNEL-SVC · AGENT · ATTACK · WP-12/15/19/20/24/26/33/35/36 | `claude --model sonnet --effort high` |
 | WEB · DOCS · WP-21/38 | `claude --model sonnet --effort medium` |
 
 - **Never `max`.** Never set `CLAUDE_CODE_EFFORT_LEVEL` globally.
-- **`ultracode:` only** in typed prompts for the named passes: WP-29 V-1/V-2/V-3, WP-37 final sweep, docs↔code↔tests audits at G2/G4/G5, the one-off reconcile audit. It burns usage.
+- **`ultracode:` only if Kevin types it** (lean mode: `ultracodeWPs` is empty). The named passes are WP-29 V-1/V-2/V-3, the WP-37 final sweep and the docs↔code↔tests audits at G2/G4/G5. It burns usage.
 - **Escalate one WP, not the team:** a Sonnet WP that fails VERIFIER twice, or loops > 3 times on one test, is re-run on `opus`/`xhigh`.
 - **Burn guard:** at each wave boundary check usage. If > 70 % of the weekly allowance is gone before Wed Oct 14, lower efforts per `docs/17` §6 and stop non-gate `ultracode`.
 - Edit routing only in the JSON block in `docs/17`, then `make kickoff` (regenerates prompts + `.claude/agents/*`); CI fails if generated files drift.

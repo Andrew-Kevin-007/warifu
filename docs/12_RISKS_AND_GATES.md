@@ -84,6 +84,8 @@ L = likelihood, I = impact (H/M/L). Owner in brackets.
 10. Payee-change UI (keep contract + tests).
 11. PDF upload (paste-text only).
 12. B0 vendoring (fall back to B1 and state it; keep B2).
+
+**Applied 2026-10-10 (Kevin, Claude Pro lean mode):** items **1, 2, 3** (challenge launches at L1: one-click + benign; free-form only if budget allows), **5** (H1 dropped, H2 kept) and **7**. No further cuts without asking Kevin (`docs/QUESTIONS.md`, "FINAL ANSWERS").
 **Never cut:** kernel P0 checks; vault release path with payee binding + caps + human threshold; attack suite for ATK-02/04/05/08/10/11/13/14/17/21; honest corpus; receipts + verifier page; **certificate build + `lbc verify` (spine)**; **SEC-01..05 and the sandbox boot guards if any public challenge ships** (otherwise ship replay-only); replay mode; ≥ 1 real pilot with a real payee; video; README limitations.
 
 ## 5. Emergency scope (if the deadline is actually Oct 10)

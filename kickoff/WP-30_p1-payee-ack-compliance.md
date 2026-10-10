@@ -1,7 +1,7 @@
 ROLE: mixed   WP: 30 — P1: payee ack, compliance, dispute draft, vendor memory (**frozen until G4**)   BRANCH: wp-30/p1-payee-ack-compliance   WORKTREE: yes
 PRIORITY: P1   WAVE: W5   EFFORT: ~8 agent-hours   DEPENDS ON: 14,16
-MODEL: opus   EFFORT LEVEL: high   (role default (ORCH))
-LAUNCH: claude --model opus --effort high
+MODEL: sonnet   EFFORT LEVEL: high   (role default (ORCH))
+LAUNCH: claude --model sonnet --effort high
 STATUS: FROZEN until Gate G4 (docs/12). DO NOT START before ORCH unfreezes this WP.
 
 READ FIRST (in order):

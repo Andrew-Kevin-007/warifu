@@ -1,8 +1,7 @@
 ROLE: SEC   WP: 37 — SEC hardening + `packages/sec-suite` (SEC-01..14, XSS/SSRF corpora, `claims:lint`, mutation tests)   BRANCH: wp-37/sec-hardening-packages-sec   WORKTREE: yes
 PRIORITY: P0   WAVE: W3–W5   EFFORT: ~8 agent-hours   DEPENDS ON: 10,13,19
-MODEL: opus   EFFORT LEVEL: xhigh   (override: security hardening + SEC suite)
-LAUNCH: claude --model opus --effort xhigh
-ULTRACODE: allowed ONLY for the named verification pass in docs/17 §5 -- type the `ultracode:` prompt yourself (the keyword does not trigger via `claude -p`, scheduled tasks, webhooks or PR relays).
+MODEL: opus   EFFORT LEVEL: high   (override: security hardening + SEC suite (lean: high))
+LAUNCH: claude --model opus --effort high
 
 READ FIRST (in order):
   1. AGENTS.md  (prime directives §0.1-§0.12 — if a spec conflicts, the spec wins; log it in docs/QUESTIONS.md)

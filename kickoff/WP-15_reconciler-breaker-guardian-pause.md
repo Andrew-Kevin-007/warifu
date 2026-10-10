@@ -1,7 +1,7 @@
 ROLE: KERNEL-SVC   WP: 15 — Reconciler + breaker + guardian pause   BRANCH: wp-15/reconciler-breaker-guardian-pause   WORKTREE: yes
 PRIORITY: P0   WAVE: W3   EFFORT: ~4 agent-hours   DEPENDS ON: 14
-MODEL: opus   EFFORT LEVEL: high   (override: breaker/guardian safety logic)
-LAUNCH: claude --model opus --effort high
+MODEL: sonnet   EFFORT LEVEL: high   (override: breaker/guardian safety logic (lean: sonnet))
+LAUNCH: claude --model sonnet --effort high
 
 READ FIRST (in order):
   1. AGENTS.md  (prime directives §0.1-§0.12 — if a spec conflicts, the spec wins; log it in docs/QUESTIONS.md)

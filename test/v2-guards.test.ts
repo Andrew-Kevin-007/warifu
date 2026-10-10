@@ -57,11 +57,16 @@ describe("dependency-cruiser boundary rules for the oracle", () => {
       mkdirSync(join(dir, rel, ".."), { recursive: true });
       writeFileSync(join(dir, rel), body);
     }
-    const r = spawnSync(join(ROOT, "node_modules/.bin/depcruise"), ["--config", join(ROOT, ".dependency-cruiser.cjs"), "packages", "services"], {
+    // Run the JS entry point via node: node_modules/.bin/depcruise is a shell shim that spawnSync cannot exec on Windows.
+    const bin = join(ROOT, "node_modules/dependency-cruiser/bin/dependency-cruiser.mjs");
+    const r = spawnSync("node", [bin, "--config", join(ROOT, ".dependency-cruiser.cjs"), "packages", "services"], {
       cwd: dir,
       encoding: "utf8",
     });
     rmSync(dir, { recursive: true, force: true });
+    // A spawn failure leaves status null and must not pass the negative tests vacuously.
+    expect(r.error).toBeUndefined();
+    expect(typeof r.status).toBe("number");
     return r;
   };
   it("a defender package importing the oracle is a violation", () => {
@@ -181,7 +186,11 @@ describe("claude config check (SEC-11 static / WP-39)", () => {
   it("rejects 'max' effort in the routing block", () => {
     const dir = clone();
     const p = join(dir, "docs/17_MODEL_AND_EFFORT_ROUTING.md");
-    writeFileSync(p, readFileSync(p, "utf8").replace('"SEC": {"model": "opus", "effort": "xhigh"}', '"SEC": {"model": "opus", "effort": "max"}'));
+    // Plant "max" whatever SEC's current routing is, and fail loudly if nothing was planted.
+    const before = readFileSync(p, "utf8");
+    const after = before.replace(/"SEC": \{"model": "(\w+)", "effort": "\w+"\}/, '"SEC": {"model": "$1", "effort": "max"}');
+    expect(after).not.toBe(before);
+    writeFileSync(p, after);
     expect(check(dir).join("\n")).toMatch(/role SEC: illegal effort "max"/);
     rmSync(dir, { recursive: true, force: true });
   });
