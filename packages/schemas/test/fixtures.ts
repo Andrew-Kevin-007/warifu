@@ -10,6 +10,7 @@ import {
   derivePlanId,
   deriveEntityId,
   deriveIntentId,
+  deriveMilestoneId,
   epochSecondsFromIso,
   formatBaseUnits,
   hashJcs,
@@ -55,8 +56,8 @@ export const DOMAIN = symbolonDomain(CHAIN_ID, VAULT);
 
 // --- engagement ------------------------------------------------------------------------------------
 export const ENGAGEMENT_ID = deriveEntityId({ tenantId: TENANT_ID, slug: "acme-site-redesign" });
-export const MILESTONE_ID = deriveEntityId({ tenantId: TENANT_ID, uuid: "3f2504e0-4f89-41d3-9a0c-0305e82c3301" });
-export const MILESTONE2_ID = deriveEntityId({ tenantId: TENANT_ID, uuid: "16fd2706-8baf-433b-82eb-8c7fada847da" });
+export const MILESTONE_ID = deriveMilestoneId({ tenantId: TENANT_ID, uuid: "3f2504e0-4f89-41d3-9a0c-0305e82c3301" });
+export const MILESTONE2_ID = deriveMilestoneId({ tenantId: TENANT_ID, uuid: "16fd2706-8baf-433b-82eb-8c7fada847da" });
 
 export const TERMS_EARLY_PAY: PaymentTerms = {
   netDays: 30,

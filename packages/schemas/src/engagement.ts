@@ -186,9 +186,8 @@ export function paymentTermsHash(t: PaymentTerms | null): Hex32 | null {
 }
 
 /**
- * Deterministic ids (docs/05 §1): `engagementId`, `milestoneId` = keccak256(JCS({tenantId, slug|uuid})).
- * Pass exactly one of `slug` or `uuid`. Milestone slugs are only unique per engagement, so milestones
- * must use a `uuid` or a tenant-unique slug (see docs/QUESTIONS.md, WP-01).
+ * Deterministic ids (docs/05 §1): `engagementId` = keccak256(JCS({tenantId, slug|uuid})).
+ * Pass exactly one of `slug` or `uuid`. For milestones use deriveMilestoneId (uuid only).
  */
 export function deriveEntityId(input: { tenantId: string; slug: string } | { tenantId: string; uuid: string }): Hex32 {
   const parsed = z
@@ -198,4 +197,13 @@ export function deriveEntityId(input: { tenantId: string; slug: string } | { ten
     ])
     .parse(input);
   return hashJcs(parsed);
+}
+
+/**
+ * milestoneId = keccak256(JCS({tenantId, uuid})): the docs/05 §1 preimage, restricted to `uuid`. Milestone slugs
+ * are unique per engagement, not per tenant, so a slug-derived id could collide across engagements
+ * (ORCH decision, docs/QUESTIONS.md WP-01 item 9). A `slug` key is rejected.
+ */
+export function deriveMilestoneId(input: { tenantId: string; uuid: string }): Hex32 {
+  return hashJcs(z.strictObject({ tenantId: UUIDSchema, uuid: UUIDSchema }).parse(input));
 }

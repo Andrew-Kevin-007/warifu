@@ -26,6 +26,7 @@ import {
   computeTermsHash,
   computeTypedDataHash,
   deriveEntityId,
+  deriveMilestoneId,
   hashJcs,
   paymentTermsHash,
   termsPreimage,
@@ -172,6 +173,25 @@ describe("Engagement and termsHash (docs/05 §2)", () => {
     expect(deriveEntityId({ tenantId: TENANT_ID, slug: "a" })).toBe(hashJcs({ slug: "a", tenantId: TENANT_ID }));
     expect(() => deriveEntityId({ tenantId: TENANT_ID, slug: "a", uuid: TENANT_ID } as unknown as { tenantId: string; slug: string })).toThrow();
     expect(() => deriveEntityId({ tenantId: "not-a-uuid", slug: "a" })).toThrow();
+  });
+
+  describe("deriveMilestoneId (uuid only; QUESTIONS WP-01 item 9)", () => {
+    const uuid = "3f2504e0-4f89-41d3-9a0c-0305e82c3301";
+
+    it("hashes the docs/05 §1 preimage {tenantId, uuid}", () => {
+      expect(deriveMilestoneId({ tenantId: TENANT_ID, uuid })).toBe(hashJcs({ tenantId: TENANT_ID, uuid }));
+      expect(deriveMilestoneId({ tenantId: TENANT_ID, uuid })).toBe(deriveEntityId({ tenantId: TENANT_ID, uuid }));
+      expect(MILESTONES[0]!.milestoneId).toBe(deriveMilestoneId({ tenantId: TENANT_ID, uuid }));
+    });
+
+    it("rejects a slug, at compile time and at runtime", () => {
+      // @ts-expect-error a milestone id cannot be derived from a slug
+      expect(() => deriveMilestoneId({ tenantId: TENANT_ID, slug: "design" })).toThrow();
+      // @ts-expect-error not even next to a uuid
+      expect(() => deriveMilestoneId({ tenantId: TENANT_ID, uuid, slug: "design" })).toThrow();
+      // A slug passed in the uuid field is not a uuid either.
+      expect(() => deriveMilestoneId({ tenantId: TENANT_ID, uuid: "design" })).toThrow();
+    });
   });
 });
 
