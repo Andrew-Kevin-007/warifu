@@ -57,11 +57,16 @@ describe("dependency-cruiser boundary rules for the oracle", () => {
       mkdirSync(join(dir, rel, ".."), { recursive: true });
       writeFileSync(join(dir, rel), body);
     }
-    const r = spawnSync(join(ROOT, "node_modules/.bin/depcruise"), ["--config", join(ROOT, ".dependency-cruiser.cjs"), "packages", "services"], {
+    // Run the JS entry point via node: node_modules/.bin/depcruise is a shell shim that spawnSync cannot exec on Windows.
+    const bin = join(ROOT, "node_modules/dependency-cruiser/bin/dependency-cruiser.mjs");
+    const r = spawnSync("node", [bin, "--config", join(ROOT, ".dependency-cruiser.cjs"), "packages", "services"], {
       cwd: dir,
       encoding: "utf8",
     });
     rmSync(dir, { recursive: true, force: true });
+    // A spawn failure leaves status null and must not pass the negative tests vacuously.
+    expect(r.error).toBeUndefined();
+    expect(typeof r.status).toBe("number");
     return r;
   };
   it("a defender package importing the oracle is a violation", () => {
