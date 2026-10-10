@@ -1,15 +1,20 @@
 #!/usr/bin/env bash
 # pre-push: secrets scan with gitleaks (pinned v8.30.1, portable in D:\tools\gitleaks). Fails closed.
 # Enable once per clone: git config core.hooksPath scripts/git-hooks
+# Scans only the commits being pushed (git passes "<local ref> <local sha> <remote ref> <remote sha>" lines on stdin).
 set -euo pipefail
 GL="$(command -v gitleaks || true)"
 [ -n "$GL" ] || GL=/d/tools/gitleaks/gitleaks.exe
-if [ ! -x "$GL" ] && [ ! -f "$GL" ]; then
+if [ ! -f "$GL" ]; then
   echo "pre-push: gitleaks not found (expected on PATH or at D:\\tools\\gitleaks). Push blocked." >&2
   exit 1
 fi
-# Scan the whole history (small repo) with the repo's .gitleaks.toml; findings are redacted in the output.
-"$GL" git --redact --no-banner --config .gitleaks.toml . || {
-  echo "pre-push: gitleaks found possible secrets. Push blocked. Fix them; never bypass with --no-verify." >&2
-  exit 1
-}
+zero=0000000000000000000000000000000000000000
+while read -r _lref lsha _rref rsha; do
+  [ "$lsha" = "$zero" ] && continue                      # branch deletion: nothing to scan
+  if [ "$rsha" = "$zero" ]; then range="$lsha --not --remotes"; else range="$rsha..$lsha"; fi
+  "$GL" git --redact --no-banner --config .gitleaks.toml --log-opts="$range" . || {
+    echo "pre-push: gitleaks found possible secrets in $range. Push blocked. Fix them; never bypass with --no-verify." >&2
+    exit 1
+  }
+done
