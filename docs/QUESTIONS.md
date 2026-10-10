@@ -35,3 +35,13 @@ Spec ambiguities that affect money are never guessed: write the entry and switch
 - Met: CI-equivalent green locally (`pnpm verify` on `wp-00/orch-setup`), boundary lint proven (depcruise negative tests now actually run on Windows), WP-39 routing in place.
 - Not met / unknown to ORCH: remote repo + CI, Circle key, Supabase/Vercel/Railway/Anthropic, `arc-canteen` baselines, Discord date question, outreach ≥ 10 DMs, ≥ 2 S1 payees, sandbox accounts, schemas v0.
 - **G0 fail action (`docs/12`):** W1 proceeds on local tooling + mocks; resolve keys by Sun 12:00. If the Discord answer is "Oct 10", switch to emergency scope (`docs/12` §5). **Who:** KEVIN. **Status:** OPEN.
+
+## 2026-10-10 21:20 IST · WP-00 · ORCH — UPDATE: repo is private; deadline confirmed
+- Kevin made `Andrew-Kevin-007/symbolon` private (`gh repo view` reads `PRIVATE`). ORCH pushes `main` + `wp-00/orch-setup`. The "public repo" entry above is **RESOLVED**.
+- Deadline: Kevin's screenshot of the official Tameion page reads "Dates: Sep 27 – Oct 17". R1 is retired and emergency scope is off. The working deadline (Sat Oct 17 22:00 IST) is unchanged. **Status:** RESOLVED.
+- Kevin authorised installing tools on D: (no C: installs). ORCH installs dev tooling under `D:\tools\` and logs each tool with version + checksum in CHANGELOG_SWARM.
+
+## 2026-10-10 21:20 IST · WP-17..21/33/38 · ORCH — Frontend split (Kevin brings the UI from a template)
+- **Kevin's decision:** he picks a site template, clones it locally and does the visual layer himself. Agents do not design UI. WP-17 is HELD until the template sits in `apps/web`.
+- **Need from Kevin:** OK for agents to own only the non-visual layer inside his template? That layer is: CSP + `app`/`challenge` build profiles (INV-16), `<UntrustedText>` for every attacker-derived string (INV-15), runtime web-env check (INV-11), approval screen rendered from `renderModel()` (INV-20), client-side `/audit` verification, replay fallback (DEC-016). These carry SEC tests and gate G4.
+- **Constraint to pass on:** the lint/boundary rules already target **Next.js 15 App Router** under `apps/web`: wallet code only in `src/wallet/**`, no HTML sinks, challenge/replay code may not import wallet code. A non-Next template means re-wiring those rules (RFC here, Kevin sign-off). **Who:** KEVIN. **Status:** OPEN.

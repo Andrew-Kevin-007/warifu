@@ -27,7 +27,7 @@ Spawn order and merge order: `docs/SPAWN_PLAN_W0_W1.md`.
 | 14 | Scheduler, TOCTOU re-eval (+ discount window), attestation signer, release | KERNEL-SVC | W2 | 05,11,12 | BLOCKED: deps 05,11,12 | `claude --model opus --effort xhigh` | `kickoff/WP-14_scheduler-toctou-re-eval.md` |
 | 15 | Reconciler + breaker + guardian pause | KERNEL-SVC | W3 | 14 | BLOCKED: deps 14 | `claude --model opus --effort high` | `kickoff/WP-15_reconciler-breaker-guardian-pause.md` |
 | 16 | Extractor + optional Advisory (AI) note validator + normalization/sanitization + eval harness (the templated explanation is built in WP-05) | AGENT | W1–W3 | 01 | WAIT: WP-01 v0 | `claude --model sonnet --effort high` | `kickoff/WP-16_extractor-optional-advisory-ai.md` |
-| 17 | Web shell, wallet sign-in, design system (+ CSP, build profiles, lint bans) | WEB | W1 | 00,01 | READY: spawn now | `claude --model sonnet --effort medium` | `kickoff/WP-17_web-shell-wallet-sign.md` |
+| 17 | Web shell, wallet sign-in, design system (+ CSP, build profiles, lint bans) | WEB | W1 | 00,01 | HOLD: Kevin brings the UI from a cloned template (see note below) | `claude --model sonnet --effort medium` | `kickoff/WP-17_web-shell-wallet-sign.md` |
 | 18 | Web: engagements + payee signing | WEB | W2–W3 | 12,17 | BLOCKED: deps 12,17 | `claude --model sonnet --effort medium` | `kickoff/WP-18_web-engagements-payee-signing.md` |
 | 19 | Web: intents, decision detail, approvals (WYSIWYS) | WEB | W3 | 10,16,17 | BLOCKED: deps 10,16,17 | `claude --model sonnet --effort high` | `kickoff/WP-19_web-intents-decision-detail.md` |
 | 20 | Web: dashboard, `/pilot`, `/audit` verifier | WEB | W3–W4 | 02,17 | BLOCKED: deps 02,17 | `claude --model sonnet --effort high` | `kickoff/WP-20_web-dashboard-pilot-audit.md` |
@@ -50,5 +50,9 @@ Spawn order and merge order: `docs/SPAWN_PLAN_W0_W1.md`.
 | 37 | SEC hardening + `packages/sec-suite` (SEC-01..14, XSS/SSRF corpora, `claims:lint`, mutation tests) | SEC | W3–W5 | 10,13,19 | BLOCKED: deps 10,13,19 | `claude --model opus --effort xhigh` | `kickoff/WP-37_sec-hardening-packages-sec.md` |
 | 38 | Replay mode: `build-replay`, `verify-bundle`, static fallback for judge pages | WEB | W5–W6 | 23,34,35 | BLOCKED: deps 23,34,35 | `claude --model sonnet --effort medium` | `kickoff/WP-38_replay-mode-build-replay.md` |
 | 39 | Routing config: `.claude/agents/*`, `.claude/settings.json`, kickoff MODEL/EFFORT lines | ORCH | W0 | none | DONE (in pack; `claude:check` green) | `claude --model opus --effort high` | `kickoff/WP-39_routing-config-claude-agents.md` |
+
+**Frontend (Kevin, 2026-10-10):** Kevin picks a site template, clones it locally and supplies the visual layer himself. No agent designs UI. WEB WPs 17/18/19/20/21/33/38 keep their rows: the scope still to agree with Kevin (QUESTIONS, "Frontend split") is only the non-visual safety/logic layer inside his template (CSP + `app`/`challenge` build profiles, `<UntrustedText>`, runtime web-env check, approval screen bound to `renderModel()`, client-side `/audit` verification, replay fallback). Backend lanes expose a documented HTTP/JSON API for the template to call.
+
+**Deadline:** confirmed **Sep 27 – Oct 17** on the official Tameion page (Kevin's screenshot, 2026-10-10). Working deadline stays Sat Oct 17 22:00 IST; official cutoff 11:59 PM ET = Sun Oct 18 09:29 IST (`docs/00` §0). Emergency scope (`docs/12` §5) is off.
 
 **Frozen:** WP-30 and WP-31 stay FROZEN until Gate G4 is green (`docs/00` DEC-018, `docs/12` §3). Any PR for them before G4 is closed by ORCH (R26/R39).

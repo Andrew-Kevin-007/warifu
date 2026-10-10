@@ -20,13 +20,13 @@ claude --model opus --effort xhigh         # the LAUNCH line printed at the top 
 **Use Git Bash by full path, not a bare `bash`.** On this machine PowerShell's `bash` resolves to the WSL alias in `WindowsApps`, and a WSL `git worktree add` writes Linux paths into `.git/worktrees`. Below, `spawn 01` is short for the first line above.
 One terminal per worktree. Use the LAUNCH line exactly. Never `max`, never `/effort ultracode`, never `CLAUDE_CODE_EFFORT_LEVEL`.
 
-## 2. Start now (4 lanes, spawn together)
+## 2. Start now (3 lanes, spawn together; WP-17 held for Kevin's template)
 
 | WP | Role | LAUNCH | Kickoff file | Worktree | Can do before WP-01 v0 | Watch |
 |---|---|---|---|---|---|---|
 | **01** | SCHEMAS | `claude --model opus --effort xhigh` | `kickoff/WP-01_schemas-jcs-eip-712.md` | `spawn 01` | everything; it *is* the bottleneck | **v0 merged ≤ 3 h after start.** Second implementation of the vectors: no Foundry here, so use an ethers script (pin the dep, log it in CHANGELOG_SWARM) or WP-07's Foundry test after KEVIN-2 |
 | **07** | CONTRACTS | `claude --model opus --effort xhigh` | `kickoff/WP-07_symbolonvault-tests-deploy-certificate.md` | `spawn 07` | `SymbolonVault.sol` per `docs/06` Part A, tests written, `foundry.toml` keys | cannot run `arc-forge test` until KEVIN-2. EIP-712 digest test must equal WP-01 vectors before merge. Adds the Arc Foundry install step to CI (`ORCHESTRATOR` §5) |
-| **17** | WEB | `claude --model sonnet --effort medium` | `kickoff/WP-17_web-shell-wallet-sign.md` | `spawn 17` | Next.js shell, CSP, `app`/`challenge` build profiles, `<UntrustedText>`, runtime web-env test | imports `@symbolon/schemas` types only after v0 merges. Every new dep pinned + logged (§0.10) |
+| **17** | WEB | `claude --model sonnet --effort medium` | `kickoff/WP-17_web-shell-wallet-sign.md` | `spawn 17` | **HELD.** Kevin supplies the UI from a cloned template. Once it sits in `apps/web`, this lane adds only the non-visual layer (CSP, build profiles, `<UntrustedText>`, runtime web-env test), pending the "Frontend split" answer in QUESTIONS | do not spawn until the template is in `apps/web` |
 | **27** | DOCS | `claude --model sonnet --effort medium` | `kickoff/WP-27_pilot-kit-terms-scripts.md` | `spawn 27` | all of it (no deps) | docs-only; any number it writes must come from `claims.ts` later (INV-18) |
 
 ## 3. Spawn the moment WP-01 v0 merges (6 lanes, together)
@@ -57,16 +57,16 @@ Rule (`ORCHESTRATOR` §3): `schemas → contracts / kernel-core (+terms, receipt
 5. WP-03 policy → WP-02 receipts → WP-04 checks + terms (04 strictly after 03)
 6. WP-09 DB migrations
 7. WP-16 extractor, WP-22 attack fixtures
-8. WP-17 web shell (web merges after core; blocks nobody in W1)
+8. Kevin's template lands in `apps/web`; then WP-17 adds the safety layer inside it (web merges after core; blocks nobody in W1)
 9. **G1: tag `schemas-v1.0`** on the merge commit once 02/03/04/07 compile against it. After that, schema changes need an RFC in `QUESTIONS.md` + `v1.1`.
 
 ## 5. What only Kevin can do, ordered by what blocks the first wave
 
 | # | Action | Blocks | When |
 |---|---|---|---|
-| KEVIN-1 | **Ask in the Canteen Discord: is the deadline Oct 17 (official page) or Oct 10 (Luma)?** (`docs/00` §5 Q1) | everything: an "Oct 10" answer means emergency scope tonight (`docs/12` §5) | now |
+| KEVIN-1 | ~~Confirm the deadline~~ **DONE 2026-10-10:** the official Tameion page says Sep 27 – Oct 17 (Kevin's screenshot). Emergency scope is off | n/a | done |
 | KEVIN-2 | **Install Arc Foundry** (`arc-forge`, `arc-cast`, `arc-anvil`) per `https://docs.arc.io/arc/tutorials/install-arc-foundry.md`. Agents may not run `curl \| sh` (§0.10). On Windows, check whether it needs WSL (VERIFY) | WP-07 tests, local anvil, WP-01's Foundry cross-check | tonight |
-| KEVIN-3 | **GitHub:** decide visibility (the repo is currently PUBLIC; the plan says private until submission + secrets scan), then push `main`, then turn on branch protection (PR + CI, squash only) | CI-gated merges (lanes still work locally) | tonight |
+| KEVIN-3 | **GitHub:** ~~make private~~ (done 2026-10-10) · ORCH pushes `main` + `wp-00/orch-setup` · **you turn on branch protection** (PR + CI required, squash only) | CI-gated merges (lanes still work locally) | tonight |
 | KEVIN-4 | In Claude Code: `/plugin marketplace add circlefin/skills`, `/plugin install circle-skills@circle`, and add the Circle MCP `https://api.circle.com/v1/codegen/mcp` | WP-07 (Arc facts), WP-06/11 later (§0.5: no invented APIs) | tonight |
 | KEVIN-5 | Docker Desktop + Supabase CLI (or a local Postgres 15+) | WP-09 RLS acceptance (real Postgres required) | before WP-09 merges |
 | KEVIN-6 | `arc-canteen login` → `wallet` → `update product` + `update traction` baseline entries (`docs/00` §6; CLI already installed) | G0 criteria, not code | today |
