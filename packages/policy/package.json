@@ -5,6 +5,15 @@
   "description": "Policy loader, hash and vault-consistency assertion (owner: KERNEL-CORE)",
   "license": "Apache-2.0",
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
-  "scripts": { "typecheck": "tsc --noEmit -p ." }
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@symbolon/schemas": "workspace:*",
+    "yaml": "2.8.1",
+    "zod": "4.6.5"
+  }
 }
