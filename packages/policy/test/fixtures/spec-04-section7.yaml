@@ -1,0 +1,21 @@
+version: 1
+tenant: edith-studio
+currency: { code: USDC, decimals: 6, treatUsdAsUsdc: true }   # decimals verified against chain (V-04)
+caps:
+  perTxHardCap: "100.000000"        # must be <= vault.perTxCap
+  dailyCap: "200.000000"            # must be <= vault.dailyCap
+  hourlyCap: "25.000000"            # P1; must be <= vault.hourlyCap when enabled (0/absent = off)
+  weeklyCap: "600.000000"           # kernel-level only (the vault enforces rolling 24 h)
+  humanApprovalAbove: "50.000000"   # must be <= vault.humanThreshold
+velocity: { maxReleasesPerDay: 10, maxReleasesPerPayeePerDay: 3, maxAmountPerPayeePerDay: "150.000000" }
+newPayee: { firstPaymentMax: "25.000000", alwaysHuman: true }
+categories: { design: "150.000000", dev: "300.000000", tools: "100.000000" }   # monthly
+reserve: { floor: "10.000000", lookaheadDays: 14 }
+timing: { disputeWindowHours: 0, payBeforeDueBufferHours: 24, allowImmediate: true, defaultNetDays: 30, windowSafetyMarginMinutes: 60 }   # v2: last two keys
+treasury: { costOfCapitalBps: 0 }                        # v2: disclosed parameter used by the plan evaluator (`03` §5.2)
+escalation: { maxPerDay: 8, maxPerEngagementPerDay: 3 }  # v2: K-12 escalation budget (RT-14)
+limits: { maxDocChars: 20000 }                           # v2: challenge profile overrides to 4096
+evidence: { freshnessHours: 72, allowOwnerOverride: true, urlAllowlist: ["https://*.vercel.app", "https://edithstudio.vercel.app"] }
+extraction: { allowSingle: false }
+screening: { required: false, staleAfterHours: 24 }     # flip to true when V-01 clears
+reconciliation: { ackWindowHours: 72 }                 # demo: 0.17 (10 min)
