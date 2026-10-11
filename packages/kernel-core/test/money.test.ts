@@ -67,6 +67,8 @@ describe("separators", () => {
     ["1 000.000,50", "space grouping mixed with dot grouping"],
     ["1 000.000.000", "space grouping mixed with repeated dots"],
     ["1'000 000", "two kinds of grouping"],
+    ["1 0'0", "two kinds of grouping where the odd group still has 3 characters"],
+    ["1 000 0’0", "two kinds of grouping (right single quote inside a 3-character group)"],
     ["1.000 000", "space after the decimal separator"],
     ["1,00.50", "bad Western group"],
     ["1.00.000", "lakh grouping only with commas"],

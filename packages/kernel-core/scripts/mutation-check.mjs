@@ -146,13 +146,20 @@ for (const [id, file, find, replace] of selected) {
   restore = () => writeFileSync(path, original);
   try {
     writeFileSync(path, original.replace(find, replace));
-    const run = spawnSync(
-      process.execPath,
-      [join(root, "node_modules", "vitest", "vitest.mjs"), "run", "packages/terms", "packages/kernel-core", "--reporter=dot", "--bail=1"],
-      { cwd: root, encoding: "utf8" },
-    );
+    // Stage 1: the fast unit/golden suites; stage 2 (only if stage 1 passed): everything incl. the 1,000-run properties.
+    const vitest = (extra) =>
+      spawnSync(process.execPath, [join(root, "node_modules", "vitest", "vitest.mjs"), "run", "packages/terms", "packages/kernel-core", "--reporter=dot", "--bail=1", ...extra], {
+        cwd: root,
+        encoding: "utf8",
+      });
+    let run = vitest(["--exclude", "**/props-*.test.ts", "--exclude", "**/node_modules/**"]);
+    let stage = "unit";
+    if (run.status === 0) {
+      run = vitest([]);
+      stage = "properties";
+    }
     const failed = /(\d+) failed/.exec(run.stdout + run.stderr);
-    results.push([id, run.status !== 0 ? `killed (${failed ? failed[1] : "?"} failing before bail)` : "SURVIVED"]);
+    results.push([id, run.status !== 0 ? `killed by ${stage} (${failed ? failed[1] : "?"} failing before bail)` : "SURVIVED"]);
   } finally {
     restore();
     restore = null;
