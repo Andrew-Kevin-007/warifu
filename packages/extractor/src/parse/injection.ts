@@ -56,7 +56,7 @@ const RULES: readonly Rule[] = [
   { id: "override", code: "INSTRUCTION_IN_DOC", re: /\b(?:override|bypass|circumvent) (?:the |all |any )?(?:policy|policies|check|checks|limit|limits|kernel|rules?)\b/ },
   { id: "set-field", code: "INSTRUCTION_IN_DOC", re: /\b(?:set|change|update) (?:the )?(?:payee|wallet|address|amount|currency|recipient)(?: to| =|:)/ },
   // Change of payment details (K-11, K-06)
-  { id: "new-wallet", code: "ADDRESS_CHANGE", re: /\bnew (?:wallet|payment address|bank (?:account|details)|payment details|account)\b/ },
+  { id: "new-wallet", code: "ADDRESS_CHANGE", re: /\bnew (?:wallet|payment address|bank account|bank details|payment details)\b/ },
   { id: "updated-details", code: "ADDRESS_CHANGE", re: /\bupdated? (?:payment|wallet|bank|account|remittance) (?:details|information|address)\b/ },
   { id: "change-of", code: "ADDRESS_CHANGE", re: /\bchange of (?:bank|wallet|address|account|payment)\b/ },
   { id: "use-following", code: "ADDRESS_CHANGE", re: /\bplease (?:use|send (?:to|payment to)|remit to) the following (?:address|wallet|account|details)\b/ },

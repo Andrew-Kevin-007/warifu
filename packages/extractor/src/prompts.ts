@@ -36,7 +36,7 @@ export function documentMarker(normalized: Untrusted<string>): string {
 }
 
 function defang(text: string): string {
-  return text.replace(/<(\/?)(\s*)document/gi, "<$1$2 document");
+  return text.replace(/<(\/?\s*document)/gi, "‹$1"); // "<" -> U+2039: no longer a tag opener
 }
 
 /** The user turn for an extractor: delimiter-wrapped, defanged document text. */
