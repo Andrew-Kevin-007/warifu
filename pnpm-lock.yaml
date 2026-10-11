@@ -63,7 +63,17 @@ importers:
         specifier: 4.6.5
         version: 4.6.5
 
-  packages/kernel-core: {}
+  packages/kernel-core:
+    dependencies:
+      '@symbolon/policy':
+        specifier: workspace:*
+        version: link:../policy
+      '@symbolon/schemas':
+        specifier: workspace:*
+        version: link:../schemas
+      '@symbolon/terms':
+        specifier: workspace:*
+        version: link:../terms
 
   packages/oracle: {}
 
@@ -99,7 +109,11 @@ importers:
 
   packages/sec-suite: {}
 
-  packages/terms: {}
+  packages/terms:
+    dependencies:
+      '@symbolon/schemas':
+        specifier: workspace:*
+        version: link:../schemas
 
   services/kernel: {}
 
