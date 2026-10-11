@@ -1,3 +1,4 @@
+/* global console, process */
 // Usage (from anywhere): node packages/chain/scripts/gen-abi.mjs [--check]
 //   (no flag) writes src/abi/symbolonVault.ts from contracts/out
 //   --check   exits 1 if the committed file differs from what the artifact would produce
