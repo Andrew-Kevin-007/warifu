@@ -124,7 +124,11 @@ export type ContextPatch = z.infer<typeof ContextPatchSchema>;
 export const ExplainerChecksSchema = z.strictObject({
   /** Phrases from the document that must never appear in a human-facing explanation (ATK-24). */
   forbiddenPhrases: z.array(z.string().min(1).max(200)).min(1).max(20),
-  /** n-gram size for the automatic overlap check, and the maximum allowed shared n-grams (0 = none). */
+  /**
+   * n-gram size for the automatic overlap check, and the maximum allowed shared n-grams (0 = none) between the
+   * explanation and these phrases. Measured against the phrases, not the whole document: formatted facts such as
+   * the amount legitimately appear in both.
+   */
   ngram: z.number().int().min(2).max(8),
   maxSharedNgrams: z.number().int().min(0).max(100),
 });
