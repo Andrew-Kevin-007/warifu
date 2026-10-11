@@ -160,6 +160,7 @@ describe("K-06 PAYEE_BINDING", () => {
   it("the payout address is always the engagement payee", () => {
     expect(phaseA(intent()).payee).toBe(PAYEE);
     expect(phaseA(wallet(null, null)).payee).toBe(PAYEE);
+    expect(phaseA(wallet(ATTACKER, ATTACKER)).payee).toBe(PAYEE); // a document address never becomes the payout
     expectCheck(phaseA(wallet(null, null)), "K-06", null, null);
   });
 
