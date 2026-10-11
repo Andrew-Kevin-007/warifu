@@ -1,4 +1,4 @@
-import { inspectUntrusted, untrusted } from "@symbolon/schemas";
+import { untrusted } from "@symbolon/schemas";
 import { describe, expect, it } from "vitest";
 import { buildAdvisoryFacts, checkFaithfulness, generateAdvisoryNote, validateAdvisoryNote, type AdvisoryFacts } from "../src/advisory";
 import { ScriptedLlm, makeBudgeted } from "./helpers";
