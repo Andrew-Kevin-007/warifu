@@ -36,6 +36,22 @@ describe("packages/terms purity lint (INV-9/10/19)", () => {
   });
 });
 
+describe("blast-radius closed form purity lint (docs/16 §2.2)", () => {
+  it.each([["packages/blast-radius/src/bounds.ts"], ["packages/blast-radius/src/windowed.ts"]])("clean bigint math passes in %s", async (f) => {
+    expect(await rulesHit("export const cap = (a: bigint, b: bigint): bigint => (a < b ? a : b);\n", f)).toEqual([]);
+  });
+  it.each([
+    ["Date.now()", "export const t = () => Date.now();\n", "no-restricted-globals"],
+    ["Math.random", "export const r = () => Math.random();\n", "no-restricted-properties"],
+    ["Number()", "export const n = (s: string) => Number(s);\n", "no-restricted-syntax"],
+    ["viem import", "import { parseUnits } from 'viem';\nexport const p = parseUnits;\n", "no-restricted-imports"],
+    ["workspace import", "import { loadPolicy } from '@symbolon/policy';\nexport const l = loadPolicy;\n", "no-restricted-imports"],
+  ])("rejects %s", async (_l, code, rule) => {
+    expect(await rulesHit(code, "packages/blast-radius/src/bounds.ts")).toContain(rule);
+    expect(await rulesHit(code, "packages/blast-radius/src/windowed.ts")).toContain(rule);
+  });
+});
+
 describe("packages/oracle purity and independence (oracle-v1)", () => {
   const f = "packages/oracle/src/probe.ts";
   it("clean predicate code passes", async () => {

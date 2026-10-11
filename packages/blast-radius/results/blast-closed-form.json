@@ -1,0 +1,43 @@
+{
+  "schema": "symbolon-blast-results/1",
+  "kind": "closed-form-vs-enumeration",
+  "algorithm": {
+    "id": "symbolon-bounds",
+    "version": "1.0.0"
+  },
+  "wording": "Calculated from the closed form and compared with an independent exhaustive enumeration of the modelled vault rules on tiny parameters. This does not execute the contract: validation against the real vault is the T3 simulator (WP-26).",
+  "limits": [
+    "enumeration model: pooled engagement capacity; tiny windows and amounts; one interval start",
+    "no vault bytecode executed: vaultRuntimeCodeHash is null, so this is not validated for any deployment",
+    "no LLM involved: modelIds and promptHashes are empty"
+  ],
+  "provenance": {
+    "gitSha": "93b41981250dbd7db35bf60373d3148481607335",
+    "gitDirty": false,
+    "seeds": [
+      20261112
+    ],
+    "modelIds": [],
+    "promptHashes": [],
+    "vaultRuntimeCodeHash": null,
+    "tools": {
+      "node": "v24.11.1",
+      "fast-check": "4.10.2",
+      "vitest": "5.0.3"
+    }
+  },
+  "campaign": {
+    "name": "closed-form-vs-exhaustive-enumeration",
+    "seed": 20261112,
+    "runs": 5000,
+    "executedCases": 3830,
+    "skippedCases": 1170,
+    "violations": 0,
+    "tightnessCases": 1908,
+    "tightnessMismatches": 0,
+    "hourlyCases": 1922,
+    "hourlyEqual": 1898,
+    "hourlyAbove": 24,
+    "hourlyBelow": 0
+  }
+}
