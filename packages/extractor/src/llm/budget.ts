@@ -200,12 +200,13 @@ export class BudgetedLlm {
 
     const hit = await this.o.cache.get(cacheKey);
     if (hit !== undefined) {
+      let recordFailed = false;
       try {
         await this.o.ledger.recordCacheHit({ principalHash: this.o.principalHash, role: request.role, model: request.model });
       } catch {
-        // A cache hit costs nothing; failing to record it must not turn a free answer into an outage.
+        recordFailed = true; // a free cache hit still succeeds, but the failed ledger write is REPORTED to the caller
       }
-      return { response: hit, cacheKey, cacheHit: true, latencyMs: this.clock() - t0, tokensIn: 0, tokensOut: 0, costMicroUsd: 0n, ledgerCommitFailed: false };
+      return { response: hit, cacheKey, cacheHit: true, latencyMs: this.clock() - t0, tokensIn: 0, tokensOut: 0, costMicroUsd: 0n, ledgerCommitFailed: recordFailed };
     }
 
     const maxTokensIn = maxInputTokens(request);

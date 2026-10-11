@@ -71,21 +71,22 @@ function ngrams(ws: readonly string[], n: number): Set<string> {
  */
 export function checkFaithfulness(text: string, facts: AdvisoryFacts): { ok: true } | { ok: false; reason: "UNFAITHFUL_CHECK_ID" | "UNFAITHFUL_CODE" | "UNFAITHFUL_NUMBER" } {
   const checkIds = new Set<string>(facts.checks.map((c) => c.id));
-  for (const m of text.matchAll(/\bK-\d{1,2}\b/g)) if (!checkIds.has(m[0])) return { ok: false, reason: "UNFAITHFUL_CHECK_ID" };
+  // These scans run in the DENY direction and are deliberately unanchored (no \b): anything that merely LOOKS like
+  // a check id or code is compared by exact equality against the allowed set, so "K-99x" or "XK-06" cannot hide.
+  for (const m of text.matchAll(/[Kk]-\d+/g)) if (!checkIds.has(m[0])) return { ok: false, reason: "UNFAITHFUL_CHECK_ID" };
 
   const allowedCodes = new Set<string>([...facts.reasons, ...facts.anomalyCodes, ...facts.checks.flatMap((c) => (c.code === null ? [] : [c.code]))]);
-  for (const m of text.matchAll(/\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+\b|\b(?:RELEASE|HOLD|ESCALATE|REJECT|REPLAY)\b/g)) {
-    const tok = m[0];
-    if (tok === facts.verdict) continue;
-    if (ALL_CODES.has(tok) || tok.includes("_")) {
-      if (!allowedCodes.has(tok)) return { ok: false, reason: "UNFAITHFUL_CODE" };
-    } else {
-      return { ok: false, reason: "UNFAITHFUL_CODE" }; // a verdict word that is not this decision's verdict
-    }
+  for (const m of text.matchAll(/[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)+/g)) {
+    if (!allowedCodes.has(m[0])) return { ok: false, reason: "UNFAITHFUL_CODE" };
+  }
+  for (const m of text.matchAll(/[A-Z]{3,}/g)) {
+    const word = m[0];
+    if (word === facts.verdict || allowedCodes.has(word)) continue;
+    if (ALL_CODES.has(word) || /^(?:RELEASE|HOLD|ESCALATE|REJECT|REPLAY)$/.test(word)) return { ok: false, reason: "UNFAITHFUL_CODE" };
   }
 
   // Numbers: after removing check ids, every numeric token must appear in the amount display or be a check number.
-  const stripped = text.replace(/\bK-\d{1,2}\b/g, " ");
+  const stripped = text.replace(/[Kk]-\d+/g, " ");
   const allowedNumbers = new Set<string>();
   if (facts.amountDisplay !== null) {
     allowedNumbers.add(facts.amountDisplay);

@@ -1,6 +1,6 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { isAcceptedCurrency, parseAmountPrinted } from "../src/parse/amount";
+import { parseAmountPrinted } from "../src/parse/amount";
 
 function ok(printed: string, decimals = 6): string {
   const r = parseAmountPrinted(printed, decimals);
@@ -31,7 +31,7 @@ describe("parseAmountPrinted: K-02 test vectors (decimals = 6)", () => {
   });
 
   it.each(["1.000", "1,000", "$1,000", "250.500", "0,500"])("%s is ambiguous (lone separator + 3 digits)", (printed) => {
-    expect(parseAmountPrinted(printed, 6)).toEqual({ kind: "ambiguous", reason: "LONE_SEPARATOR_THREE_DIGITS" });
+    expect(parseAmountPrinted(printed, 6)).toMatchObject({ kind: "ambiguous", reason: "LONE_SEPARATOR_THREE_DIGITS" });
   });
 
   it("refuses to round: 6.0000001 has too many decimals", () => {
@@ -114,9 +114,20 @@ describe("parseAmountPrinted: properties", () => {
   });
 });
 
-describe("isAcceptedCurrency", () => {
-  it("accepts the USDC aliases only", () => {
-    for (const c of ["USDC", "usdc", " USD ", "$", "US$"]) expect(isAcceptedCurrency(c)).toBe(true);
-    for (const c of ["EUR", "€", "EURC", "USDT", "", "USD Coin"]) expect(isAcceptedCurrency(c)).toBe(false);
+describe("currency tokens inside the printed amount: exact, case-sensitive, closed list", () => {
+  it("reports the printed token and never matches by case folding or as a prefix of another token", () => {
+    const cur = (s: string) => {
+      const r = parseAmountPrinted(s, 6);
+      return r.kind === "ok" || r.kind === "ambiguous" ? r.currency : "INVALID";
+    };
+    expect(cur("1,000.00 USDC")).toBe("USDC");
+    expect(cur("USD 1,000.00")).toBe("USD");
+    expect(cur("US$1,000.00")).toBe("US$");
+    expect(cur("$1,000.00")).toBe("$");
+    expect(cur("1,000.00")).toBeNull();
+    // not on the list / wrong case / look-alikes / glued letters: refused, never reinterpreted
+    for (const bad of ["1,000.00 usdc", "1,000.00 Usdc", "1,000.00 USDT", "USDCx 5", "1,000.00 USDС", "ЕUR 5", "5 USDC USD"]) {
+      expect(cur(bad), bad).toBe("INVALID");
+    }
   });
 });

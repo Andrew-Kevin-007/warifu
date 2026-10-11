@@ -11,12 +11,12 @@
 // Every check below is anchored: whole-token occurrence (token.ts) or exact equality; no bare `includes()`.
 // The kernel re-derives every fact it relies on; this layer is defence in depth.
 import { ExtractedInvoiceSchema, inspectUntrusted, jcs, untrusted, type ExtractedInvoice } from "@symbolon/schemas";
-import { DEFAULT_PARSE_ELIGIBLE, isKnownCurrencyToken, isParseEligible } from "./currency";
+import { DEFAULT_PARSE_ELIGIBLE, isParseEligible } from "./currency";
 import { parseAmountPrinted } from "./parse/amount";
 import { parseStatedTerms } from "./parse/terms";
 import type { PreparedDocument } from "./prepare";
 import { computeDocSignals, type Anomaly, type DocSignals } from "./signals";
-import { currenciesNextTo, occursAsToken } from "./token";
+import { currenciesNextTo, occursAsCurrency, occursAsToken } from "./token";
 
 export interface ValidationOptions {
   /** Token decimals for the document's currency (from chain/engagement context; V-04). */
@@ -61,8 +61,9 @@ export function validateExtraction(rawOutput: unknown, doc: PreparedDocument, op
 
   // --- 1. whole-token occurrence rules (REJECT) -------------------------------------------------------------------
   if (!occursAsToken(text, printed)) return notIn("amount.printed");
-  // A currency must be one of the closed known tokens, written exactly (case-sensitive) and present as a whole token.
-  if (currency.length > 0 && (!isKnownCurrencyToken(currency) || !occursAsToken(text, currency))) return notIn("amount.currencyPrinted");
+  // The currency must be printed in the document exactly as given (case-sensitive, whole token: "USD" is not
+  // found inside "USDC"). Whether it may produce base units is decided below by the closed parse-eligible list.
+  if (currency.length > 0 && !occursAsCurrency(text, currency)) return notIn("amount.currencyPrinted");
   if (invNo.length > 0 && !occursAsToken(text, invNo)) return notIn("invoiceNumber");
   if (x.payee.walletAddress !== null && !occursAsToken(text, x.payee.walletAddress, true)) return notIn("payee.walletAddress");
   for (const k of ["engagementId", "milestoneId", "poNumber"] as const) {
