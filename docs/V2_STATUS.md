@@ -20,7 +20,7 @@ Owner: ORCH. Updated: **2026-10-11 19:40 IST**. Every ~3 h and at every gate: up
 
 **Status legend:** `DONE` merged on `main` · `READY` deps met · `NEXT` queued for the named slot · `WAIT` starts when the named dep merges · `BLOCKED` deps not merged · `HOLD` waiting on Kevin · `FROZEN` not to be started (DEC-018) · `IN PROGRESS` / `IN REVIEW` set by ORCH.
 
-**Gate clock (IST):** G0 Sat 20:00 (missed; see QUESTIONS) · WP-01 v0 merged 01:14 Sun · **G1 DONE** (tag `schemas-v1.0` on `2bd444a`, pushed) · G2 Sun 23:59 (**at risk**: needs Arc Foundry + Circle testnet key + kernel service; a slip is lever (d), needs Kevin's OK) · G3 Mon 23:59 (no slip) · G3.5 Tue 23:59 · G4 Wed 23:59 · G5 Thu 18:00 · G6 deploy freeze Sat Oct 17 22:00. Deadline confirmed Sep 27 – Oct 17 (official Tameion page).
+**Gate clock (IST):** G0 Sat 20:00 (missed; see QUESTIONS) · WP-01 v0 merged 01:14 Sun · **G1 DONE** (tag `schemas-v1.0` on `2bd444a`, pushed) · G2 Sun 23:59 **MISSED** (ORCH call under Kevin's delegation, 21:30 Sun; scope kept, see QUESTIONS "G2") · **G2-late** = the same G2 scope, landed as soon as the critical path allows; ORCH re-checks G3 at Mon 12:00 · G3 Mon 23:59 (no slip) · G3.5 Tue 23:59 · G4 Wed 23:59 · G5 Thu 18:00 · G6 deploy freeze Sat Oct 17 22:00. Deadline confirmed Sep 27 – Oct 17 (official Tameion page).
 
 **Cuts pre-applied (Kevin, `docs/12` §4):** 1 P1/P2 (WP-30/31 frozen) · 2 no house-attacker LLM loop · 3 challenge launches at **L1** (one-click + benign; free-form only if budget allows) · 5 drop hold-out **H1**, keep H2 · 7 no Blast Radius LLM red-team loop. The "Never cut" list stands. No further cuts without asking Kevin.
 
