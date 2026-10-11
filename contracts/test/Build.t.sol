@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity 0.8.30;
 
+import {VmSafe} from "forge-std/Vm.sol";
 import {SymbolonVault} from "../src/SymbolonVault.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {VaultTestBase} from "./utils/VaultTestBase.sol";
@@ -16,6 +17,8 @@ contract BuildTest is VaultTestBase {
 
     function setUp() public override {
         super.setUp();
+        // `forge coverage` deploys unoptimized, instrumented code, which by design does not match out/.
+        vm.skip(vm.isContext(VmSafe.ForgeContext.Coverage));
         art = vm.readFile(string.concat(vm.projectRoot(), ARTIFACT));
     }
 
