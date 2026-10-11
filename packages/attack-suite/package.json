@@ -6,5 +6,12 @@
   "license": "Apache-2.0",
   "type": "module",
   "exports": { ".": "./src/index.ts" },
-  "scripts": { "typecheck": "tsc --noEmit -p ." }
+  "scripts": {
+    "typecheck": "tsc --noEmit -p .",
+    "fixtures": "node --experimental-strip-types scripts/build-fixtures.ts"
+  },
+  "dependencies": {
+    "@symbolon/schemas": "workspace:*",
+    "zod": "4.6.5"
+  }
 }
