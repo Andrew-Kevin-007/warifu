@@ -28,3 +28,9 @@ export {
 export type { Bound, BoundInputs, BoundsErrorCode, Term, WindowLengths } from "./bounds";
 export { boundWindowed, drainSeconds, maxDetectionWindowed, windowsCovering } from "./windowed";
 export type { WindowLimit, WindowMode, WindowedBound } from "./windowed";
+export { ProvenanceError, ProvenanceSchema, codeMatch, parseProvenance } from "./provenance";
+export type { CodeMatch, ResultProvenance } from "./provenance";
+// Not re-exported here so that importing bounds in a browser bundle does not pull in viem:
+//   @symbolon/blast-radius/lite          Blast Radius Lite (numbers or Agent-Wallet-style policy JSON)
+//   @symbolon/blast-radius/vault-inputs  adapters over @symbolon/policy (vault and kernel-policy layers)
+//   @symbolon/blast-radius/bounds        the closed form alone (no imports)

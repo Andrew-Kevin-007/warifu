@@ -9,7 +9,6 @@ import * as fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import {
   boundT3c,
-  boundT3cWithWindows,
   maxDetectionSeconds,
   perDay,
   perReleaseUnapproved,
@@ -18,7 +17,8 @@ import {
 import type { BoundInputs, Term } from "../src/bounds";
 import { boundInputs, fcParams, horizon, tighten } from "./helpers/arb";
 import type { BoundFn } from "./helpers/arb";
-import { maxExtractable } from "./helpers/enumerate";
+import { enumerated, realWindowed, tiny, toInputs, valid } from "./helpers/tiny";
+import type { WindowedImpl } from "./helpers/tiny";
 
 const real: BoundFn = (i, t) => boundT3c(i, t).value;
 const ceilDiv = (a: bigint, b: bigint): bigint => (a + b - 1n) / b;
@@ -53,29 +53,6 @@ function capped(impl: BoundFn) {
     return v <= i.B && v <= i.sumRemaining && v >= 0n;
   });
 }
-
-// tiny discrete world for the exhaustive comparison
-const tiny = fc.record({
-  B: fc.integer({ min: 0, max: 14 }),
-  P: fc.integer({ min: 1, max: 4 }),
-  H: fc.integer({ min: 0, max: 5 }),
-  D: fc.integer({ min: 1, max: 9 }),
-  hc: fc.oneof(fc.constant(0), fc.integer({ min: 1, max: 6 })),
-  N: fc.integer({ min: 1, max: 4 }),
-  R: fc.integer({ min: 0, max: 14 }),
-  dayLen: fc.integer({ min: 2, max: 4 }),
-  hourLen: fc.integer({ min: 1, max: 4 }),
-  t: fc.integer({ min: 0, max: 11 }),
-});
-type Tiny = typeof tiny extends fc.Arbitrary<infer T> ? T : never;
-const toInputs = (c: Tiny): BoundInputs => ({
-  B: BigInt(c.B), P: BigInt(c.P), D: BigInt(c.D), H: BigInt(c.H), hc: BigInt(c.hc), N: BigInt(c.N), sumRemaining: BigInt(c.R),
-});
-const valid = (c: Tiny): boolean => c.hourLen <= c.dayLen;
-const enumerated = (c: Tiny): number =>
-  maxExtractable({ B: c.B, pstar: Math.min(c.P, c.H), D: c.D, hc: c.hc, N: c.N, R: c.R, dayLen: c.dayLen, hourLen: c.hourLen }, c.t);
-type WindowedImpl = (i: BoundInputs, t: bigint, day: bigint, hour: bigint) => bigint;
-const realWindowed: WindowedImpl = (i, t, day, hour) => boundT3cWithWindows(i, t, { daySeconds: day, hourSeconds: hour }).value;
 
 function neverBelowEnumeration(impl: WindowedImpl) {
   return fc.property(tiny, (c) => {
