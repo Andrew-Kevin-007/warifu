@@ -50,14 +50,18 @@ function toEpoch(iso: ISODateTime, what: string): TermsResult<bigint> {
   return ok(epochSecondsFromIso(iso));
 }
 
+/** floor(gross * bps / 10000) for validated non-negative operands (bigint division truncates = floor here). */
+function floorBps(gross: bigint, bps: bigint): bigint {
+  return (gross * bps) / BPS_DENOMINATOR;
+}
+
 /** floor(gross * discountBps / 10000). `discountBps` in [0, 10000]. */
 export function discountValue(gross: bigint, discountBps: number): TermsResult<bigint> {
   const g = checkAmount(gross, "gross");
   if (!g.ok) return g;
   const b = checkBps(discountBps, 10_000);
   if (!b.ok) return b;
-  // Both operands are non-negative, so bigint division (truncation) is floor.
-  return ok((g.value * b.value) / BPS_DENOMINATOR);
+  return ok(floorBps(g.value, b.value));
 }
 
 /** `iso + days` whole days, as a canonical ISODateTime. */
@@ -129,9 +133,9 @@ export function amountDue(input: AmountDueInput): TermsResult<AmountDue> {
   if (pay.value > epochSecondsFromIso(windowEnd.value)) {
     return ok({ ...none, windowEnd: windowEnd.value });
   }
-  const discount = discountValue(g.value, early.discountBps);
-  if (!discount.ok) return discount;
-  return ok({ amountDue: g.value - discount.value, discountValue: discount.value, discountApplied: true, windowEnd: windowEnd.value });
+  // PaymentTermsSchema bounds discountBps to an integer in [1, 2000], so the floor needs no re-validation.
+  const discount = floorBps(g.value, BigInt(early.discountBps));
+  return ok({ amountDue: g.value - discount, discountValue: discount, discountApplied: true, windowEnd: windowEnd.value });
 }
 
 export interface ImpliedAprInput {
