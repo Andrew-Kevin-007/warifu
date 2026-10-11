@@ -13,3 +13,5 @@ recovery_file*
 .DS_Store
 .vitest-cache/
 .claude/settings.local.json
+# nested agent worktrees (Claude Code isolation) are separate checkouts
+.claude/worktrees/
