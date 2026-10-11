@@ -34,7 +34,7 @@ function registrationIssues(e: Engagement, ctx: KernelContext): Issue[] {
   return issues;
 }
 
-function milestoneStatusIssue(m: Milestone): Issue | null {
+export function milestoneStatusIssue(m: Milestone): Issue | null {
   switch (m.status) {
     case "PENDING":
     case "EVIDENCE_OK":
