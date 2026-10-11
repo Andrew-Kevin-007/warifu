@@ -8,6 +8,7 @@
   "exports": { ".": "./src/index.ts" },
   "scripts": { "typecheck": "tsc --noEmit -p ." },
   "dependencies": {
-    "@symbolon/schemas": "workspace:*"
+    "@symbolon/schemas": "workspace:*",
+    "zod": "4.6.5"
   }
 }
