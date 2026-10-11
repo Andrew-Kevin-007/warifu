@@ -121,6 +121,24 @@ export function agreeingRun(
   return { label, a, b: structuredClone(a), agentRecommendation: null, expect };
 }
 
+/** Two models that read the document differently (extras differ per model). */
+export function splitRun(
+  label: string,
+  spec: InvoiceSpec,
+  rendered: RenderedInvoice,
+  expect: StepExpect,
+  extrasA: ExtractionExtras,
+  extrasB: ExtractionExtras,
+): ExtractionRun {
+  return {
+    label,
+    a: referenceExtraction(spec, rendered, extrasA),
+    b: referenceExtraction(spec, rendered, extrasB),
+    agentRecommendation: null,
+    expect,
+  };
+}
+
 export function statedTermsOf(raw: string, netDays: number | null, earlyPay: { discountBps: number; withinDays: number } | null, ambiguous = false): StatedTerms {
   return { raw: untrusted(raw), netDays, earlyPay, ambiguous };
 }
