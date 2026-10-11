@@ -77,8 +77,8 @@ describe("validateAdvisoryNote", () => {
   });
 
   it("ATK-24: drops a note that copies a 5-word run from the document", () => {
-    const doc = untrusted("Kindly route this settlement through the special overseas clearing desk named below");
-    const echo = "Note the special overseas clearing desk and K-06 failed";
+    const doc = untrusted("The wallet address was different from the registered vendor details shown below");
+    const echo = "Note the wallet address was different from the registered vendor and K-06 failed";
     expect(validateAdvisoryNote(echo, facts, { sourceText: doc })).toEqual({ ok: false, reason: "COPIES_DOCUMENT_TEXT" });
     // a clean note with no shared run passes with the same document
     expect(validateAdvisoryNote("The payee check failed (K-06).", facts, { sourceText: doc }).ok).toBe(true);

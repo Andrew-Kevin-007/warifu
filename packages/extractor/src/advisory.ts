@@ -18,6 +18,7 @@ import { inspectUntrusted, REASON_CODES, ANOMALY_CODES, sanitizeLlmText, untrust
 import { toCallRecord, type AgentCallRecord } from "./calls";
 import type { BudgetedLlm } from "./llm/budget";
 import { PROMPT_ADVISORY, renderAdvisoryUserTurn } from "./prompts";
+import { ADVISORY_VOCABULARY, VERDICT_FORMS } from "./advisory-vocab";
 import { AdvisoryNoteInputSchema, SUBMIT_ADVISORY_NOTE } from "./tools";
 
 /** Everything the model (and the faithfulness check) may rely on. Enums and a formatted amount only. */
@@ -44,7 +45,7 @@ export function buildAdvisoryFacts(
   };
 }
 
-export type FaithfulnessFailure = "UNFAITHFUL_CHECK_ID" | "UNFAITHFUL_CODE" | "UNFAITHFUL_NUMBER" | "NUMBER_WORD" | "VERDICT_WORD" | "NON_CANONICAL_TEXT";
+export type FaithfulnessFailure = "UNFAITHFUL_CHECK_ID" | "UNFAITHFUL_CODE" | "UNFAITHFUL_NUMBER" | "NUMBER_WORD" | "VERDICT_WORD" | "OUT_OF_VOCABULARY" | "NON_CANONICAL_TEXT";
 
 export type AdvisoryRejection =
   | "EMPTY"
@@ -75,14 +76,13 @@ function ngrams(ws: readonly string[], n: number): Set<string> {
   for (let i = 0; i + n <= ws.length; i++) out.add(ws.slice(i, i + n).join(" "));
   return out;
 }
-
 const NUMBER_WORDS = [
   "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen",
   "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty",
   "ninety", "hundred", "thousand", "million", "billion", "trillion", "percent", "half", "double", "twice", "thrice", "dozen", "triple",
 ];
 // A letter run made ONLY of number words ("twentyfive", "onethousand") is a spelled-out number; whole-word match so
-// that "money" or "someone" are not flagged.
+// that "money" or "someone" are not flagged by THIS check (they are still refused by the vocabulary).
 const NUMBER_WORD_RE = new RegExp(`^(?:${NUMBER_WORDS.join("|")})+$`);
 
 /** Stems of verdict-like words and the verdict that is allowed to use each ("" = never allowed). */
@@ -98,52 +98,81 @@ const VERDICT_STEMS: ReadonlyArray<readonly [stem: string, allowedFor: Verdict |
 ];
 
 /**
- * Faithfulness check (docs/03 section 6): every check id, code and number mentioned must exist in the facts.
- * The text is NFKC-folded first so full-width / compatibility forms cannot hide a number or id; any non-ASCII digit
- * is refused; spelled-out numbers and verdict-like words other than the decision's own are refused.
- * Also usable on the kernel's templated explanation in the eval.
+ * ONE tokenizer for every check (SEC review: separate regex scans can split the same text differently). The
+ * NFKC-folded note is split on whitespace and on delimiter punctuation (; : ! ? ( ) [ ] { } " `), then leading and
+ * trailing "." and "," are trimmed from each token (sentence punctuation). Nothing else is split: "1.000,00",
+ * "5k", "K-06x", "fifty-fifty", "doesn't", "50%" and "PAYEE_MISMATCH" each stay ONE token and are judged whole.
  */
-export function checkFaithfulness(text: string, facts: AdvisoryFacts): { ok: true } | { ok: false; reason: FaithfulnessFailure } {
+export function tokenizeNote(folded: string): string[] {
+  return folded
+    .split(/[\s;:!?()[\]{}"`]+/)
+    .map((t) => t.replace(/^[.,]+|[.,]+$/g, ""))
+    .filter((t) => t.length > 0);
+}
+
+const WORD_TOKEN_RE = /^\p{L}+(?:-\p{L}+)*$/u;
+
+export interface FaithfulnessOptions {
+  /**
+   * true (default, the advisory note): every word must be in the closed vocabulary or an exact fact token.
+   * false (the kernel's templated explanation in the eval): only check ids, codes and numbers are enforced.
+   */
+  readonly strictVocabulary?: boolean;
+}
+
+/**
+ * Faithfulness + allowlist check (docs/03 section 6). The text is NFKC-folded and tokenized once; each token is
+ * classified exactly one way:
+ *   * check id "K-nn" (exactly): must be a check id of this decision;
+ *   * any other token containing "K-<digit>": rejected (UNFAITHFUL_CHECK_ID);
+ *   * any token containing a digit: allowed only if it equals facts.amountDisplay exactly (digits glued to letters,
+ *     other separators, signs, percent, non-ASCII digits all reject: UNFAITHFUL_NUMBER);
+ *   * token with "_": must be exactly an allowed reason/anomaly code (UNFAITHFUL_CODE);
+ *   * UPPER-CASE code or verdict word that is not this decision's: UNFAITHFUL_CODE;
+ *   * word tokens (letters, optionally hyphenated): each part must be in ADVISORY_VOCABULARY, in the words of the
+ *     decision's own codes, or in the decision's own verdict forms; spelled-out numbers and other verdict-like
+ *     words get their specific rejection first (NUMBER_WORD, VERDICT_WORD), everything else is OUT_OF_VOCABULARY.
+ * If every token passes but folding changed the text, the note used compatibility forms: NON_CANONICAL_TEXT.
+ */
+export function checkFaithfulness(text: string, facts: AdvisoryFacts, options: FaithfulnessOptions = {}): { ok: true } | { ok: false; reason: FaithfulnessFailure } {
+  const strict = options.strictVocabulary !== false;
   const folded = text.normalize("NFKC");
   const bad = (reason: FaithfulnessFailure) => ({ ok: false as const, reason });
 
-  // The scans below run in the DENY direction and are deliberately unanchored (no \b): anything that merely LOOKS like
-  // a check id or code is compared by exact equality against the allowed set, so "K-99x" or "XK-06" cannot hide.
   const checkIds = new Set<string>(facts.checks.map((c) => c.id));
-  for (const m of folded.matchAll(/[Kk]-\d+/g)) if (!checkIds.has(m[0])) return bad("UNFAITHFUL_CHECK_ID");
-
   const allowedCodes = new Set<string>([...facts.reasons, ...facts.anomalyCodes, ...facts.checks.flatMap((c) => (c.code === null ? [] : [c.code]))]);
-  for (const m of folded.matchAll(/[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)+/g)) if (!allowedCodes.has(m[0])) return bad("UNFAITHFUL_CODE");
-  for (const m of folded.matchAll(/[A-Z]{3,}/g)) {
-    const word = m[0];
-    if (word === facts.verdict || allowedCodes.has(word)) continue;
-    if (ALL_CODES.has(word) || /^(?:RELEASE|HOLD|ESCALATE|REJECT|REPLAY)$/.test(word)) return bad("UNFAITHFUL_CODE");
-  }
+  const allowedWords = new Set<string>(VERDICT_FORMS[facts.verdict]);
+  for (const code of allowedCodes) for (const part of code.toLowerCase().split("_")) allowedWords.add(part);
 
-  // Digits: ASCII only, and every numeric token must come from the facts (check ids removed first).
-  if (/\p{Nd}/u.test(folded.replace(/[0-9]/g, ""))) return bad("UNFAITHFUL_NUMBER");
-  const stripped = folded.replace(/[Kk]-\d+/g, " ");
-  const allowedNumbers = new Set<string>();
-  if (facts.amountDisplay !== null) {
-    allowedNumbers.add(facts.amountDisplay);
-    for (const n of facts.amountDisplay.match(/\d[\d,]*(?:\.\d+)?/g) ?? []) allowedNumbers.add(n);
-  }
-  for (const m of stripped.matchAll(/\d[\d,.]*\d|\d/g)) {
-    if (!allowedNumbers.has(m[0].replace(/[.,]+$/, ""))) return bad("UNFAITHFUL_NUMBER");
-  }
-
-  // Spelled-out numbers and verdict-like words, per whole letter run (hyphen/space separated), case-insensitive.
-  for (const run of folded.toLowerCase().split(/[^\p{L}]+/u)) {
-    if (run.length === 0) continue;
-    if (NUMBER_WORD_RE.test(run)) return bad("NUMBER_WORD");
-    for (const [stem, allowedFor] of VERDICT_STEMS) {
-      if (run.startsWith(stem) && allowedFor !== facts.verdict) return bad("VERDICT_WORD");
+  for (const tok of tokenizeNote(folded)) {
+    if (/^[Kk]-[0-9]+$/.test(tok)) {
+      if (!checkIds.has(tok)) return bad("UNFAITHFUL_CHECK_ID");
+      continue;
+    }
+    if (/[Kk]-[0-9]/.test(tok)) return bad("UNFAITHFUL_CHECK_ID");
+    if (/\p{Nd}/u.test(tok)) {
+      if (facts.amountDisplay !== null && tok === facts.amountDisplay) continue;
+      return bad("UNFAITHFUL_NUMBER");
+    }
+    if (tok.includes("_")) {
+      if (!allowedCodes.has(tok)) return bad("UNFAITHFUL_CODE");
+      continue;
+    }
+    if (/^[A-Z]{3,}$/.test(tok) && tok !== facts.verdict && !allowedCodes.has(tok)) {
+      if (ALL_CODES.has(tok) || /^(?:RELEASE|HOLD|ESCALATE|REJECT|REPLAY)$/.test(tok)) return bad("UNFAITHFUL_CODE");
+    }
+    if (!strict) continue;
+    if (!WORD_TOKEN_RE.test(tok)) return bad("OUT_OF_VOCABULARY"); // %, +, -, &, apostrophes, mixed scripts, symbols
+    for (const part of tok.toLowerCase().split("-")) {
+      if (NUMBER_WORD_RE.test(part)) return bad("NUMBER_WORD");
+      for (const [stem, allowedFor] of VERDICT_STEMS) if (part.startsWith(stem) && allowedFor !== facts.verdict) return bad("VERDICT_WORD");
+      if (!ADVISORY_VOCABULARY.has(part) && !allowedWords.has(part)) return bad("OUT_OF_VOCABULARY");
     }
   }
-
   if (folded !== text) return bad("NON_CANONICAL_TEXT"); // compatibility forms (full-width, math alphanumerics, ligatures, ...)
   return { ok: true };
 }
+
 
 export interface AdvisoryOptions {
   /** Normalized document text, when available, for the shared-word-run check (ATK-24). */

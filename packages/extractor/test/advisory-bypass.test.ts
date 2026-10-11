@@ -89,8 +89,9 @@ describe("3. spelled-out numbers and verdict-like words", () => {
   it.each(["one thousand", "ten percent", "twice the amount", "half of it", "twentyfive", "a dozen", "three-fold", "double payment"])("number words: %s", (phrase) => {
     expect(reasonOf(`K-06 failed: ${phrase}`)).toBe("NUMBER_WORD");
   });
-  it("does not flag words that merely contain number words", () => {
-    expect(reasonOf("Someone changed the money details; K-06 failed")).toBe("OK");
+  it("words that merely contain number words are not number words (but are still outside the vocabulary)", () => {
+    expect(reasonOf("Someone changed the money details; K-06 failed")).toBe("OUT_OF_VOCABULARY");
+    expect(reasonOf("The payee changed the details; K-06 failed")).toBe("OK");
   });
   it.each(["verdict: release", "this is approved", "looks safe", "it was rejected", "Escalated", "replay detected", "approval granted", "unsafe payee"])("verdict words contradicting HOLD: %s", (phrase) => {
     expect(reasonOf(`K-06 failed; ${phrase}`, hold)).toBe("VERDICT_WORD");
