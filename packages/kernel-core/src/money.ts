@@ -10,8 +10,8 @@
 //     hint such as "M" or "k" would otherwise turn "1.5M" into 1.5.
 //   - Anything that is not digits plus the recognised separators (a sign, a letter, "1..0", a leading or trailing
 //     separator, two kinds of grouping, an invalid grouping shape, a leading zero) is AMBIGUOUS (MALFORMED).
-//   - Grouping shape: first group 1-3 digits then groups of 3 (1,234,567), or Indian lakh grouping
-//     (12,34,567: groups of 2, last group 3).
+//   - Grouping shape: first group 1-3 digits then groups of 3 (1,234,567), or Indian lakh grouping with commas
+//     only (12,34,567: groups of 2, last group 3).
 //   - The "decimalSeparatorGuess agrees and K-08 matches" exemption for "1.000" is not applied (it would make the
 //     kernel trust the extractor); "1.000" is always AMBIGUOUS for the total. `convention` exists only for line
 //     items, which never decide an amount (K-02 step 6 compares their sum).
@@ -61,7 +61,8 @@ function integerDigits(intPart: string, g: string | null): string | null {
   const western = /^[0-9]{1,3}$/.test(first) && rest.every((x) => x.length === 3);
   const last = rest[rest.length - 1] as string;
   const middle = rest.slice(0, -1);
-  const indian = /^[0-9]{1,2}$/.test(first) && last.length === 3 && middle.every((x) => x.length === 2);
+  // Lakh grouping is accepted only with commas (en-IN); "1.00.000" stays MALFORMED.
+  const indian = g === "," && /^[0-9]{1,2}$/.test(first) && last.length === 3 && middle.every((x) => x.length === 2);
   return western || indian ? digits : null;
 }
 
@@ -103,8 +104,8 @@ export function parseMoney(printed: string, _currencyHint: string | null, declar
     const dec: DecimalSeparator = body.lastIndexOf(".") > body.lastIndexOf(",") ? "." : ",";
     const grp = dec === "." ? "," : ".";
     if (count(body, dec) !== 1) return MALFORMED;
+    // `dec` occurs once and is the later of the two, so every grouping separator precedes it.
     const at = body.indexOf(dec);
-    if (body.lastIndexOf(grp) > at) return MALFORMED;
     const intDigits = integerDigits(body.slice(0, at), grp);
     return intDigits === null ? MALFORMED : exact(intDigits, body.slice(at + 1), declaredDecimals, dec);
   }
