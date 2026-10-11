@@ -5,6 +5,19 @@
   "description": "Money, ABIs, event decoders, Arc chain config (owner: CHAIN)",
   "license": "Apache-2.0",
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
-  "scripts": { "typecheck": "tsc --noEmit -p ." }
+  "exports": {
+    ".": "./src/index.ts",
+    "./abi": "./src/abi/index.ts",
+    "./anvil": "./src/anvil.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p .",
+    "abi:gen": "node scripts/gen-abi.mjs",
+    "abi:check": "node scripts/gen-abi.mjs --check"
+  },
+  "dependencies": {
+    "@symbolon/schemas": "workspace:*",
+    "viem": "2.56.9",
+    "zod": "4.6.5"
+  }
 }
