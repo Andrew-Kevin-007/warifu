@@ -102,7 +102,11 @@ export const EvidencePlanSchema = z.union([
 ]);
 export type EvidencePlan = z.infer<typeof EvidencePlanSchema>;
 
-/** Symbolic state the harness applies to the scenario instance before the step (everything optional). */
+/**
+ * Symbolic state the harness applies to the scenario instance before the step (everything optional).
+ * A patch is applied ONCE, before its step; state it creates (prior releases, milestone status) persists for the
+ * later steps of the same fixture, and decisions produced by earlier steps accumulate in the same instance.
+ */
 export const ContextPatchSchema = z.strictObject({
   /** Overrides the scenario clock (kernel `ctx.now`). Also the document's receivedAt unless stated otherwise. */
   now: ISODateTimeSchema.exactOptional(),
