@@ -110,7 +110,7 @@ export function extraction(over: Record<string, unknown> = {}) {
     dueDate: null,
     payee: { legalName: "Acme Design", walletAddress: PAYEE as string | null, claimsAddressChange: false },
     amount: { printed: "1,000.00", currencyPrinted: "USDC", decimalSeparatorGuess: ".", parsedBaseUnits: "1000000000" as string | null, decimals: 6 as number | null },
-    references: { engagementId: null, milestoneId: null, poNumber: null },
+    references: { engagementId: null, milestoneId: null, poNumber: null } as Record<string, string | null>,
     statedTerms: { raw: null, netDays: null, earlyPay: null, ambiguous: false } as Record<string, unknown>,
     lineItems: [{ description: "Website design", amountPrinted: "1,000.00" as string | null }],
     anomalies: [] as Array<{ code: string; quote: string }>,
