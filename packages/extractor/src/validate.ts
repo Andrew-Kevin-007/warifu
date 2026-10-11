@@ -1,24 +1,28 @@
-// Post-hoc validation and reconciliation of ONE model's extraction (docs/03 §3 "validated post-hoc").
+// Post-hoc validation and reconciliation of ONE model's extraction (docs/03 section 3, "validated post-hoc").
 //
 // Two kinds of outcome, both fail-safe:
-//   * REJECT the whole output (SCHEMA_INVALID, FIELD_NOT_IN_DOCUMENT): a value the document does not print
-//     (an address copied from read_context, an invented invoice number, an amount that is not a substring)
-//     means the model hallucinated or was steered; no intent is created from it.
+//   * REJECT the whole output (SCHEMA_INVALID, FIELD_NOT_IN_DOCUMENT): a value the document does not print as a
+//     WHOLE TOKEN (an address copied from read_context, an invoice number that is only a prefix of the printed
+//     one, an amount that is a fragment of a larger number) means the model hallucinated or was steered. No intent
+//     is created from it, but the document-level signals still travel with the failure.
 //   * REDUCE: values that cannot be verified deterministically are nulled or flagged, and anomalies are only ever
-//     ADDED (hidden characters, injection phrases, address-change language, terms claims). Nothing is filled in
-//     from the deterministic parsers: the model's `parsedBaseUnits` survives only if parseAmountPrinted
-//     reproduces it exactly. This is what keeps "confidently wrong" at zero (docs/03 §8).
+//     ADDED. Nothing is filled in from the deterministic parsers: the model's `parsedBaseUnits` survives only if
+//     parseAmountPrinted reproduces it exactly AND amount + currency + decimals check out together.
+// Every check below is anchored: whole-token occurrence (token.ts) or exact equality; no bare `includes()`.
 // The kernel re-derives every fact it relies on; this layer is defence in depth.
-import { ExtractedInvoiceSchema, inspectUntrusted, jcs, untrusted, type ExtractedInvoice, type Untrusted } from "@symbolon/schemas";
-import { DEFAULT_USDC_ALIASES, isAcceptedCurrency, parseAmountPrinted } from "./parse/amount";
-import { scanInjection } from "./parse/injection";
+import { ExtractedInvoiceSchema, inspectUntrusted, jcs, untrusted, type ExtractedInvoice } from "@symbolon/schemas";
+import { DEFAULT_PARSE_ELIGIBLE, isKnownCurrencyToken, isParseEligible } from "./currency";
+import { parseAmountPrinted } from "./parse/amount";
 import { parseStatedTerms } from "./parse/terms";
 import type { PreparedDocument } from "./prepare";
+import { computeDocSignals, type Anomaly, type DocSignals } from "./signals";
+import { currenciesNextTo, occursAsToken } from "./token";
 
 export interface ValidationOptions {
   /** Token decimals for the document's currency (from chain/engagement context; V-04). */
   readonly decimals: number;
-  readonly usdcAliases?: readonly string[];
+  /** Exact printed spellings for which base units may be emitted (default ["USDC"]); subset of the known list. */
+  readonly parseEligibleCurrencies?: readonly string[];
 }
 
 export type ValidationFailure =
@@ -39,61 +43,64 @@ export interface Correction {
 }
 
 export type ValidationResult =
-  | { readonly ok: true; readonly extraction: ExtractedInvoice; readonly corrections: readonly Correction[] }
-  | { readonly ok: false; readonly failure: ValidationFailure };
-
-type Anomaly = ExtractedInvoice["anomalies"][number];
+  | { readonly ok: true; readonly extraction: ExtractedInvoice; readonly corrections: readonly Correction[]; readonly signals: DocSignals }
+  | { readonly ok: false; readonly failure: ValidationFailure; readonly signals: DocSignals };
 
 const MAX_ANOMALIES = 50;
 
-function has(text: string, needle: string, ci = false): boolean {
-  return ci ? text.toLowerCase().includes(needle.toLowerCase()) : text.includes(needle);
-}
-
-export function validateExtraction(rawOutput: unknown, doc: PreparedDocument, options: ValidationOptions): ValidationResult {
+export function validateExtraction(rawOutput: unknown, doc: PreparedDocument, options: ValidationOptions, signals: DocSignals = computeDocSignals(doc)): ValidationResult {
+  const fail = (failure: ValidationFailure): ValidationResult => ({ ok: false, failure, signals });
   const parsed = ExtractedInvoiceSchema.safeParse(rawOutput);
-  if (!parsed.success) {
-    return { ok: false, failure: { code: "SCHEMA_INVALID", paths: parsed.error.issues.slice(0, 10).map((i) => i.path.join(".")) } };
-  }
+  if (!parsed.success) return fail({ code: "SCHEMA_INVALID", paths: parsed.error.issues.slice(0, 10).map((i) => i.path.join(".")) });
   const x = parsed.data;
   const text = inspectUntrusted(doc.normalized);
   const printed = inspectUntrusted(x.amount.printed);
-
-  // --- 1. verbatim-substring rules (REJECT) -----------------------------------------------------------------
-  const notIn = (field: string): ValidationResult => ({ ok: false, failure: { code: "FIELD_NOT_IN_DOCUMENT", field } });
-  if (printed.length === 0 || !has(text, printed)) return notIn("amount.printed");
   const currency = inspectUntrusted(x.amount.currencyPrinted);
-  if (currency.length > 0 && !has(text, currency, true)) return notIn("amount.currencyPrinted");
   const invNo = inspectUntrusted(x.invoiceNumber);
-  if (invNo.length > 0 && !has(text, invNo)) return notIn("invoiceNumber");
-  if (x.payee.walletAddress !== null && !has(text, x.payee.walletAddress, true)) return notIn("payee.walletAddress");
+  const notIn = (field: string) => fail({ code: "FIELD_NOT_IN_DOCUMENT", field });
+
+  // --- 1. whole-token occurrence rules (REJECT) -------------------------------------------------------------------
+  if (!occursAsToken(text, printed)) return notIn("amount.printed");
+  // A currency must be one of the closed known tokens, written exactly (case-sensitive) and present as a whole token.
+  if (currency.length > 0 && (!isKnownCurrencyToken(currency) || !occursAsToken(text, currency))) return notIn("amount.currencyPrinted");
+  if (invNo.length > 0 && !occursAsToken(text, invNo)) return notIn("invoiceNumber");
+  if (x.payee.walletAddress !== null && !occursAsToken(text, x.payee.walletAddress, true)) return notIn("payee.walletAddress");
   for (const k of ["engagementId", "milestoneId", "poNumber"] as const) {
     const v = x.references[k];
-    if (v !== null && !has(text, inspectUntrusted(v))) return notIn(`references.${k}`);
+    if (v !== null && !occursAsToken(text, inspectUntrusted(v))) return notIn(`references.${k}`);
   }
-  if (x.statedTerms.raw !== null && !has(text, inspectUntrusted(x.statedTerms.raw))) return notIn("statedTerms.raw");
+  if (x.statedTerms.raw !== null && !occursAsToken(text, inspectUntrusted(x.statedTerms.raw))) return notIn("statedTerms.raw");
 
   const corrections: Correction[] = [];
-  const anomalies: Anomaly[] = [...x.anomalies];
-  const hasAnomaly = (code: Anomaly["code"]) => anomalies.some((a) => a.code === code);
-  const addAnomaly = (code: Anomaly["code"], quote: string) => {
-    if (anomalies.length < MAX_ANOMALIES) anomalies.push({ code, quote: untrusted(quote.slice(0, 500)) });
-  };
+  const modelAnomalies: Anomaly[] = [...x.anomalies];
+  const extra: Anomaly[] = [];
+  const hasAnomaly = (code: Anomaly["code"]) => [...modelAnomalies, ...signals.anomalies, ...extra].some((a) => a.code === code);
+  const addAnomaly = (code: Anomaly["code"], quote: string) => extra.push({ code, quote: untrusted(quote.slice(0, 500)) });
 
-  // --- 2. amount: keep parsedBaseUnits only if the deterministic parser reproduces it ---------------------------
+  // --- 2. amount + currency + decimals, validated TOGETHER ---------------------------------------------------------
   const det = parseAmountPrinted(printed, options.decimals);
   let { parsedBaseUnits, decimals, decimalSeparatorGuess } = x.amount;
   if (parsedBaseUnits !== null) {
-    const currencyOk = isAcceptedCurrency(currency, options.usdcAliases ?? DEFAULT_USDC_ALIASES) || (currency.length === 0 && /^\s*\$/.test(printed));
+    let reason: Correction["reason"] | null = null;
     if (det.kind !== "ok" || det.baseUnits.toString() !== parsedBaseUnits) {
-      corrections.push({ field: "amount.parsedBaseUnits", reason: det.kind === "ambiguous" ? "PARSED_BASE_UNITS_AMBIGUOUS" : "PARSED_BASE_UNITS_NOT_REPRODUCED" });
+      reason = det.kind === "ambiguous" ? "PARSED_BASE_UNITS_AMBIGUOUS" : "PARSED_BASE_UNITS_NOT_REPRODUCED";
+    } else {
+      // The currency the amount is printed with: inside the printed string, or immediately next to it in the document.
+      const printedCcy = det.currency;
+      const neighbours = currenciesNextTo(text, printed);
+      const currencyConsistent =
+        isParseEligible(currency, options.parseEligibleCurrencies ?? DEFAULT_PARSE_ELIGIBLE) &&
+        (printedCcy === null ? neighbours.has(currency) : printedCcy === currency) &&
+        // no OTHER known currency is printed next to the same amount
+        [...neighbours].every((n) => n === currency);
+      if (!currencyConsistent || decimals !== options.decimals) reason = "PARSED_BASE_UNITS_CURRENCY_OR_DECIMALS";
+    }
+    if (reason !== null) {
+      corrections.push({ field: "amount.parsedBaseUnits", reason });
       parsedBaseUnits = null;
       decimals = null;
-      if (!hasAnomaly("AMOUNT_AMBIGUOUS")) addAnomaly("AMOUNT_AMBIGUOUS", printed);
-    } else if (!currencyOk || decimals !== options.decimals) {
-      corrections.push({ field: "amount.parsedBaseUnits", reason: "PARSED_BASE_UNITS_CURRENCY_OR_DECIMALS" });
-      parsedBaseUnits = null;
-      decimals = null;
+      if (reason === "PARSED_BASE_UNITS_CURRENCY_OR_DECIMALS") addAnomaly("OTHER", `currency or decimals not verifiable: ${JSON.stringify(currency.slice(0, 32))}`);
+      else if (!hasAnomaly("AMOUNT_AMBIGUOUS")) addAnomaly("AMOUNT_AMBIGUOUS", printed);
     }
   }
   if (det.kind === "ambiguous") {
@@ -105,7 +112,7 @@ export function validateExtraction(rawOutput: unknown, doc: PreparedDocument, op
     decimalSeparatorGuess = det.decimalSeparator;
   }
 
-  // --- 3. stated terms: cross-check with the deterministic reader (flag, never adopt) -------------------------
+  // --- 3. stated terms: cross-check with the deterministic reader (flag, never adopt) -------------------------------
   let statedTerms = x.statedTerms;
   const dt = parseStatedTerms(text);
   const sameEarly = (a: typeof statedTerms.earlyPay, b: typeof dt.earlyPay) => jcs(a) === jcs(b);
@@ -117,9 +124,7 @@ export function validateExtraction(rawOutput: unknown, doc: PreparedDocument, op
     } else {
       statedTerms = { ...statedTerms, raw: statedTerms.raw ?? (dt.raw === null ? null : untrusted(dt.raw)), ambiguous: statedTerms.ambiguous || dt.ambiguous };
     }
-    if (statedTerms.earlyPay !== null || dt.earlyPay !== null) {
-      if (!hasAnomaly("TERMS_CLAIM")) addAnomaly("TERMS_CLAIM", dt.raw ?? "");
-    }
+    if ((statedTerms.earlyPay !== null || dt.earlyPay !== null) && !hasAnomaly("TERMS_CLAIM")) addAnomaly("TERMS_CLAIM", dt.raw ?? "");
   } else if (statedTerms.netDays !== null || statedTerms.earlyPay !== null) {
     // The model reports terms the reader cannot confirm: keep them but mark them unverified.
     corrections.push({ field: "statedTerms", reason: "STATED_TERMS_UNVERIFIABLE" });
@@ -127,22 +132,23 @@ export function validateExtraction(rawOutput: unknown, doc: PreparedDocument, op
     if (statedTerms.earlyPay !== null && !hasAnomaly("TERMS_CLAIM")) addAnomaly("TERMS_CLAIM", inspectUntrusted(statedTerms.raw ?? untrusted("")));
   }
 
-  // --- 4. anomalies are only ever added ---------------------------------------------------------------------------
-  const before = anomalies.length;
-  if (doc.removedCount > 0) {
-    const c = doc.counts;
-    addAnomaly("HIDDEN_CHARS", `removed ${doc.removedCount} characters (control ${c.control}, zero-width ${c.zeroWidth}, bidi ${c.bidi}, invalid ${c.invalid})`);
-  }
+  // --- 4. anomalies are only ever added; document signals come FIRST so the cap can never push them out ------------
   if (invNo.length === 0 && !hasAnomaly("MISSING_FIELD")) addAnomaly("MISSING_FIELD", "invoiceNumber");
   let claimsAddressChange = x.payee.claimsAddressChange;
-  for (const f of scanInjection(doc.normalized)) {
-    if (!anomalies.some((a) => a.code === f.code && inspectUntrusted(a.quote) === inspectUntrusted(f.quote))) addAnomaly(f.code, inspectUntrusted(f.quote));
-    if (f.code === "ADDRESS_CHANGE" && !claimsAddressChange) {
-      claimsAddressChange = true;
-      corrections.push({ field: "payee.claimsAddressChange", reason: "ADDRESS_CHANGE_FLAG_RAISED" });
-    }
+  if (signals.claimsAddressChange && !claimsAddressChange) {
+    claimsAddressChange = true;
+    corrections.push({ field: "payee.claimsAddressChange", reason: "ADDRESS_CHANGE_FLAG_RAISED" });
   }
-  if (anomalies.length > before) corrections.push({ field: "anomalies", reason: "ANOMALIES_ADDED" });
+  const seen = new Set<string>();
+  const anomalies: Anomaly[] = [];
+  for (const a of [...signals.anomalies, ...extra, ...modelAnomalies]) {
+    const key = `${a.code}|${inspectUntrusted(a.quote)}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    anomalies.push(a);
+  }
+  anomalies.splice(MAX_ANOMALIES);
+  if (anomalies.length > x.anomalies.length) corrections.push({ field: "anomalies", reason: "ANOMALIES_ADDED" });
 
   const extraction: ExtractedInvoice = {
     ...x,
@@ -153,8 +159,6 @@ export function validateExtraction(rawOutput: unknown, doc: PreparedDocument, op
   };
   // Re-validate what we are about to hand on (guards against a bug in the reconciliation above).
   const again = ExtractedInvoiceSchema.safeParse(extraction);
-  if (!again.success) return { ok: false, failure: { code: "SCHEMA_INVALID", paths: again.error.issues.slice(0, 10).map((i) => i.path.join(".")) } };
-  return { ok: true, extraction: again.data, corrections };
+  if (!again.success) return fail({ code: "SCHEMA_INVALID", paths: again.error.issues.slice(0, 10).map((i) => i.path.join(".")) });
+  return { ok: true, extraction: again.data, corrections, signals };
 }
-
-export type { Untrusted };
