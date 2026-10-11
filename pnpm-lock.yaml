@@ -52,7 +52,17 @@ importers:
 
   packages/blast-radius: {}
 
-  packages/chain: {}
+  packages/chain:
+    dependencies:
+      '@symbolon/schemas':
+        specifier: workspace:*
+        version: link:../schemas
+      viem:
+        specifier: 2.56.9
+        version: 2.56.9(typescript@5.9.3)(zod@4.6.5)
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
 
   packages/extractor: {}
 
