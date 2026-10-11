@@ -133,6 +133,31 @@ export default tseslint.config(
     },
   },
 
+  // --- v2: blast-radius closed form is PURE bigint (docs/08, docs/16 §2.2; WP-25) ---------------
+  {
+    files: ["packages/blast-radius/src/bounds.ts", "packages/blast-radius/src/windowed.ts"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "error",
+      "no-restricted-globals": ["error", ...IMPURE_GLOBALS],
+      "no-restricted-properties": [
+        "error",
+        { object: "Math", property: "random", message: "Nondeterministic (INV-9)." },
+        { object: "Date", property: "now", message: "Nondeterministic (INV-9). Time arrives as an argument." },
+      ],
+      "no-restricted-syntax": ["error", ...MONEY_SYNTAX],
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            { group: NODE_BUILTINS, message: "the closed-form bound must not touch Node built-ins / I/O." },
+            { group: ["@symbolon/*", "viem", "viem/*", "ethers", "openai", "@anthropic-ai/*"],
+              message: "bounds.ts / windowed.ts are self-contained pure bigint math (the certificate recomputes them)." },
+          ],
+        },
+      ],
+    },
+  },
+
   // --- v2: packages/oracle is PURE and independent (oracle-v1; docs/15 §2) ----------------------
   {
     files: ["packages/oracle/src/**/*.ts"],
