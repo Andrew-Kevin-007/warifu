@@ -3,7 +3,7 @@ import { cpSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync, rmSync } f
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { ESLint } from "eslint";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 // @ts-expect-error plain ESM scripts without types
 import { check } from "../scripts/check-claude-config.mjs";
 // @ts-expect-error plain ESM scripts without types
@@ -11,6 +11,10 @@ import { lintText } from "../scripts/claims-lint.mjs";
 
 const ROOT = resolve(import.meta.dirname, "..");
 const eslint = new ESLint({ cwd: ROOT });
+// Pay ESLint's cold start (config + TS parser load) once, with room for a loaded machine; each test keeps the 20 s limit.
+beforeAll(async () => {
+  await eslint.lintText("export {};\n", { filePath: join(ROOT, "packages/terms/src/probe.ts") });
+}, 120_000);
 async function rulesHit(code: string, filePath: string): Promise<string[]> {
   const [res] = await eslint.lintText(code, { filePath: join(ROOT, filePath) });
   return (res?.messages ?? []).map((m) => m.ruleId ?? "parse-error");
