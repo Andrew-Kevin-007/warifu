@@ -50,7 +50,17 @@ importers:
         specifier: 4.6.5
         version: 4.6.5
 
-  packages/blast-radius: {}
+  packages/blast-radius:
+    dependencies:
+      '@symbolon/chain':
+        specifier: workspace:*
+        version: link:../chain
+      '@symbolon/policy':
+        specifier: workspace:*
+        version: link:../policy
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
 
   packages/chain:
     dependencies:
