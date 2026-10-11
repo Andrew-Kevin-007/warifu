@@ -1,4 +1,4 @@
-// results/blast-closed-form.json: the committed record of the closed-form-vs-enumeration campaign (WP-25).
+// packages/blast-radius/results/blast-closed-form.json: the committed record of the closed-form-vs-enumeration campaign (WP-25).
 //   regenerate: BLAST_WRITE_RESULTS=1 pnpm exec vitest run packages/blast-radius/test/results.test.ts
 // Without the flag this test recomputes the campaign and requires it to equal the committed file, so the file
 // cannot go stale or be hand-edited (INV-18: public numbers come from committed results, never from typing).
@@ -16,7 +16,8 @@ import { SEED } from "./helpers/arb";
 import { enumerated, realWindowed, tiny, toInputs, valid } from "./helpers/tiny";
 
 const ROOT = fileURLToPath(new URL("../../..", import.meta.url));
-const OUT = fileURLToPath(new URL("../../../results/blast-closed-form.json", import.meta.url));
+// Package-local (BLAST owns packages/blast-radius/**; the root results/ directory has no owner in AGENTS.md §1).
+const OUT = fileURLToPath(new URL("../results/blast-closed-form.json", import.meta.url));
 const RUNS = 5000;
 
 interface Campaign {
@@ -99,7 +100,7 @@ function provenance(seeds: number[]): ResultProvenance {
   });
 }
 
-describe("results/blast-closed-form.json", () => {
+describe("packages/blast-radius/results/blast-closed-form.json", () => {
   const campaign = runCampaign(SEED + 100);
 
   it("the campaign itself: zero violations; the bound equals the enumeration whenever the hourly cap is off", () => {
@@ -130,7 +131,7 @@ describe("results/blast-closed-form.json", () => {
       mkdirSync(dirname(OUT), { recursive: true });
       writeFileSync(OUT, `${JSON.stringify(file, null, 2)}\n`);
     }
-    expect(existsSync(OUT), "results/blast-closed-form.json is missing: run with BLAST_WRITE_RESULTS=1").toBe(true);
+    expect(existsSync(OUT), "packages/blast-radius/results/blast-closed-form.json is missing: run with BLAST_WRITE_RESULTS=1").toBe(true);
     const committed = JSON.parse(readFileSync(OUT, "utf8")) as typeof file;
     expect(committed.campaign).toEqual(file.campaign);
     expect(committed.schema).toBe(file.schema);
