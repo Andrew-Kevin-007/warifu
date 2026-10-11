@@ -131,10 +131,10 @@ const Hex32Text = z
   .string()
   .regex(/^0x[0-9a-fA-F]{64}$/, "expected 32-byte hex")
   .transform((s) => s.toLowerCase() as `0x${string}`);
+// One refine (not regex + refine): zod 4 keeps running later checks after a failed one, and BigInt("25.5") throws.
 const BaseUnitsText = z
   .string()
-  .regex(/^(0|[1-9][0-9]{0,77})$/, "expected canonical base-unit integer string")
-  .refine((s) => BigInt(s) <= MAX_UINT256, "exceeds uint256")
+  .refine((s) => /^(0|[1-9][0-9]{0,77})$/.test(s) && BigInt(s) <= MAX_UINT256, "expected canonical base-unit integer string within uint256")
   .transform((s) => BigInt(s));
 const SmallUint = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
 
@@ -211,7 +211,12 @@ function bad(message: string, cause?: unknown): ChainError {
 
 /** Validate an already-parsed deployments file. Pure. */
 export function parseDeployments(raw: unknown): Deployments {
-  const parsed = FileSchema.safeParse(raw);
+  let parsed: ReturnType<typeof FileSchema.safeParse>;
+  try {
+    parsed = FileSchema.safeParse(raw);
+  } catch (cause) {
+    throw bad("deployments file could not be validated", cause);
+  }
   if (!parsed.success) {
     const first = parsed.error.issues[0];
     throw bad(`malformed deployments file at ${first === undefined ? "?" : first.path.join(".") || "(root)"}: ${first?.message ?? "invalid"}`);
