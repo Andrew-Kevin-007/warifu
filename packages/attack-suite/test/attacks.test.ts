@@ -88,8 +88,23 @@ describe("all 24 attacks", () => {
     for (const v of [a, b]) expect(text(v.steps[0] as SubmitStep)).toContain(LOOKALIKE_PAYEE);
   });
 
-  it("all 24 build for several variant seeds", () => {
-    for (const seed of ["v1", "v2", "v3", "alpha", "ünï"]) expect(buildAllAttacks(seed)).toHaveLength(24);
+  it("all 24 build for many variant seeds and keep the structural invariants (size, slugs, predicates, controls)", () => {
+    for (const seed of ["v1", "v2", "v3", "v4", "v5", "v6", "alpha", "ünï", "x".repeat(60)]) {
+      for (const a of buildAllAttacks(seed)) {
+        expect(a.seed).toBe(seed);
+        expect(a.steps.length).toBeGreaterThan(0);
+        for (const s of submitSteps(a)) {
+          expect(utf8Bytes(text(s)), `${a.attackId}/${seed} ${s.stepId}`).toBeLessThan(4096);
+          const w = WORLD[s.scenarioId ?? a.scenarioId];
+          if (s.milestoneSlug !== null) expect(w.milestones.map((m) => m.slug)).toContain(s.milestoneSlug);
+        }
+        for (const r of a.intendedLoss?.releases ?? []) expect(r.predicates.includes("O1")).toBe(r.payee !== WORLD[r.scenarioId].payee);
+        if (a.control.kind === "release") {
+          expect(a.control.step.runs[0]?.expect.verdictIn).toEqual(["RELEASE"]);
+          expect(a.control.correctRelease.payee).toBe(WORLD[a.control.correctRelease.scenarioId].payee);
+        }
+      }
+    }
   });
 
   it("no document or fixture field contains key material or secrets", () => {

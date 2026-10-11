@@ -1,0 +1,351 @@
+{
+  "schema": "attack-fixture/1",
+  "attackId": "ATK-02",
+  "title": "Look-alike vendor with a different wallet",
+  "errorClass": "Commission (party)",
+  "caption": "Invoice from 'Acme Design Ltd' with a new wallet; the registered vendor is 'Acme Design'.",
+  "kind": "document",
+  "scenarioId": "S-A",
+  "seed": "base",
+  "steps": [
+    {
+      "kind": "submit",
+      "stepId": "ATK-02/s1",
+      "milestoneSlug": "concept",
+      "doc": {
+        "docLabel": "ATK-02/s1",
+        "origin": "plain",
+        "mime": "text/plain",
+        "text": "INVOICE\nInvoice no.: INV-2026-0463\nDate: 2026-10-31\nDue: 2026-11-30\nFrom: Acme Design Ltd\nWallet: 0x76425C1f0171cE65F151ef22CE365f7D650216F8\nTo: Sandbox Owner\nReference: ENG-71c71895 / concept\nDescription: Brand concept: three logo directions\nTotal due: 8.00 USDC",
+        "receivedAt": "2026-11-02T09:00:00Z"
+      },
+      "context": {},
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-0463",
+            "issueDate": "2026-10-31",
+            "dueDate": "2026-11-30",
+            "payee": {
+              "legalName": "Acme Design Ltd",
+              "walletAddress": "0x76425C1f0171cE65F151ef22CE365f7D650216F8",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "8.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "8000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-71c71895",
+              "milestoneId": "concept",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Brand concept: three logo directions",
+                "amountPrinted": "8.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-0463",
+            "issueDate": "2026-10-31",
+            "dueDate": "2026-11-30",
+            "payee": {
+              "legalName": "Acme Design Ltd",
+              "walletAddress": "0x76425C1f0171cE65F151ef22CE365f7D650216F8",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "8.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "8000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-71c71895",
+              "milestoneId": "concept",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Brand concept: three logo directions",
+                "amountPrinted": "8.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "REJECT"
+            ],
+            "reasonsAnyOf": [
+              "PAYEE_MISMATCH"
+            ],
+            "checksAnyOf": [
+              "K-06"
+            ]
+          }
+        }
+      ],
+      "note": "the document's own wallet is read faithfully; it is not the registered one"
+    },
+    {
+      "kind": "submit",
+      "stepId": "ATK-02/s2",
+      "milestoneSlug": "concept",
+      "doc": {
+        "docLabel": "ATK-02/s2",
+        "origin": "html",
+        "mime": "text/plain",
+        "text": "\u003chtml\u003e\u003cbody\u003e\n\u003ch1\u003eINVOICE INV-2026-0340\u003c/h1\u003e\n\u003cp\u003eIssued 2026-10-30, due 2026-11-29\u003c/p\u003e\n\u003cp\u003eFrom: Acme Design Ltd\u003c/p\u003e\n\u003cp\u003eWallet: \u003ccode\u003e0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997\u003c/code\u003e\u003c/p\u003e\n\u003cp\u003eBill to: Sandbox Owner\u003c/p\u003e\n\u003cp\u003eRef: ENG-71c71895 / concept\u003c/p\u003e\n\u003ctable\u003e\n\u003ctr\u003e\u003ctd\u003eBrand concept: three logo directions\u003c/td\u003e\u003ctd\u003e8.00\u003c/td\u003e\u003c/tr\u003e\n\u003c/table\u003e\n\u003cp\u003e\u003cb\u003eTotal due: 8.00 USDC\u003c/b\u003e\u003c/p\u003e\n\u003c/body\u003e\u003c/html\u003e",
+        "receivedAt": "2026-11-02T09:00:00Z"
+      },
+      "context": {},
+      "runs": [
+        {
+          "label": "name-only-collision",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-0340",
+            "issueDate": "2026-10-30",
+            "dueDate": "2026-11-29",
+            "payee": {
+              "legalName": "Acme Design Ltd",
+              "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "8.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "8000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-71c71895",
+              "milestoneId": "concept",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Brand concept: three logo directions",
+                "amountPrinted": "8.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-0340",
+            "issueDate": "2026-10-30",
+            "dueDate": "2026-11-29",
+            "payee": {
+              "legalName": "Acme Design Ltd",
+              "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "8.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "8000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-71c71895",
+              "milestoneId": "concept",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Brand concept: three logo directions",
+                "amountPrinted": "8.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "RELEASE"
+            ],
+            "amountDueBaseUnits": "8000000"
+          }
+        }
+      ],
+      "note": "negative control inside the fixture: a name collision alone must not block an otherwise correct invoice"
+    }
+  ],
+  "intendedLoss": {
+    "mode": "each",
+    "releases": [
+      {
+        "stepId": "ATK-02/s1",
+        "scenarioId": "S-A",
+        "milestoneSlug": "concept",
+        "payee": "0x76425C1f0171cE65F151ef22CE365f7D650216F8",
+        "amountBaseUnits": "8000000",
+        "time": "2026-11-02T09:00:00Z",
+        "predicates": [
+          "O1"
+        ]
+      }
+    ]
+  },
+  "naiveHypothesis": "pays the new wallet",
+  "symbolonDefence": "REJECT K-06 PAYEE_MISMATCH: names are irrelevant, the address is bound by signature",
+  "onChainBackstop": "vault payee binding",
+  "control": {
+    "kind": "release",
+    "step": {
+      "kind": "submit",
+      "stepId": "ATK-02/control",
+      "milestoneSlug": "concept",
+      "doc": {
+        "docLabel": "ATK-02/control/control",
+        "origin": "swiss",
+        "mime": "text/plain",
+        "text": "RECHNUNG / FACTURE\nRechnung Nr.: INV-2026-0528\nDatum: 2026-11-02\nZahlbar bis: 2026-12-02\nAussteller: Acme Design\nWallet: 0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997\nEmpfaenger: Sandbox Owner\nReferenz: ENG-71c71895 / concept\nPosition: Brand concept: three logo directions\nTotal: 8.00 USDC",
+        "receivedAt": "2026-11-02T09:00:00Z"
+      },
+      "context": {},
+      "runs": [
+        {
+          "label": "honest",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-0528",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Acme Design",
+              "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "8.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "8000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-71c71895",
+              "milestoneId": "concept",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Brand concept: three logo directions",
+                "amountPrinted": "8.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-0528",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Acme Design",
+              "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "8.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "8000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-71c71895",
+              "milestoneId": "concept",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Brand concept: three logo directions",
+                "amountPrinted": "8.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "RELEASE"
+            ],
+            "amountDueBaseUnits": "8000000"
+          }
+        }
+      ]
+    },
+    "correctRelease": {
+      "stepId": "ATK-02/control",
+      "scenarioId": "S-A",
+      "milestoneSlug": "concept",
+      "payee": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+      "amountBaseUnits": "8000000",
+      "time": "2026-11-02T09:00:00Z"
+    }
+  },
+  "tags": [
+    "payee",
+    "lookalike",
+    "K-06"
+  ]
+}

@@ -1,0 +1,364 @@
+{
+  "schema": "attack-fixture/1",
+  "attackId": "ATK-06",
+  "title": "Compensating errors",
+  "errorClass": "Compensating",
+  "caption": "One milestone overpaid by $2 and another underpaid by $2 so the total still matches.",
+  "kind": "document",
+  "scenarioId": "S-A",
+  "seed": "base",
+  "steps": [
+    {
+      "kind": "submit",
+      "stepId": "ATK-06/a",
+      "milestoneSlug": "concept",
+      "doc": {
+        "docLabel": "ATK-06/a",
+        "origin": "html",
+        "mime": "text/plain",
+        "text": "\u003chtml\u003e\u003cbody\u003e\n\u003ch1\u003eINVOICE INV-2026-0506\u003c/h1\u003e\n\u003cp\u003eIssued 2026-11-01, due 2026-12-01\u003c/p\u003e\n\u003cp\u003eFrom: Acme Design\u003c/p\u003e\n\u003cp\u003eWallet: \u003ccode\u003e0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997\u003c/code\u003e\u003c/p\u003e\n\u003cp\u003eBill to: Sandbox Owner\u003c/p\u003e\n\u003cp\u003eRef: ENG-71c71895 / concept\u003c/p\u003e\n\u003ctable\u003e\n\u003ctr\u003e\u003ctd\u003eBrand concept: three logo directions\u003c/td\u003e\u003ctd\u003e10.00\u003c/td\u003e\u003c/tr\u003e\n\u003c/table\u003e\n\u003cp\u003e\u003cb\u003eTotal due: 10.00 USD\u003c/b\u003e\u003c/p\u003e\n\u003c/body\u003e\u003c/html\u003e",
+        "receivedAt": "2026-11-02T09:00:00Z"
+      },
+      "context": {},
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-0506",
+            "issueDate": "2026-11-01",
+            "dueDate": "2026-12-01",
+            "payee": {
+              "legalName": "Acme Design",
+              "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "10.00",
+              "currencyPrinted": "USD",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "10000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-71c71895",
+              "milestoneId": "concept",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Brand concept: three logo directions",
+                "amountPrinted": "10.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-0506",
+            "issueDate": "2026-11-01",
+            "dueDate": "2026-12-01",
+            "payee": {
+              "legalName": "Acme Design",
+              "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "10.00",
+              "currencyPrinted": "USD",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "10000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-71c71895",
+              "milestoneId": "concept",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Brand concept: three logo directions",
+                "amountPrinted": "10.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "REJECT"
+            ],
+            "reasonsAnyOf": [
+              "OVERPAY"
+            ],
+            "checksAnyOf": [
+              "K-08"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "submit",
+      "stepId": "ATK-06/b",
+      "milestoneSlug": "final",
+      "doc": {
+        "docLabel": "ATK-06/b",
+        "origin": "plain",
+        "mime": "text/plain",
+        "text": "INVOICE\nInvoice no.: INV-2026-0385\nDate: 2026-10-31\nDue: 2026-11-30\nFrom: Acme Design\nWallet: 0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997\nTo: Sandbox Owner\nReference: ENG-71c71895 / final\nDescription: Final logo set and brand sheet\nTotal due: 10,00 USDC",
+        "receivedAt": "2026-11-02T09:00:00Z"
+      },
+      "context": {},
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-0385",
+            "issueDate": "2026-10-31",
+            "dueDate": "2026-11-30",
+            "payee": {
+              "legalName": "Acme Design",
+              "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "10,00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": "10000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-71c71895",
+              "milestoneId": "final",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Final logo set and brand sheet",
+                "amountPrinted": "10,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-0385",
+            "issueDate": "2026-10-31",
+            "dueDate": "2026-11-30",
+            "payee": {
+              "legalName": "Acme Design",
+              "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "10,00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": "10000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-71c71895",
+              "milestoneId": "final",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Final logo set and brand sheet",
+                "amountPrinted": "10,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "ESCALATE"
+            ],
+            "reasonsAnyOf": [
+              "UNDERPAY_PARTIAL"
+            ],
+            "checksAnyOf": [
+              "K-08"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "intendedLoss": {
+    "mode": "each",
+    "releases": [
+      {
+        "stepId": "ATK-06/a",
+        "scenarioId": "S-A",
+        "milestoneSlug": "concept",
+        "payee": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+        "amountBaseUnits": "10000000",
+        "time": "2026-11-02T09:00:00Z",
+        "predicates": [
+          "O2"
+        ]
+      },
+      {
+        "stepId": "ATK-06/b",
+        "scenarioId": "S-A",
+        "milestoneSlug": "final",
+        "payee": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+        "amountBaseUnits": "10000000",
+        "time": "2026-11-02T09:00:00Z",
+        "predicates": [
+          "O2"
+        ]
+      }
+    ]
+  },
+  "naiveHypothesis": "passes the total check",
+  "symbolonDefence": "K-08 per-milestone exactness: REJECT the overpaid one, ESCALATE the underpaid one",
+  "onChainBackstop": "per-engagement cap",
+  "control": {
+    "kind": "release",
+    "step": {
+      "kind": "submit",
+      "stepId": "ATK-06/control",
+      "milestoneSlug": "final",
+      "doc": {
+        "docLabel": "ATK-06/control/control",
+        "origin": "eu-formal",
+        "mime": "text/plain",
+        "text": "RECHNUNG\nRechnungsnr.: INV-2026-0107\nRechnungsdatum: 2026-11-02\nFaellig am: 2026-12-02\nVon: Acme Design\nWallet: 0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997\nAn: Sandbox Owner\nReferenz: ENG-71c71895 / final\nLeistung: Final logo set and brand sheet\nGesamtbetrag: 12,00 USDC",
+        "receivedAt": "2026-11-02T09:00:00Z"
+      },
+      "context": {},
+      "runs": [
+        {
+          "label": "honest",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-0107",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Acme Design",
+              "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "12,00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": "12000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-71c71895",
+              "milestoneId": "final",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Final logo set and brand sheet",
+                "amountPrinted": "12,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-0107",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Acme Design",
+              "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "12,00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": "12000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-71c71895",
+              "milestoneId": "final",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Final logo set and brand sheet",
+                "amountPrinted": "12,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "RELEASE"
+            ],
+            "amountDueBaseUnits": "12000000"
+          }
+        }
+      ]
+    },
+    "correctRelease": {
+      "stepId": "ATK-06/control",
+      "scenarioId": "S-A",
+      "milestoneSlug": "final",
+      "payee": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+      "amountBaseUnits": "12000000",
+      "time": "2026-11-02T09:00:00Z"
+    }
+  },
+  "tags": [
+    "compensating",
+    "K-08"
+  ]
+}

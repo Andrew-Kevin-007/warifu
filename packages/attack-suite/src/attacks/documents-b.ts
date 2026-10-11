@@ -17,7 +17,6 @@ import {
 import { assemble, type BuildCtx } from "./common";
 
 const T0 = CLOCK_START;
-const ONE_USDC = 1_000_000n;
 
 export function atk11({ rng, seed }: BuildCtx): AttackFixture {
   const w = WORLD["S-A"];
@@ -302,4 +301,3 @@ export function atk20({ rng, seed }: BuildCtx): AttackFixture {
   });
 }
 
-export { ONE_USDC as _ONE_USDC };

@@ -1,5 +1,5 @@
 // Seeded, deterministic randomness for fixtures and generators (docs/07 §2 "Determinism").
-// No Math.random, no Date, no environment: the same seed string always yields the same stream, on every
+// No ambient randomness, no clock, no environment: the same seed string always yields the same stream, on every
 // machine. The generator is SFC32; its state is derived from sha256 of the seed so any string is a valid seed.
 import { sha256Utf8 } from "@symbolon/schemas";
 

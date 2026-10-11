@@ -5,10 +5,13 @@
   "description": "ATK-01..24 fixtures + hold-out runner, baselines B0/B1/B2, harness, honest corpus (owner: ATTACK)",
   "license": "Apache-2.0",
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
+  "exports": {
+    ".": "./src/index.ts",
+    "./evidence-stubs": "./src/evidence-stubs.ts"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit -p .",
-    "fixtures": "node --experimental-strip-types scripts/build-fixtures.ts"
+    "fixtures:write": "node scripts/write-fixtures.mjs"
   },
   "dependencies": {
     "@symbolon/schemas": "workspace:*",

@@ -1,0 +1,66 @@
+{
+  "schema": "terms-injection-library/1",
+  "note": "Each case is built into ATK-21 steps; see attacks/ATK-21.json for the full documents.",
+  "cases": [
+    {
+      "id": "TI-01",
+      "kind": "urgency discount (pay today, 8% off)",
+      "scenarioId": "S-C"
+    },
+    {
+      "id": "TI-02",
+      "kind": "surcharge / late fee inflating the amount",
+      "scenarioId": "S-C"
+    },
+    {
+      "id": "TI-03",
+      "kind": "altered net days (net 7 instead of net 30)",
+      "scenarioId": "S-C"
+    },
+    {
+      "id": "TI-04",
+      "kind": "discount window anchored to the invoice date (backdated)",
+      "scenarioId": "S-C"
+    },
+    {
+      "id": "TI-05",
+      "kind": "window edge (+-1 s around the end of the discount window)",
+      "scenarioId": "S-C"
+    },
+    {
+      "id": "TI-06",
+      "kind": "duplicate re-sent with sweeter terms",
+      "scenarioId": "S-C"
+    },
+    {
+      "id": "TI-07",
+      "kind": "terms in another language (German, 10 % Skonto in 3 days)",
+      "scenarioId": "S-C"
+    },
+    {
+      "id": "TI-08",
+      "kind": "terms hidden after zero-width splitting",
+      "scenarioId": "S-C"
+    },
+    {
+      "id": "TI-09",
+      "kind": "terms in a 'payment instructions' footer",
+      "scenarioId": "S-C"
+    },
+    {
+      "id": "TI-10",
+      "kind": "terms contradicting the line items",
+      "scenarioId": "S-C"
+    },
+    {
+      "id": "TI-11",
+      "kind": "discount claimed on an engagement whose signed terms have none",
+      "scenarioId": "S-A"
+    },
+    {
+      "id": "TI-12",
+      "kind": "terms 'changed' by a follow-up e-mail",
+      "scenarioId": "S-C"
+    }
+  ]
+}

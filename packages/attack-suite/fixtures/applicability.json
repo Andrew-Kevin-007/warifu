@@ -1,0 +1,582 @@
+{
+  "schema": "applicability/1",
+  "note": "Started by WP-22. symbolon and b1 are decided; b0 and b2 are completed by WP-36. Rows with applicable=null are unresolved and must not be counted as applicable or as blocked.",
+  "rows": [
+    {
+      "attackId": "ATK-01",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-01",
+      "target": "b0",
+      "applicable": null,
+      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+    },
+    {
+      "attackId": "ATK-01",
+      "target": "b1",
+      "applicable": true,
+      "reason": "B1 records the payment when it submits the transaction, so a lost relay leaves a recorded payment that never happened."
+    },
+    {
+      "attackId": "ATK-01",
+      "target": "b2",
+      "applicable": null,
+      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+    },
+    {
+      "attackId": "ATK-02",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-02",
+      "target": "b0",
+      "applicable": null,
+      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+    },
+    {
+      "attackId": "ATK-02",
+      "target": "b1",
+      "applicable": true,
+      "reason": "B1 releases to the address in the document: any wallet in the model's output is paid."
+    },
+    {
+      "attackId": "ATK-02",
+      "target": "b2",
+      "applicable": null,
+      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+    },
+    {
+      "attackId": "ATK-03",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-03",
+      "target": "b0",
+      "applicable": null,
+      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+    },
+    {
+      "attackId": "ATK-03",
+      "target": "b1",
+      "applicable": true,
+      "reason": "B1 has no category budget; the attack maps to what it books and pays."
+    },
+    {
+      "attackId": "ATK-03",
+      "target": "b2",
+      "applicable": null,
+      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+    },
+    {
+      "attackId": "ATK-04",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-04",
+      "target": "b0",
+      "applicable": null,
+      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+    },
+    {
+      "attackId": "ATK-04",
+      "target": "b1",
+      "applicable": true,
+      "reason": "B1 is a release-on-model-output pattern: the document reaches its validator unchanged and the output decides the release."
+    },
+    {
+      "attackId": "ATK-04",
+      "target": "b2",
+      "applicable": null,
+      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+    },
+    {
+      "attackId": "ATK-05",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-05",
+      "target": "b0",
+      "applicable": null,
+      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+    },
+    {
+      "attackId": "ATK-05",
+      "target": "b1",
+      "applicable": true,
+      "reason": "B1 is a release-on-model-output pattern: the document reaches its validator unchanged and the output decides the release."
+    },
+    {
+      "attackId": "ATK-05",
+      "target": "b2",
+      "applicable": null,
+      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+    },
+    {
+      "attackId": "ATK-06",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-06",
+      "target": "b0",
+      "applicable": null,
+      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+    },
+    {
+      "attackId": "ATK-06",
+      "target": "b1",
+      "applicable": true,
+      "reason": "B1 is a release-on-model-output pattern: the document reaches its validator unchanged and the output decides the release."
+    },
+    {
+      "attackId": "ATK-06",
+      "target": "b2",
+      "applicable": null,
+      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+    },
+    {
+      "attackId": "ATK-07",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-07",
+      "target": "b0",
+      "applicable": null,
+      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+    },
+    {
+      "attackId": "ATK-07",
+      "target": "b1",
+      "applicable": true,
+      "reason": "B1 is a release-on-model-output pattern: the document reaches its validator unchanged and the output decides the release."
+    },
+    {
+      "attackId": "ATK-07",
+      "target": "b2",
+      "applicable": null,
+      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+    },
+    {
+      "attackId": "ATK-08",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-08",
+      "target": "b0",
+      "applicable": null,
+      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+    },
+    {
+      "attackId": "ATK-08",
+      "target": "b1",
+      "applicable": true,
+      "reason": "B1 re-submits on a retry, so a timeout followed by a retry can pay twice."
+    },
+    {
+      "attackId": "ATK-08",
+      "target": "b2",
+      "applicable": null,
+      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+    },
+    {
+      "attackId": "ATK-09",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-09",
+      "target": "b0",
+      "applicable": null,
+      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+    },
+    {
+      "attackId": "ATK-09",
+      "target": "b1",
+      "applicable": true,
+      "reason": "B1 trusts the agent's record of what it paid."
+    },
+    {
+      "attackId": "ATK-09",
+      "target": "b2",
+      "applicable": null,
+      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+    },
+    {
+      "attackId": "ATK-10",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-10",
+      "target": "b0",
+      "applicable": null,
+      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+    },
+    {
+      "attackId": "ATK-10",
+      "target": "b1",
+      "applicable": true,
+      "reason": "B1 is a release-on-model-output pattern: the document reaches its validator unchanged and the output decides the release."
+    },
+    {
+      "attackId": "ATK-10",
+      "target": "b2",
+      "applicable": null,
+      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+    },
+    {
+      "attackId": "ATK-11",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-11",
+      "target": "b0",
+      "applicable": null,
+      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+    },
+    {
+      "attackId": "ATK-11",
+      "target": "b1",
+      "applicable": true,
+      "reason": "B1 is a release-on-model-output pattern: the document reaches its validator unchanged and the output decides the release."
+    },
+    {
+      "attackId": "ATK-11",
+      "target": "b2",
+      "applicable": null,
+      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+    },
+    {
+      "attackId": "ATK-12",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-12",
+      "target": "b0",
+      "applicable": null,
+      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+    },
+    {
+      "attackId": "ATK-12",
+      "target": "b1",
+      "applicable": true,
+      "reason": "B1 is a release-on-model-output pattern: the document reaches its validator unchanged and the output decides the release."
+    },
+    {
+      "attackId": "ATK-12",
+      "target": "b2",
+      "applicable": null,
+      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+    },
+    {
+      "attackId": "ATK-13",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-13",
+      "target": "b0",
+      "applicable": null,
+      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+    },
+    {
+      "attackId": "ATK-13",
+      "target": "b1",
+      "applicable": true,
+      "reason": "B1's naive escrow has no payee registration, so an unregistered vendor can be paid."
+    },
+    {
+      "attackId": "ATK-13",
+      "target": "b2",
+      "applicable": null,
+      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+    },
+    {
+      "attackId": "ATK-14",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-14",
+      "target": "b0",
+      "applicable": null,
+      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+    },
+    {
+      "attackId": "ATK-14",
+      "target": "b1",
+      "applicable": true,
+      "reason": "B1 has no velocity or aggregate limits."
+    },
+    {
+      "attackId": "ATK-14",
+      "target": "b2",
+      "applicable": null,
+      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+    },
+    {
+      "attackId": "ATK-15",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-15",
+      "target": "b0",
+      "applicable": null,
+      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+    },
+    {
+      "attackId": "ATK-15",
+      "target": "b1",
+      "applicable": true,
+      "reason": "B1 releases on the model's {valid, confidence} output; evidence claims in the document reach the validator."
+    },
+    {
+      "attackId": "ATK-15",
+      "target": "b2",
+      "applicable": null,
+      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+    },
+    {
+      "attackId": "ATK-16",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-16",
+      "target": "b0",
+      "applicable": null,
+      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+    },
+    {
+      "attackId": "ATK-16",
+      "target": "b1",
+      "applicable": true,
+      "reason": "B1 does not enforce timestamps (the arc-escrow pattern stores them and never reads them)."
+    },
+    {
+      "attackId": "ATK-16",
+      "target": "b2",
+      "applicable": null,
+      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+    },
+    {
+      "attackId": "ATK-17",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "executed at contract level with the kernel signer key against the vault (docs/07 \u00a76)"
+    },
+    {
+      "attackId": "ATK-17",
+      "target": "b0",
+      "applicable": false,
+      "reason": "no equivalent of a compromised signer bounded by contract limits (docs/07 \u00a73.1)"
+    },
+    {
+      "attackId": "ATK-17",
+      "target": "b1",
+      "applicable": false,
+      "reason": "no equivalent of a compromised signer bounded by contract limits (docs/07 \u00a73.1)"
+    },
+    {
+      "attackId": "ATK-17",
+      "target": "b2",
+      "applicable": false,
+      "reason": "no equivalent of a compromised signer bounded by contract limits (docs/07 \u00a73.1)"
+    },
+    {
+      "attackId": "ATK-18",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-18",
+      "target": "b0",
+      "applicable": null,
+      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+    },
+    {
+      "attackId": "ATK-18",
+      "target": "b1",
+      "applicable": true,
+      "reason": "B1 is a release-on-model-output pattern: the document reaches its validator unchanged and the output decides the release."
+    },
+    {
+      "attackId": "ATK-18",
+      "target": "b2",
+      "applicable": null,
+      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+    },
+    {
+      "attackId": "ATK-19",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-19",
+      "target": "b0",
+      "applicable": null,
+      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+    },
+    {
+      "attackId": "ATK-19",
+      "target": "b1",
+      "applicable": true,
+      "reason": "B1 has no screening; a blocklisted payee makes the transfer revert after the decision."
+    },
+    {
+      "attackId": "ATK-19",
+      "target": "b2",
+      "applicable": null,
+      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+    },
+    {
+      "attackId": "ATK-20",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-20",
+      "target": "b0",
+      "applicable": null,
+      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+    },
+    {
+      "attackId": "ATK-20",
+      "target": "b1",
+      "applicable": true,
+      "reason": "B1 is a release-on-model-output pattern: the document reaches its validator unchanged and the output decides the release."
+    },
+    {
+      "attackId": "ATK-20",
+      "target": "b2",
+      "applicable": null,
+      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+    },
+    {
+      "attackId": "ATK-21",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-21",
+      "target": "b0",
+      "applicable": null,
+      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+    },
+    {
+      "attackId": "ATK-21",
+      "target": "b1",
+      "applicable": true,
+      "reason": "B1 is a release-on-model-output pattern: the document reaches its validator unchanged and the output decides the release."
+    },
+    {
+      "attackId": "ATK-21",
+      "target": "b2",
+      "applicable": null,
+      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+    },
+    {
+      "attackId": "ATK-22",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-22",
+      "target": "b0",
+      "applicable": false,
+      "reason": "no approval gate or explainer exists in this target (docs/07 \u00a73.1)"
+    },
+    {
+      "attackId": "ATK-22",
+      "target": "b1",
+      "applicable": false,
+      "reason": "no approval gate or explainer exists in this target (docs/07 \u00a73.1)"
+    },
+    {
+      "attackId": "ATK-22",
+      "target": "b2",
+      "applicable": false,
+      "reason": "no approval gate or explainer exists in this target (docs/07 \u00a73.1)"
+    },
+    {
+      "attackId": "ATK-23",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-23",
+      "target": "b0",
+      "applicable": false,
+      "reason": "no approval gate or explainer exists in this target (docs/07 \u00a73.1)"
+    },
+    {
+      "attackId": "ATK-23",
+      "target": "b1",
+      "applicable": false,
+      "reason": "no approval gate or explainer exists in this target (docs/07 \u00a73.1)"
+    },
+    {
+      "attackId": "ATK-23",
+      "target": "b2",
+      "applicable": false,
+      "reason": "no approval gate or explainer exists in this target (docs/07 \u00a73.1)"
+    },
+    {
+      "attackId": "ATK-24",
+      "target": "symbolon",
+      "applicable": true,
+      "reason": "Symbolon runs every ATK; the same oracle decides loss (docs/15 \u00a72)"
+    },
+    {
+      "attackId": "ATK-24",
+      "target": "b0",
+      "applicable": false,
+      "reason": "no approval gate or explainer exists in this target (docs/07 \u00a73.1)"
+    },
+    {
+      "attackId": "ATK-24",
+      "target": "b1",
+      "applicable": false,
+      "reason": "no approval gate or explainer exists in this target (docs/07 \u00a73.1)"
+    },
+    {
+      "attackId": "ATK-24",
+      "target": "b2",
+      "applicable": false,
+      "reason": "no approval gate or explainer exists in this target (docs/07 \u00a73.1)"
+    }
+  ]
+}

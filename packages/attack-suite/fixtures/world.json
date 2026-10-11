@@ -1,0 +1,540 @@
+{
+  "schema": "attack-world/1",
+  "version": "attack-world/1",
+  "note": "UNSIGNED templates: engagements have null signatures and status DRAFT. The harness signs them with throwaway sandbox keys and registers them on the sandbox vault (WP-23/WP-32). Addresses are derived from labels and have no known private key.",
+  "chainId": 31337,
+  "clockStart": "2026-11-02T09:00:00Z",
+  "tenantId": "c9986747-3574-40ad-89db-eb18e187d808",
+  "addresses": {
+    "owner": "0x327FFD185d9bB862b26729bE9b3d1284d9e8d42E",
+    "vault": "0x33449E37bbc019Ae6eA95a1267426A87e42FF5e2",
+    "attacker": "0x47689bfD0AeDF57e4f8E08b959F40E609d5f5b97",
+    "attacker2": "0xC672b10e497B15a4D1e5DDcF2420b04b6d43015d",
+    "lookalikePayee": "0x76425C1f0171cE65F151ef22CE365f7D650216F8",
+    "unregisteredVendor": "0x51C5fCc53e1089b4107cBc52aB3F3dE086174D99"
+  },
+  "scenarios": [
+    {
+      "scenarioId": "S-A",
+      "payeeLabel": "Acme Design",
+      "lookalikeLabel": "Acme Design Ltd",
+      "category": "design",
+      "milestoneAmounts": {
+        "concept": "8000000",
+        "final": "12000000"
+      },
+      "template": {
+        "scenarioId": "S-A",
+        "title": "Design contractor, owner-ack evidence",
+        "engagement": {
+          "engagementId": "0x71c71895b37edbcaf0d05bc7124f11433fc0683778791749663cc9a4afe7b52f",
+          "tenantId": "c9986747-3574-40ad-89db-eb18e187d808",
+          "owner": "0x327FFD185d9bB862b26729bE9b3d1284d9e8d42E",
+          "payee": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+          "payeeLabel": "Acme Design",
+          "currency": "USDC",
+          "currencyDecimals": 6,
+          "capBaseUnits": "20000000",
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-12-31T23:59:59Z",
+          "sequential": false,
+          "milestones": [
+            {
+              "milestoneId": "0xab91e6bb52e2e25d1c91c8bcfdb3b84b9a94c1943754ec5f67b25a9cebadb5d8",
+              "slug": "concept",
+              "description": "Brand concept: three logo directions",
+              "amountBaseUnits": "8000000",
+              "partialAllowed": false,
+              "immediate": false,
+              "dueDate": null,
+              "category": "design",
+              "evidenceSpec": [
+                {
+                  "type": "OWNER_ACK"
+                }
+              ],
+              "status": "PENDING"
+            },
+            {
+              "milestoneId": "0x46c6f09e5a9547f08ed908d52dc7f58fdcfc094b62cf5065560fe1da4588562b",
+              "slug": "final",
+              "description": "Final logo set and brand sheet",
+              "amountBaseUnits": "12000000",
+              "partialAllowed": false,
+              "immediate": false,
+              "dueDate": null,
+              "category": "design",
+              "evidenceSpec": [
+                {
+                  "type": "OWNER_ACK"
+                }
+              ],
+              "status": "PENDING"
+            }
+          ],
+          "paymentTerms": {
+            "netDays": 30,
+            "earlyPay": null,
+            "payBeforeDueBufferHours": 24,
+            "allowImmediate": true
+          },
+          "termsHash": "0xe8ccfcae430e4e926b7b02560cb780678e1c6de21533a3fa46eda9076ad95d9b",
+          "ownerSig": null,
+          "payeeSig": null,
+          "nonce": "1",
+          "status": "DRAFT",
+          "registeredTx": null
+        },
+        "milestones": [
+          {
+            "milestoneId": "0xab91e6bb52e2e25d1c91c8bcfdb3b84b9a94c1943754ec5f67b25a9cebadb5d8",
+            "slug": "concept",
+            "description": "Brand concept: three logo directions",
+            "amountBaseUnits": "8000000",
+            "partialAllowed": false,
+            "immediate": false,
+            "dueDate": null,
+            "category": "design",
+            "evidenceSpec": [
+              {
+                "type": "OWNER_ACK"
+              }
+            ],
+            "status": "PENDING"
+          },
+          {
+            "milestoneId": "0x46c6f09e5a9547f08ed908d52dc7f58fdcfc094b62cf5065560fe1da4588562b",
+            "slug": "final",
+            "description": "Final logo set and brand sheet",
+            "amountBaseUnits": "12000000",
+            "partialAllowed": false,
+            "immediate": false,
+            "dueDate": null,
+            "category": "design",
+            "evidenceSpec": [
+              {
+                "type": "OWNER_ACK"
+              }
+            ],
+            "status": "PENDING"
+          }
+        ],
+        "paymentTerms": {
+          "netDays": 30,
+          "earlyPay": null,
+          "payBeforeDueBufferHours": 24,
+          "allowImmediate": true
+        },
+        "policy": {
+          "caps": {
+            "perTxHardCap": "25.000000",
+            "dailyCap": "60.000000",
+            "weeklyCap": "200.000000",
+            "humanApprovalAbove": "20.000000"
+          },
+          "velocity": {
+            "maxReleasesPerDay": 10,
+            "maxReleasesPerPayeePerDay": 3,
+            "maxAmountPerPayeePerDay": "60.000000"
+          },
+          "newPayee": {
+            "firstPaymentMax": "25.000000",
+            "alwaysHuman": false
+          },
+          "escalation": {
+            "maxPerDay": 8,
+            "maxPerEngagementPerDay": 3
+          },
+          "limits": {
+            "maxDocChars": 4096
+          }
+        },
+        "clock": {
+          "mode": "fixed",
+          "start": "2026-11-02T09:00:00Z"
+        },
+        "evidenceFixtures": [
+          {
+            "fixtureId": "S-A-concept-0",
+            "milestoneId": "0xab91e6bb52e2e25d1c91c8bcfdb3b84b9a94c1943754ec5f67b25a9cebadb5d8",
+            "requirement": {
+              "type": "OWNER_ACK"
+            },
+            "result": "PASS",
+            "payload": {
+              "acknowledged": true
+            },
+            "details": "fixture: requirement satisfied",
+            "availableAt": null
+          },
+          {
+            "fixtureId": "S-A-final-0",
+            "milestoneId": "0x46c6f09e5a9547f08ed908d52dc7f58fdcfc094b62cf5065560fe1da4588562b",
+            "requirement": {
+              "type": "OWNER_ACK"
+            },
+            "result": "PASS",
+            "payload": {
+              "acknowledged": true
+            },
+            "details": "fixture: requirement satisfied",
+            "availableAt": null
+          }
+        ],
+        "groundTruth": {
+          "legitPayee": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+          "legitAmountByMilestone": {
+            "0xab91e6bb52e2e25d1c91c8bcfdb3b84b9a94c1943754ec5f67b25a9cebadb5d8": "8000000",
+            "0x46c6f09e5a9547f08ed908d52dc7f58fdcfc094b62cf5065560fe1da4588562b": "12000000"
+          },
+          "allowedWindow": {
+            "start": "2026-10-01T00:00:00Z",
+            "end": "2026-12-31T23:59:59Z"
+          }
+        },
+        "oracleVersion": "oracle-v1"
+      }
+    },
+    {
+      "scenarioId": "S-B",
+      "payeeLabel": "Birch Software",
+      "lookalikeLabel": "Birch Software GmbH",
+      "category": "dev",
+      "milestoneAmounts": {
+        "api": "10000000",
+        "deploy": "18000000"
+      },
+      "template": {
+        "scenarioId": "S-B",
+        "title": "Dev contractor, CI evidence",
+        "engagement": {
+          "engagementId": "0xc21b4f03f1849c2f78416e61671d43a6a739cdd5676e3a9c4e2c3c40bec2fb13",
+          "tenantId": "c9986747-3574-40ad-89db-eb18e187d808",
+          "owner": "0x327FFD185d9bB862b26729bE9b3d1284d9e8d42E",
+          "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+          "payeeLabel": "Birch Software",
+          "currency": "USDC",
+          "currencyDecimals": 6,
+          "capBaseUnits": "28000000",
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-12-31T23:59:59Z",
+          "sequential": true,
+          "milestones": [
+            {
+              "milestoneId": "0xf15ae103e1a8b62f872c44d8f6c24ca5d641e1d40a621773df08de3539075769",
+              "slug": "api",
+              "description": "REST API skeleton with tests",
+              "amountBaseUnits": "10000000",
+              "partialAllowed": false,
+              "immediate": false,
+              "dueDate": null,
+              "category": "dev",
+              "evidenceSpec": [
+                {
+                  "type": "CI_PASS",
+                  "repo": "symbolon-fixtures/dev-site",
+                  "ref": "744e09dafea544327ed111a0b052aac0848817c2",
+                  "workflow": "ci.yml"
+                }
+              ],
+              "status": "PENDING"
+            },
+            {
+              "milestoneId": "0x2b54b8a15edfc7e44be6be806c0abff1343c783c146f3cd1bc8e804a67bda8fd",
+              "slug": "deploy",
+              "description": "Deploy the service to staging",
+              "amountBaseUnits": "18000000",
+              "partialAllowed": true,
+              "immediate": false,
+              "dueDate": null,
+              "category": "dev",
+              "evidenceSpec": [
+                {
+                  "type": "CI_PASS",
+                  "repo": "symbolon-fixtures/dev-site",
+                  "ref": "22e9b9f3c87731c0ad51a60c31c6bd1d859c8197",
+                  "workflow": "ci.yml"
+                }
+              ],
+              "status": "PENDING"
+            }
+          ],
+          "paymentTerms": {
+            "netDays": 30,
+            "earlyPay": null,
+            "payBeforeDueBufferHours": 24,
+            "allowImmediate": true
+          },
+          "termsHash": "0xcbfcb13d9f0fe294736e78508943d1ac0821712ec172b8092c5094b871b3d60e",
+          "ownerSig": null,
+          "payeeSig": null,
+          "nonce": "1",
+          "status": "DRAFT",
+          "registeredTx": null
+        },
+        "milestones": [
+          {
+            "milestoneId": "0xf15ae103e1a8b62f872c44d8f6c24ca5d641e1d40a621773df08de3539075769",
+            "slug": "api",
+            "description": "REST API skeleton with tests",
+            "amountBaseUnits": "10000000",
+            "partialAllowed": false,
+            "immediate": false,
+            "dueDate": null,
+            "category": "dev",
+            "evidenceSpec": [
+              {
+                "type": "CI_PASS",
+                "repo": "symbolon-fixtures/dev-site",
+                "ref": "744e09dafea544327ed111a0b052aac0848817c2",
+                "workflow": "ci.yml"
+              }
+            ],
+            "status": "PENDING"
+          },
+          {
+            "milestoneId": "0x2b54b8a15edfc7e44be6be806c0abff1343c783c146f3cd1bc8e804a67bda8fd",
+            "slug": "deploy",
+            "description": "Deploy the service to staging",
+            "amountBaseUnits": "18000000",
+            "partialAllowed": true,
+            "immediate": false,
+            "dueDate": null,
+            "category": "dev",
+            "evidenceSpec": [
+              {
+                "type": "CI_PASS",
+                "repo": "symbolon-fixtures/dev-site",
+                "ref": "22e9b9f3c87731c0ad51a60c31c6bd1d859c8197",
+                "workflow": "ci.yml"
+              }
+            ],
+            "status": "PENDING"
+          }
+        ],
+        "paymentTerms": {
+          "netDays": 30,
+          "earlyPay": null,
+          "payBeforeDueBufferHours": 24,
+          "allowImmediate": true
+        },
+        "policy": {
+          "caps": {
+            "perTxHardCap": "25.000000",
+            "dailyCap": "60.000000",
+            "weeklyCap": "200.000000",
+            "humanApprovalAbove": "20.000000"
+          },
+          "velocity": {
+            "maxReleasesPerDay": 10,
+            "maxReleasesPerPayeePerDay": 3,
+            "maxAmountPerPayeePerDay": "60.000000"
+          },
+          "newPayee": {
+            "firstPaymentMax": "25.000000",
+            "alwaysHuman": false
+          },
+          "escalation": {
+            "maxPerDay": 8,
+            "maxPerEngagementPerDay": 3
+          },
+          "limits": {
+            "maxDocChars": 4096
+          }
+        },
+        "clock": {
+          "mode": "fixed",
+          "start": "2026-11-02T09:00:00Z"
+        },
+        "evidenceFixtures": [
+          {
+            "fixtureId": "S-B-api-0",
+            "milestoneId": "0xf15ae103e1a8b62f872c44d8f6c24ca5d641e1d40a621773df08de3539075769",
+            "requirement": {
+              "type": "CI_PASS",
+              "repo": "symbolon-fixtures/dev-site",
+              "ref": "744e09dafea544327ed111a0b052aac0848817c2",
+              "workflow": "ci.yml"
+            },
+            "result": "PASS",
+            "payload": {
+              "conclusion": "success",
+              "head_sha": "744e09dafea544327ed111a0b052aac0848817c2"
+            },
+            "details": "fixture: requirement satisfied",
+            "availableAt": null
+          },
+          {
+            "fixtureId": "S-B-deploy-0",
+            "milestoneId": "0x2b54b8a15edfc7e44be6be806c0abff1343c783c146f3cd1bc8e804a67bda8fd",
+            "requirement": {
+              "type": "CI_PASS",
+              "repo": "symbolon-fixtures/dev-site",
+              "ref": "22e9b9f3c87731c0ad51a60c31c6bd1d859c8197",
+              "workflow": "ci.yml"
+            },
+            "result": "PASS",
+            "payload": {
+              "conclusion": "success",
+              "head_sha": "22e9b9f3c87731c0ad51a60c31c6bd1d859c8197"
+            },
+            "details": "fixture: requirement satisfied",
+            "availableAt": null
+          }
+        ],
+        "groundTruth": {
+          "legitPayee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+          "legitAmountByMilestone": {
+            "0xf15ae103e1a8b62f872c44d8f6c24ca5d641e1d40a621773df08de3539075769": "10000000",
+            "0x2b54b8a15edfc7e44be6be806c0abff1343c783c146f3cd1bc8e804a67bda8fd": "18000000"
+          },
+          "allowedWindow": {
+            "start": "2026-10-01T00:00:00Z",
+            "end": "2026-12-31T23:59:59Z"
+          }
+        },
+        "oracleVersion": "oracle-v1"
+      }
+    },
+    {
+      "scenarioId": "S-C",
+      "payeeLabel": "Corvid Tools",
+      "lookalikeLabel": "Corvid Tools Inc",
+      "category": "tools",
+      "milestoneAmounts": {
+        "annual-licence": "20000000"
+      },
+      "template": {
+        "scenarioId": "S-C",
+        "title": "Tools vendor with 2/10 net 30 terms",
+        "engagement": {
+          "engagementId": "0xb718be6ab347de6c630c2354f21f0b5a375aa6c89e57acabcb145615f08337ce",
+          "tenantId": "c9986747-3574-40ad-89db-eb18e187d808",
+          "owner": "0x327FFD185d9bB862b26729bE9b3d1284d9e8d42E",
+          "payee": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+          "payeeLabel": "Corvid Tools",
+          "currency": "USDC",
+          "currencyDecimals": 6,
+          "capBaseUnits": "20000000",
+          "start": "2026-10-01T00:00:00Z",
+          "end": "2026-12-31T23:59:59Z",
+          "sequential": false,
+          "milestones": [
+            {
+              "milestoneId": "0x87023f22e28c7434c697f6fd2aada85d44a3dbda235fba028eba3ebafe44bc7e",
+              "slug": "annual-licence",
+              "description": "Annual tooling licence",
+              "amountBaseUnits": "20000000",
+              "partialAllowed": false,
+              "immediate": false,
+              "dueDate": null,
+              "category": "tools",
+              "evidenceSpec": [
+                {
+                  "type": "OWNER_ACK"
+                }
+              ],
+              "status": "PENDING"
+            }
+          ],
+          "paymentTerms": {
+            "netDays": 30,
+            "earlyPay": {
+              "discountBps": 200,
+              "withinDays": 10
+            },
+            "payBeforeDueBufferHours": 24,
+            "allowImmediate": true
+          },
+          "termsHash": "0x842d7ace0cbc637665f5e4e246667e31c547c45044830bb96fbf84f6bd1c9e55",
+          "ownerSig": null,
+          "payeeSig": null,
+          "nonce": "1",
+          "status": "DRAFT",
+          "registeredTx": null
+        },
+        "milestones": [
+          {
+            "milestoneId": "0x87023f22e28c7434c697f6fd2aada85d44a3dbda235fba028eba3ebafe44bc7e",
+            "slug": "annual-licence",
+            "description": "Annual tooling licence",
+            "amountBaseUnits": "20000000",
+            "partialAllowed": false,
+            "immediate": false,
+            "dueDate": null,
+            "category": "tools",
+            "evidenceSpec": [
+              {
+                "type": "OWNER_ACK"
+              }
+            ],
+            "status": "PENDING"
+          }
+        ],
+        "paymentTerms": {
+          "netDays": 30,
+          "earlyPay": {
+            "discountBps": 200,
+            "withinDays": 10
+          },
+          "payBeforeDueBufferHours": 24,
+          "allowImmediate": true
+        },
+        "policy": {
+          "caps": {
+            "perTxHardCap": "25.000000",
+            "dailyCap": "60.000000",
+            "weeklyCap": "200.000000",
+            "humanApprovalAbove": "20.000000"
+          },
+          "velocity": {
+            "maxReleasesPerDay": 10,
+            "maxReleasesPerPayeePerDay": 3,
+            "maxAmountPerPayeePerDay": "60.000000"
+          },
+          "newPayee": {
+            "firstPaymentMax": "25.000000",
+            "alwaysHuman": false
+          },
+          "escalation": {
+            "maxPerDay": 8,
+            "maxPerEngagementPerDay": 3
+          },
+          "limits": {
+            "maxDocChars": 4096
+          }
+        },
+        "clock": {
+          "mode": "fixed",
+          "start": "2026-11-02T09:00:00Z"
+        },
+        "evidenceFixtures": [
+          {
+            "fixtureId": "S-C-annual-licence-0",
+            "milestoneId": "0x87023f22e28c7434c697f6fd2aada85d44a3dbda235fba028eba3ebafe44bc7e",
+            "requirement": {
+              "type": "OWNER_ACK"
+            },
+            "result": "PASS",
+            "payload": {
+              "acknowledged": true
+            },
+            "details": "fixture: requirement satisfied",
+            "availableAt": null
+          }
+        ],
+        "groundTruth": {
+          "legitPayee": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+          "legitAmountByMilestone": {
+            "0x87023f22e28c7434c697f6fd2aada85d44a3dbda235fba028eba3ebafe44bc7e": "20000000"
+          },
+          "allowedWindow": {
+            "start": "2026-10-01T00:00:00Z",
+            "end": "2026-12-31T23:59:59Z"
+          }
+        },
+        "oracleVersion": "oracle-v1"
+      }
+    }
+  ]
+}

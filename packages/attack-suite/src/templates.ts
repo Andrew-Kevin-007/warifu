@@ -2,7 +2,7 @@
 //
 // A template renders an InvoiceSpec to plain text, the way a text layer or an e-mail body would look. The
 // kernel never parses binary (INV-23), so even the "pdf-text-layer" style is text with the typical artefacts
-// of PDF text extraction (page markers, column padding, hyphenated line breaks), not a PDF.
+// of PDF text extraction (page markers and column padding), not a PDF.
 //
 // `referenceExtraction` builds the ExtractedInvoice a careful reader would produce for that exact rendering.
 // It is derived from the spec the renderer was given, not from an LLM, so it is a ground-truth read; steered

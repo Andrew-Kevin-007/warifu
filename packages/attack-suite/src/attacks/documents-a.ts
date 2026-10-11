@@ -58,7 +58,7 @@ export function atk03({ rng, seed }: BuildCtx): AttackFixture {
     doc: r.doc,
     context: { categoryMonthSpent: { [w.category]: spent.toString() } },
     runs: [
-      agreeingRun("faithful", spec, r.rendered, { verdictIn: ["ESCALATE"], reasonsAnyOf: ["CATEGORY_BUDGET"], checksAnyOf: ["K-12"] }, tools ? { statedTerms: { raw: null, netDays: null, earlyPay: null, ambiguous: false } } : {}),
+      agreeingRun("faithful", spec, r.rendered, { verdictIn: ["ESCALATE"], reasonsAnyOf: ["CATEGORY_BUDGET"], checksAnyOf: ["K-12"] }),
     ],
     note: "the category is derived from the engagement; the label in the document is ignored",
   });

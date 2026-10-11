@@ -1,0 +1,365 @@
+{
+  "schema": "attack-fixture/1",
+  "attackId": "ATK-17",
+  "title": "Kernel signer compromised",
+  "errorClass": "Kernel-signer compromise",
+  "caption": "An attacker holds the kernel's signing key and tries six different ways to take money.",
+  "kind": "contract",
+  "scenarioId": "S-B",
+  "seed": "base",
+  "steps": [
+    {
+      "kind": "vault-call",
+      "stepId": "ATK-17/a1",
+      "label": "a1",
+      "actor": "compromised-kernel-signer",
+      "call": "release",
+      "args": {
+        "freshInstance": true,
+        "engagement": "S-B",
+        "milestone": "api",
+        "payee": "ATTACKER",
+        "amountBaseUnits": "10000000"
+      },
+      "expectRevert": "PayeeMismatch"
+    },
+    {
+      "kind": "vault-call",
+      "stepId": "ATK-17/a2",
+      "label": "a2",
+      "actor": "compromised-kernel-signer",
+      "call": "release",
+      "args": {
+        "freshInstance": true,
+        "engagement": "UNREGISTERED",
+        "milestone": "api",
+        "payee": "ATTACKER",
+        "amountBaseUnits": "10000000"
+      },
+      "expectRevert": "NoEngagement"
+    },
+    {
+      "kind": "vault-call",
+      "stepId": "ATK-17/b",
+      "label": "b",
+      "actor": "compromised-kernel-signer",
+      "call": "release",
+      "args": {
+        "freshInstance": true,
+        "engagement": "S-B",
+        "preReleases": [
+          {
+            "milestone": "api",
+            "amountBaseUnits": "10000000"
+          },
+          {
+            "milestone": "deploy",
+            "amountBaseUnits": "18000000"
+          }
+        ],
+        "milestone": "deploy",
+        "payee": "REGISTERED",
+        "amountBaseUnits": "1000000"
+      },
+      "expectRevert": "EngagementCap"
+    },
+    {
+      "kind": "vault-call",
+      "stepId": "ATK-17/c1",
+      "label": "c1",
+      "actor": "compromised-kernel-signer",
+      "call": "release",
+      "args": {
+        "freshInstance": true,
+        "engagement": "S-B",
+        "milestone": "deploy",
+        "payee": "REGISTERED",
+        "amountBaseUnits": "25000001"
+      },
+      "expectRevert": "PerTxCap"
+    },
+    {
+      "kind": "vault-call",
+      "stepId": "ATK-17/c2",
+      "label": "c2",
+      "actor": "compromised-kernel-signer",
+      "call": "release",
+      "args": {
+        "freshInstance": true,
+        "preReleases": [
+          {
+            "engagement": "S-A",
+            "milestone": "concept",
+            "amountBaseUnits": "8000000"
+          },
+          {
+            "engagement": "S-A",
+            "milestone": "final",
+            "amountBaseUnits": "12000000"
+          },
+          {
+            "engagement": "S-B",
+            "milestone": "api",
+            "amountBaseUnits": "10000000"
+          },
+          {
+            "engagement": "S-B",
+            "milestone": "deploy",
+            "amountBaseUnits": "18000000"
+          }
+        ],
+        "engagement": "S-C",
+        "milestone": "annual-licence",
+        "payee": "REGISTERED",
+        "amountBaseUnits": "20000000"
+      },
+      "expectRevert": "DailyCap",
+      "expectRevertNote": "48.00 already released in 24 h; a further 20.00 passes the per-tx and engagement caps but exceeds the 60.00 daily cap"
+    },
+    {
+      "kind": "vault-call",
+      "stepId": "ATK-17/d",
+      "label": "d",
+      "actor": "compromised-kernel-signer",
+      "call": "release",
+      "args": {
+        "freshInstance": true,
+        "engagement": "S-B",
+        "preReleases": [
+          {
+            "milestone": "api",
+            "amountBaseUnits": "10000000",
+            "intentLabel": "I1"
+          }
+        ],
+        "reuseIntent": "I1",
+        "milestone": "api",
+        "payee": "REGISTERED",
+        "amountBaseUnits": "10000000"
+      },
+      "expectRevert": "AlreadyUsed"
+    },
+    {
+      "kind": "vault-call",
+      "stepId": "ATK-17/e",
+      "label": "e",
+      "actor": "compromised-kernel-signer",
+      "call": "release",
+      "args": {
+        "freshInstance": true,
+        "engagement": "S-B",
+        "milestone": "deploy",
+        "payee": "REGISTERED",
+        "amountBaseUnits": "22000000",
+        "ownerApproval": null
+      },
+      "expectRevert": "ApprovalRequired"
+    },
+    {
+      "kind": "vault-call",
+      "stepId": "ATK-17/f",
+      "label": "f",
+      "actor": "compromised-kernel-signer",
+      "call": "registerEngagement",
+      "args": {
+        "freshInstance": true,
+        "payee": "ATTACKER",
+        "capBaseUnits": "100000000",
+        "ownerSig": null,
+        "payeeSig": null
+      },
+      "expectRevert": null,
+      "expectRevertNote": "must revert: the kernel signer cannot create a payee without the owner's and the payee's signatures (INV-2/INV-7). The custom error name is defined by the vault (WP-07); the harness asserts a revert and records the name."
+    }
+  ],
+  "intendedLoss": {
+    "mode": "each",
+    "releases": [
+      {
+        "stepId": "ATK-17/a1",
+        "scenarioId": "S-B",
+        "milestoneSlug": null,
+        "payee": "0x47689bfD0AeDF57e4f8E08b959F40E609d5f5b97",
+        "amountBaseUnits": "10000000",
+        "time": "2026-11-02T09:00:00Z",
+        "predicates": [
+          "O1"
+        ]
+      },
+      {
+        "stepId": "ATK-17/b",
+        "scenarioId": "S-B",
+        "milestoneSlug": null,
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "1000000",
+        "time": "2026-11-02T09:00:00Z",
+        "predicates": [
+          "O5"
+        ]
+      },
+      {
+        "stepId": "ATK-17/c1",
+        "scenarioId": "S-B",
+        "milestoneSlug": null,
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "25000001",
+        "time": "2026-11-02T09:00:00Z",
+        "predicates": [
+          "O5"
+        ]
+      },
+      {
+        "stepId": "ATK-17/c2",
+        "scenarioId": "S-C",
+        "milestoneSlug": null,
+        "payee": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+        "amountBaseUnits": "20000000",
+        "time": "2026-11-02T09:00:00Z",
+        "predicates": [
+          "O5"
+        ]
+      },
+      {
+        "stepId": "ATK-17/d",
+        "scenarioId": "S-B",
+        "milestoneSlug": null,
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "10000000",
+        "time": "2026-11-02T09:00:00Z",
+        "predicates": [
+          "O3"
+        ]
+      },
+      {
+        "stepId": "ATK-17/e",
+        "scenarioId": "S-B",
+        "milestoneSlug": null,
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "22000000",
+        "time": "2026-11-02T09:00:00Z",
+        "predicates": [
+          "O5"
+        ]
+      }
+    ]
+  },
+  "naiveHypothesis": "n/a (no equivalent)",
+  "symbolonDefence": "the kernel is bypassed, so the vault reverts; residual loss is bounded by the Blast Radius T3 bound",
+  "onChainBackstop": "the vault",
+  "control": {
+    "kind": "release",
+    "step": {
+      "kind": "submit",
+      "stepId": "ATK-17/control",
+      "milestoneSlug": "api",
+      "doc": {
+        "docLabel": "ATK-17/control/control",
+        "origin": "multi-line",
+        "mime": "text/plain",
+        "text": "INVOICE INV-2026-0802\nIssued: 2026-11-01   Due: 2026-12-01\nSupplier: Birch Software (0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1)\nCustomer: Sandbox Owner\nYour ref: ENG-c21b4f03 / api\nItems:\n  1. REST API skeleton with tests  10.00 USD\nSubtotal and total due: 10.00 USD",
+        "receivedAt": "2026-11-02T09:00:00Z"
+      },
+      "context": {},
+      "runs": [
+        {
+          "label": "honest",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-0802",
+            "issueDate": "2026-11-01",
+            "dueDate": "2026-12-01",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "10.00",
+              "currencyPrinted": "USD",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "10000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "api",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "REST API skeleton with tests",
+                "amountPrinted": "10.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-0802",
+            "issueDate": "2026-11-01",
+            "dueDate": "2026-12-01",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "10.00",
+              "currencyPrinted": "USD",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "10000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "api",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "REST API skeleton with tests",
+                "amountPrinted": "10.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "RELEASE"
+            ],
+            "amountDueBaseUnits": "10000000"
+          }
+        }
+      ]
+    },
+    "correctRelease": {
+      "stepId": "ATK-17/control",
+      "scenarioId": "S-B",
+      "milestoneSlug": "api",
+      "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+      "amountBaseUnits": "10000000",
+      "time": "2026-11-02T09:00:00Z"
+    }
+  },
+  "tags": [
+    "signer-compromise",
+    "contract-level",
+    "vault",
+    "blast-radius-T3"
+  ]
+}

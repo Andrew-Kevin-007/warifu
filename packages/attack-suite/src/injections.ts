@@ -82,7 +82,8 @@ function toFullwidth(s: string): string {
 }
 
 function base64Of(s: string): string {
-  return Buffer.from(s, "utf8").toString("base64");
+  // The payload text is ASCII, so btoa is exact (and keeps this module free of Node-only APIs).
+  return btoa(s);
 }
 
 /** Filler that looks like a signature but is derived from a label hash: not a signature over anything. */
