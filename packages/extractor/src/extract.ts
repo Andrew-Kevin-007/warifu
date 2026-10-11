@@ -9,13 +9,13 @@
 // failure can therefore never silently drop a signal. Non-fatal problems (sink write failed, context provider
 // unavailable, ledger write failed) are returned as `warnings`, not swallowed. Dual mode requires BOTH models to
 // succeed; single mode exists only when `modelB` is null and then consensus is SINGLE (K-10 escalates it).
-import { consensus, type ConsensusResult, type ExtractedInvoice, type Hex32 } from "@symbolon/schemas";
+import { consensus, untrusted, type ConsensusResult, type ExtractedInvoice, type Hex32 } from "@symbolon/schemas";
 import { toCallRecord, type AgentCallRecord, type AgentCallSink } from "./calls";
 import { BudgetExhaustedError, type BudgetedLlm } from "./llm/budget";
 import { ProviderError, type LlmMessage, type LlmRequest, type LlmRole } from "./llm/types";
 import { DEFAULT_MAX_DOCUMENT_BYTES, prepareDocument, type PreparedDocument } from "./prepare";
 import { PROMPT_A, PROMPT_B, renderExtractorUserTurn, type PromptSpec } from "./prompts";
-import { computeDocSignals, hasRiskSignal, type DocSignals } from "./signals";
+import { computeDocSignals, failClosedSignals, hasRiskSignal, type DocSignals } from "./signals";
 import { CONTEXT_KINDS, NO_CONTEXT, READ_CONTEXT, ReadContextInputSchema, SUBMIT_EXTRACTION, type ContextProvider } from "./tools";
 import { validateExtraction, type Correction, type ValidationFailure } from "./validate";
 
@@ -38,6 +38,8 @@ export interface ExtractorConfig {
 export interface ExtractorDeps {
   readonly llm: BudgetedLlm;
   readonly sink?: AgentCallSink;
+  /** Test seam: replaces computeDocSignals (default). Whatever it does, a throw is converted to scanError signals. */
+  readonly signalsFn?: ((doc: PreparedDocument) => DocSignals) | undefined;
 }
 
 export type ExtractionFailureCode =
@@ -53,6 +55,29 @@ export type ExtractionFailureCode =
   | "FIELD_NOT_IN_DOCUMENT"
   | "INTERNAL_ERROR";
 
+/**
+ * Failure codes that indicate the MODEL misbehaved (an undeclared tool, two submissions, a value the document does
+ * not print, malformed output, no submission, endless reading, an unexpected internal error) rather than the
+ * infrastructure failing (budget denial, provider outage). A model that tries an undeclared tool or claims an
+ * unprinted value may have been steered by something the scanner missed, so these force ESCALATE even when the
+ * document-level signals are clean.
+ */
+export const MODEL_BEHAVIOUR_CODES: ReadonlySet<ExtractionFailureCode> = new Set<ExtractionFailureCode>([
+  "DISALLOWED_TOOL",
+  "AMBIGUOUS_SUBMISSION",
+  "FIELD_NOT_IN_DOCUMENT",
+  "SCHEMA_INVALID",
+  "NO_SUBMISSION",
+  "TOO_MANY_TURNS",
+  "INTERNAL_ERROR",
+]);
+
+export interface ModelFlag {
+  readonly model: "A" | "B";
+  readonly code: ExtractionFailureCode;
+  readonly detail?: string;
+}
+
 export interface ExtractionFailure {
   readonly code: ExtractionFailureCode;
   /** Which model run failed (absent for document-level failures). */
@@ -61,7 +86,9 @@ export interface ExtractionFailure {
   readonly detail?: string;
   /** Document-level risk signals; null only when the document could not be prepared (oversize). */
   readonly signals: DocSignals | null;
-  /** What the caller must do with this document: never "proceed". ESCALATE whenever any risk signal exists or is unknown. */
+  /** Model-behaviour flags from EVERY failed run (union of A and B), not only the one reported as `code`. */
+  readonly modelFlags: readonly ModelFlag[];
+  /** What the caller must do with this document: never "proceed". ESCALATE whenever any risk signal or model-behaviour flag exists, or signals are unknown. */
   readonly disposition: "ESCALATE" | "HOLD";
 }
 
@@ -106,13 +133,21 @@ type RunResult = RunOk | RunFail;
 
 const MAX_CONTEXT_CHARS = 8192;
 
-function makeFailure(code: ExtractionFailureCode, signals: DocSignals | null, extra: { model?: "A" | "B"; detail?: string } = {}): ExtractionFailure {
+function makeFailure(
+  code: ExtractionFailureCode,
+  signals: DocSignals | null,
+  extra: { model?: "A" | "B"; detail?: string; runs?: readonly RunFail[] } = {},
+): ExtractionFailure {
+  const modelFlags: ModelFlag[] = (extra.runs ?? [])
+    .filter((r) => MODEL_BEHAVIOUR_CODES.has(r.code))
+    .map((r) => ({ model: r.model, code: r.code, ...(r.detail === undefined ? {} : { detail: r.detail }) }));
   return {
     code,
     ...(extra.model === undefined ? {} : { model: extra.model }),
     ...(extra.detail === undefined ? {} : { detail: extra.detail }),
     signals,
-    disposition: hasRiskSignal(signals) ? "ESCALATE" : "HOLD",
+    modelFlags,
+    disposition: hasRiskSignal(signals) || modelFlags.length > 0 || MODEL_BEHAVIOUR_CODES.has(code) ? "ESCALATE" : "HOLD",
   };
 }
 
@@ -223,21 +258,53 @@ async function runModel(
 export async function extractInvoice(rawText: string, cfg: ExtractorConfig, deps: ExtractorDeps): Promise<ExtractionResult> {
   const calls: AgentCallRecord[] = [];
   const warnings: ExtractionWarning[] = [];
-  const prepared = prepareDocument(rawText, { maxBytes: cfg.maxDocumentBytes ?? DEFAULT_MAX_DOCUMENT_BYTES });
+  let prepared: ReturnType<typeof prepareDocument>;
+  try {
+    prepared = prepareDocument(rawText, { maxBytes: cfg.maxDocumentBytes ?? DEFAULT_MAX_DOCUMENT_BYTES });
+  } catch {
+    // Typed, escalated failure (signals unknown); never an escaping exception.
+    return { ok: false, failure: makeFailure("INTERNAL_ERROR", null, { detail: "prepare threw" }), calls, warnings };
+  }
   if (!prepared.ok) {
-    // Oversize documents are not scanned (signals unavailable => ESCALATE). Empty documents have nothing to scan.
-    return { ok: false, failure: makeFailure(prepared.error.code, prepared.error.code === "DOC_EMPTY" ? { anomalies: [], claimsAddressChange: false, removedCount: 0, scanError: false } : null), calls, warnings };
+    if (prepared.error.code === "DOC_TOO_LARGE") {
+      // Oversize documents are not scanned: signals unavailable => ESCALATE.
+      return { ok: false, failure: makeFailure("DOC_TOO_LARGE", null), calls, warnings };
+    }
+    // Empty after normalization: nothing to scan, but removed invisible characters ARE a signal (HIDDEN_CHARS).
+    const e = prepared.error;
+    const hidden = e.removedCount > 0;
+    const sig: DocSignals = {
+      anomalies: hidden
+        ? [{ code: "HIDDEN_CHARS", quote: untrusted(`removed ${e.removedCount} characters (control ${e.counts.control}, zero-width ${e.counts.zeroWidth}, bidi ${e.counts.bidi}, invalid ${e.counts.invalid})`) }]
+        : [],
+      claimsAddressChange: false,
+      removedCount: e.removedCount,
+      scanError: false,
+    };
+    return { ok: false, failure: makeFailure("DOC_EMPTY", sig), calls, warnings };
   }
   const doc = prepared.value;
-  const signals = computeDocSignals(doc);
+  let signals: DocSignals;
+  try {
+    signals = (deps.signalsFn ?? computeDocSignals)(doc);
+  } catch {
+    signals = failClosedSignals(doc.removedCount); // fail closed with scanError, never an escaping exception
+  }
 
   const [ra, rb] = await Promise.all([
     runModel("A", PROMPT_A, "extractor_a", cfg.modelA, doc, signals, cfg, deps, calls, warnings),
     cfg.modelB === null ? Promise.resolve(null) : runModel("B", PROMPT_B, "extractor_b", cfg.modelB, doc, signals, cfg, deps, calls, warnings),
   ]);
-  const failed = !ra.ok ? ra : rb !== null && !rb.ok ? rb : null;
-  if (failed !== null) {
-    return { ok: false, failure: makeFailure(failed.code, signals, { model: failed.model, ...(failed.detail === undefined ? {} : { detail: failed.detail }) }), calls, warnings };
+  const failedRuns: RunFail[] = [ra, rb].filter((r): r is RunFail => r !== null && !r.ok);
+  const failed = failedRuns[0];
+  if (failed !== undefined) {
+    // Report the first failure's code, but keep the flags of EVERY failed run (A and B), so nothing is lost.
+    return {
+      ok: false,
+      failure: makeFailure(failed.code, signals, { model: failed.model, ...(failed.detail === undefined ? {} : { detail: failed.detail }), runs: failedRuns }),
+      calls,
+      warnings,
+    };
   }
   if (!ra.ok) throw new Error("unreachable");
   const a = ra.extraction;

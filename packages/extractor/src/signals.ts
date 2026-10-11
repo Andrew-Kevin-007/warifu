@@ -13,33 +13,36 @@ export interface DocSignals {
   readonly anomalies: readonly Anomaly[];
   readonly claimsAddressChange: boolean;
   readonly removedCount: number;
-  /** True when the scanner itself failed: unknown risk, treated as a signal (ESCALATE). */
+  /** True when computing the signals itself failed: unknown risk, treated as a signal (ESCALATE). */
   readonly scanError: boolean;
 }
 
-export function computeDocSignals(doc: PreparedDocument): DocSignals {
-  const anomalies: Anomaly[] = [];
-  let claimsAddressChange = false;
-  let scanError = false;
+/** The signals used when computing them failed: an explicit risk flag, never an empty "all clear". */
+export function failClosedSignals(removedCount = 0): DocSignals {
+  return { anomalies: [{ code: "OTHER", quote: untrusted("document signal computation failed") }], claimsAddressChange: false, removedCount, scanError: true };
+}
 
-  if (doc.removedCount > 0) {
-    const c = doc.counts;
-    anomalies.push({
-      code: "HIDDEN_CHARS",
-      quote: untrusted(`removed ${doc.removedCount} characters (control ${c.control}, zero-width ${c.zeroWidth}, bidi ${c.bidi}, invalid ${c.invalid})`),
-    });
-  }
+/** Total function: any internal failure becomes `scanError` signals (typed), it never throws and never returns "clean". */
+export function computeDocSignals(doc: PreparedDocument): DocSignals {
   try {
+    const anomalies: Anomaly[] = [];
+    let claimsAddressChange = false;
+    if (doc.removedCount > 0) {
+      const c = doc.counts;
+      anomalies.push({
+        code: "HIDDEN_CHARS",
+        quote: untrusted(`removed ${doc.removedCount} characters (control ${c.control}, zero-width ${c.zeroWidth}, bidi ${c.bidi}, invalid ${c.invalid})`),
+      });
+    }
     for (const f of scanInjection(doc.normalized)) {
       anomalies.push({ code: f.code, quote: untrusted(inspectUntrusted(f.quote).slice(0, 500)) });
       if (f.code === "ADDRESS_CHANGE") claimsAddressChange = true;
     }
+    return { anomalies, claimsAddressChange, removedCount: doc.removedCount, scanError: false };
   } catch {
     // Converted into a typed flag, not swallowed: an unscannable document is an unknown risk.
-    scanError = true;
-    anomalies.push({ code: "OTHER", quote: untrusted("injection scan failed") });
+    return failClosedSignals(typeof doc?.removedCount === "number" ? doc.removedCount : 0);
   }
-  return { anomalies, claimsAddressChange, removedCount: doc.removedCount, scanError };
 }
 
 /** True when the signals alone justify routing a failed extraction to a human (ESCALATE) rather than a plain HOLD. */

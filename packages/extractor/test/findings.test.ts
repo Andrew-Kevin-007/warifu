@@ -47,10 +47,12 @@ describe("F1: failures never suppress risk signals (fail closed, typed, escalate
     }
   });
 
-  it("a failure on a clean document is HOLD with empty signals (still no intent)", async () => {
+  it("an infrastructure failure on a clean document is HOLD with empty signals (still no intent); a model-behaviour failure is ESCALATE", async () => {
+    const budget = await extractInvoice(INVOICE_TEXT, cfg, { llm: makeBudgeted(new ScriptedLlm(() => submit(goodExtraction())), { global: 1n }).llm });
+    expect(budget).toMatchObject({ ok: false, failure: { code: "BUDGET_EXHAUSTED", disposition: "HOLD" } });
+    if (!budget.ok) expect(budget.failure.signals?.anomalies.filter((a) => a.code !== "TERMS_CLAIM")).toEqual([]);
     const r = await run(INVOICE_TEXT, { invoiceNumber: "NOT-IN-DOC" });
-    expect(r).toMatchObject({ ok: false, failure: { code: "FIELD_NOT_IN_DOCUMENT", disposition: "HOLD" } });
-    if (!r.ok) expect(r.failure.signals?.anomalies.filter((a) => a.code !== "TERMS_CLAIM")).toEqual([]);
+    expect(r).toMatchObject({ ok: false, failure: { code: "FIELD_NOT_IN_DOCUMENT", disposition: "ESCALATE" } });
   });
 
   it("budget exhaustion, provider outage and bad tools keep the document signals too", async () => {

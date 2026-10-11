@@ -20,7 +20,7 @@ export interface PreparedDocument {
 
 export type PrepareFailure =
   | { readonly code: "DOC_TOO_LARGE"; readonly bytes: number; readonly max: number }
-  | { readonly code: "DOC_EMPTY" };
+  | { readonly code: "DOC_EMPTY"; readonly removedCount: number; readonly counts: NormalizeCounts };
 
 export type PrepareResult = { readonly ok: true; readonly value: PreparedDocument } | { readonly ok: false; readonly error: PrepareFailure };
 
@@ -33,7 +33,7 @@ export function prepareDocument(raw: string, options: { readonly maxBytes?: numb
   if (originalBytes.length > max) return { ok: false, error: { code: "DOC_TOO_LARGE", bytes: originalBytes.length, max } };
   const n = normalizeUntrusted(raw);
   const text = inspectUntrusted(n.normalized);
-  if (text.trim().length === 0) return { ok: false, error: { code: "DOC_EMPTY" } };
+  if (text.trim().length === 0) return { ok: false, error: { code: "DOC_EMPTY", removedCount: n.removedCount, counts: n.counts } };
   return {
     ok: true,
     value: {
