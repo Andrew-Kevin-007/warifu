@@ -39,7 +39,7 @@ function denylistAccepts(text: string): boolean {
 describe("a clean note built only from vocabulary and facts passes", () => {
   it("passes through the full validator", () => {
     expect(noteVerdict("The payee check failed and K-06 shows PAYEE_MISMATCH while the amount 1,000.00 was ambiguous; the decision is on hold.")).toBe("OK");
-    expect(noteVerdict("K-02 flagged AMOUNT_AMBIGUOUS, so this needs a human review of the amount 1,000.00.")).toBe("OK");
+    expect(noteVerdict("K-02 flagged AMOUNT_AMBIGUOUS, so this requires a human review of the amount 1,000.00.")).toBe("OK");
   });
   it("every vocabulary word is usable on its own (the vocabulary never collides with the number/verdict checks)", () => {
     for (const w of ADVISORY_VOCABULARY) expect(verdictOf(`the ${w}`), w).toBe("OK");

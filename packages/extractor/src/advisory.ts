@@ -14,7 +14,7 @@
 //      numbers and verdict-like words ("release", "approved", "safe", ...) other than the decision's own are refused;
 //   5. (when the document text is available) any run of 5 words shared with the document drops the note (ATK-24);
 //   6. any failure (budget, provider, validation) yields no note. Nothing depends on it.
-import { inspectUntrusted, REASON_CODES, ANOMALY_CODES, sanitizeLlmText, untrusted, type CheckId, type Decision, type ReasonCode, type Untrusted, type Verdict } from "@symbolon/schemas";
+import { inspectUntrusted, REASON_CODES, ANOMALY_CODES, CHECK_IDS, VERDICTS, sanitizeLlmText, untrusted, type CheckId, type Decision, type ReasonCode, type Untrusted, type Verdict } from "@symbolon/schemas";
 import { toCallRecord, type AgentCallRecord } from "./calls";
 import type { BudgetedLlm } from "./llm/budget";
 import { PROMPT_ADVISORY, renderAdvisoryUserTurn } from "./prompts";
@@ -32,16 +32,32 @@ export interface AdvisoryFacts {
   readonly anomalyCodes: readonly string[];
 }
 
+const REASON_SET: ReadonlySet<string> = new Set<string>(REASON_CODES);
+const ANOMALY_SET: ReadonlySet<string> = new Set<string>(ANOMALY_CODES);
+const CHECK_ID_SET: ReadonlySet<string> = new Set<string>(CHECK_IDS);
+const VERDICT_SET: ReadonlySet<string> = new Set<string>(VERDICTS);
+/** A kernel-formatted amount: digits with "," groups and an optional fraction (formatBaseUnits output). */
+const KERNEL_AMOUNT_RE = /^(?:0|[1-9][0-9]{0,2}(?:,[0-9]{3})*|[1-9][0-9]*)(?:\.[0-9]{1,36})?$/;
+
+/**
+ * Build the ONLY input the advisory model ever sees. "No attacker input reaches the advisory model" is enforced
+ * here, in code: every field is filtered against a closed kernel enum (REASON_CODES, ANOMALY_CODES, CHECK_IDS,
+ * VERDICTS) or a strict amount format, and anything else is DROPPED, so a quote, a payee name or any
+ * attacker-controlled string passed by mistake cannot reach the prompt.
+ */
 export function buildAdvisoryFacts(
   decision: Pick<Decision, "verdict" | "checks" | "reasons">,
   extras: { readonly amountDisplay: string | null; readonly anomalyCodes: readonly string[] },
 ): AdvisoryFacts {
+  const verdict = VERDICT_SET.has(decision.verdict) ? decision.verdict : "HOLD"; // unknown verdict: the most conservative one
   return {
-    verdict: decision.verdict,
-    checks: decision.checks.map((c) => ({ id: c.id, status: c.status, code: c.code })),
-    reasons: decision.reasons,
-    amountDisplay: extras.amountDisplay,
-    anomalyCodes: [...new Set(extras.anomalyCodes)],
+    verdict,
+    checks: decision.checks
+      .filter((c) => CHECK_ID_SET.has(c.id))
+      .map((c) => ({ id: c.id, status: c.status, code: c.code !== null && REASON_SET.has(c.code) ? c.code : null })),
+    reasons: decision.reasons.filter((r) => REASON_SET.has(r)),
+    amountDisplay: extras.amountDisplay !== null && KERNEL_AMOUNT_RE.test(extras.amountDisplay) ? extras.amountDisplay : null,
+    anomalyCodes: [...new Set(extras.anomalyCodes.filter((a) => ANOMALY_SET.has(a)))],
   };
 }
 

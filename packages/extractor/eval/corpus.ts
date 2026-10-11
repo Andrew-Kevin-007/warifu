@@ -36,6 +36,8 @@ export interface GoldenCase {
   readonly tags: readonly string[];
   readonly text: string;
   readonly injection: boolean;
+  /** What a competent (non-fooled) model would put in parsedBaseUnits; differs from expected.parsedBaseUnits for non-eligible currencies. */
+  readonly modelUnits: string | null;
   readonly expected: {
     readonly docType: DocType;
     readonly invoiceNumber: string;
@@ -64,6 +66,8 @@ interface Spec {
   readonly currency: string;
   readonly style?: "suffix" | "prefix";
   readonly units: string | null;
+  /** What a competent model would emit for amount.parsedBaseUnits (the arithmetic reading); defaults to `units`. */
+  readonly modelUnits?: string | null;
   readonly due?: string | null;
   readonly terms?: TermsSpec | null;
   readonly lines?: ReadonlyArray<readonly [string, string]>;
@@ -83,7 +87,8 @@ const HEAD = {
 function render(s: Spec): GoldenCase {
   const h = HEAD[s.lang ?? "en"];
   const docWord = s.docType === "CREDIT_NOTE" ? "CREDIT NOTE" : s.docType === "STATEMENT" ? "ACCOUNT STATEMENT" : s.docType === "OTHER" ? "DELIVERY NOTE" : h.doc;
-  const total = s.style === "prefix" ? `${s.currency}${s.amount}` : `${s.amount} ${s.currency}`;
+  const glue = s.currency === "$" ? "" : " "; // symbols touch the digits, codes are separated by a space
+  const total = s.style === "prefix" ? `${s.currency}${glue}${s.amount}` : `${s.amount} ${s.currency}`;
   const out: string[] = [docWord];
   if (s.noise === true) out.push("~~ scan 03 ## p.1/1 ~~", "l1ne n0ise |||| ,,, ....");
   if (s.invoiceNumber !== null) out.push(`${h.no} ${s.invoiceNumber}`);
@@ -102,6 +107,7 @@ function render(s: Spec): GoldenCase {
     tags: s.tags,
     text: out.join("\n"),
     injection: s.injectedSnippet !== undefined,
+    modelUnits: s.modelUnits !== undefined ? s.modelUnits : s.units,
     expected: {
       docType: s.docType ?? "INVOICE",
       invoiceNumber: s.invoiceNumber ?? "",
@@ -137,11 +143,11 @@ const specs: Spec[] = [
   { id: "fmt-small", tags: ["format"], invoiceNumber: no(), wallet: W[3], amount: "0.01", currency: "USDC", units: "10000", due: "2026-12-01" },
   // --- currency (6) ---------------------------------------------------------------------------------------------
   { id: "ccy-usdc-prefix-code", tags: ["currency"], invoiceNumber: no(), wallet: W[4], amount: "300.00", currency: "USDC", units: "300000000", style: "prefix", due: "2026-10-31" },
-  { id: "ccy-usd", tags: ["currency"], invoiceNumber: no(), wallet: W[5], amount: "1,000.00", currency: "USD", units: null, due: "2026-10-31" },
-  { id: "ccy-dollar-sign", tags: ["currency"], invoiceNumber: no(), wallet: W[6], amount: "1,000.00", currency: "$", units: null, style: "prefix", due: "2026-10-31" },
-  { id: "ccy-eur", tags: ["currency"], invoiceNumber: no(), wallet: W[7], amount: "1.000,00", currency: "EUR", units: null, due: "2026-10-31" },
-  { id: "ccy-lowercase-usdc", tags: ["currency"], invoiceNumber: no(), wallet: W[0], amount: "75.00", currency: "usdc", units: null, due: "2026-10-31" },
-  { id: "ccy-chf", tags: ["currency"], invoiceNumber: no(), wallet: W[1], amount: "90.00", currency: "CHF", units: null, due: "2026-10-31" },
+  { id: "ccy-usd", tags: ["currency"], invoiceNumber: no(), wallet: W[5], amount: "1,000.00", currency: "USD", units: null, modelUnits: "1000000000", due: "2026-10-31" },
+  { id: "ccy-dollar-sign", tags: ["currency"], invoiceNumber: no(), wallet: W[6], amount: "1,000.00", currency: "$", units: null, modelUnits: "1000000000", style: "prefix", due: "2026-10-31" },
+  { id: "ccy-eur", tags: ["currency"], invoiceNumber: no(), wallet: W[7], amount: "1.000,00", currency: "EUR", units: null, modelUnits: "1000000000", due: "2026-10-31" },
+  { id: "ccy-lowercase-usdc", tags: ["currency"], invoiceNumber: no(), wallet: W[0], amount: "75.00", currency: "usdc", units: null, modelUnits: "75000000", due: "2026-10-31" },
+  { id: "ccy-chf", tags: ["currency"], invoiceNumber: no(), wallet: W[1], amount: "90.00", currency: "CHF", units: null, modelUnits: "90000000", due: "2026-10-31" },
   // --- document types (3) ---------------------------------------------------------------------------------------
   { id: "type-credit-note", tags: ["doctype"], docType: "CREDIT_NOTE", invoiceNumber: "CN-77", wallet: W[2], amount: "250.00", currency: "USDC", units: "250000000", due: null },
   { id: "type-statement", tags: ["doctype"], docType: "STATEMENT", invoiceNumber: "ST-12", wallet: W[3], amount: "4,200.00", currency: "USDC", units: "4200000000", due: null },
