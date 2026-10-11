@@ -1,0 +1,2563 @@
+{
+  "schema": "attack-fixture/1",
+  "attackId": "ATK-14",
+  "title": "Velocity splitting",
+  "errorClass": "Velocity splitting",
+  "caption": "Twenty small invoices to one payee, each under the human-approval threshold.",
+  "kind": "document",
+  "scenarioId": "S-B",
+  "seed": "base",
+  "steps": [
+    {
+      "kind": "submit",
+      "stepId": "ATK-14/01",
+      "milestoneSlug": "deploy",
+      "doc": {
+        "docLabel": "ATK-14/01",
+        "origin": "plain",
+        "mime": "text/plain",
+        "text": "INVOICE\nInvoice no.: INV-2026-1201\nDate: 2026-11-01\nDue: 2026-12-01\nFrom: Birch Software\nWallet: 0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1\nTo: Sandbox Owner\nReference: ENG-c21b4f03 / deploy\nDescription: Deploy to staging, part 1 of 20\nTotal due: 3.00 USDC",
+        "receivedAt": "2026-11-02T09:01:00Z"
+      },
+      "context": {
+        "now": "2026-11-02T09:01:00Z",
+        "milestoneStatus": {
+          "api": "PAID"
+        },
+        "priorReleases": [
+          {
+            "milestoneSlug": "api",
+            "invoiceNumber": "INV-2026-0001",
+            "amountBaseUnits": "10000000",
+            "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+            "at": "2026-10-31T09:00:00Z"
+          }
+        ]
+      },
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1201",
+            "issueDate": "2026-11-01",
+            "dueDate": "2026-12-01",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 1 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1201",
+            "issueDate": "2026-11-01",
+            "dueDate": "2026-12-01",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 1 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "RELEASE",
+              "ESCALATE",
+              "HOLD"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "submit",
+      "stepId": "ATK-14/02",
+      "milestoneSlug": "deploy",
+      "doc": {
+        "docLabel": "ATK-14/02",
+        "origin": "eu-formal",
+        "mime": "text/plain",
+        "text": "RECHNUNG\nRechnungsnr.: INV-2026-1202\nRechnungsdatum: 2026-11-02\nFaellig am: 2026-12-02\nVon: Birch Software\nWallet: 0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1\nAn: Sandbox Owner\nReferenz: ENG-c21b4f03 / deploy\nLeistung: Deploy to staging, part 2 of 20\nGesamtbetrag: 3,00 USDC",
+        "receivedAt": "2026-11-02T09:02:00Z"
+      },
+      "context": {
+        "now": "2026-11-02T09:02:00Z"
+      },
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1202",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3,00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 2 of 20",
+                "amountPrinted": "3,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1202",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3,00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 2 of 20",
+                "amountPrinted": "3,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "RELEASE",
+              "ESCALATE",
+              "HOLD"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "submit",
+      "stepId": "ATK-14/03",
+      "milestoneSlug": "deploy",
+      "doc": {
+        "docLabel": "ATK-14/03",
+        "origin": "us-letter",
+        "mime": "text/plain",
+        "text": "Invoice\nInvoice #: INV-2026-1203\nInvoice date: 2026-11-02\nPayment due: 2026-12-02\nRemit to: Birch Software\nUSDC address: 0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1\nBill to: Sandbox Owner\nPO / Ref: ENG-c21b4f03 / deploy\nWork performed: Deploy to staging, part 3 of 20\nAmount due: 3.00 USDC",
+        "receivedAt": "2026-11-02T09:03:00Z"
+      },
+      "context": {
+        "now": "2026-11-02T09:03:00Z"
+      },
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1203",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 3 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1203",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 3 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "RELEASE",
+              "ESCALATE",
+              "HOLD"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "submit",
+      "stepId": "ATK-14/04",
+      "milestoneSlug": "deploy",
+      "doc": {
+        "docLabel": "ATK-14/04",
+        "origin": "swiss",
+        "mime": "text/plain",
+        "text": "RECHNUNG / FACTURE\nRechnung Nr.: INV-2026-1204\nDatum: 2026-10-31\nZahlbar bis: 2026-11-30\nAussteller: Birch Software\nWallet: 0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1\nEmpfaenger: Sandbox Owner\nReferenz: ENG-c21b4f03 / deploy\nPosition: Deploy to staging, part 4 of 20\nTotal: 3.00 USD",
+        "receivedAt": "2026-11-02T09:04:00Z"
+      },
+      "context": {
+        "now": "2026-11-02T09:04:00Z"
+      },
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1204",
+            "issueDate": "2026-10-31",
+            "dueDate": "2026-11-30",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USD",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 4 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1204",
+            "issueDate": "2026-10-31",
+            "dueDate": "2026-11-30",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USD",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 4 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "REJECT"
+            ],
+            "reasonsAnyOf": [
+              "VELOCITY",
+              "CAP_DAILY",
+              "OVERPAY",
+              "CAP_WEEKLY"
+            ],
+            "checksAnyOf": [
+              "K-12",
+              "K-08"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "submit",
+      "stepId": "ATK-14/05",
+      "milestoneSlug": "deploy",
+      "doc": {
+        "docLabel": "ATK-14/05",
+        "origin": "html",
+        "mime": "text/plain",
+        "text": "\u003chtml\u003e\u003cbody\u003e\n\u003ch1\u003eINVOICE INV-2026-1205\u003c/h1\u003e\n\u003cp\u003eIssued 2026-11-01, due 2026-12-01\u003c/p\u003e\n\u003cp\u003eFrom: Birch Software\u003c/p\u003e\n\u003cp\u003eWallet: \u003ccode\u003e0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1\u003c/code\u003e\u003c/p\u003e\n\u003cp\u003eBill to: Sandbox Owner\u003c/p\u003e\n\u003cp\u003eRef: ENG-c21b4f03 / deploy\u003c/p\u003e\n\u003ctable\u003e\n\u003ctr\u003e\u003ctd\u003eDeploy to staging, part 5 of 20\u003c/td\u003e\u003ctd\u003e3.00\u003c/td\u003e\u003c/tr\u003e\n\u003c/table\u003e\n\u003cp\u003e\u003cb\u003eTotal due: 3.00 USD\u003c/b\u003e\u003c/p\u003e\n\u003c/body\u003e\u003c/html\u003e",
+        "receivedAt": "2026-11-02T09:05:00Z"
+      },
+      "context": {
+        "now": "2026-11-02T09:05:00Z"
+      },
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1205",
+            "issueDate": "2026-11-01",
+            "dueDate": "2026-12-01",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USD",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 5 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1205",
+            "issueDate": "2026-11-01",
+            "dueDate": "2026-12-01",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USD",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 5 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "REJECT"
+            ],
+            "reasonsAnyOf": [
+              "VELOCITY",
+              "CAP_DAILY",
+              "OVERPAY",
+              "CAP_WEEKLY"
+            ],
+            "checksAnyOf": [
+              "K-12",
+              "K-08"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "submit",
+      "stepId": "ATK-14/06",
+      "milestoneSlug": "deploy",
+      "doc": {
+        "docLabel": "ATK-14/06",
+        "origin": "bilingual",
+        "mime": "text/plain",
+        "text": "INVOICE / FACTURE\nInvoice no. / N\u00b0 de facture: INV-2026-1206\nDate: 2026-10-31\nDue / Echeance: 2026-11-30\nFrom / De: Birch Software\nWallet / Portefeuille: 0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1\nTo / A: Sandbox Owner\nReference: ENG-c21b4f03 / deploy\nDescription / Libelle: Deploy to staging, part 6 of 20\nTotal due / Total a payer: 3,00 USD",
+        "receivedAt": "2026-11-02T09:06:00Z"
+      },
+      "context": {
+        "now": "2026-11-02T09:06:00Z"
+      },
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1206",
+            "issueDate": "2026-10-31",
+            "dueDate": "2026-11-30",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3,00",
+              "currencyPrinted": "USD",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 6 of 20",
+                "amountPrinted": "3,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1206",
+            "issueDate": "2026-10-31",
+            "dueDate": "2026-11-30",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3,00",
+              "currencyPrinted": "USD",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 6 of 20",
+                "amountPrinted": "3,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "REJECT"
+            ],
+            "reasonsAnyOf": [
+              "VELOCITY",
+              "CAP_DAILY",
+              "OVERPAY",
+              "CAP_WEEKLY"
+            ],
+            "checksAnyOf": [
+              "K-12",
+              "K-08"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "submit",
+      "stepId": "ATK-14/07",
+      "milestoneSlug": "deploy",
+      "doc": {
+        "docLabel": "ATK-14/07",
+        "origin": "multi-line",
+        "mime": "text/plain",
+        "text": "INVOICE INV-2026-1207\nIssued: 2026-11-02   Due: 2026-12-02\nSupplier: Birch Software (0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1)\nCustomer: Sandbox Owner\nYour ref: ENG-c21b4f03 / deploy\nItems:\n  1. Deploy to staging, part 7 of 20  3.00 USD\nSubtotal and total due: 3.00 USD",
+        "receivedAt": "2026-11-02T09:07:00Z"
+      },
+      "context": {
+        "now": "2026-11-02T09:07:00Z"
+      },
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1207",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USD",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 7 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1207",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USD",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 7 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "REJECT"
+            ],
+            "reasonsAnyOf": [
+              "VELOCITY",
+              "CAP_DAILY",
+              "OVERPAY",
+              "CAP_WEEKLY"
+            ],
+            "checksAnyOf": [
+              "K-12",
+              "K-08"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "submit",
+      "stepId": "ATK-14/08",
+      "milestoneSlug": "deploy",
+      "doc": {
+        "docLabel": "ATK-14/08",
+        "origin": "multi-line",
+        "mime": "text/plain",
+        "text": "INVOICE INV-2026-1208\nIssued: 2026-11-02   Due: 2026-12-02\nSupplier: Birch Software (0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1)\nCustomer: Sandbox Owner\nYour ref: ENG-c21b4f03 / deploy\nItems:\n  1. Deploy to staging, part 8 of 20  3.00 USD\nSubtotal and total due: 3.00 USD",
+        "receivedAt": "2026-11-02T09:08:00Z"
+      },
+      "context": {
+        "now": "2026-11-02T09:08:00Z"
+      },
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1208",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USD",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 8 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1208",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USD",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 8 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "REJECT"
+            ],
+            "reasonsAnyOf": [
+              "VELOCITY",
+              "CAP_DAILY",
+              "OVERPAY",
+              "CAP_WEEKLY"
+            ],
+            "checksAnyOf": [
+              "K-12",
+              "K-08"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "submit",
+      "stepId": "ATK-14/09",
+      "milestoneSlug": "deploy",
+      "doc": {
+        "docLabel": "ATK-14/09",
+        "origin": "plain",
+        "mime": "text/plain",
+        "text": "INVOICE\nInvoice no.: INV-2026-1209\nDate: 2026-11-02\nDue: 2026-12-02\nFrom: Birch Software\nWallet: 0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1\nTo: Sandbox Owner\nReference: ENG-c21b4f03 / deploy\nDescription: Deploy to staging, part 9 of 20\nTotal due: 3,00 USDC",
+        "receivedAt": "2026-11-02T09:09:00Z"
+      },
+      "context": {
+        "now": "2026-11-02T09:09:00Z"
+      },
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1209",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3,00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 9 of 20",
+                "amountPrinted": "3,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1209",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3,00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 9 of 20",
+                "amountPrinted": "3,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "REJECT"
+            ],
+            "reasonsAnyOf": [
+              "VELOCITY",
+              "CAP_DAILY",
+              "OVERPAY",
+              "CAP_WEEKLY"
+            ],
+            "checksAnyOf": [
+              "K-12",
+              "K-08"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "submit",
+      "stepId": "ATK-14/10",
+      "milestoneSlug": "deploy",
+      "doc": {
+        "docLabel": "ATK-14/10",
+        "origin": "plain",
+        "mime": "text/plain",
+        "text": "INVOICE\nInvoice no.: INV-2026-1210\nDate: 2026-11-02\nDue: 2026-12-02\nFrom: Birch Software\nWallet: 0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1\nTo: Sandbox Owner\nReference: ENG-c21b4f03 / deploy\nDescription: Deploy to staging, part 10 of 20\nTotal due: 3,00 USD",
+        "receivedAt": "2026-11-02T09:10:00Z"
+      },
+      "context": {
+        "now": "2026-11-02T09:10:00Z"
+      },
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1210",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3,00",
+              "currencyPrinted": "USD",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 10 of 20",
+                "amountPrinted": "3,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1210",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3,00",
+              "currencyPrinted": "USD",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 10 of 20",
+                "amountPrinted": "3,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "REJECT"
+            ],
+            "reasonsAnyOf": [
+              "VELOCITY",
+              "CAP_DAILY",
+              "OVERPAY",
+              "CAP_WEEKLY"
+            ],
+            "checksAnyOf": [
+              "K-12",
+              "K-08"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "submit",
+      "stepId": "ATK-14/11",
+      "milestoneSlug": "deploy",
+      "doc": {
+        "docLabel": "ATK-14/11",
+        "origin": "us-letter",
+        "mime": "text/plain",
+        "text": "Invoice\nInvoice #: INV-2026-1211\nInvoice date: 2026-10-31\nPayment due: 2026-11-30\nRemit to: Birch Software\nUSDC address: 0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1\nBill to: Sandbox Owner\nPO / Ref: ENG-c21b4f03 / deploy\nWork performed: Deploy to staging, part 11 of 20\nAmount due: 3.00 USDC",
+        "receivedAt": "2026-11-02T09:11:00Z"
+      },
+      "context": {
+        "now": "2026-11-02T09:11:00Z"
+      },
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1211",
+            "issueDate": "2026-10-31",
+            "dueDate": "2026-11-30",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 11 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1211",
+            "issueDate": "2026-10-31",
+            "dueDate": "2026-11-30",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 11 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "REJECT"
+            ],
+            "reasonsAnyOf": [
+              "VELOCITY",
+              "CAP_DAILY",
+              "OVERPAY",
+              "CAP_WEEKLY"
+            ],
+            "checksAnyOf": [
+              "K-12",
+              "K-08"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "submit",
+      "stepId": "ATK-14/12",
+      "milestoneSlug": "deploy",
+      "doc": {
+        "docLabel": "ATK-14/12",
+        "origin": "multi-line",
+        "mime": "text/plain",
+        "text": "INVOICE INV-2026-1212\nIssued: 2026-10-30   Due: 2026-11-29\nSupplier: Birch Software (0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1)\nCustomer: Sandbox Owner\nYour ref: ENG-c21b4f03 / deploy\nItems:\n  1. Deploy to staging, part 12 of 20  3.00 USDC\nSubtotal and total due: 3.00 USDC",
+        "receivedAt": "2026-11-02T09:12:00Z"
+      },
+      "context": {
+        "now": "2026-11-02T09:12:00Z"
+      },
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1212",
+            "issueDate": "2026-10-30",
+            "dueDate": "2026-11-29",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 12 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1212",
+            "issueDate": "2026-10-30",
+            "dueDate": "2026-11-29",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 12 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "REJECT"
+            ],
+            "reasonsAnyOf": [
+              "VELOCITY",
+              "CAP_DAILY",
+              "OVERPAY",
+              "CAP_WEEKLY"
+            ],
+            "checksAnyOf": [
+              "K-12",
+              "K-08"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "submit",
+      "stepId": "ATK-14/13",
+      "milestoneSlug": "deploy",
+      "doc": {
+        "docLabel": "ATK-14/13",
+        "origin": "plain",
+        "mime": "text/plain",
+        "text": "INVOICE\nInvoice no.: INV-2026-1213\nDate: 2026-11-02\nDue: 2026-12-02\nFrom: Birch Software\nWallet: 0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1\nTo: Sandbox Owner\nReference: ENG-c21b4f03 / deploy\nDescription: Deploy to staging, part 13 of 20\nTotal due: 3.00 USDC",
+        "receivedAt": "2026-11-02T09:13:00Z"
+      },
+      "context": {
+        "now": "2026-11-02T09:13:00Z"
+      },
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1213",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 13 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1213",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 13 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "REJECT"
+            ],
+            "reasonsAnyOf": [
+              "VELOCITY",
+              "CAP_DAILY",
+              "OVERPAY",
+              "CAP_WEEKLY"
+            ],
+            "checksAnyOf": [
+              "K-12",
+              "K-08"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "submit",
+      "stepId": "ATK-14/14",
+      "milestoneSlug": "deploy",
+      "doc": {
+        "docLabel": "ATK-14/14",
+        "origin": "html",
+        "mime": "text/plain",
+        "text": "\u003chtml\u003e\u003cbody\u003e\n\u003ch1\u003eINVOICE INV-2026-1214\u003c/h1\u003e\n\u003cp\u003eIssued 2026-10-30, due 2026-11-29\u003c/p\u003e\n\u003cp\u003eFrom: Birch Software\u003c/p\u003e\n\u003cp\u003eWallet: \u003ccode\u003e0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1\u003c/code\u003e\u003c/p\u003e\n\u003cp\u003eBill to: Sandbox Owner\u003c/p\u003e\n\u003cp\u003eRef: ENG-c21b4f03 / deploy\u003c/p\u003e\n\u003ctable\u003e\n\u003ctr\u003e\u003ctd\u003eDeploy to staging, part 14 of 20\u003c/td\u003e\u003ctd\u003e3.00\u003c/td\u003e\u003c/tr\u003e\n\u003c/table\u003e\n\u003cp\u003e\u003cb\u003eTotal due: 3.00 USDC\u003c/b\u003e\u003c/p\u003e\n\u003c/body\u003e\u003c/html\u003e",
+        "receivedAt": "2026-11-02T09:14:00Z"
+      },
+      "context": {
+        "now": "2026-11-02T09:14:00Z"
+      },
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1214",
+            "issueDate": "2026-10-30",
+            "dueDate": "2026-11-29",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 14 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1214",
+            "issueDate": "2026-10-30",
+            "dueDate": "2026-11-29",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 14 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "REJECT"
+            ],
+            "reasonsAnyOf": [
+              "VELOCITY",
+              "CAP_DAILY",
+              "OVERPAY",
+              "CAP_WEEKLY"
+            ],
+            "checksAnyOf": [
+              "K-12",
+              "K-08"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "submit",
+      "stepId": "ATK-14/15",
+      "milestoneSlug": "deploy",
+      "doc": {
+        "docLabel": "ATK-14/15",
+        "origin": "multi-line",
+        "mime": "text/plain",
+        "text": "INVOICE INV-2026-1215\nIssued: 2026-11-02   Due: 2026-12-02\nSupplier: Birch Software (0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1)\nCustomer: Sandbox Owner\nYour ref: ENG-c21b4f03 / deploy\nItems:\n  1. Deploy to staging, part 15 of 20  3.00 USDC\nSubtotal and total due: 3.00 USDC",
+        "receivedAt": "2026-11-02T09:15:00Z"
+      },
+      "context": {
+        "now": "2026-11-02T09:15:00Z"
+      },
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1215",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 15 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1215",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 15 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "REJECT"
+            ],
+            "reasonsAnyOf": [
+              "VELOCITY",
+              "CAP_DAILY",
+              "OVERPAY",
+              "CAP_WEEKLY"
+            ],
+            "checksAnyOf": [
+              "K-12",
+              "K-08"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "submit",
+      "stepId": "ATK-14/16",
+      "milestoneSlug": "deploy",
+      "doc": {
+        "docLabel": "ATK-14/16",
+        "origin": "multi-line",
+        "mime": "text/plain",
+        "text": "INVOICE INV-2026-1216\nIssued: 2026-10-30   Due: 2026-11-29\nSupplier: Birch Software (0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1)\nCustomer: Sandbox Owner\nYour ref: ENG-c21b4f03 / deploy\nItems:\n  1. Deploy to staging, part 16 of 20  3,00 USDC\nSubtotal and total due: 3,00 USDC",
+        "receivedAt": "2026-11-02T09:16:00Z"
+      },
+      "context": {
+        "now": "2026-11-02T09:16:00Z"
+      },
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1216",
+            "issueDate": "2026-10-30",
+            "dueDate": "2026-11-29",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3,00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 16 of 20",
+                "amountPrinted": "3,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1216",
+            "issueDate": "2026-10-30",
+            "dueDate": "2026-11-29",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3,00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 16 of 20",
+                "amountPrinted": "3,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "REJECT"
+            ],
+            "reasonsAnyOf": [
+              "VELOCITY",
+              "CAP_DAILY",
+              "OVERPAY",
+              "CAP_WEEKLY"
+            ],
+            "checksAnyOf": [
+              "K-12",
+              "K-08"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "submit",
+      "stepId": "ATK-14/17",
+      "milestoneSlug": "deploy",
+      "doc": {
+        "docLabel": "ATK-14/17",
+        "origin": "eu-formal",
+        "mime": "text/plain",
+        "text": "RECHNUNG\nRechnungsnr.: INV-2026-1217\nRechnungsdatum: 2026-10-31\nFaellig am: 2026-11-30\nVon: Birch Software\nWallet: 0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1\nAn: Sandbox Owner\nReferenz: ENG-c21b4f03 / deploy\nLeistung: Deploy to staging, part 17 of 20\nGesamtbetrag: 3,00 USDC",
+        "receivedAt": "2026-11-02T09:17:00Z"
+      },
+      "context": {
+        "now": "2026-11-02T09:17:00Z"
+      },
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1217",
+            "issueDate": "2026-10-31",
+            "dueDate": "2026-11-30",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3,00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 17 of 20",
+                "amountPrinted": "3,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1217",
+            "issueDate": "2026-10-31",
+            "dueDate": "2026-11-30",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3,00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 17 of 20",
+                "amountPrinted": "3,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "REJECT"
+            ],
+            "reasonsAnyOf": [
+              "VELOCITY",
+              "CAP_DAILY",
+              "OVERPAY",
+              "CAP_WEEKLY"
+            ],
+            "checksAnyOf": [
+              "K-12",
+              "K-08"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "submit",
+      "stepId": "ATK-14/18",
+      "milestoneSlug": "deploy",
+      "doc": {
+        "docLabel": "ATK-14/18",
+        "origin": "bilingual",
+        "mime": "text/plain",
+        "text": "INVOICE / FACTURE\nInvoice no. / N\u00b0 de facture: INV-2026-1218\nDate: 2026-11-02\nDue / Echeance: 2026-12-02\nFrom / De: Birch Software\nWallet / Portefeuille: 0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1\nTo / A: Sandbox Owner\nReference: ENG-c21b4f03 / deploy\nDescription / Libelle: Deploy to staging, part 18 of 20\nTotal due / Total a payer: 3,00 USDC",
+        "receivedAt": "2026-11-02T09:18:00Z"
+      },
+      "context": {
+        "now": "2026-11-02T09:18:00Z"
+      },
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1218",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3,00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 18 of 20",
+                "amountPrinted": "3,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1218",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3,00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 18 of 20",
+                "amountPrinted": "3,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "REJECT"
+            ],
+            "reasonsAnyOf": [
+              "VELOCITY",
+              "CAP_DAILY",
+              "OVERPAY",
+              "CAP_WEEKLY"
+            ],
+            "checksAnyOf": [
+              "K-12",
+              "K-08"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "submit",
+      "stepId": "ATK-14/19",
+      "milestoneSlug": "deploy",
+      "doc": {
+        "docLabel": "ATK-14/19",
+        "origin": "multi-line",
+        "mime": "text/plain",
+        "text": "INVOICE INV-2026-1219\nIssued: 2026-11-01   Due: 2026-12-01\nSupplier: Birch Software (0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1)\nCustomer: Sandbox Owner\nYour ref: ENG-c21b4f03 / deploy\nItems:\n  1. Deploy to staging, part 19 of 20  3.00 USD\nSubtotal and total due: 3.00 USD",
+        "receivedAt": "2026-11-02T09:19:00Z"
+      },
+      "context": {
+        "now": "2026-11-02T09:19:00Z"
+      },
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1219",
+            "issueDate": "2026-11-01",
+            "dueDate": "2026-12-01",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USD",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 19 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1219",
+            "issueDate": "2026-11-01",
+            "dueDate": "2026-12-01",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USD",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 19 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "REJECT"
+            ],
+            "reasonsAnyOf": [
+              "VELOCITY",
+              "CAP_DAILY",
+              "OVERPAY",
+              "CAP_WEEKLY"
+            ],
+            "checksAnyOf": [
+              "K-12",
+              "K-08"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "submit",
+      "stepId": "ATK-14/20",
+      "milestoneSlug": "deploy",
+      "doc": {
+        "docLabel": "ATK-14/20",
+        "origin": "swiss",
+        "mime": "text/plain",
+        "text": "RECHNUNG / FACTURE\nRechnung Nr.: INV-2026-1220\nDatum: 2026-11-02\nZahlbar bis: 2026-12-02\nAussteller: Birch Software\nWallet: 0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1\nEmpfaenger: Sandbox Owner\nReferenz: ENG-c21b4f03 / deploy\nPosition: Deploy to staging, part 20 of 20\nTotal: 3.00 USDC",
+        "receivedAt": "2026-11-02T09:20:00Z"
+      },
+      "context": {
+        "now": "2026-11-02T09:20:00Z"
+      },
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1220",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 20 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-1220",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "3.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "3000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "deploy",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Deploy to staging, part 20 of 20",
+                "amountPrinted": "3.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "REJECT"
+            ],
+            "reasonsAnyOf": [
+              "VELOCITY",
+              "CAP_DAILY",
+              "OVERPAY",
+              "CAP_WEEKLY"
+            ],
+            "checksAnyOf": [
+              "K-12",
+              "K-08"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "intendedLoss": {
+    "mode": "cumulative",
+    "releases": [
+      {
+        "stepId": "ATK-14/01",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "3000000",
+        "time": "2026-11-02T09:01:00Z",
+        "predicates": [
+          "O2",
+          "O5"
+        ]
+      },
+      {
+        "stepId": "ATK-14/02",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "3000000",
+        "time": "2026-11-02T09:02:00Z",
+        "predicates": [
+          "O2",
+          "O5"
+        ]
+      },
+      {
+        "stepId": "ATK-14/03",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "3000000",
+        "time": "2026-11-02T09:03:00Z",
+        "predicates": [
+          "O2",
+          "O5"
+        ]
+      },
+      {
+        "stepId": "ATK-14/04",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "3000000",
+        "time": "2026-11-02T09:04:00Z",
+        "predicates": [
+          "O2",
+          "O5"
+        ]
+      },
+      {
+        "stepId": "ATK-14/05",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "3000000",
+        "time": "2026-11-02T09:05:00Z",
+        "predicates": [
+          "O2",
+          "O5"
+        ]
+      },
+      {
+        "stepId": "ATK-14/06",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "3000000",
+        "time": "2026-11-02T09:06:00Z",
+        "predicates": [
+          "O2",
+          "O5"
+        ]
+      },
+      {
+        "stepId": "ATK-14/07",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "3000000",
+        "time": "2026-11-02T09:07:00Z",
+        "predicates": [
+          "O2",
+          "O5"
+        ]
+      },
+      {
+        "stepId": "ATK-14/08",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "3000000",
+        "time": "2026-11-02T09:08:00Z",
+        "predicates": [
+          "O2",
+          "O5"
+        ]
+      },
+      {
+        "stepId": "ATK-14/09",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "3000000",
+        "time": "2026-11-02T09:09:00Z",
+        "predicates": [
+          "O2",
+          "O5"
+        ]
+      },
+      {
+        "stepId": "ATK-14/10",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "3000000",
+        "time": "2026-11-02T09:10:00Z",
+        "predicates": [
+          "O2",
+          "O5"
+        ]
+      },
+      {
+        "stepId": "ATK-14/11",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "3000000",
+        "time": "2026-11-02T09:11:00Z",
+        "predicates": [
+          "O2",
+          "O5"
+        ]
+      },
+      {
+        "stepId": "ATK-14/12",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "3000000",
+        "time": "2026-11-02T09:12:00Z",
+        "predicates": [
+          "O2",
+          "O5"
+        ]
+      },
+      {
+        "stepId": "ATK-14/13",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "3000000",
+        "time": "2026-11-02T09:13:00Z",
+        "predicates": [
+          "O2",
+          "O5"
+        ]
+      },
+      {
+        "stepId": "ATK-14/14",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "3000000",
+        "time": "2026-11-02T09:14:00Z",
+        "predicates": [
+          "O2",
+          "O5"
+        ]
+      },
+      {
+        "stepId": "ATK-14/15",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "3000000",
+        "time": "2026-11-02T09:15:00Z",
+        "predicates": [
+          "O2",
+          "O5"
+        ]
+      },
+      {
+        "stepId": "ATK-14/16",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "3000000",
+        "time": "2026-11-02T09:16:00Z",
+        "predicates": [
+          "O2",
+          "O5"
+        ]
+      },
+      {
+        "stepId": "ATK-14/17",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "3000000",
+        "time": "2026-11-02T09:17:00Z",
+        "predicates": [
+          "O2",
+          "O5"
+        ]
+      },
+      {
+        "stepId": "ATK-14/18",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "3000000",
+        "time": "2026-11-02T09:18:00Z",
+        "predicates": [
+          "O2",
+          "O5"
+        ]
+      },
+      {
+        "stepId": "ATK-14/19",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "3000000",
+        "time": "2026-11-02T09:19:00Z",
+        "predicates": [
+          "O2",
+          "O5"
+        ]
+      },
+      {
+        "stepId": "ATK-14/20",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "3000000",
+        "time": "2026-11-02T09:20:00Z",
+        "predicates": [
+          "O2",
+          "O5"
+        ]
+      }
+    ]
+  },
+  "naiveHypothesis": "pays all",
+  "symbolonDefence": "K-12 VELOCITY / CAP_DAILY (REJECT) after the limit",
+  "onChainBackstop": "rolling 24 h cap",
+  "control": {
+    "kind": "release",
+    "step": {
+      "kind": "submit",
+      "stepId": "ATK-14/control",
+      "milestoneSlug": "api",
+      "doc": {
+        "docLabel": "ATK-14/control/control",
+        "origin": "bilingual",
+        "mime": "text/plain",
+        "text": "INVOICE / FACTURE\nInvoice no. / N\u00b0 de facture: INV-2026-0285\nDate: 2026-10-30\nDue / Echeance: 2026-11-29\nFrom / De: Birch Software\nWallet / Portefeuille: 0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1\nTo / A: Sandbox Owner\nReference: ENG-c21b4f03 / api\nDescription / Libelle: REST API skeleton with tests\nTotal due / Total a payer: 10,00 USD",
+        "receivedAt": "2026-11-02T09:00:00Z"
+      },
+      "context": {},
+      "runs": [
+        {
+          "label": "honest",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-0285",
+            "issueDate": "2026-10-30",
+            "dueDate": "2026-11-29",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "10,00",
+              "currencyPrinted": "USD",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": "10000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "api",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "REST API skeleton with tests",
+                "amountPrinted": "10,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-0285",
+            "issueDate": "2026-10-30",
+            "dueDate": "2026-11-29",
+            "payee": {
+              "legalName": "Birch Software",
+              "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "10,00",
+              "currencyPrinted": "USD",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": "10000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-c21b4f03",
+              "milestoneId": "api",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "REST API skeleton with tests",
+                "amountPrinted": "10,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "RELEASE"
+            ],
+            "amountDueBaseUnits": "10000000"
+          }
+        }
+      ]
+    },
+    "correctRelease": {
+      "stepId": "ATK-14/control",
+      "scenarioId": "S-B",
+      "milestoneSlug": "api",
+      "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+      "amountBaseUnits": "10000000",
+      "time": "2026-11-02T09:00:00Z"
+    }
+  },
+  "tags": [
+    "velocity",
+    "split",
+    "K-12"
+  ]
+}

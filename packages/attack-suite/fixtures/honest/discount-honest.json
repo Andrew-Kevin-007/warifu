@@ -1,0 +1,741 @@
+{
+  "schema": "honest-set/1",
+  "items": [
+    {
+      "schema": "honest-fixture/1",
+      "id": "HD-1",
+      "group": "discount-honest",
+      "caption": "Early-pay invoice, received and paid on the same day.",
+      "scenarioId": "S-C",
+      "step": {
+        "kind": "submit",
+        "stepId": "HD-1",
+        "milestoneSlug": "annual-licence",
+        "doc": {
+          "docLabel": "HD-1",
+          "origin": "multi-line",
+          "mime": "text/plain",
+          "text": "INVOICE INV-2026-0297\nIssued: 2026-11-02   Due: 2026-12-02\nSupplier: Corvid Tools (0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C)\nCustomer: Sandbox Owner\nYour ref: ENG-b718be6a / annual-licence\nItems:\n  1. Annual tooling licence  20.00 USDC\nTerms: 2/10 net 30\nSubtotal and total due: 20.00 USDC",
+          "receivedAt": "2026-11-02T09:00:00Z"
+        },
+        "context": {},
+        "runs": [
+          {
+            "label": "honest",
+            "a": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0297",
+              "issueDate": "2026-11-02",
+              "dueDate": "2026-12-02",
+              "payee": {
+                "legalName": "Corvid Tools",
+                "walletAddress": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "20.00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ".",
+                "parsedBaseUnits": "20000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-b718be6a",
+                "milestoneId": "annual-licence",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": "2/10 net 30",
+                "netDays": 30,
+                "earlyPay": {
+                  "discountBps": 200,
+                  "withinDays": 10
+                },
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Annual tooling licence",
+                  "amountPrinted": "20.00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "b": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0297",
+              "issueDate": "2026-11-02",
+              "dueDate": "2026-12-02",
+              "payee": {
+                "legalName": "Corvid Tools",
+                "walletAddress": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "20.00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ".",
+                "parsedBaseUnits": "20000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-b718be6a",
+                "milestoneId": "annual-licence",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": "2/10 net 30",
+                "netDays": 30,
+                "earlyPay": {
+                  "discountBps": 200,
+                  "withinDays": 10
+                },
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Annual tooling licence",
+                  "amountPrinted": "20.00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "agentRecommendation": null,
+            "expect": {
+              "verdictIn": [
+                "RELEASE"
+              ],
+              "amountDueBaseUnits": "19600000"
+            }
+          }
+        ]
+      },
+      "correctRelease": {
+        "stepId": "HD-1",
+        "scenarioId": "S-C",
+        "milestoneSlug": "annual-licence",
+        "payee": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+        "amountBaseUnits": "19600000",
+        "time": "2026-11-02T09:00:00Z"
+      },
+      "oracleExpected": "NO_LOSS"
+    },
+    {
+      "schema": "honest-fixture/1",
+      "id": "HD-2",
+      "group": "discount-honest",
+      "caption": "Early-pay invoice, paid on day 1.",
+      "scenarioId": "S-C",
+      "step": {
+        "kind": "submit",
+        "stepId": "HD-2",
+        "milestoneSlug": "annual-licence",
+        "doc": {
+          "docLabel": "HD-2",
+          "origin": "bilingual",
+          "mime": "text/plain",
+          "text": "INVOICE / FACTURE\nInvoice no. / N\u00b0 de facture: INV-2026-0791\nDate: 2026-11-02\nDue / Echeance: 2026-12-02\nFrom / De: Corvid Tools\nWallet / Portefeuille: 0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C\nTo / A: Sandbox Owner\nReference: ENG-b718be6a / annual-licence\nDescription / Libelle: Annual tooling licence\nTerms / Conditions: 2/10 net 30\nTotal due / Total a payer: 20,00 USD",
+          "receivedAt": "2026-11-02T09:00:00Z"
+        },
+        "context": {
+          "now": "2026-11-03T09:00:00Z"
+        },
+        "runs": [
+          {
+            "label": "honest",
+            "a": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0791",
+              "issueDate": "2026-11-02",
+              "dueDate": "2026-12-02",
+              "payee": {
+                "legalName": "Corvid Tools",
+                "walletAddress": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "20,00",
+                "currencyPrinted": "USD",
+                "decimalSeparatorGuess": ",",
+                "parsedBaseUnits": "20000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-b718be6a",
+                "milestoneId": "annual-licence",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": "2/10 net 30",
+                "netDays": 30,
+                "earlyPay": {
+                  "discountBps": 200,
+                  "withinDays": 10
+                },
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Annual tooling licence",
+                  "amountPrinted": "20,00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "b": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0791",
+              "issueDate": "2026-11-02",
+              "dueDate": "2026-12-02",
+              "payee": {
+                "legalName": "Corvid Tools",
+                "walletAddress": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "20,00",
+                "currencyPrinted": "USD",
+                "decimalSeparatorGuess": ",",
+                "parsedBaseUnits": "20000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-b718be6a",
+                "milestoneId": "annual-licence",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": "2/10 net 30",
+                "netDays": 30,
+                "earlyPay": {
+                  "discountBps": 200,
+                  "withinDays": 10
+                },
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Annual tooling licence",
+                  "amountPrinted": "20,00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "agentRecommendation": null,
+            "expect": {
+              "verdictIn": [
+                "RELEASE"
+              ],
+              "amountDueBaseUnits": "19600000"
+            }
+          }
+        ]
+      },
+      "correctRelease": {
+        "stepId": "HD-2",
+        "scenarioId": "S-C",
+        "milestoneSlug": "annual-licence",
+        "payee": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+        "amountBaseUnits": "19600000",
+        "time": "2026-11-03T09:00:00Z"
+      },
+      "oracleExpected": "NO_LOSS"
+    },
+    {
+      "schema": "honest-fixture/1",
+      "id": "HD-3",
+      "group": "discount-honest",
+      "caption": "Early-pay invoice, paid on day 3.",
+      "scenarioId": "S-C",
+      "step": {
+        "kind": "submit",
+        "stepId": "HD-3",
+        "milestoneSlug": "annual-licence",
+        "doc": {
+          "docLabel": "HD-3",
+          "origin": "plain",
+          "mime": "text/plain",
+          "text": "INVOICE\nInvoice no.: INV-2026-0491\nDate: 2026-11-02\nDue: 2026-12-02\nFrom: Corvid Tools\nWallet: 0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C\nTo: Sandbox Owner\nReference: ENG-b718be6a / annual-licence\nDescription: Annual tooling licence\nTerms: 2/10 net 30\nTotal due: 20.00 USD",
+          "receivedAt": "2026-11-02T09:00:00Z"
+        },
+        "context": {
+          "now": "2026-11-05T09:00:00Z"
+        },
+        "runs": [
+          {
+            "label": "honest",
+            "a": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0491",
+              "issueDate": "2026-11-02",
+              "dueDate": "2026-12-02",
+              "payee": {
+                "legalName": "Corvid Tools",
+                "walletAddress": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "20.00",
+                "currencyPrinted": "USD",
+                "decimalSeparatorGuess": ".",
+                "parsedBaseUnits": "20000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-b718be6a",
+                "milestoneId": "annual-licence",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": "2/10 net 30",
+                "netDays": 30,
+                "earlyPay": {
+                  "discountBps": 200,
+                  "withinDays": 10
+                },
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Annual tooling licence",
+                  "amountPrinted": "20.00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "b": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0491",
+              "issueDate": "2026-11-02",
+              "dueDate": "2026-12-02",
+              "payee": {
+                "legalName": "Corvid Tools",
+                "walletAddress": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "20.00",
+                "currencyPrinted": "USD",
+                "decimalSeparatorGuess": ".",
+                "parsedBaseUnits": "20000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-b718be6a",
+                "milestoneId": "annual-licence",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": "2/10 net 30",
+                "netDays": 30,
+                "earlyPay": {
+                  "discountBps": 200,
+                  "withinDays": 10
+                },
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Annual tooling licence",
+                  "amountPrinted": "20.00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "agentRecommendation": null,
+            "expect": {
+              "verdictIn": [
+                "RELEASE"
+              ],
+              "amountDueBaseUnits": "19600000"
+            }
+          }
+        ]
+      },
+      "correctRelease": {
+        "stepId": "HD-3",
+        "scenarioId": "S-C",
+        "milestoneSlug": "annual-licence",
+        "payee": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+        "amountBaseUnits": "19600000",
+        "time": "2026-11-05T09:00:00Z"
+      },
+      "oracleExpected": "NO_LOSS"
+    },
+    {
+      "schema": "honest-fixture/1",
+      "id": "HD-4",
+      "group": "discount-honest",
+      "caption": "Early-pay invoice, paid on day 5.",
+      "scenarioId": "S-C",
+      "step": {
+        "kind": "submit",
+        "stepId": "HD-4",
+        "milestoneSlug": "annual-licence",
+        "doc": {
+          "docLabel": "HD-4",
+          "origin": "html",
+          "mime": "text/plain",
+          "text": "\u003chtml\u003e\u003cbody\u003e\n\u003ch1\u003eINVOICE INV-2026-0824\u003c/h1\u003e\n\u003cp\u003eIssued 2026-10-31, due 2026-11-30\u003c/p\u003e\n\u003cp\u003eFrom: Corvid Tools\u003c/p\u003e\n\u003cp\u003eWallet: \u003ccode\u003e0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C\u003c/code\u003e\u003c/p\u003e\n\u003cp\u003eBill to: Sandbox Owner\u003c/p\u003e\n\u003cp\u003eRef: ENG-b718be6a / annual-licence\u003c/p\u003e\n\u003ctable\u003e\n\u003ctr\u003e\u003ctd\u003eAnnual tooling licence\u003c/td\u003e\u003ctd\u003e20.00\u003c/td\u003e\u003c/tr\u003e\n\u003c/table\u003e\n\u003cp\u003eTerms: 2/10 net 30\u003c/p\u003e\n\u003cp\u003e\u003cb\u003eTotal due: 20.00 USDC\u003c/b\u003e\u003c/p\u003e\n\u003c/body\u003e\u003c/html\u003e",
+          "receivedAt": "2026-11-02T09:00:00Z"
+        },
+        "context": {
+          "now": "2026-11-07T09:00:00Z"
+        },
+        "runs": [
+          {
+            "label": "honest",
+            "a": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0824",
+              "issueDate": "2026-10-31",
+              "dueDate": "2026-11-30",
+              "payee": {
+                "legalName": "Corvid Tools",
+                "walletAddress": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "20.00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ".",
+                "parsedBaseUnits": "20000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-b718be6a",
+                "milestoneId": "annual-licence",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": "2/10 net 30",
+                "netDays": 30,
+                "earlyPay": {
+                  "discountBps": 200,
+                  "withinDays": 10
+                },
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Annual tooling licence",
+                  "amountPrinted": "20.00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "b": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0824",
+              "issueDate": "2026-10-31",
+              "dueDate": "2026-11-30",
+              "payee": {
+                "legalName": "Corvid Tools",
+                "walletAddress": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "20.00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ".",
+                "parsedBaseUnits": "20000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-b718be6a",
+                "milestoneId": "annual-licence",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": "2/10 net 30",
+                "netDays": 30,
+                "earlyPay": {
+                  "discountBps": 200,
+                  "withinDays": 10
+                },
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Annual tooling licence",
+                  "amountPrinted": "20.00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "agentRecommendation": null,
+            "expect": {
+              "verdictIn": [
+                "RELEASE"
+              ],
+              "amountDueBaseUnits": "19600000"
+            }
+          }
+        ]
+      },
+      "correctRelease": {
+        "stepId": "HD-4",
+        "scenarioId": "S-C",
+        "milestoneSlug": "annual-licence",
+        "payee": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+        "amountBaseUnits": "19600000",
+        "time": "2026-11-07T09:00:00Z"
+      },
+      "oracleExpected": "NO_LOSS"
+    },
+    {
+      "schema": "honest-fixture/1",
+      "id": "HD-5",
+      "group": "discount-honest",
+      "caption": "Early-pay invoice, paid on day 9.",
+      "scenarioId": "S-C",
+      "step": {
+        "kind": "submit",
+        "stepId": "HD-5",
+        "milestoneSlug": "annual-licence",
+        "doc": {
+          "docLabel": "HD-5",
+          "origin": "pdf-text-layer",
+          "mime": "text/plain",
+          "text": "-- page 1 of 1 --\nCorvid Tools                              INVOICE\n0xe787b216D17AB43C3FdFE15Aa584472E41eeE45CNo. INV-2026-0502\nSandbox Owner                             Date 2026-11-01\n                                          Due 2026-12-01\n                                          Ref ENG-b718be6a / annual-licence\n\nDescription                               Amount\nAnnual tooling licence                    20.00\n\nPayment terms: 2/10 net 30\nTotal due                                 20.00 USD\n-- end of page 1 --",
+          "receivedAt": "2026-11-02T09:00:00Z"
+        },
+        "context": {
+          "now": "2026-11-11T09:00:00Z"
+        },
+        "runs": [
+          {
+            "label": "honest",
+            "a": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0502",
+              "issueDate": "2026-11-01",
+              "dueDate": "2026-12-01",
+              "payee": {
+                "legalName": "Corvid Tools",
+                "walletAddress": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "20.00",
+                "currencyPrinted": "USD",
+                "decimalSeparatorGuess": ".",
+                "parsedBaseUnits": "20000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-b718be6a",
+                "milestoneId": "annual-licence",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": "2/10 net 30",
+                "netDays": 30,
+                "earlyPay": {
+                  "discountBps": 200,
+                  "withinDays": 10
+                },
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Annual tooling licence",
+                  "amountPrinted": "20.00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "b": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0502",
+              "issueDate": "2026-11-01",
+              "dueDate": "2026-12-01",
+              "payee": {
+                "legalName": "Corvid Tools",
+                "walletAddress": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "20.00",
+                "currencyPrinted": "USD",
+                "decimalSeparatorGuess": ".",
+                "parsedBaseUnits": "20000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-b718be6a",
+                "milestoneId": "annual-licence",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": "2/10 net 30",
+                "netDays": 30,
+                "earlyPay": {
+                  "discountBps": 200,
+                  "withinDays": 10
+                },
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Annual tooling licence",
+                  "amountPrinted": "20.00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "agentRecommendation": null,
+            "expect": {
+              "verdictIn": [
+                "RELEASE"
+              ],
+              "amountDueBaseUnits": "19600000"
+            }
+          }
+        ]
+      },
+      "correctRelease": {
+        "stepId": "HD-5",
+        "scenarioId": "S-C",
+        "milestoneSlug": "annual-licence",
+        "payee": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+        "amountBaseUnits": "19600000",
+        "time": "2026-11-11T09:00:00Z"
+      },
+      "oracleExpected": "NO_LOSS"
+    },
+    {
+      "schema": "honest-fixture/1",
+      "id": "HD-6",
+      "group": "discount-honest",
+      "caption": "Early-pay invoice, paid two hours before the window closes.",
+      "scenarioId": "S-C",
+      "step": {
+        "kind": "submit",
+        "stepId": "HD-6",
+        "milestoneSlug": "annual-licence",
+        "doc": {
+          "docLabel": "HD-6",
+          "origin": "eu-formal",
+          "mime": "text/plain",
+          "text": "RECHNUNG\nRechnungsnr.: INV-2026-0276\nRechnungsdatum: 2026-11-01\nFaellig am: 2026-12-01\nVon: Corvid Tools\nWallet: 0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C\nAn: Sandbox Owner\nReferenz: ENG-b718be6a / annual-licence\nLeistung: Annual tooling licence\nZahlungsbedingungen: 2/10 net 30\nGesamtbetrag: 20,00 USDC",
+          "receivedAt": "2026-11-02T09:00:00Z"
+        },
+        "context": {
+          "now": "2026-11-12T07:00:00Z"
+        },
+        "runs": [
+          {
+            "label": "honest",
+            "a": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0276",
+              "issueDate": "2026-11-01",
+              "dueDate": "2026-12-01",
+              "payee": {
+                "legalName": "Corvid Tools",
+                "walletAddress": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "20,00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ",",
+                "parsedBaseUnits": "20000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-b718be6a",
+                "milestoneId": "annual-licence",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": "2/10 net 30",
+                "netDays": 30,
+                "earlyPay": {
+                  "discountBps": 200,
+                  "withinDays": 10
+                },
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Annual tooling licence",
+                  "amountPrinted": "20,00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "b": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0276",
+              "issueDate": "2026-11-01",
+              "dueDate": "2026-12-01",
+              "payee": {
+                "legalName": "Corvid Tools",
+                "walletAddress": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "20,00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ",",
+                "parsedBaseUnits": "20000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-b718be6a",
+                "milestoneId": "annual-licence",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": "2/10 net 30",
+                "netDays": 30,
+                "earlyPay": {
+                  "discountBps": 200,
+                  "withinDays": 10
+                },
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Annual tooling licence",
+                  "amountPrinted": "20,00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "agentRecommendation": null,
+            "expect": {
+              "verdictIn": [
+                "RELEASE"
+              ],
+              "amountDueBaseUnits": "19600000"
+            }
+          }
+        ]
+      },
+      "correctRelease": {
+        "stepId": "HD-6",
+        "scenarioId": "S-C",
+        "milestoneSlug": "annual-licence",
+        "payee": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+        "amountBaseUnits": "19600000",
+        "time": "2026-11-12T07:00:00Z"
+      },
+      "oracleExpected": "NO_LOSS"
+    }
+  ]
+}

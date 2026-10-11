@@ -1,0 +1,724 @@
+{
+  "schema": "honest-set/1",
+  "items": [
+    {
+      "schema": "honest-fixture/1",
+      "id": "BC-1",
+      "group": "benign-control",
+      "caption": "Design concept invoice, exact milestone amount.",
+      "scenarioId": "S-A",
+      "step": {
+        "kind": "submit",
+        "stepId": "BC-1",
+        "milestoneSlug": "concept",
+        "doc": {
+          "docLabel": "BC-1",
+          "origin": "plain",
+          "mime": "text/plain",
+          "text": "INVOICE\nInvoice no.: INV-2026-0883\nDate: 2026-11-01\nDue: 2026-12-01\nFrom: Acme Design\nWallet: 0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997\nTo: Sandbox Owner\nReference: ENG-71c71895 / concept\nDescription: Brand concept: three logo directions\nTotal due: 8,00 USD",
+          "receivedAt": "2026-11-02T09:00:00Z"
+        },
+        "context": {},
+        "runs": [
+          {
+            "label": "honest",
+            "a": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0883",
+              "issueDate": "2026-11-01",
+              "dueDate": "2026-12-01",
+              "payee": {
+                "legalName": "Acme Design",
+                "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "8,00",
+                "currencyPrinted": "USD",
+                "decimalSeparatorGuess": ",",
+                "parsedBaseUnits": "8000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-71c71895",
+                "milestoneId": "concept",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Brand concept: three logo directions",
+                  "amountPrinted": "8,00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "b": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0883",
+              "issueDate": "2026-11-01",
+              "dueDate": "2026-12-01",
+              "payee": {
+                "legalName": "Acme Design",
+                "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "8,00",
+                "currencyPrinted": "USD",
+                "decimalSeparatorGuess": ",",
+                "parsedBaseUnits": "8000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-71c71895",
+                "milestoneId": "concept",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Brand concept: three logo directions",
+                  "amountPrinted": "8,00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "agentRecommendation": null,
+            "expect": {
+              "verdictIn": [
+                "RELEASE"
+              ],
+              "amountDueBaseUnits": "8000000"
+            }
+          }
+        ]
+      },
+      "correctRelease": {
+        "stepId": "BC-1",
+        "scenarioId": "S-A",
+        "milestoneSlug": "concept",
+        "payee": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+        "amountBaseUnits": "8000000",
+        "time": "2026-11-02T09:00:00Z"
+      },
+      "oracleExpected": "NO_LOSS"
+    },
+    {
+      "schema": "honest-fixture/1",
+      "id": "BC-2",
+      "group": "benign-control",
+      "caption": "Final design invoice, exact milestone amount.",
+      "scenarioId": "S-A",
+      "step": {
+        "kind": "submit",
+        "stepId": "BC-2",
+        "milestoneSlug": "final",
+        "doc": {
+          "docLabel": "BC-2",
+          "origin": "html",
+          "mime": "text/plain",
+          "text": "\u003chtml\u003e\u003cbody\u003e\n\u003ch1\u003eINVOICE INV-2026-0127\u003c/h1\u003e\n\u003cp\u003eIssued 2026-11-01, due 2026-12-01\u003c/p\u003e\n\u003cp\u003eFrom: Acme Design\u003c/p\u003e\n\u003cp\u003eWallet: \u003ccode\u003e0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997\u003c/code\u003e\u003c/p\u003e\n\u003cp\u003eBill to: Sandbox Owner\u003c/p\u003e\n\u003cp\u003eRef: ENG-71c71895 / final\u003c/p\u003e\n\u003ctable\u003e\n\u003ctr\u003e\u003ctd\u003eFinal logo set and brand sheet\u003c/td\u003e\u003ctd\u003e12,00\u003c/td\u003e\u003c/tr\u003e\n\u003c/table\u003e\n\u003cp\u003e\u003cb\u003eTotal due: 12,00 USDC\u003c/b\u003e\u003c/p\u003e\n\u003c/body\u003e\u003c/html\u003e",
+          "receivedAt": "2026-11-02T09:00:00Z"
+        },
+        "context": {},
+        "runs": [
+          {
+            "label": "honest",
+            "a": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0127",
+              "issueDate": "2026-11-01",
+              "dueDate": "2026-12-01",
+              "payee": {
+                "legalName": "Acme Design",
+                "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "12,00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ",",
+                "parsedBaseUnits": "12000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-71c71895",
+                "milestoneId": "final",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Final logo set and brand sheet",
+                  "amountPrinted": "12,00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "b": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0127",
+              "issueDate": "2026-11-01",
+              "dueDate": "2026-12-01",
+              "payee": {
+                "legalName": "Acme Design",
+                "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "12,00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ",",
+                "parsedBaseUnits": "12000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-71c71895",
+                "milestoneId": "final",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Final logo set and brand sheet",
+                  "amountPrinted": "12,00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "agentRecommendation": null,
+            "expect": {
+              "verdictIn": [
+                "RELEASE"
+              ],
+              "amountDueBaseUnits": "12000000"
+            }
+          }
+        ]
+      },
+      "correctRelease": {
+        "stepId": "BC-2",
+        "scenarioId": "S-A",
+        "milestoneSlug": "final",
+        "payee": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+        "amountBaseUnits": "12000000",
+        "time": "2026-11-02T09:00:00Z"
+      },
+      "oracleExpected": "NO_LOSS"
+    },
+    {
+      "schema": "honest-fixture/1",
+      "id": "BC-3",
+      "group": "benign-control",
+      "caption": "Dev API milestone with green CI.",
+      "scenarioId": "S-B",
+      "step": {
+        "kind": "submit",
+        "stepId": "BC-3",
+        "milestoneSlug": "api",
+        "doc": {
+          "docLabel": "BC-3",
+          "origin": "pdf-text-layer",
+          "mime": "text/plain",
+          "text": "-- page 1 of 1 --\nBirch Software                            INVOICE\n0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1No. INV-2026-0609\nSandbox Owner                             Date 2026-10-30\n                                          Due 2026-11-29\n                                          Ref ENG-c21b4f03 / api\n\nDescription                               Amount\nREST API skeleton with tests              10.00\n\nTotal due                                 10.00 USD\n-- end of page 1 --",
+          "receivedAt": "2026-11-02T09:00:00Z"
+        },
+        "context": {},
+        "runs": [
+          {
+            "label": "honest",
+            "a": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0609",
+              "issueDate": "2026-10-30",
+              "dueDate": "2026-11-29",
+              "payee": {
+                "legalName": "Birch Software",
+                "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "10.00",
+                "currencyPrinted": "USD",
+                "decimalSeparatorGuess": ".",
+                "parsedBaseUnits": "10000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-c21b4f03",
+                "milestoneId": "api",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "REST API skeleton with tests",
+                  "amountPrinted": "10.00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "b": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0609",
+              "issueDate": "2026-10-30",
+              "dueDate": "2026-11-29",
+              "payee": {
+                "legalName": "Birch Software",
+                "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "10.00",
+                "currencyPrinted": "USD",
+                "decimalSeparatorGuess": ".",
+                "parsedBaseUnits": "10000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-c21b4f03",
+                "milestoneId": "api",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "REST API skeleton with tests",
+                  "amountPrinted": "10.00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "agentRecommendation": null,
+            "expect": {
+              "verdictIn": [
+                "RELEASE"
+              ],
+              "amountDueBaseUnits": "10000000"
+            }
+          }
+        ]
+      },
+      "correctRelease": {
+        "stepId": "BC-3",
+        "scenarioId": "S-B",
+        "milestoneSlug": "api",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "10000000",
+        "time": "2026-11-02T09:00:00Z"
+      },
+      "oracleExpected": "NO_LOSS"
+    },
+    {
+      "schema": "honest-fixture/1",
+      "id": "BC-4",
+      "group": "benign-control",
+      "caption": "Dev deploy milestone after the API one was paid.",
+      "scenarioId": "S-B",
+      "step": {
+        "kind": "submit",
+        "stepId": "BC-4",
+        "milestoneSlug": "deploy",
+        "doc": {
+          "docLabel": "BC-4",
+          "origin": "eu-formal",
+          "mime": "text/plain",
+          "text": "RECHNUNG\nRechnungsnr.: INV-2026-0134\nRechnungsdatum: 2026-10-31\nFaellig am: 2026-11-30\nVon: Birch Software\nWallet: 0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1\nAn: Sandbox Owner\nReferenz: ENG-c21b4f03 / deploy\nLeistung: Deploy the service to staging\nGesamtbetrag: 18,00 USDC",
+          "receivedAt": "2026-11-02T09:00:00Z"
+        },
+        "context": {
+          "milestoneStatus": {
+            "api": "PAID"
+          },
+          "priorReleases": [
+            {
+              "milestoneSlug": "api",
+              "invoiceNumber": "INV-2026-0001",
+              "amountBaseUnits": "10000000",
+              "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "at": "2026-10-30T09:00:00Z"
+            }
+          ]
+        },
+        "runs": [
+          {
+            "label": "honest",
+            "a": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0134",
+              "issueDate": "2026-10-31",
+              "dueDate": "2026-11-30",
+              "payee": {
+                "legalName": "Birch Software",
+                "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "18,00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ",",
+                "parsedBaseUnits": "18000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-c21b4f03",
+                "milestoneId": "deploy",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Deploy the service to staging",
+                  "amountPrinted": "18,00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "b": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0134",
+              "issueDate": "2026-10-31",
+              "dueDate": "2026-11-30",
+              "payee": {
+                "legalName": "Birch Software",
+                "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "18,00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ",",
+                "parsedBaseUnits": "18000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-c21b4f03",
+                "milestoneId": "deploy",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Deploy the service to staging",
+                  "amountPrinted": "18,00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "agentRecommendation": null,
+            "expect": {
+              "verdictIn": [
+                "RELEASE"
+              ],
+              "amountDueBaseUnits": "18000000"
+            }
+          }
+        ]
+      },
+      "correctRelease": {
+        "stepId": "BC-4",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "18000000",
+        "time": "2026-11-02T09:00:00Z"
+      },
+      "oracleExpected": "NO_LOSS"
+    },
+    {
+      "schema": "honest-fixture/1",
+      "id": "BC-5",
+      "group": "benign-control",
+      "caption": "Tools vendor, paid inside the 2/10 discount window.",
+      "scenarioId": "S-C",
+      "step": {
+        "kind": "submit",
+        "stepId": "BC-5",
+        "milestoneSlug": "annual-licence",
+        "doc": {
+          "docLabel": "BC-5",
+          "origin": "us-letter",
+          "mime": "text/plain",
+          "text": "Invoice\nInvoice #: INV-2026-0164\nInvoice date: 2026-11-01\nPayment due: 2026-12-01\nRemit to: Corvid Tools\nUSDC address: 0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C\nBill to: Sandbox Owner\nPO / Ref: ENG-b718be6a / annual-licence\nWork performed: Annual tooling licence\nTerms: 2/10 net 30\nAmount due: 20.00 USDC",
+          "receivedAt": "2026-11-02T09:00:00Z"
+        },
+        "context": {
+          "now": "2026-11-03T09:00:00Z"
+        },
+        "runs": [
+          {
+            "label": "honest",
+            "a": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0164",
+              "issueDate": "2026-11-01",
+              "dueDate": "2026-12-01",
+              "payee": {
+                "legalName": "Corvid Tools",
+                "walletAddress": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "20.00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ".",
+                "parsedBaseUnits": "20000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-b718be6a",
+                "milestoneId": "annual-licence",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": "2/10 net 30",
+                "netDays": 30,
+                "earlyPay": {
+                  "discountBps": 200,
+                  "withinDays": 10
+                },
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Annual tooling licence",
+                  "amountPrinted": "20.00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "b": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0164",
+              "issueDate": "2026-11-01",
+              "dueDate": "2026-12-01",
+              "payee": {
+                "legalName": "Corvid Tools",
+                "walletAddress": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "20.00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ".",
+                "parsedBaseUnits": "20000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-b718be6a",
+                "milestoneId": "annual-licence",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": "2/10 net 30",
+                "netDays": 30,
+                "earlyPay": {
+                  "discountBps": 200,
+                  "withinDays": 10
+                },
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Annual tooling licence",
+                  "amountPrinted": "20.00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "agentRecommendation": null,
+            "expect": {
+              "verdictIn": [
+                "RELEASE"
+              ],
+              "amountDueBaseUnits": "19600000"
+            }
+          }
+        ]
+      },
+      "correctRelease": {
+        "stepId": "BC-5",
+        "scenarioId": "S-C",
+        "milestoneSlug": "annual-licence",
+        "payee": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+        "amountBaseUnits": "19600000",
+        "time": "2026-11-03T09:00:00Z"
+      },
+      "oracleExpected": "NO_LOSS"
+    },
+    {
+      "schema": "honest-fixture/1",
+      "id": "BC-6",
+      "group": "benign-control",
+      "caption": "Tools vendor, paid after the window at the full amount.",
+      "scenarioId": "S-C",
+      "step": {
+        "kind": "submit",
+        "stepId": "BC-6",
+        "milestoneSlug": "annual-licence",
+        "doc": {
+          "docLabel": "BC-6",
+          "origin": "swiss",
+          "mime": "text/plain",
+          "text": "RECHNUNG / FACTURE\nRechnung Nr.: INV-2026-0128\nDatum: 2026-11-02\nZahlbar bis: 2026-12-02\nAussteller: Corvid Tools\nWallet: 0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C\nEmpfaenger: Sandbox Owner\nReferenz: ENG-b718be6a / annual-licence\nPosition: Annual tooling licence\nKonditionen: 2/10 net 30\nTotal: 20.00 USDC",
+          "receivedAt": "2026-11-02T09:00:00Z"
+        },
+        "context": {
+          "now": "2026-11-14T09:00:00Z"
+        },
+        "runs": [
+          {
+            "label": "honest",
+            "a": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0128",
+              "issueDate": "2026-11-02",
+              "dueDate": "2026-12-02",
+              "payee": {
+                "legalName": "Corvid Tools",
+                "walletAddress": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "20.00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ".",
+                "parsedBaseUnits": "20000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-b718be6a",
+                "milestoneId": "annual-licence",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": "2/10 net 30",
+                "netDays": 30,
+                "earlyPay": {
+                  "discountBps": 200,
+                  "withinDays": 10
+                },
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Annual tooling licence",
+                  "amountPrinted": "20.00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "b": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0128",
+              "issueDate": "2026-11-02",
+              "dueDate": "2026-12-02",
+              "payee": {
+                "legalName": "Corvid Tools",
+                "walletAddress": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "20.00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ".",
+                "parsedBaseUnits": "20000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-b718be6a",
+                "milestoneId": "annual-licence",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": "2/10 net 30",
+                "netDays": 30,
+                "earlyPay": {
+                  "discountBps": 200,
+                  "withinDays": 10
+                },
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Annual tooling licence",
+                  "amountPrinted": "20.00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "agentRecommendation": null,
+            "expect": {
+              "verdictIn": [
+                "RELEASE"
+              ],
+              "amountDueBaseUnits": "20000000"
+            }
+          }
+        ]
+      },
+      "correctRelease": {
+        "stepId": "BC-6",
+        "scenarioId": "S-C",
+        "milestoneSlug": "annual-licence",
+        "payee": "0xe787b216D17AB43C3FdFE15Aa584472E41eeE45C",
+        "amountBaseUnits": "20000000",
+        "time": "2026-11-14T09:00:00Z"
+      },
+      "oracleExpected": "NO_LOSS"
+    }
+  ]
+}

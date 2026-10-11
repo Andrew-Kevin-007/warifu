@@ -56,7 +56,7 @@ const MONEY_SYNTAX = [
 ];
 
 export default tseslint.config(
-  { ignores: ["**/node_modules/**", "**/.next/**", "**/dist/**", "**/coverage/**", "contracts/lib/**", "contracts/out/**", "docs/**", "kickoff/**", "test/fixtures/**"] },
+  { ignores: ["**/node_modules/**", "**/.next/**", "**/dist/**", "**/coverage/**", "contracts/lib/**", "contracts/out/**", "docs/**", "kickoff/**", "test/fixtures/**", ".claude/worktrees/**"] }, // nested agent worktrees are other checkouts, not this tree
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

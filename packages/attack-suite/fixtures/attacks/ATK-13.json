@@ -1,0 +1,251 @@
+{
+  "schema": "attack-fixture/1",
+  "attackId": "ATK-13",
+  "title": "Fake new vendor",
+  "errorClass": "Fake vendor",
+  "caption": "A plausible invoice from a vendor nobody registered.",
+  "kind": "document",
+  "scenarioId": "S-A",
+  "seed": "base",
+  "steps": [
+    {
+      "kind": "submit",
+      "stepId": "ATK-13/s1",
+      "milestoneSlug": null,
+      "doc": {
+        "docLabel": "ATK-13/s1",
+        "origin": "plain",
+        "mime": "text/plain",
+        "text": "INVOICE\nInvoice no.: INV-2026-0644\nDate: 2026-11-02\nDue: 2026-12-02\nFrom: Fjord Studio\nWallet: 0x51C5fCc53e1089b4107cBc52aB3F3dE086174D99\nTo: Sandbox Owner\nDescription: Website refresh, phase one\nTotal due: 8.00 USDC",
+        "receivedAt": "2026-11-02T09:00:00Z"
+      },
+      "context": {
+        "engagement": "none"
+      },
+      "runs": [
+        {
+          "label": "faithful",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-0644",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Fjord Studio",
+              "walletAddress": "0x51C5fCc53e1089b4107cBc52aB3F3dE086174D99",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "8.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "8000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": null,
+              "milestoneId": null,
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Website refresh, phase one",
+                "amountPrinted": "8.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-0644",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Fjord Studio",
+              "walletAddress": "0x51C5fCc53e1089b4107cBc52aB3F3dE086174D99",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "8.00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ".",
+              "parsedBaseUnits": "8000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": null,
+              "milestoneId": null,
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Website refresh, phase one",
+                "amountPrinted": "8.00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "REJECT"
+            ],
+            "reasonsAnyOf": [
+              "NO_ENGAGEMENT"
+            ],
+            "checksAnyOf": [
+              "K-05"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "intendedLoss": {
+    "mode": "each",
+    "releases": [
+      {
+        "stepId": "ATK-13/s1",
+        "scenarioId": "S-A",
+        "milestoneSlug": null,
+        "payee": "0x51C5fCc53e1089b4107cBc52aB3F3dE086174D99",
+        "amountBaseUnits": "8000000",
+        "time": "2026-11-02T09:00:00Z",
+        "predicates": [
+          "O1"
+        ]
+      }
+    ]
+  },
+  "naiveHypothesis": "pays",
+  "symbolonDefence": "K-05 NO_ENGAGEMENT (REJECT)",
+  "onChainBackstop": "INV-2: an unregistered payee is impossible",
+  "control": {
+    "kind": "release",
+    "step": {
+      "kind": "submit",
+      "stepId": "ATK-13/control",
+      "milestoneSlug": "concept",
+      "doc": {
+        "docLabel": "ATK-13/control/control",
+        "origin": "html",
+        "mime": "text/plain",
+        "text": "\u003chtml\u003e\u003cbody\u003e\n\u003ch1\u003eINVOICE INV-2026-0191\u003c/h1\u003e\n\u003cp\u003eIssued 2026-11-02, due 2026-12-02\u003c/p\u003e\n\u003cp\u003eFrom: Acme Design\u003c/p\u003e\n\u003cp\u003eWallet: \u003ccode\u003e0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997\u003c/code\u003e\u003c/p\u003e\n\u003cp\u003eBill to: Sandbox Owner\u003c/p\u003e\n\u003cp\u003eRef: ENG-71c71895 / concept\u003c/p\u003e\n\u003ctable\u003e\n\u003ctr\u003e\u003ctd\u003eBrand concept: three logo directions\u003c/td\u003e\u003ctd\u003e8,00\u003c/td\u003e\u003c/tr\u003e\n\u003c/table\u003e\n\u003cp\u003e\u003cb\u003eTotal due: 8,00 USDC\u003c/b\u003e\u003c/p\u003e\n\u003c/body\u003e\u003c/html\u003e",
+        "receivedAt": "2026-11-02T09:00:00Z"
+      },
+      "context": {},
+      "runs": [
+        {
+          "label": "honest",
+          "a": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-0191",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Acme Design",
+              "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "8,00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": "8000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-71c71895",
+              "milestoneId": "concept",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Brand concept: three logo directions",
+                "amountPrinted": "8,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "INVOICE",
+            "invoiceNumber": "INV-2026-0191",
+            "issueDate": "2026-11-02",
+            "dueDate": "2026-12-02",
+            "payee": {
+              "legalName": "Acme Design",
+              "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "8,00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": "8000000",
+              "decimals": 6
+            },
+            "references": {
+              "engagementId": "ENG-71c71895",
+              "milestoneId": "concept",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Brand concept: three logo directions",
+                "amountPrinted": "8,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "RELEASE"
+            ],
+            "amountDueBaseUnits": "8000000"
+          }
+        }
+      ]
+    },
+    "correctRelease": {
+      "stepId": "ATK-13/control",
+      "scenarioId": "S-A",
+      "milestoneSlug": "concept",
+      "payee": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+      "amountBaseUnits": "8000000",
+      "time": "2026-11-02T09:00:00Z"
+    }
+  },
+  "tags": [
+    "fake-vendor",
+    "K-05"
+  ]
+}
