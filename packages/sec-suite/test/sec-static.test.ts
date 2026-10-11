@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { ESLint } from "eslint";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { SEC_TESTS } from "../src/index";
 
 const ROOT = resolve(import.meta.dirname, "../../..");
@@ -27,6 +27,10 @@ describe("SEC-11 (static part): swarm hygiene", () => {
 
 describe("SEC-06 (lint part): HTML sinks are banned in apps/web", () => {
   const eslint = new ESLint({ cwd: ROOT });
+  // Pay ESLint's cold start once, with room for a loaded machine; each test keeps the 20 s limit (ORCH, 2026-10-11).
+  beforeAll(async () => {
+    await eslint.lintText("export {};\n", { filePath: join(ROOT, "apps/web/src/probe.tsx") });
+  }, 120_000);
   const lint = async (code: string, file = "apps/web/src/probe.tsx") => {
     const [res] = await eslint.lintText(code, { filePath: join(ROOT, file) });
     return (res?.messages ?? []).map((m) => m.ruleId ?? "parse-error");
