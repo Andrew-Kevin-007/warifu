@@ -47,7 +47,11 @@ importers:
 
   packages/chain: {}
 
-  packages/extractor: {}
+  packages/extractor:
+    dependencies:
+      '@symbolon/schemas':
+        specifier: workspace:*
+        version: link:../schemas
 
   packages/kernel-core: {}
 
