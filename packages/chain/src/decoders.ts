@@ -1,7 +1,8 @@
 // Vault event and revert decoders (docs/05 section 6, docs/06 B.4). Fail closed:
 //  - the log must come from the vault address we expect (any contract can emit a look-alike event);
 //  - pending or removed logs are refused;
-//  - topic count must match the ABI exactly, and viem decodes in strict mode (data length is checked);
+//  - viem decodes in strict mode, and the log must equal the canonical re-encoding of its decoded arguments
+//    (exact topic count, exact data bytes, clean padding);
 //  - an unknown selector from the vault is UNKNOWN_EVENT, never skipped silently.
 // Amounts come back as Money at the decimals the caller verified on-chain (assertTokenDecimals).
 // Event names follow the compiled contract: VaultPaused/VaultUnpaused (QUESTIONS WP-07 item 3).
@@ -10,9 +11,12 @@ import {
   ContractFunctionRevertedError,
   decodeErrorResult,
   decodeEventLog,
+  encodeAbiParameters,
+  encodeEventTopics,
   getAddress,
   isAddress,
   erc20Abi,
+  type AbiEvent,
   type Address,
   type Hex,
 } from "viem";
@@ -90,14 +94,32 @@ function metaOf(log: RawLog): LogMeta {
   return { blockNumber: log.blockNumber, transactionHash: log.transactionHash, logIndex: log.logIndex };
 }
 
-const INDEXED_COUNTS: ReadonlyMap<string, number> = new Map(
-  symbolonVaultAbi.flatMap((item) => (item.type === "event" ? [[item.name, item.inputs.filter((i) => i.indexed).length] as const] : [])),
+const EVENT_ITEMS: ReadonlyMap<string, AbiEvent> = new Map(
+  symbolonVaultAbi.flatMap((item) => (item.type === "event" ? [[item.name, item as unknown as AbiEvent] as const] : [])),
 );
 
-function indexedCount(eventName: string): number {
-  const n = INDEXED_COUNTS.get(eventName);
-  if (n === undefined) throw new ChainError("UNKNOWN_EVENT", `event ${eventName} is not in the vault ABI`);
-  return n;
+/**
+ * The log must be exactly what the EVM would emit for the decoded arguments: same topics, same data bytes.
+ * viem alone tolerates trailing data on all-indexed events and dirty padding bits in address words; re-encoding
+ * and comparing closes both, so one decoded event has exactly one raw spelling.
+ */
+function assertCanonical(log: RawLog, eventName: string, args: unknown): void {
+  const item = EVENT_ITEMS.get(eventName);
+  if (item === undefined) throw new ChainError("UNKNOWN_EVENT", `event ${eventName} is not in the vault ABI`);
+  const named = (args ?? {}) as Readonly<Record<string, unknown>>;
+  let topics: readonly Hex[];
+  let data: Hex;
+  try {
+    topics = encodeEventTopics({ abi: [item], eventName: item.name, args: named as never }) as Hex[];
+    const plain = item.inputs.filter((i) => !i.indexed);
+    data = plain.length === 0 ? "0x" : encodeAbiParameters(plain, plain.map((i) => named[i.name as string]));
+  } catch (cause) {
+    throw new ChainError("BAD_LOG", `${eventName}: cannot re-encode decoded arguments`, { cause });
+  }
+  const sameTopics = topics.length === log.topics.length && topics.every((t, i) => t.toLowerCase() === (log.topics[i] ?? "").toLowerCase());
+  if (!sameTopics || data.toLowerCase() !== log.data.toLowerCase()) {
+    throw new ChainError("BAD_LOG", `${eventName}: log is not the canonical encoding of its arguments (extra/missing topics or data, or dirty padding)`);
+  }
 }
 
 /** Decode one log emitted by the vault. */
@@ -119,9 +141,7 @@ export function decodeVaultLog(log: RawLog, options: DecodeOptions): DecodedVaul
     const isUnknown = cause instanceof BaseError && cause.name === "AbiEventSignatureNotFoundError";
     throw new ChainError(isUnknown ? "UNKNOWN_EVENT" : "BAD_LOG", isUnknown ? `unknown vault event selector ${selector}` : "log does not match its event ABI", { cause });
   }
-  if (log.topics.length !== 1 + indexedCount(decoded.eventName)) {
-    throw new ChainError("BAD_LOG", `${decoded.eventName}: wrong number of topics (${String(log.topics.length)})`);
-  }
+  assertCanonical(log, decoded.eventName, decoded.args);
   return { event: toVaultEvent(decoded.eventName, decoded.args, options.decimals), meta };
 }
 
