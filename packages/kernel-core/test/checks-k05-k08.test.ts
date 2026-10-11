@@ -256,6 +256,13 @@ describe("K-07 CURRENCY_DECIMALS", () => {
       expectCheck(phaseA(amount("8000000000000000000", "8000000")), "K-07", "REJECT", "SCALE_ABSURD");
     });
 
+    it("an amount past the 30-digit intentId preimage range leaves the intent unbound and is refused", () => {
+      const e = phaseA(amount(`1${"0".repeat(30)}`, "1000000"));
+      expect(e.intentIdBound).toBe(false);
+      expectCheck(e, "K-07", "REJECT", "SCALE_ABSURD");
+      expect(e.verdict).toBe("REJECT");
+    });
+
     it("boundary: exactly 10^15 base units passes K-07, one more fails", () => {
       expectCheck(phaseA(amount("1000000000", "1000000000000000")), "K-07", null, null);
       expectCheck(phaseA(amount("1000000000.000001", "1000000000000001")), "K-07", "REJECT", "SCALE_ABSURD");
