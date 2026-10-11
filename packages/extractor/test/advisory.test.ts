@@ -69,10 +69,11 @@ describe("validateAdvisoryNote", () => {
     }
   });
 
-  it("caps at 60 words", () => {
+  it("rejects (never truncates) a note over 60 words or 600 characters", () => {
     const long = Array.from({ length: 80 }, () => "noted").join(" ");
-    const v = validateAdvisoryNote(long, facts);
-    expect(v.ok && inspectUntrusted(v.note.text).split(" ").length).toBeLessThanOrEqual(61);
+    expect(validateAdvisoryNote(long, facts)).toEqual({ ok: false, reason: "TOO_LONG" });
+    expect(validateAdvisoryNote(Array.from({ length: 60 }, () => "noted").join(" "), facts).ok).toBe(true);
+    expect(validateAdvisoryNote("x".repeat(601), facts)).toEqual({ ok: false, reason: "TOO_LONG" });
   });
 
   it("ATK-24: drops a note that copies a 5-word run from the document", () => {
