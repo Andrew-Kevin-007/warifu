@@ -18,7 +18,7 @@ import {
   clone,
   context,
   expectCheck,
-  extraction,
+
   intent,
   phaseA,
   policy,
@@ -26,12 +26,12 @@ import {
   summary,
   withDoc,
 } from "./helpers";
-import type { RawIntent } from "./helpers";
+import type { RawExtraction, RawIntent } from "./helpers";
 
 const detail = (c: CheckResult | undefined) => inspectUntrusted((c as CheckResult).detail);
 
 /** Set extraction A (and B, to keep consensus AGREE) fields. */
-function both(i: RawIntent, f: (x: ReturnType<typeof extraction>) => void): RawIntent {
+function both(i: RawIntent, f: (x: RawExtraction) => void): RawIntent {
   const out = clone(i);
   f(out.extraction.a);
   if (out.extraction.b !== null) f(out.extraction.b);
