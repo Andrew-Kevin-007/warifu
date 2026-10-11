@@ -13,9 +13,10 @@
 // The input must be at most 64 KiB, well-formed UTF-16, and free of control, zero-width and bidi characters
 // (a reviewer must see the bytes that are loaded). Pure: no I/O, no clock.
 import { isWellFormedString } from "@symbolon/schemas";
-import { isAlias, isMap, isScalar, isSeq, parseAllDocuments, Scalar } from "yaml";
-import type { Node as YamlNode } from "yaml";
-import { fail } from "./errors";
+import { isMap, isScalar, isSeq, parseAllDocuments, Scalar, visit } from "yaml";
+import type { Document, YAMLMap } from "yaml";
+import { PolicyError, fail, failClosed } from "./errors";
+import type { PolicyIssue } from "./errors";
 
 export const MAX_POLICY_SOURCE_CHARS = 65_536;
 export const MAX_POLICY_DEPTH = 8;
@@ -101,15 +102,26 @@ function readScalar(src: string, node: Scalar, path: string): JsonValue {
   }
 }
 
-function checkNodeMeta(src: string, node: YamlNode, path: string): void {
-  if (node.anchor !== undefined) fail("YAML_FEATURE", path, `${where(src, node)}anchors (&) are not accepted`);
-  if (node.tag !== undefined) fail("YAML_FEATURE", path, `${where(src, node)}explicit tags (!, !!) are not accepted`);
+/**
+ * Pre-scan the whole document: every anchor, alias and explicit tag is reported (one issue each). Running this
+ * before the walk means the walker only ever meets scalars, sequences and mappings.
+ */
+function refuseFeatures(src: string, doc: Document.Parsed): void {
+  const issues: PolicyIssue[] = [];
+  visit(doc, {
+    Alias(_key, node) {
+      issues.push({ path: "$", message: `${where(src, node)}aliases (*) are not accepted` });
+    },
+    Node(_key, node) {
+      if (node.anchor !== undefined) issues.push({ path: "$", message: `${where(src, node)}anchors (&) are not accepted` });
+      if (node.tag !== undefined) issues.push({ path: "$", message: `${where(src, node)}explicit tags (!, !!) are not accepted` });
+    },
+  });
+  if (issues.length > 0) throw new PolicyError("YAML_FEATURE", issues);
 }
 
 function readKey(src: string, key: unknown, path: string): string {
-  if (isAlias(key)) fail("YAML_FEATURE", path, `${where(src, key)}aliases (*) are not accepted`);
   if (!isScalar(key)) fail("YAML_FEATURE", path, "map keys must be plain or quoted strings");
-  checkNodeMeta(src, key, path);
   const k = readScalar(src, key, path);
   if (typeof k !== "string") fail("YAML_FEATURE", path, `${where(src, key)}map keys must be strings (quote them)`);
   if (FORBIDDEN_KEYS.has(k)) fail("YAML_FEATURE", path, `${where(src, key)}key "${k}" is not accepted`);
@@ -122,24 +134,49 @@ function child(path: string, key: string | number): string {
 }
 
 function readNode(src: string, node: unknown, path: string, depth: number): JsonValue {
-  if (isAlias(node)) fail("YAML_FEATURE", path, `${where(src, node)}aliases (*) are not accepted`);
-  if (isScalar(node)) {
-    checkNodeMeta(src, node, path);
-    return readScalar(src, node, path);
+  if (isScalar(node)) return readScalar(src, node, path);
+  if (depth >= MAX_POLICY_DEPTH) fail("YAML_FEATURE", path, `nesting deeper than ${MAX_POLICY_DEPTH} levels`);
+  if (isSeq(node)) return node.items.map((item, i) => readNode(src, item, child(path, i), depth + 1));
+  // refuseFeatures removed every alias, so a value that is neither a scalar nor a sequence is a mapping. If a
+  // future parser produced something else, `.items` throws and the fail-closed wrapper reports the error.
+  const map = node as YAMLMap<unknown, unknown>;
+  const out: { [key: string]: JsonValue } = {};
+  for (const pair of map.items) {
+    const key = readKey(src, pair.key, path);
+    if (pair.value === null) fail("YAML_FEATURE", child(path, key), "a key without a value is not accepted");
+    out[key] = readNode(src, pair.value, child(path, key), depth + 1);
   }
-  if (isMap(node) || isSeq(node)) {
-    checkNodeMeta(src, node, path);
-    if (depth >= MAX_POLICY_DEPTH) fail("YAML_FEATURE", path, `nesting deeper than ${MAX_POLICY_DEPTH} levels`);
-    if (isSeq(node)) return node.items.map((item, i) => readNode(src, item, child(path, i), depth + 1));
-    const out: { [key: string]: JsonValue } = {};
-    for (const pair of node.items) {
-      const key = readKey(src, pair.key, path);
-      if (pair.value === null) fail("YAML_FEATURE", child(path, key), "a key without a value is not accepted");
-      out[key] = readNode(src, pair.value, child(path, key), depth + 1);
-    }
-    return out;
+  return out;
+}
+
+function parseUnchecked(text: string): { [key: string]: JsonValue } {
+  const src = checkSource(text);
+  // A parser exception (e.g. RangeError on pathological nesting) propagates to failClosed: YAML_SYNTAX.
+  const docs = parseAllDocuments(src, {
+    version: "1.2",
+    schema: "core",
+    merge: false,
+    uniqueKeys: true,
+    strict: true,
+    prettyErrors: false,
+    intAsBigInt: false,
+  });
+  if (docs.length !== 1) fail("YAML_FEATURE", "$", `expected exactly one YAML document, found ${docs.length}`);
+  const doc = docs[0] as Document.Parsed;
+  const firstError = doc.errors[0];
+  if (firstError !== undefined) fail("YAML_SYNTAX", "$", `${firstError.code}: ${oneLine(firstError.message)}`);
+  const firstWarning = doc.warnings[0];
+  if (firstWarning !== undefined) fail("YAML_FEATURE", "$", `${firstWarning.code}: ${oneLine(firstWarning.message)}`);
+  // Parsed documents always carry directives; if a future parser version did not, the property access
+  // throws and the fail-closed wrapper turns it into a PolicyError.
+  const directives = doc.directives as NonNullable<typeof doc.directives>;
+  if (directives.yaml.explicit === true) fail("YAML_FEATURE", "$", "%YAML directives are not accepted");
+  if (Object.keys(directives.tags).some((handle) => handle !== "!!")) {
+    fail("YAML_FEATURE", "$", "%TAG directives are not accepted");
   }
-  return fail("YAML_FEATURE", path, "unsupported YAML node");
+  refuseFeatures(src, doc);
+  if (!isMap(doc.contents)) fail("YAML_FEATURE", "$", "the document root must be a mapping");
+  return readNode(src, doc.contents, "$", 0) as { [key: string]: JsonValue };
 }
 
 /**
@@ -147,39 +184,5 @@ function readNode(src: string, node: unknown, path: string, depth: number): Json
  * Throws PolicyError (INPUT_INVALID | YAML_SYNTAX | YAML_FEATURE); never returns partial data.
  */
 export function parseStrictYaml(text: string): { [key: string]: JsonValue } {
-  const src = checkSource(text);
-  let docs: ReturnType<typeof parseAllDocuments>;
-  try {
-    docs = parseAllDocuments(src, {
-      version: "1.2",
-      schema: "core",
-      merge: false,
-      uniqueKeys: true,
-      strict: true,
-      prettyErrors: false,
-      intAsBigInt: false,
-    });
-  } catch (e) {
-    // e.g. RangeError on pathological nesting: refuse, do not crash the caller with a raw error.
-    return fail("YAML_SYNTAX", "$", `YAML parser failed: ${oneLine(String(e))}`);
-  }
-  if (docs.length !== 1) fail("YAML_FEATURE", "$", `expected exactly one YAML document, found ${docs.length}`);
-  const doc = docs[0] as (typeof docs)[number];
-  const firstError = doc.errors[0];
-  if (firstError !== undefined) {
-    fail("YAML_SYNTAX", "$", `${firstError.code}: ${oneLine(firstError.message)}`);
-  }
-  const firstWarning = doc.warnings[0];
-  if (firstWarning !== undefined) {
-    fail("YAML_FEATURE", "$", `${firstWarning.code}: ${oneLine(firstWarning.message)}`);
-  }
-  // Parsed documents always carry directives; if a future parser version did not, the property access
-  // throws and the caller's fail-closed wrapper turns it into a PolicyError.
-  const directives = doc.directives as NonNullable<typeof doc.directives>;
-  if (directives.yaml.explicit === true) fail("YAML_FEATURE", "$", "%YAML directives are not accepted");
-  if (Object.keys(directives.tags).some((handle) => handle !== "!!")) {
-    fail("YAML_FEATURE", "$", "%TAG directives are not accepted");
-  }
-  if (!isMap(doc.contents)) fail("YAML_FEATURE", "$", "the document root must be a mapping");
-  return readNode(src, doc.contents, "$", 0) as { [key: string]: JsonValue };
+  return failClosed(() => parseUnchecked(text), "YAML_SYNTAX");
 }
