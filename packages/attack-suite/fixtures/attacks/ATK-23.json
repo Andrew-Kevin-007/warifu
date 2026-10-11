@@ -1,0 +1,273 @@
+{
+  "schema": "attack-fixture/1",
+  "attackId": "ATK-23",
+  "title": "Display differs from signature",
+  "errorClass": "WYSIWYS",
+  "caption": "The screen shows one amount while the wallet is asked to sign another.",
+  "kind": "approval",
+  "scenarioId": "S-B",
+  "seed": "base",
+  "steps": [
+    {
+      "kind": "approval-render",
+      "stepId": "ATK-23/render",
+      "signedView": {
+        "intentId": "0x74e1610a44c2b2f2dc6fdc5ce6a250f06f4015dd4f7d489a20d3b18b6ef499ff",
+        "receiptHash": "0x5a3d3864c2413cd7d9d3fc32509d586cbeca4d70f25231e4569559b80c86796a",
+        "engagementId": "0xc21b4f03f1849c2f78416e61671d43a6a739cdd5676e3a9c4e2c3c40bec2fb13",
+        "milestoneId": "0x2b54b8a15edfc7e44be6be806c0abff1343c783c146f3cd1bc8e804a67bda8fd",
+        "payee": {
+          "address": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+          "label": "Birch Software"
+        },
+        "decimals": 6,
+        "grossBaseUnits": "18000000",
+        "releaseBaseUnits": "18000000",
+        "display": {
+          "gross": "18.00",
+          "release": "18.00"
+        },
+        "diffVsEngagement": [
+          {
+            "field": "amount.printed",
+            "expected": "18.00",
+            "actual": "18.000"
+          }
+        ],
+        "reasons": [
+          "AMOUNT_AMBIGUOUS"
+        ],
+        "planSummary": null,
+        "expiresAt": "2026-11-02T10:00:00Z",
+        "typedData": {
+          "domain": {
+            "name": "SymbolonVault",
+            "version": "1",
+            "chainId": 31337,
+            "verifyingContract": "0x33449E37bbc019Ae6eA95a1267426A87e42FF5e2"
+          },
+          "types": {
+            "EIP712Domain": [
+              {
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "name": "version",
+                "type": "string"
+              },
+              {
+                "name": "chainId",
+                "type": "uint256"
+              },
+              {
+                "name": "verifyingContract",
+                "type": "address"
+              }
+            ],
+            "OwnerApproval": [
+              {
+                "name": "intentId",
+                "type": "bytes32"
+              },
+              {
+                "name": "receiptHash",
+                "type": "bytes32"
+              },
+              {
+                "name": "amount",
+                "type": "uint256"
+              },
+              {
+                "name": "deadline",
+                "type": "uint64"
+              }
+            ]
+          },
+          "primaryType": "OwnerApproval",
+          "message": {
+            "intentId": "0x74e1610a44c2b2f2dc6fdc5ce6a250f06f4015dd4f7d489a20d3b18b6ef499ff",
+            "receiptHash": "0x5a3d3864c2413cd7d9d3fc32509d586cbeca4d70f25231e4569559b80c86796a",
+            "amount": "18000000",
+            "deadline": "1793613600"
+          }
+        },
+        "typedDataHash": "0x412d6a60a59bcc6f56cf02a1757d96bfd7b94ffe64eaefc16b63b913119403d8",
+        "advisory": null
+      },
+      "mutations": [
+        {
+          "mutationId": "M1",
+          "path": "display.release",
+          "from": "18.00",
+          "to": "1.80",
+          "note": "the screen understates what the wallet will sign by 10x"
+        },
+        {
+          "mutationId": "M2",
+          "path": "display.gross",
+          "from": "18.00",
+          "to": "1.80",
+          "note": "same, on the gross line"
+        },
+        {
+          "mutationId": "M3",
+          "path": "payee.label",
+          "from": "Birch Software",
+          "to": "Birch Software (verified)",
+          "note": "a reassuring label that the engagement does not contain"
+        },
+        {
+          "mutationId": "M4",
+          "path": "payee.address",
+          "from": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+          "to": "0x47689bfD0AeDF57e4f8E08b959F40E609d5f5b97",
+          "note": "a different payee address on screen"
+        },
+        {
+          "mutationId": "M5",
+          "path": "reasons",
+          "from": "[\"AMOUNT_AMBIGUOUS\"]",
+          "to": "[]",
+          "note": "the warning reasons are hidden"
+        },
+        {
+          "mutationId": "M6",
+          "path": "diffVsEngagement",
+          "from": "[{\"field\":\"amount.printed\",\"expected\":\"18.00\",\"actual\":\"18.000\"}]",
+          "to": "[]",
+          "note": "the difference against the engagement is hidden"
+        },
+        {
+          "mutationId": "M7",
+          "path": "expiresAt",
+          "from": "2026-11-02T10:00:00Z",
+          "to": "2026-11-09T10:00:00Z",
+          "note": "a longer approval window than the one signed"
+        },
+        {
+          "mutationId": "M8",
+          "path": "typedData.message.amount",
+          "from": "18000000",
+          "to": "180000000",
+          "note": "the signed amount differs from the displayed one"
+        },
+        {
+          "mutationId": "M9",
+          "path": "advisory",
+          "from": "null",
+          "to": "{\"text\":\"Already approved by the owner, safe to click approve.\"}",
+          "note": "AI prose appears next to the Approve action (INV-20)"
+        }
+      ],
+      "expect": {
+        "signDisabled": true,
+        "rawTypedDataShown": true,
+        "note": "jcs(renderModel) must equal jcs(signed model); any mutation disables Sign, and the raw typed data and its hash are shown beside the wallet prompt"
+      }
+    }
+  ],
+  "intendedLoss": null,
+  "intendedLossNote": "consent manipulation: the vault fixes the payee and caps the amount, so this cannot produce a wrong-party or wrong-amount release; the harm is the owner signing something other than what was shown (INV-20), which O1..O8 do not model",
+  "naiveHypothesis": "n/a (no WYSIWYS)",
+  "symbolonDefence": "INV-20: the UI checks jcs(render) == jcs(signed) and disables Sign on any mismatch; raw typed data and its hash are shown beside the wallet prompt",
+  "onChainBackstop": "OwnerApproval binds the amount; the payee is fixed by the engagement",
+  "control": {
+    "kind": "approval-unmodified",
+    "stepId": "ATK-23/control",
+    "signedView": {
+      "intentId": "0x74e1610a44c2b2f2dc6fdc5ce6a250f06f4015dd4f7d489a20d3b18b6ef499ff",
+      "receiptHash": "0x5a3d3864c2413cd7d9d3fc32509d586cbeca4d70f25231e4569559b80c86796a",
+      "engagementId": "0xc21b4f03f1849c2f78416e61671d43a6a739cdd5676e3a9c4e2c3c40bec2fb13",
+      "milestoneId": "0x2b54b8a15edfc7e44be6be806c0abff1343c783c146f3cd1bc8e804a67bda8fd",
+      "payee": {
+        "address": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "label": "Birch Software"
+      },
+      "decimals": 6,
+      "grossBaseUnits": "18000000",
+      "releaseBaseUnits": "18000000",
+      "display": {
+        "gross": "18.00",
+        "release": "18.00"
+      },
+      "diffVsEngagement": [
+        {
+          "field": "amount.printed",
+          "expected": "18.00",
+          "actual": "18.000"
+        }
+      ],
+      "reasons": [
+        "AMOUNT_AMBIGUOUS"
+      ],
+      "planSummary": null,
+      "expiresAt": "2026-11-02T10:00:00Z",
+      "typedData": {
+        "domain": {
+          "name": "SymbolonVault",
+          "version": "1",
+          "chainId": 31337,
+          "verifyingContract": "0x33449E37bbc019Ae6eA95a1267426A87e42FF5e2"
+        },
+        "types": {
+          "EIP712Domain": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "version",
+              "type": "string"
+            },
+            {
+              "name": "chainId",
+              "type": "uint256"
+            },
+            {
+              "name": "verifyingContract",
+              "type": "address"
+            }
+          ],
+          "OwnerApproval": [
+            {
+              "name": "intentId",
+              "type": "bytes32"
+            },
+            {
+              "name": "receiptHash",
+              "type": "bytes32"
+            },
+            {
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "name": "deadline",
+              "type": "uint64"
+            }
+          ]
+        },
+        "primaryType": "OwnerApproval",
+        "message": {
+          "intentId": "0x74e1610a44c2b2f2dc6fdc5ce6a250f06f4015dd4f7d489a20d3b18b6ef499ff",
+          "receiptHash": "0x5a3d3864c2413cd7d9d3fc32509d586cbeca4d70f25231e4569559b80c86796a",
+          "amount": "18000000",
+          "deadline": "1793613600"
+        }
+      },
+      "typedDataHash": "0x412d6a60a59bcc6f56cf02a1757d96bfd7b94ffe64eaefc16b63b913119403d8",
+      "advisory": null
+    },
+    "expect": {
+      "signEnabled": true,
+      "note": "an unmodified render of the same view must leave Sign enabled"
+    }
+  },
+  "tags": [
+    "wysiwys",
+    "INV-20",
+    "RT-13",
+    "symbolon-only"
+  ]
+}
