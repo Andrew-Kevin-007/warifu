@@ -3,7 +3,7 @@ import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import { MAX_UINT256 } from "@symbolon/schemas";
 import { formatPolicyAmount, parsePolicyAmount } from "../src/index";
-import { PolicyError, failClosed } from "../src/errors";
+import { PolicyError, failClosed, issuesFromZod } from "../src/errors";
 import { ch, expectPolicyError } from "./helpers";
 
 const RUNS = { numRuns: 1000 };
@@ -132,6 +132,25 @@ describe("failClosed", () => {
     expectPolicyError(() => failClosed(() => { throw "a string"; }, "YAML_SYNTAX"), "YAML_SYNTAX");
     const err = expectPolicyError(() => failClosed(() => { throw new RangeError("x".repeat(500)); }), "INTERNAL");
     expect(err.issues[0]?.message.length).toBeLessThanOrEqual(200);
+  });
+  it("issuesFromZod formats paths and expands unknown keys into one issue per key", () => {
+    expect(
+      issuesFromZod([
+        { path: [], message: "root" },
+        { path: [0], message: "index at root" },
+        { path: ["evidence", "urlAllowlist", 2], message: "bad entry" },
+        { path: [], message: "u", code: "unrecognized_keys", keys: ["a", "b"] },
+        { path: ["caps"], message: "u", code: "unrecognized_keys", keys: ["x"] },
+      ]),
+    ).toEqual([
+      { path: "$", message: "root" },
+      { path: "$[0]", message: "index at root" },
+      { path: "evidence.urlAllowlist[2]", message: "bad entry" },
+      { path: "a", message: 'unknown key "a"' },
+      { path: "b", message: 'unknown key "b"' },
+      { path: "caps.x", message: 'unknown key "x"' },
+    ]);
+    expect(issuesFromZod([{ path: ["caps"], message: "m" }], "overrides")).toEqual([{ path: "overrides.caps", message: "m" }]);
   });
   it("PolicyError messages summarize the first issue and count the rest", () => {
     const e = new PolicyError("POLICY_INVALID", [

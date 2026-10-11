@@ -8,6 +8,8 @@ import { formatPolicyAmount, loadPolicy, normalizePolicy } from "../src/index";
 import { permuteKeys } from "./helpers";
 
 const RUNS = { numRuns: 1000 };
+// About 2-6 s each in a plain run; coverage instrumentation makes them several times slower.
+const PROPERTY_TIMEOUT_MS = 120_000;
 
 const AMOUNT_PATHS = [
   "caps.perTxHardCap",
@@ -154,7 +156,7 @@ describe("policyHash properties", () => {
       }),
       RUNS,
     );
-  });
+  }, PROPERTY_TIMEOUT_MS);
 
   it("is stable across key order and between YAML and JSON input", () => {
     fc.assert(
@@ -165,7 +167,7 @@ describe("policyHash properties", () => {
       }),
       RUNS,
     );
-  });
+  }, PROPERTY_TIMEOUT_MS);
 
   it("depends on amount values, not their spelling", () => {
     fc.assert(
@@ -174,7 +176,7 @@ describe("policyHash properties", () => {
       }),
       RUNS,
     );
-  });
+  }, PROPERTY_TIMEOUT_MS);
 
   it("changes when any amount changes by one base unit (control for the equalities)", () => {
     fc.assert(
@@ -184,7 +186,7 @@ describe("policyHash properties", () => {
       }),
       RUNS,
     );
-  });
+  }, PROPERTY_TIMEOUT_MS);
 
   it("is idempotent, and the bigint amounts equal the model's base units", () => {
     fc.assert(
@@ -205,5 +207,5 @@ describe("policyHash properties", () => {
       }),
       RUNS,
     );
-  });
+  }, PROPERTY_TIMEOUT_MS);
 });

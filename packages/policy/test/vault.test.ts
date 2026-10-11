@@ -263,5 +263,5 @@ describe("reference model (1,000 runs): violations == exactly the rules where th
       ),
       { numRuns: 1000 },
     );
-  });
+  }, 120_000); // a few seconds normally; coverage instrumentation is several times slower
 });
