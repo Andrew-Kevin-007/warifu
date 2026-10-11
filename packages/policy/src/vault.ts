@@ -14,7 +14,7 @@
 import * as z from "zod";
 import { DecimalsSchema, MAX_UINT256, Uint256StringSchema } from "@symbolon/schemas";
 import { formatPolicyAmount } from "./amounts";
-import { PolicyError, failClosed } from "./errors";
+import { PolicyError, failClosed, issuesFromZod } from "./errors";
 import type { PolicyIssue } from "./errors";
 import { normalizePolicy } from "./policy";
 import type { LoadedPolicy } from "./policy";
@@ -106,12 +106,7 @@ const DeploymentsFileSchema = z.object({
 export function vaultConfigFromDeployments(deployments: unknown, profile: DeploymentProfile): VaultConfig {
   return failClosed(() => {
     const r = DeploymentsFileSchema.safeParse(deployments);
-    if (!r.success) {
-      throw new PolicyError(
-        "VAULT_CONFIG_INVALID",
-        r.error.issues.map((i) => ({ path: i.path.map(String).join(".") || "$", message: i.message })),
-      );
-    }
+    if (!r.success) throw new PolicyError("VAULT_CONFIG_INVALID", issuesFromZod(r.error.issues));
     const group = profile === "sandbox" ? r.data.sandbox : r.data.production;
     if (group === null) {
       throw new PolicyError("VAULT_CONFIG_INVALID", [{ path: profile, message: `no ${profile} deployment in the file` }]);

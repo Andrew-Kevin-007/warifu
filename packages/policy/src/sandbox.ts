@@ -8,7 +8,7 @@
 import { PolicyOverridesSchema } from "@symbolon/schemas";
 import type { PolicyOverrides } from "@symbolon/schemas";
 import { formatPolicyAmount } from "./amounts";
-import { PolicyError, failClosed } from "./errors";
+import { PolicyError, failClosed, issuesFromZod } from "./errors";
 import type { PolicyIssue } from "./errors";
 import { normalizePolicy } from "./policy";
 import type { LoadedPolicy } from "./policy";
@@ -25,12 +25,7 @@ export const SANDBOX_LIMITS = Object.freeze({ perTxCapWhole: 25n, dailyCapWhole:
 export function applyPolicyOverrides(base: LoadedPolicy, overrides: unknown): LoadedPolicy {
   return failClosed(() => {
     const r = PolicyOverridesSchema.safeParse(overrides);
-    if (!r.success) {
-      throw new PolicyError(
-        "SCHEMA_INVALID",
-        r.error.issues.map((i) => ({ path: `overrides.${i.path.map(String).join(".")}`, message: i.message })),
-      );
-    }
+    if (!r.success) throw new PolicyError("SCHEMA_INVALID", issuesFromZod(r.error.issues, "overrides"));
     const merged: Record<string, unknown> = structuredClone(base.policy) as unknown as Record<string, unknown>;
     const o: PolicyOverrides = r.data;
     for (const [section, values] of Object.entries(o)) {

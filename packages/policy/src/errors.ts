@@ -42,6 +42,34 @@ export class PolicyError extends Error {
   }
 }
 
+/** The subset of a zod issue this package reads (kept structural so errors.ts has no zod dependency). */
+interface ZodLikeIssue {
+  readonly path: readonly PropertyKey[];
+  readonly message: string;
+  readonly code?: string;
+  readonly keys?: readonly string[];
+}
+
+function joinPath(base: string, key: PropertyKey): string {
+  if (typeof key === "number") return `${base === "" ? "$" : base}[${key}]`;
+  return base === "" ? String(key) : `${base}.${String(key)}`;
+}
+
+/** Zod issues -> PolicyIssues with dotted paths; an unknown-keys issue becomes one issue per key. */
+export function issuesFromZod(issues: readonly ZodLikeIssue[], prefix = ""): PolicyIssue[] {
+  const out: PolicyIssue[] = [];
+  for (const issue of issues) {
+    const base = issue.path.reduce<string>(joinPath, prefix);
+    if (issue.code === "unrecognized_keys") {
+      // zod always lists the keys on this issue code
+      for (const key of issue.keys as readonly string[]) out.push({ path: joinPath(base, key), message: `unknown key "${key}"` });
+    } else {
+      out.push({ path: base === "" ? "$" : base, message: issue.message });
+    }
+  }
+  return out;
+}
+
 export function fail(code: PolicyErrorCode, path: string, message: string): never {
   throw new PolicyError(code, [{ path, message }]);
 }

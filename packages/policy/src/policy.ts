@@ -10,7 +10,7 @@
 import { PolicySchema, hashJcs } from "@symbolon/schemas";
 import type { Hex32, Policy } from "@symbolon/schemas";
 import { formatPolicyAmount, parsePolicyAmount } from "./amounts";
-import { PolicyError, failClosed } from "./errors";
+import { PolicyError, failClosed, issuesFromZod } from "./errors";
 import type { PolicyIssue } from "./errors";
 import { parseStrictYaml } from "./yaml";
 
@@ -107,20 +107,9 @@ export function applyPolicyDefaults(input: unknown): Record<string, unknown> {
   return out;
 }
 
-function zodPath(path: readonly PropertyKey[]): string {
-  let s = "";
-  for (const p of path) s += typeof p === "number" ? `[${p}]` : s === "" ? String(p) : `.${String(p)}`;
-  return s === "" ? "$" : s;
-}
-
 function schemaParse(value: unknown): Policy {
   const r = PolicySchema.safeParse(value);
-  if (!r.success) {
-    throw new PolicyError(
-      "SCHEMA_INVALID",
-      r.error.issues.map((i) => ({ path: zodPath(i.path), message: i.message })),
-    );
-  }
+  if (!r.success) throw new PolicyError("SCHEMA_INVALID", issuesFromZod(r.error.issues));
   return r.data;
 }
 
