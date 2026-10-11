@@ -28,7 +28,7 @@ export function foldForScan(text: string): string {
   const lowered = text.normalize("NFKC").toLowerCase();
   let out = "";
   for (const ch of lowered) out += HOMOGLYPHS[ch] ?? ch;
-  return out.replace(/[ \t\r\n ]+/g, " ");
+  return out.replace(/\s+/g, " ");
 }
 
 interface Rule {

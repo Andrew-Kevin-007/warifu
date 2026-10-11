@@ -22,7 +22,7 @@ const TOKEN_CHAR = /^[\p{L}\p{N}\p{M}\p{Cf}_\-/−‐-―]$/u;
 const ALNUM = /^[\p{L}\p{N}]$/u;
 const DIGIT = /^\p{N}$/u;
 const DOT_COMMA = /^[.,]$/;
-const DIGIT_JOINER = /^['’ʼ   ]$/u;
+const DIGIT_JOINER = new RegExp("^['\u2019\u02bc\u00a0\u2009\u202f]$", "u");
 
 /** ASCII-only lower-casing; always the same length as the input. */
 export function asciiLower(s: string): string {

@@ -210,7 +210,7 @@ describe("extractInvoice: hostile documents (ATK-10/11/24)", () => {
     const inner = bothGood();
     const { llm } = makeBudgeted(inner);
     const r = await extractInvoice(text, cfg, { llm });
-    expect(userText(inner.requests[0]!)).not.toMatch(/[​‮]/);
+    expect(userText(inner.requests[0]!)).not.toMatch(new RegExp("[\u200b\u202e]"));
     expect(r.ok && codesOf(r.value.a)).toContain("HIDDEN_CHARS");
     expect(r.ok && r.value.removedCount).toBe(2);
   });

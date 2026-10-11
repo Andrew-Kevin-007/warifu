@@ -19,7 +19,7 @@ function k02Reference(printed: string, decimals: number): Ref {
   if (/[0-9][eE][+-]?[0-9]/.test(s)) return { kind: "reject" };
   // step 2: remove currency symbols/codes, treat space/NBSP/thin space/apostrophe as grouping
   let t = s.replace(/US\$|USDC|USD|EURC|EUR|GBP|[$€£]/gi, "");
-  t = t.replace(/[    '’]/g, "");
+  t = t.replace(new RegExp("[ \u00a0\u2009\u202f'\u2019]", "g"), "");
   if (!/^[0-9.,]+$/.test(t)) return { kind: "reject" };
   // step 3
   const dots = t.split(".").length - 1;
