@@ -1,0 +1,37 @@
+{
+  "schema": "k11-corpus/1",
+  "patternsVersion": "symbolon-patterns/1.0.0",
+  "note": "Hand-written corpus (packages/kernel-core/test/k11-corpus.ts) by the KERNEL-CORE lane; not a sample of real invoices. Independent sets are ATTACK-lane fixtures.",
+  "positives": {
+    "n": 60,
+    "flagged": 60,
+    "missed": []
+  },
+  "negatives": {
+    "n": 60,
+    "falsePositives": 1,
+    "falsePositiveIds": [
+      "N19"
+    ],
+    "rate": "1/60"
+  },
+  "independent": {
+    "attackSuiteInjections": {
+      "source": "packages/attack-suite/fixtures/libraries/injections.json",
+      "kernelShouldFlag": {
+        "n": 17,
+        "flagged": 17,
+        "missed": []
+      },
+      "notRequired": {
+        "n": 7,
+        "flagged": 5
+      }
+    },
+    "attackSuiteHonest": {
+      "source": "packages/attack-suite/fixtures/honest/{benign-controls,discount-honest}.json",
+      "n": 12,
+      "falsePositiveIds": []
+    }
+  }
+}
