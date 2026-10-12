@@ -3,7 +3,8 @@
 // short-circuits: K-01 SCHEMA_INVALID (nothing downstream is meaningful) and K-04 REPLAY (returns the prior decision).
 // Fail closed: a check that throws becomes FAIL / HOLD / KERNEL_ERROR (docs/04 §1); if the facts cannot be derived,
 // every later check is KERNEL_ERROR; derived inputs (evidence, schedule, approval) that fail become typed errors the
-// checks report as KERNEL_ERROR; a gate that throws turns K-12 into KERNEL_ERROR. Not re-exported from index.ts:
+// checks report as KERNEL_ERROR (an approval that cannot be checked is invalid; a budget that cannot be read is met).
+// Not re-exported from index.ts:
 // production code calls evaluate(), which always runs the full required set; tests use runPipeline.
 import type { CheckId, CheckResult, PaymentIntent, ReasonCode } from "@symbolon/schemas";
 import type { LoadedPolicy } from "@symbolon/policy";
@@ -132,17 +133,11 @@ interface Derived {
   readonly replayOf: DecisionSummary | null;
 }
 
-function gate(checks: readonly CheckResult[], config: PipelineConfig, inputs: DerivedInputs): CheckResult[] {
-  try {
-    return applyGates(checks, config.required, { approval: inputs.approval, budgetMet: inputs.budgetMet });
-  } catch {
-    return checks.map((c) => (c.id === "K-12" ? kernelError("K-12", "verdict gates failed; failing closed") : c));
-  }
-}
-
 function finish(config: PipelineConfig, raw: readonly CheckResult[], ctx: KernelContext, policy: LoadedPolicy, d: Derived): Evaluation {
   const inputs = d.inputs;
-  const gated = d.replayOf === null && inputs !== null ? gate(raw, config, inputs) : [...raw];
+  // The gates only read kernel-produced CheckResults and the derived inputs; anything unexpected is caught by
+  // evaluate()'s last-resort guard (HOLD KERNEL_ERROR on every check).
+  const gated = d.replayOf === null && inputs !== null ? applyGates(raw, config.required, { approval: inputs.approval, budgetMet: inputs.budgetMet }) : [...raw];
   const agg = d.replayOf === null ? aggregate(gated, config.required) : { verdict: "REPLAY" as const, reasons: [] as ReasonCode[] };
   const hash = contextHash(ctx);
   const f = d.facts;
