@@ -1,7 +1,7 @@
 # V2_STATUS — work-package board (ORCH)
 
 Owner: ORCH. Updated: **2026-10-11 19:40 IST**. Every ~3 h and at every gate: update this table, `docs/CHANGELOG_SWARM.md` and post the 10-line status (`docs/10` §7). If a usage limit hits mid-WP: commit WIP to the branch, write the state here, stop.
-**LEAN MODE (Claude Pro):** max **2 terminals, at most 1 on Opus**. Routing = `docs/17` §4 JSON (lean), launch lines below copied from the regenerated `kickoff/INDEX.md` (if they disagree, INDEX wins). Spawn order: `docs/SPAWN_PLAN_W0_W1.md`. Decisions: `docs/QUESTIONS.md` ("FINAL ANSWERS").
+**SONNET-FIRST (Kevin, Mon 15:00):** all remaining WPs on Sonnet high except WP-05 (running), WP-14 and WP-29 on Opus high (QUESTIONS "Sonnet-first"). **LEAN MODE (Claude Pro):** max **2 terminals, at most 1 on Opus**. Routing = `docs/17` §4 JSON (lean), launch lines below copied from the regenerated `kickoff/INDEX.md` (if they disagree, INDEX wins). Spawn order: `docs/SPAWN_PLAN_W0_W1.md`. Decisions: `docs/QUESTIONS.md` ("FINAL ANSWERS").
 
 **Sessions (Mon 09:10):** ORCH (Opus, Kevin's call) runs the lanes as background agents: **Opus slot: WP-05** (kernel checks K-09..K-16, terms binding, feasible plans; WP-04 done Mon 09:10) · **Sonnet slot: free** (WP-10 done Mon 15:20; next WP-11 Circle adapter / WP-12 engagements / WP-02 receipts). Local Postgres: ORCH starts it on every resume (Kevin OK, Mon 09:30). Both stopped at the Pro session limit ~18:50 and were resumed 19:30 after the 19:20 reset. **Pushing: Kevin pushes every branch himself** (2026-10-11, option 1; push stays denied for agents and ORCH); ORCH opens and merges PRs with `gh`.
 

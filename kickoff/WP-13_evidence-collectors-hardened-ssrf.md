@@ -1,7 +1,7 @@
 ROLE: KERNEL-SVC   WP: 13 — Evidence collectors + hardened SSRF guard + sandbox fixtures mode   BRANCH: wp-13/evidence-collectors-hardened-ssrf   WORKTREE: yes
 PRIORITY: P0   WAVE: W2   EFFORT: ~6 agent-hours   DEPENDS ON: 10
-MODEL: opus   EFFORT LEVEL: high   (override: SSRF guard on public input (lean: high))
-LAUNCH: claude --model opus --effort high
+MODEL: sonnet   EFFORT LEVEL: high   (override: SSRF guard on public input (sonnet-first 2026-10-12))
+LAUNCH: claude --model sonnet --effort high
 
 READ FIRST (in order):
   1. AGENTS.md  (prime directives §0.1-§0.12 — if a spec conflicts, the spec wins; log it in docs/QUESTIONS.md)

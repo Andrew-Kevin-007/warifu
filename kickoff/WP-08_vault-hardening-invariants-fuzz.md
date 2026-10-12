@@ -1,7 +1,7 @@
 ROLE: CONTRACTS   WP: 08 — Vault hardening: invariants, fuzz, hourlyCap, ERC-1271   BRANCH: wp-08/vault-hardening-invariants-fuzz   WORKTREE: yes
 PRIORITY: P0/P1   WAVE: W3–W5   EFFORT: ~6 agent-hours   DEPENDS ON: 07
-MODEL: opus   EFFORT LEVEL: xhigh   (role default (CONTRACTS))
-LAUNCH: claude --model opus --effort xhigh
+MODEL: sonnet   EFFORT LEVEL: high   (override: vault hardening; gated by fuzz/invariant tests on the WP-07 vault (sonnet-first 2026-10-12))
+LAUNCH: claude --model sonnet --effort high
 
 READ FIRST (in order):
   1. AGENTS.md  (prime directives §0.1-§0.12 — if a spec conflicts, the spec wins; log it in docs/QUESTIONS.md)
