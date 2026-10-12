@@ -20,8 +20,8 @@ describe.skipIf(!enabled)("local migrations", () => {
   it("local: every migration applies cleanly from an empty database, in order", () => {
     const db = fresh();
     applyMigrations(db);
-    expect(migrationFiles()).toEqual(["0001_init.sql", "0002_v2.sql", "0003_hardening.sql"]);
-    expect(Number(scalar(db, `select count(*) from pg_tables where schemaname = 'public';`))).toBe(26);
+    expect(migrationFiles()).toEqual(["0001_init.sql", "0002_v2.sql", "0003_hardening.sql", "0004_service_token_nonces.sql"]);
+    expect(Number(scalar(db, `select count(*) from pg_tables where schemaname = 'public';`))).toBe(27);
   });
 
   it("local: the same migrations re-apply into a second fresh database (no hidden state in the first)", () => {
@@ -64,7 +64,7 @@ describe.skipIf(!enabled)("local migrations", () => {
        from information_schema.columns c join information_schema.tables t on t.table_schema = c.table_schema and t.table_name = c.table_name
        where c.table_schema = 'public' and t.table_type = 'BASE TABLE' and (c.column_name like '%base_units%' or c.column_name in ('bound_24h', 'bound_7d'))`,
     );
-    expect(money.length).toBeGreaterThanOrEqual(10);
+    expect(money.length).toBe(9); // cap, milestone amount, decision gross + release, approval, attack loss, bound_24h, bound_7d, traction
     for (const m of money) {
       expect(m.data_type, `${m.table_name}.${m.column_name}`).toBe("numeric");
       expect(m.numeric_scale, `${m.table_name}.${m.column_name}`).toBe(0);

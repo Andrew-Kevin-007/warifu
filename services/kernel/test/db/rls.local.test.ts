@@ -72,7 +72,7 @@ describe.skipIf(!enabled)("local RLS: base tables are closed to anon and authent
 
   it("local: every base table denies SELECT and writes to anon and authenticated, with and without JWT claims", () => {
     const names = tables();
-    expect(names.length).toBe(26);
+    expect(names.length).toBe(27); // 26 + service_token_nonces (0004)
     const stmts = names.flatMap((t) => [`select count(*) from ${t};`, `delete from ${t};`, `insert into ${t} default values;`]);
     for (const role of ROLES) {
       for (const claims of [undefined, { role: "service_role", sub: uuid(1), tenant_id: T_PILOT }]) {
@@ -105,7 +105,7 @@ describe.skipIf(!enabled)("local RLS: base tables are closed to anon and authent
          where n.nspname = 'public' and c.relkind in ('r','v','m','p','f') and has_table_privilege('${role}', c.oid, p.priv)`,
       );
       expect(otherPrivs, `${role} write-ish privileges`).toEqual([]);
-      expect(rows(db, `select c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'public' and c.relkind = 'S' and has_sequence_privilege('${role}', c.oid, 'USAGE')`), `${role} sequences`).toEqual([]);
+      expect(rows(db, `select c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'public' and c.relkind = 'S' and (case when c.relkind = 'S' then has_sequence_privilege('${role}', c.oid, 'USAGE') end)`), `${role} sequences`).toEqual([]);
       expect(rows(db, `select p.proname from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and has_function_privilege('${role}', p.oid, 'EXECUTE')`), `${role} functions`).toEqual([]);
     }
     // the helper view and the profile table specifically
