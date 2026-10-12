@@ -197,6 +197,8 @@ describe("owner override", () => {
     const m = ctxWithSpec(spec, []).engagement?.milestones[0];
     if (m === undefined) throw new Error("fixture");
     expect(assessEvidence(m, OWNER, ctxWithSpec(spec, two), P).overrideBy).toBe("e0000000-0000-4000-8000-000000000002");
+    // the latest override wins whatever order the service lists the evidence in
+    expect(assessEvidence(m, OWNER, ctxWithSpec(spec, [...two].reverse()), P).overrideBy).toBe("e0000000-0000-4000-8000-000000000002");
   });
 });
 
