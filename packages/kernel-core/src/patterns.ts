@@ -244,6 +244,7 @@ const HOMOGLYPHS: Readonly<Record<string, string>> = Object.freeze(
 );
 
 const MARK = /\p{M}/u;
+const MARKS = /\p{M}/gu;
 const FORMAT = /\p{Cf}/u;
 const SPACE = /\s/u;
 
@@ -328,8 +329,8 @@ export function foldForScan(text: string, mode: FoldMode = "canonical"): Folded 
     }
     for (const part of ch.normalize("NFKD")) {
       if (MARK.test(part) || FORMAT.test(part)) continue;
-      for (const c of (HOMOGLYPHS[part] ?? part).toLowerCase().normalize("NFKD")) {
-        if (MARK.test(c)) continue;
+      // lowercasing can re-introduce a combining mark (dotted capital I); drop any, exactly as 1.0.0 did
+      for (const c of (HOMOGLYPHS[part] ?? part).toLowerCase().normalize("NFKD").replace(MARKS, "")) {
         if (SPACE.test(c)) space(c, at);
         else emit(c, at);
       }

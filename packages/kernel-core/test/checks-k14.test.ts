@@ -238,6 +238,12 @@ describe("TOCTOU re-evaluation at payAt (reevaluate)", () => {
     expect(reevaluate(intent(), ctx("2026-10-15T09:00:00Z"), policy(), { ...scheduled, payAt: "soon" }).mismatches).toContain("EARLY");
   });
 
+  it("an amountDue that cannot be computed at payAt (unreadable receipt time) is a kernel error, not a schedule change", () => {
+    const r = reevaluate(intent(), ctx("2026-10-15T09:00:00Z", { invoiceReceivedAt: "the day before" }), policy(), scheduled);
+    expectCheck(r.evaluation, "K-14", "HOLD", "KERNEL_ERROR");
+    expect(r.attestable).toBe(false);
+  });
+
   it("an attestation deadline after year 9999 cannot be issued (DEADLINE)", () => {
     const far = engagement({ end: "9999-12-31T23:59:59Z" });
     const now = "9999-12-31T23:55:00Z";

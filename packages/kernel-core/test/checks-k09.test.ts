@@ -148,6 +148,21 @@ describe("K-09 source policy (production)", () => {
     expectCheck(withArtifact, "K-09", "REJECT", "EVIDENCE_HASH_MISMATCH");
   });
 
+  it("the all_of is satisfied when its LAST requirement was satisfied, whatever the order", () => {
+    const spec: EvidenceRequirement[] = [{ type: "OWNER_ACK" }, { type: "ARTIFACT_HASH", sha256: PIN }];
+    const m = milestone(M1, "design", { evidenceSpec: spec });
+    const early = art(PIN, { collectedAt: "2026-10-05T09:00:00Z" });
+    const lateAck = ownerAck(M1, { collectedAt: "2026-10-05T11:30:00Z" });
+    expect(assessEvidence(m, OWNER, ctxWithSpec(spec, [lateAck, early]), P).satisfiedAt).toBe("2026-10-05T11:30:00Z");
+    const m2 = milestone(M1, "design", { evidenceSpec: [...spec].reverse() });
+    expect(assessEvidence(m2, OWNER, ctxWithSpec([...spec].reverse(), [lateAck, early]), P).satisfiedAt).toBe("2026-10-05T11:30:00Z");
+  });
+
+  it("an OWNER_ACK that is not a valid acknowledgement is not an override either", () => {
+    const spec: EvidenceRequirement[] = [{ type: "CI_PASS", repo: "acme/site", ref: SHA }];
+    expectCheck(k09(ctxWithSpec(spec, [ownerAck(M1, {}, { override: true, signer: ATTACKER })])), "K-09", "HOLD", "EVIDENCE_MISSING");
+  });
+
   it("an empty evidence spec (signed by both parties) is satisfied at invoiceReceivedAt", () => {
     const ctx = ctxWithSpec([], []);
     expectCheck(k09(ctx), "K-09", null, null);
@@ -196,7 +211,8 @@ describe("sandbox profile (fixtures only, P-SANDBOX-NO-FETCH pure side)", () => 
 
   it("anything else is denied: a production-collected record, a fixture for another entry, a malformed fixture id or payload", () => {
     const other: EvidenceRequirement = { type: "URL_HEALTH", url: "https://acme.vercel.app/other", expectStatus: 200 };
-    for (const evidence of [[url({})], [fixture(other)], [{ ...fixture(spec[0] as EvidenceRequirement), source: "fixture:bad id!" }], [{ ...fixture(spec[0] as EvidenceRequirement), payload: "x" }]]) {
+    const noRequirement = { ...fixture(spec[0] as EvidenceRequirement), payload: { acknowledged: true } };
+    for (const evidence of [[url({})], [fixture(other)], [{ ...fixture(spec[0] as EvidenceRequirement), source: "fixture:bad id!" }], [{ ...fixture(spec[0] as EvidenceRequirement), payload: "x" }], [noRequirement]]) {
       expectCheck(k09(ctxWithSpec(spec, evidence, { profile: "sandbox" })), "K-09", "HOLD", "EVIDENCE_SOURCE_DENIED");
     }
     const unknownProfile = { ...ctxWithSpec(spec, [url({})]), profile: "staging" as unknown as KernelContext["profile"] };

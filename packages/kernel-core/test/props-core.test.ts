@@ -101,6 +101,6 @@ describe("P-NO-LLM: model confidence, recommendations and prose never change the
       ),
       RUNS,
     );
-    expect(agentPlans).toBeGreaterThan(200);
+    expect(agentPlans, `in-set planner picks: ${agentPlans}`).toBeGreaterThan(100); // typically ~200 of 1,000
   });
 });

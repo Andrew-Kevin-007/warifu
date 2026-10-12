@@ -180,6 +180,7 @@ describe("ranked digest (ATK-22: one malicious item among 40 benign escalations 
     expect(ranked.map((r) => [r.decisionId, r.rank])).toEqual([["c", 1], ["b", 2], ["e", 3], ["f", 4], ["a", 5], ["d", 6]]);
     expect(rankEscalationDigest([item("x", 1, null, 0), item("y", 1, null, 0)]).map((r) => r.decisionId)).toEqual(["x", "y"]);
     expect(rankEscalationDigest([item("y", 1, 1n, 0), item("x", 1, null, 0)]).map((r) => r.decisionId)).toEqual(["x", "y"]);
+    expect(rankEscalationDigest([item("z", 1, 1n, 0), item("z", 1, 1n, 0)]).map((r) => r.rank)).toEqual([1, 2]); // duplicates keep input order
   });
 
   it("builds items from evaluations; the address-change + injection item outranks 40 ambiguous-amount items", () => {
