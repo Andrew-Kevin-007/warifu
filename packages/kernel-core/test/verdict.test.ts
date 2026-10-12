@@ -61,6 +61,15 @@ describe("aggregate", () => {
     expect(aggregate([noCode, pass("K-02", "x"), pass("K-03", "x")], IDS)).toEqual({ verdict: "REJECT", reasons: ["KERNEL_ERROR"] });
   });
 
+  it("a kernel fault behind a more severe finding of the same check still reaches the reasons (WP-05)", () => {
+    const k14 = combine("K-14", [{ onFail: "ESCALATE", code: "TERMS_MISMATCH", detail: "t" }, { onFail: "HOLD", code: "KERNEL_ERROR", detail: "no schedule" }], "");
+    expect(k14.code).toBe("TERMS_MISMATCH");
+    expect(aggregate([pass("K-01", "x"), k14], ["K-01", "K-14"])).toEqual({ verdict: "ESCALATE", reasons: ["TERMS_MISMATCH", "KERNEL_ERROR"] });
+    // positive control: the same check without the fault adds nothing
+    const clean = combine("K-14", [{ onFail: "ESCALATE", code: "TERMS_MISMATCH", detail: "t" }, { onFail: "HOLD", code: "LIQUIDITY", detail: "l" }], "");
+    expect(aggregate([pass("K-01", "x"), clean], ["K-01", "K-14"])).toEqual({ verdict: "ESCALATE", reasons: ["TERMS_MISMATCH"] });
+  });
+
   it("a corrupted status is HOLD KERNEL_ERROR", () => {
     const bogus = { ...pass("K-01", "x"), status: "MAYBE" } as unknown as CheckResult;
     expect(aggregate([bogus, pass("K-02", "x"), pass("K-03", "x")], IDS)).toEqual({ verdict: "HOLD", reasons: ["KERNEL_ERROR"] });
@@ -118,6 +127,15 @@ describe("combine", () => {
 
   it("a single issue keeps its own detail", () => {
     expect(inspectUntrusted(combine("K-06", [{ onFail: "HOLD", code: "PAYEE_CHANGE_PENDING", detail: "only" }], "x").detail)).toBe("only");
+  });
+
+  it("at equal severity KERNEL_ERROR takes the code whatever its position; a more severe issue still wins; two faults are both listed", () => {
+    const held = { onFail: "HOLD", code: "ESCALATION_BUDGET_EXCEEDED", detail: "b" } as const;
+    const fault = { onFail: "HOLD", code: "KERNEL_ERROR", detail: "k" } as const;
+    expect(combine("K-12", [held, fault], "").code).toBe("KERNEL_ERROR");
+    expect(combine("K-12", [fault, held], "").code).toBe("KERNEL_ERROR");
+    expect(combine("K-12", [{ onFail: "ESCALATE", code: "HUMAN_REQUIRED", detail: "h" }, fault], "")).toMatchObject({ onFail: "ESCALATE", code: "HUMAN_REQUIRED" });
+    expect(inspectUntrusted(combine("K-12", [fault, { ...fault, detail: "second" }], "").detail)).toBe("KERNEL_ERROR: k | KERNEL_ERROR: second");
   });
 });
 
