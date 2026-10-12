@@ -11,3 +11,5 @@ tags = ["key", "evm"]
 [allowlist]
 description = "Public test vectors and docs"
 paths = ['''packages/schemas/vectors/.*''', '''docs/.*''', '''contracts/lib/.*''']
+# Exact test placeholders (WP-10 boot/redaction canaries) and a public anvil default address; never real secrets.
+regexes = ['''^anthropic-key-[0-9a-f]+$''', '''^circle-api-key-[0-9a-f]+$''', '''^0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199$''']
