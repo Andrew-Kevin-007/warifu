@@ -20,8 +20,8 @@ describe.skipIf(!enabled)("local migrations", () => {
   it("local: every migration applies cleanly from an empty database, in order", () => {
     const db = fresh();
     applyMigrations(db);
-    expect(migrationFiles()).toEqual(["0001_init.sql", "0002_v2.sql", "0003_hardening.sql", "0004_service_token_nonces.sql"]);
-    expect(Number(scalar(db, `select count(*) from pg_tables where schemaname = 'public';`))).toBe(27);
+    expect(migrationFiles()).toEqual(["0001_init.sql", "0002_v2.sql", "0003_hardening.sql", "0004_service_token_nonces.sql", "0005_engagement_service.sql"]);
+    expect(Number(scalar(db, `select count(*) from pg_tables where schemaname = 'public';`))).toBe(29);
   });
 
   it("local: the same migrations re-apply into a second fresh database (no hidden state in the first)", () => {
