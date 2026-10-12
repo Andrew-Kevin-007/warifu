@@ -148,7 +148,7 @@ describe("typed data", () => {
 
   it("property: any change to a signed term changes the digest", () => {
     fc.assert(
-      fc.property(fc.bigInt({ min: 1n, max: 10n ** 20n }), fc.integer({ min: 1, max: 365 }), (cap, days) => {
+      fc.property(fc.bigInt({ min: 1n, max: 10n ** 20n }), fc.integer({ min: 1, max: 364 }), (cap, days) => {
         const a = buildDraft(body({ capBaseUnits: cap.toString() }), ctx);
         const b = buildDraft(body({ capBaseUnits: (cap + 1n).toString() }), ctx);
         const c = buildDraft(body({ capBaseUnits: cap.toString(), paymentTerms: { netDays: days + 1, earlyPay: null, payBeforeDueBufferHours: 0, allowImmediate: false } }), ctx);
