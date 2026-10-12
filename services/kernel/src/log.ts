@@ -1,21 +1,74 @@
 // Structured JSON logs (docs/02 section 9, SEC-07, INV-15). One object per line. Rules enforced here, not by convention:
-//  - values are primitives only; strings are truncated (MAX_FIELD) so a document body cannot ride in a field;
-//  - fields with sensitive names are dropped, whatever their value;
-//  - untrusted text enters a log only through untrustedField() = escaped excerpt + length + sha256 (toLogSafe);
-//  - every configured secret string is replaced by [redacted] in the final line (canary test, SEC-07).
+//  - ALLOWLIST: only the keys in ALLOWED_KEYS (and keys ending Hash / Length / Bytes / Count / Id / Ms) are logged; every
+//    other key is dropped (a denylist always misses a name) and counted in logStats.dropped;
+//  - every allowed key has a value shape: ids and hashes must look like ids/hashes, counts are non-negative integers,
+//    enums are closed; a value of the wrong shape becomes "[invalid]", so free text cannot ride under an allowed key;
+//  - untrusted text enters a log only as `excerpt`, whose type (LogExcerpt) only untrustedField() produces
+//    (escaped excerpt + length + sha256, toLogSafe), and whose runtime shape is checked again;
+//  - every configured secret string (and its encodings) is replaced by [redacted] in each value and in the final line.
 import { toLogSafe } from "@symbolon/schemas";
 import type { Untrusted } from "@symbolon/schemas";
 
+declare const LOG_EXCERPT: unique symbol;
+/** Output of untrustedField(): the only thing the `excerpt` key accepts. A plain string is a type error. */
+export type LogExcerpt = string & { readonly [LOG_EXCERPT]: true };
+
 export type LogValue = string | number | boolean | null;
-export type LogFields = Readonly<Record<string, LogValue | undefined>>;
+export interface LogFields {
+  readonly excerpt?: LogExcerpt;
+  /** Any other key is accepted by the type but dropped at runtime unless it is on the allowlist. */
+  readonly [key: string]: LogValue | undefined;
+}
 export type LogLevel = "info" | "warn" | "error";
 
 export const MAX_FIELD = 200;
 
-// Keys that may carry content or credentials. Summaries of content (hash, length, bytes, count) are fine to log.
-const SENSITIVE_KEY =
-  /text|body|raw|payload|authorization|auth|token|secret|password|private|apikey|signature|cookie|cred|url|dsn|conn|^key$|_key$|key$|^(err|error|message|msg|stack|cause|reason_text)$/i;
-const SAFE_SUFFIX = /(hash|length|len|bytes|count)$/i;
+const INT = (v: LogValue): boolean => typeof v === "number" && Number.isInteger(v) && v >= 0 && v <= Number.MAX_SAFE_INTEGER;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const HEX = /^(0x)?[0-9a-fA-F]{8,64}$/;
+const ID = (v: LogValue): boolean => typeof v === "string" && (UUID.test(v) || (HEX.test(v) && (!v.startsWith("0x") || v.length === 42 || v.length === 66)));
+const HASH = (v: LogValue): boolean => typeof v === "string" && /^(0x)?[0-9a-f]{64}$/.test(v);
+const ENUM =
+  (...allowed: string[]) =>
+  (v: LogValue): boolean =>
+    typeof v === "string" && allowed.includes(v);
+const CODE = (max: number) => (v: LogValue): boolean => typeof v === "string" && new RegExp(`^[A-Za-z][A-Za-z0-9_]{0,${String(max - 1)}}$`).test(v);
+
+/** Closed set of loggable keys and the value shape each accepts. */
+const ALLOWED_KEYS: Readonly<Record<string, (v: LogValue) => boolean>> = {
+  intentId: ID,
+  decisionId: ID,
+  receiptHash: HASH,
+  tenantId: ID,
+  engagementId: ID,
+  milestoneId: ID,
+  route: (v) => typeof v === "string" && /^[A-Za-z0-9/_:.-]{1,100}$/.test(v),
+  method: ENUM("GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"),
+  status: (v) => INT(v) && (v as number) >= 100 && (v as number) <= 599,
+  durationMs: INT,
+  profile: ENUM("production", "sandbox"),
+  errClass: CODE(60),
+  errCode: CODE(40),
+  verdict: ENUM("RELEASE", "HOLD", "ESCALATE", "REJECT", "REPLAY"),
+  reasonCode: CODE(40),
+  checkId: (v) => typeof v === "string" && /^K-\d{2}$/.test(v),
+  count: INT,
+};
+const ALLOWED_SUFFIX: ReadonlyArray<readonly [RegExp, (v: LogValue) => boolean]> = [
+  [/Hash$/, HASH],
+  [/(Length|Bytes|Count|Ms)$/, INT],
+  [/Id$/, ID],
+];
+// toLogSafe: a JSON-quoted excerpt, then " (len=N, sha256=...)".
+const EXCERPT_SHAPE = /^"(?:[^"\\]|\\.)*" \(len=\d+, sha256=(?:0x[0-9a-f]{64}|n\/a\(ill-formed\))\)$/;
+
+/** Dev-only counter of keys that were dropped (key names are clipped and restricted to a safe alphabet). */
+export const logStats = { dropped: new Map<string, number>() };
+
+function noteDropped(key: string): void {
+  const k = /^[A-Za-z0-9_.-]{1,40}$/.test(key) ? key : "(unprintable)";
+  logStats.dropped.set(k, (logStats.dropped.get(k) ?? 0) + 1);
+}
 
 export interface LogSink {
   write(line: string): void;
@@ -78,8 +131,8 @@ export interface LoggerOptions {
 }
 
 /** Escaped excerpt + length + sha256 of untrusted text: the only form in which it may be logged. */
-export function untrustedField(u: Untrusted<string> | string): string {
-  return toLogSafe(u);
+export function untrustedField(u: Untrusted<string> | string): LogExcerpt {
+  return toLogSafe(u) as LogExcerpt;
 }
 
 function clip(s: string): string {
@@ -90,12 +143,21 @@ export function scrubFields(fields: LogFields, redact: (s: string) => string = (
   const out: Record<string, LogValue> = {};
   for (const [k, v] of Object.entries(fields)) {
     if (v === undefined) continue;
-    if (SENSITIVE_KEY.test(k) && !SAFE_SUFFIX.test(k)) {
-      out[k] = "[dropped]";
+    let valid: ((x: LogValue) => boolean) | undefined;
+    if (k === "excerpt") valid = (x) => typeof x === "string" && EXCERPT_SHAPE.test(x);
+    else if (Object.hasOwn(ALLOWED_KEYS, k)) valid = ALLOWED_KEYS[k];
+    else valid = ALLOWED_SUFFIX.find(([re]) => re.test(k))?.[1];
+    if (valid === undefined) {
+      noteDropped(k);
+      continue;
+    }
+    if (!valid(v)) {
+      out[k] = "[invalid]";
       continue;
     }
     // Redact BEFORE clipping: truncation must not cut a secret in half and leave an unmatched prefix behind.
-    out[k] = typeof v === "string" ? clip(redact(v)) : v;
+    // (An excerpt is already bounded by toLogSafe; clipping would cut off its length/hash trailer.)
+    out[k] = typeof v === "string" ? (k === "excerpt" ? redact(v) : clip(redact(v))) : v;
   }
   return out;
 }

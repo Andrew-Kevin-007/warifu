@@ -41,7 +41,7 @@ export function authMiddleware(o: AuthOptions) {
   return createMiddleware<AppEnv>(async (c, next) => {
     const header = c.req.header("authorization");
     const unauthenticated = (why: string): ApiError => {
-      o.logger.warn("auth.rejected", { reason: why, requestId: c.get("requestId") });
+      o.logger.warn("auth.rejected", { reasonCode: why, requestId: c.get("requestId") });
       return new ApiError(
         "UNAUTHENTICATED",
         "missing or invalid service token",

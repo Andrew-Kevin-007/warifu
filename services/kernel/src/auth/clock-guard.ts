@@ -49,7 +49,7 @@ export function createClockGuard(o: ClockGuardOptions): ClockGuard {
       try {
         const skew = await measureClockSkewSeconds(o.db, o.clock);
         ok = Math.abs(skew) <= max;
-        if (!ok) o.logger.error("clock.skew", { skewSeconds: Math.round(skew), maxSeconds: max });
+        if (!ok) o.logger.error("clock.skew", { skewMs: Math.round(Math.abs(skew) * 1000), maxMs: max * 1000 });
       } catch (e) {
         o.logger.error("clock.check_failed", { ...errorFields(e) });
       }
