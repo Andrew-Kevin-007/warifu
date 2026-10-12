@@ -6,5 +6,10 @@
   "license": "Apache-2.0",
   "type": "module",
   "exports": { ".": "./src/index.ts" },
-  "scripts": { "typecheck": "tsc --noEmit -p ." }
+  "scripts": { "typecheck": "tsc --noEmit -p ." },
+  "dependencies": {
+    "@symbolon/policy": "workspace:*",
+    "@symbolon/schemas": "workspace:*",
+    "@symbolon/terms": "workspace:*"
+  }
 }
