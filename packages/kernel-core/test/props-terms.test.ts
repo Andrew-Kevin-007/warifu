@@ -24,8 +24,10 @@ describe("P-TERMS-IGNORE-INVOICE: invoice-stated terms never change amountDue, p
     fc.assert(
       fc.property(scenarioArb, stated, (s, terms) => {
         const mutated = eachExtraction(s.raw, (x) => (x.statedTerms = terms));
-        const before = evaluate(s.raw, s.ctx, s.policy);
-        const after = evaluate(mutated, s.ctx, s.policy);
+        // the escalation budget legitimately turns new escalations into holds; P-ESC-BUDGET covers that separately
+        const ctx = { ...s.ctx, escalations: { today: 0, todayByEngagement: {} } };
+        const before = evaluate(s.raw, ctx, s.policy);
+        const after = evaluate(mutated, ctx, s.policy);
         expect(after.releaseAmountBaseUnits).toBe(before.releaseAmountBaseUnits);
         expect(after.payAt).toBe(before.payAt);
         expect(after.amountBaseUnits).toBe(before.amountBaseUnits);

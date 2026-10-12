@@ -154,7 +154,7 @@ describe("K-16 CIRCUIT_BREAKER pre-check", () => {
     const e = run(intent(), halted);
     expect([e.verdict, e.reasons]).toEqual(["HOLD", ["BREAKER_HALTED"]]);
     expect(run({ ...intent(), engagementId: null }, halted).verdict).toBe("REJECT");
-    expect(run({ nonsense: true }, halted).reasons).toEqual(["BREAKER_HALTED", "SCHEMA_INVALID"]);
+    expect(evaluate({ nonsense: true }, halted, policy()).reasons).toEqual(["BREAKER_HALTED", "SCHEMA_INVALID"]);
   });
 
   it("a malformed breaker state fails closed", () => {

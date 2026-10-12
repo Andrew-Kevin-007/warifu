@@ -60,8 +60,8 @@ describe("K-14 terms binding: invoice-stated terms are compared, never adopted (
 
   it("the invoice's printed due date never moves payAt", () => {
     const raw = intent();
-    raw.extraction.a.dueDate = "2026-10-06";
-    if (raw.extraction.b !== null) raw.extraction.b.dueDate = "2026-10-06";
+    (raw.extraction.a as { dueDate: string | null }).dueDate = "2026-10-06";
+    if (raw.extraction.b !== null) (raw.extraction.b as { dueDate: string | null }).dueDate = "2026-10-06";
     const ctx = termsCtx({ paymentTerms: TWO_TEN_NET_30 });
     expect(evaluate(raw, ctx, policy()).payAt).toBe(evaluate(intent(), ctx, policy()).payAt);
   });
