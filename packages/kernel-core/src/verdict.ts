@@ -51,6 +51,20 @@ export function pass(id: CheckId, detail: string, refs: readonly string[] = []):
   return build(id, "PASS", null, null, detail, refs);
 }
 
+/**
+ * A PASS that records a non-blocking finding in the receipt (WP-05): a timing flag (TIMING_CLAMPED, LATE,
+ * PLAN_OUT_OF_ENVELOPE) or an ESCALATE finding the owner resolved with a bound OwnerApproval. A PASS never raises the
+ * verdict, so its code does not enter `reasons`; it is machine-readable for auditors and the explanation.
+ */
+export function note(id: CheckId, code: ReasonCode, detail: string, refs: readonly string[] = []): CheckResult {
+  return build(id, "PASS", null, code, detail, refs);
+}
+
+/** A check the policy disabled (only SKIPPABLE_CHECKS; any other SKIP aggregates to HOLD KERNEL_ERROR). */
+export function skip(id: CheckId, code: ReasonCode, detail: string): CheckResult {
+  return build(id, "SKIP", null, code, detail, []);
+}
+
 export function fail(id: CheckId, onFail: OnFail, code: ReasonCode, detail: string, refs: readonly string[] = []): CheckResult {
   return build(id, "FAIL", onFail, code, detail, refs);
 }

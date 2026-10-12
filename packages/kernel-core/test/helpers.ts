@@ -166,7 +166,7 @@ export function context(over: Partial<KernelContext> = {}): KernelContext {
       e === null ? null : { engagementId: e.engagementId, payee: e.payee, capBaseUnits: BigInt(e.capBaseUnits), start: e.start, end: e.end, termsHash: e.termsHash, active: true },
     milestone: e === null ? null : (e.milestones.find((m) => m.milestoneId === M1) ?? null),
     priorDecisions: [],
-    released: { engagementTotal: 0n, tenantDay: 0n, tenantWeek: 0n, payeeDay: 0n, payeeCountDay: 0, categoryMonth: {} },
+    released: { engagementTotal: 0n, tenantDay: 0n, tenantWeek: 0n, payeeDay: 0n, payeeCountDay: 0, tenantCountDay: 0, categoryMonth: {} },
     evidence: [],
     ownerApproval: null,
     screening: null,
@@ -180,6 +180,7 @@ export function context(over: Partial<KernelContext> = {}): KernelContext {
     breaker: { halted: false, reason: null },
     payeeChangePending: false,
     reevaluation: null,
+    planningAsOf: null,
     ...over,
   };
 }
