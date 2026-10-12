@@ -23,6 +23,10 @@ export interface KernelConfig {
   /** Maximum service-token lifetime in seconds (docs/05 section 4: exp <= 60 s). */
   readonly maxTokenTtlSeconds: number;
   readonly challengeEnabled: boolean;
+  /** WP-12 vault event indexer (docs/05 section 6). */
+  readonly indexer: { readonly enabled: boolean; readonly confirmations: number; readonly pollMs: number; readonly startBlock: number };
+  /** Throwaway-key relayer for local/testnet (the Circle relayer is WP-11). null = signatures are collected, nothing is submitted. */
+  readonly relayerKey: Secret | null;
   /** Names + values that must never be logged. */
   readonly logSecrets: readonly Secret[];
 }
@@ -59,6 +63,8 @@ export function loadConfig(env: EnvLike): KernelConfig {
   const databaseUrl = env["DATABASE_URL"] ?? "";
   const serviceTokenSecret = env["SERVICE_TOKEN_SECRET"] ?? "";
   const kernelSignerKey = env["KERNEL_SIGNER_PRIVATE_KEY"] ?? "";
+  const relayerKey = env["RELAYER_PRIVATE_KEY"] ?? "";
+  if (relayerKey !== "" && relayerKey === kernelSignerKey) throw new ConfigError("RELAYER_PRIVATE_KEY", "must not be the kernel signer key (separate roles)");
   const blobDir = env["BLOB_DIR"] !== undefined && env["BLOB_DIR"] !== "" ? env["BLOB_DIR"] : null;
   return Object.freeze({
     profile,
@@ -72,6 +78,14 @@ export function loadConfig(env: EnvLike): KernelConfig {
     maxBlobBytes: profile === "sandbox" ? 0 : intOf(env, "MAX_BLOB_BYTES", DEFAULT_MAX_BLOB_BYTES, 0, 64 * 1024 * 1024),
     maxTokenTtlSeconds: TOKEN_TTL_CEILING_SECONDS,
     challengeEnabled: profile === "sandbox" && env["CHALLENGE_ENABLED"] !== "false",
+    indexer: {
+      enabled: env["INDEXER_ENABLED"] !== "false",
+      // Default 2: Arc is documented as final on inclusion (docs/05 s6) but finality is not verified here, VERIFY(V-24).
+      confirmations: intOf(env, "INDEXER_CONFIRMATIONS", 2, 0, 1000),
+      pollMs: intOf(env, "INDEXER_POLL_MS", 5000, 250, 3_600_000),
+      startBlock: intOf(env, "INDEXER_START_BLOCK", 0, 0, Number.MAX_SAFE_INTEGER),
+    },
+    relayerKey: relayerKey === "" ? null : new Secret(relayerKey),
     logSecrets: redactionList(env).map((s) => new Secret(s)),
   });
 }
