@@ -36,6 +36,6 @@ export function checkK09(ctx: KernelContext, _policy: LoadedPolicy, facts: Facts
   const refs = a.requirements.flatMap((r) => (r.evidenceId === null ? [] : [`evidence:${r.evidenceId}`]));
   const suffix = `${ctx.profile} profile${a.ignored > 0 ? `; ${a.ignored} record(s) ignored` : ""}${a.overrideBy === null ? "" : "; owner override"}`;
   if (issues.length === 0) return combine("K-09", [], `all ${a.requirements.length} evidence requirement(s) satisfied (${suffix})`, refs);
-  const result = combine("K-09", issues, "");
-  return { ...result, refs: [...result.refs, ...refs].slice(0, 32) };
+  const [first, ...rest] = issues as [Issue, ...Issue[]];
+  return combine("K-09", [{ ...first, refs }, ...rest], "");
 }
