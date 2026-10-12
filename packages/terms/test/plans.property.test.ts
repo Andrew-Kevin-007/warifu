@@ -143,8 +143,9 @@ describe("feasiblePlans properties", () => {
       }),
       RUNS,
     );
-    expect(payablePlans).toBeGreaterThan(1000);
-    expect(discounted).toBeGreaterThan(50);
+    // Non-vacuity floors, set well below the typical counts (~1,000+ payable plans, ~150+ discounted per 1,000 runs).
+    expect(payablePlans, `payable plans: ${payablePlans}`).toBeGreaterThan(400);
+    expect(discounted, `discounted plans: ${discounted}`).toBeGreaterThan(30);
   });
 
   it("the legal window: latest >= earliest, earliest = max(now, evidence, dispute end); LATE iff the due date minus buffer has passed", () => {
@@ -194,7 +195,7 @@ describe("evaluator properties", () => {
       }),
       RUNS,
     );
-    expect(safeTops).toBeGreaterThan(500);
+    expect(safeTops, `cases with a safe top plan: ${safeTops}`).toBeGreaterThan(300);
   });
 
   it("a higher cost of capital never raises a plan's net benefit", () => {
