@@ -123,13 +123,21 @@ export function issuesOf(r: CheckResult): readonly Issue[] {
 }
 
 /**
- * Combine a check's issues into one CheckResult: none => PASS; otherwise the most severe issue (ties: the first)
- * becomes status/onFail/code, and every issue is listed in the detail in order.
+ * At equal severity a kernel fault takes the check's code, so a gate that re-combines a check (gates.ts) can never hide
+ * KERNEL_ERROR behind another code of the same severity (docs/04 §1, P-FAILCLOSED: KERNEL_ERROR is in the reasons).
+ */
+function faultWinsTie(issue: Issue, worst: Issue): boolean {
+  return issue.code === "KERNEL_ERROR" && worst.code !== "KERNEL_ERROR" && severity(verdictForOnFail(issue.onFail)) === severity(verdictForOnFail(worst.onFail));
+}
+
+/**
+ * Combine a check's issues into one CheckResult: none => PASS; otherwise the most severe issue (ties: a KERNEL_ERROR,
+ * else the first) becomes status/onFail/code, and every issue is listed in the detail in order.
  */
 export function combine(id: CheckId, issues: readonly Issue[], passDetail: string, passRefs: readonly string[] = []): CheckResult {
   let worst: Issue | undefined;
   for (const issue of issues) {
-    if (worst === undefined || severity(verdictForOnFail(issue.onFail)) > severity(verdictForOnFail(worst.onFail))) worst = issue;
+    if (worst === undefined || severity(verdictForOnFail(issue.onFail)) > severity(verdictForOnFail(worst.onFail)) || faultWinsTie(issue, worst)) worst = issue;
   }
   if (worst === undefined) return pass(id, passDetail, passRefs);
   const detail = issues.length === 1 ? worst.detail : issues.map((i) => `${i.code}: ${i.detail}`).join(" | ");
@@ -146,7 +154,8 @@ export interface Aggregate {
 
 /**
  * Final verdict over the check results (docs/04 §1) plus the fail-closed rules listed at the top of this file.
- * `reasons` are the reason codes of the FAILs, in check order, without duplicates.
+ * `reasons` are the reason codes of the FAILs, in check order, without duplicates, plus KERNEL_ERROR whenever a check
+ * carries a kernel fault behind a more severe finding (a fault is never hidden from the reasons).
  */
 export function aggregate(checks: readonly CheckResult[], required: readonly CheckId[]): Aggregate {
   let worst: FinalVerdict = "RELEASE";
@@ -174,6 +183,8 @@ export function aggregate(checks: readonly CheckResult[], required: readonly Che
         }
         if (c.onFail !== null) raise(verdictForOnFail(c.onFail));
         if (c.code !== null) add(c.code);
+        // A fault recorded behind a more severe finding of the same check stays visible (P-FAILCLOSED).
+        if (issuesOf(c).some((i) => i.code === "KERNEL_ERROR")) add("KERNEL_ERROR");
         break;
       default: {
         const unknown: never = c.status;

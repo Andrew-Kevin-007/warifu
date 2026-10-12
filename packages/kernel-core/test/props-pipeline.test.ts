@@ -11,7 +11,7 @@ import { EVALUATION_ORDER, KERNEL_PIPELINE, assessEvidence, evaluate, evidenceCo
 import type { KernelContext } from "../src/index";
 import { runPipeline } from "../src/pipeline";
 import type { PipelineConfig } from "../src/pipeline";
-import { GROSS, M1, M2, RECEIVED, TWO_TEN_NET_30, context, engagement, intent, milestone, ownerAck, policy } from "./helpers";
+import { GROSS, M1, M2, RECEIVED, TWO_TEN_NET_30, context, engagement, intent, milestone, ownerAck, policy, single } from "./helpers";
 import type { RawIntent } from "./helpers";
 import { PROPERTY_TIMEOUT_MS, RUNS } from "./props-common";
 import { scenarioArb } from "./scenario";
@@ -45,7 +45,13 @@ describe("P-FAILCLOSED: an exception in any required check => verdict != RELEASE
           expect(["REJECT", "REPLAY"]).toContain(e.verdict);
           return;
         }
-        if (target === "evidence" && result.code !== "KERNEL_ERROR") return; // no engagement/milestone: K-09 rejected first
+        // A derived input whose consumer stopped before reading it: K-09 without an engagement or a signed milestone; K-14
+        // without those or without a determinable amount (it returns before looking at the schedule). Never RELEASE.
+        const before = target === "evidence" ? ["NO_ENGAGEMENT", "UNKNOWN_MILESTONE"] : target === "schedule" ? ["NO_ENGAGEMENT", "UNKNOWN_MILESTONE", "AMOUNT_AMBIGUOUS"] : [];
+        if (result.status === "FAIL" && before.includes(String(result.code))) {
+          expect(e.verdict).not.toBe("RELEASE");
+          return;
+        }
         ran++;
         expect(e.verdict).not.toBe("RELEASE");
         expect(e.reasons).toContain("KERNEL_ERROR");
@@ -53,6 +59,17 @@ describe("P-FAILCLOSED: an exception in any required check => verdict != RELEASE
       RUNS,
     );
     expect(ran).toBeGreaterThan(700);
+  });
+
+  it("regression (seed -494934716): K-12 throws while the escalation budget is met and K-10 escalates => KERNEL_ERROR still in the reasons", () => {
+    // The budget gate re-combines K-12 with ESCALATION_BUDGET_EXCEEDED first; at equal severity (HOLD) the fault must
+    // keep the code (verdict.ts faultWinsTie), otherwise KERNEL_ERROR vanished from the reasons (verdict was HOLD).
+    const config: PipelineConfig = { ...KERNEL_PIPELINE, stages: KERNEL_PIPELINE.stages.map((st) => (st.id === "K-12" ? { id: "K-12", run: boom } : st)) };
+    const ctx = context({ escalations: { today: 8, todayByEngagement: {} } });
+    const e = runPipeline(config, single(intent()), ctx, policy());
+    expect(e.verdict).toBe("HOLD");
+    expect(e.reasons).toEqual(["SINGLE_EXTRACTION", "KERNEL_ERROR"]);
+    expect(String(e.checks.find((c) => c.id === "K-12")?.detail)).toContain("ESCALATION_BUDGET_EXCEEDED");
   });
 
   it("evaluate() itself never throws and never releases on a broken context", () => {

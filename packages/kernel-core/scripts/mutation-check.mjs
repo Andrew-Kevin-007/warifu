@@ -122,6 +122,8 @@ const MUTANTS = [
   ["k08-payat-max", `${K}facts.ts`, "const payAt = epochSecondsFromIso(ctx.now) >= epochSecondsFromIso(re.payAt) ? ctx.now : re.payAt;", "const payAt = re.payAt;"],
   ["k08-gross-kernel-first", `${K}facts.ts`, 'const gross = totalParse.kind === "EXACT" ? totalParse.baseUnits : claimedGross;', "const gross = claimedGross;"],
   // ===================================== WP-05 ===============================================================
+  ["verdict-combine-fault-tie", `${K}verdict.ts`, " || faultWinsTie(issue, worst)) worst = issue;", ") worst = issue;"],
+  ["verdict-hidden-fault-reason", `${K}verdict.ts`, 'if (issuesOf(c).some((i) => i.code === "KERNEL_ERROR")) add("KERNEL_ERROR");', ""],
   // --- packages/terms: feasiblePlans ------------------------------------------------------------------------
   ["plans-reserve-floor", `${T}plans.ts`, "if (after < liq.reserveFloor) {", "if (after + 1n < liq.reserveFloor) {"],
   ["plans-discount-margin", `${T}plans.ts`, "minOf(windowEndSec - BigInt(timing.windowSafetyMarginMinutes) * SECONDS_PER_MINUTE, latest)", "minOf(windowEndSec, latest)"],
