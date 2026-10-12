@@ -26,11 +26,11 @@ describe.skipIf(!enabled)("local: kernel service over real Postgres", () => {
   beforeAll(async () => {
     w = await openWorld();
     blobDir = mkdtempSync(join(tmpdir(), "symbolon-blobs-"));
-  });
+  }, 120_000);
   afterAll(async () => {
     await w.close();
     rmSync(blobDir, { recursive: true, force: true });
-  });
+  }, 120_000);
 
   describe("probes and authentication", () => {
     it("healthz and readyz need no token and expose nothing tenant-specific; readyz fails closed when the RPC is down", async () => {

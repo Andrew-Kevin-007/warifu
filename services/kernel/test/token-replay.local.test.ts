@@ -29,10 +29,10 @@ describe.skipIf(!enabled)("local: durable nonce store", () => {
   let t: TestDb;
   beforeAll(() => {
     t = openTestDb();
-  });
+  }, 120_000);
   afterAll(async () => {
     await t.close();
-  });
+  }, 120_000);
 
   it("a token is accepted once and refused on a SECOND instance sharing the database", async () => {
     const store = pgNonceStore(t.db);
