@@ -7,7 +7,7 @@ import type { Evaluation, FindingRef, KernelContext } from "../src/index";
 import { NEVER_APPROVABLE, applyGates, approvableFindings, approvalStatus, escalationBudgetMet } from "../src/gates";
 import type { ApprovalStatus } from "../src/gates";
 import { digestItem, rankEscalationDigest } from "../src/digest";
-import { combine, fail, pass } from "../src/verdict";
+import { combine, fail, note, pass, skip } from "../src/verdict";
 import { ENGAGEMENT_ID, H, approvalFor, context, extraction, intent, policy, withDoc } from "./helpers";
 import type { RawIntent } from "./helpers";
 import { deriveFacts } from "../src/facts";
@@ -205,5 +205,11 @@ describe("ranked digest (ATK-22: one malicious item among 40 benign escalations 
     const ranked = rankEscalationDigest(items);
     expect(ranked.findIndex((r) => r.decisionId.startsWith("ffffffff"))).toBeLessThan(3);
     expect(digestItem(evaluate({ junk: 1 }, context(), policy()), "x", 2).amountBaseUnits).toBeNull();
+  });
+
+  it("a passing check is a PASS without a code: a resolved finding or a timing flag (PASS with a code) and a SKIP do not count", () => {
+    const e = evaluate(intent(), context(), policy());
+    const checks: CheckResult[] = [pass("K-01", "ok"), note("K-12", "HUMAN_REQUIRED", "resolved by approval"), note("K-14", "LATE", "flag"), skip("K-13", "SCREENING_DISABLED", "off"), fail("K-09", "HOLD", "EVIDENCE_MISSING", "x")];
+    expect(digestItem({ ...e, checks }, "d", 0).passingChecks).toBe(1);
   });
 });
