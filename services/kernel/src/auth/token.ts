@@ -13,6 +13,7 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import * as z from "zod";
 import type { NonceCache } from "./nonce-cache";
+import type { NonceStore } from "./nonce-store";
 import type { Profile } from "../boot";
 
 export const TOKEN_VERSION = "v1";
@@ -46,9 +47,17 @@ export type TokenFailure =
   | "TTL_TOO_LONG"
   | "BEFORE_BOOT"
   | "REPLAYED"
-  | "CACHE_FULL";
+  | "CACHE_FULL"
+  | "STORE_ERROR";
 
-export type TokenResult = { readonly ok: true; readonly tenantId: string; readonly nonce: string; readonly expiresAt: number } | { readonly ok: false; readonly reason: TokenFailure };
+export type TokenResult =
+  | {
+      readonly ok: true;
+      readonly tenantId: string;
+      readonly nonce: string;
+      readonly expiresAt: number;
+    }
+  | { readonly ok: false; readonly reason: TokenFailure };
 
 function b64urlEncode(buf: Buffer | string): string {
   return Buffer.from(buf).toString("base64url");
@@ -62,7 +71,9 @@ function b64urlDecode(s: string): Buffer | null {
 }
 
 function mac(secret: string, profile: Profile, payloadSegment: string): Buffer {
-  return createHmac("sha256", Buffer.from(secret, "utf8")).update(`${MAC_DOMAIN}\n${profile}\n${payloadSegment}`).digest();
+  return createHmac("sha256", Buffer.from(secret, "utf8"))
+    .update(`${MAC_DOMAIN}\n${profile}\n${payloadSegment}`)
+    .digest();
 }
 
 export interface MintOptions {
@@ -96,14 +107,18 @@ export interface VerifyContext {
   readonly profile: Profile;
   readonly nowSec: number;
   readonly nonces: NonceCache;
-  /** Epoch seconds at which this process started; tokens issued earlier are refused. */
-  readonly bootedAtSec: number;
+  /**
+   * Only for the in-memory-only path (unit tests / no database): epoch seconds at which this process started; tokens
+   * issued earlier are refused. Not needed (and not used) with a durable NonceStore.
+   */
+  readonly bootedAtSec?: number;
   readonly maxTtlSec?: number;
 }
 
 export function verifyServiceToken(token: string, ctx: VerifyContext): TokenResult {
   const fail = (reason: TokenFailure): TokenResult => ({ ok: false, reason });
-  if (typeof token !== "string" || token.length === 0 || token.length > MAX_TOKEN_CHARS) return fail("MALFORMED");
+  if (typeof token !== "string" || token.length === 0 || token.length > MAX_TOKEN_CHARS)
+    return fail("MALFORMED");
   const parts = token.split(".");
   if (parts.length !== 3 || parts[0] !== TOKEN_VERSION) return fail("MALFORMED");
   const [, payloadSegment = "", macSegment = ""] = parts;
@@ -126,11 +141,31 @@ export function verifyServiceToken(token: string, ctx: VerifyContext): TokenResu
   if (p.aud !== audienceFor(ctx.profile)) return fail("WRONG_AUDIENCE");
   if (p.exp <= ctx.nowSec) return fail("EXPIRED");
   if (p.iat > ctx.nowSec + CLOCK_SKEW_SECONDS) return fail("NOT_YET_VALID");
-  if (p.exp <= p.iat || p.exp - p.iat > Math.min(ctx.maxTtlSec ?? MAX_TTL_SECONDS, MAX_TTL_SECONDS)) return fail("TTL_TOO_LONG");
-  if (p.iat < ctx.bootedAtSec) return fail("BEFORE_BOOT");
+  if (p.exp <= p.iat || p.exp - p.iat > Math.min(ctx.maxTtlSec ?? MAX_TTL_SECONDS, MAX_TTL_SECONDS))
+    return fail("TTL_TOO_LONG");
+  if (ctx.bootedAtSec !== undefined && p.iat < ctx.bootedAtSec) return fail("BEFORE_BOOT");
 
   const seen = ctx.nonces.checkAndInsert(p.nonce, p.exp, ctx.nowSec);
   if (seen === "REPLAYED") return fail("REPLAYED");
   if (seen === "FULL") return fail("CACHE_FULL");
   return { ok: true, tenantId: p.tid.toLowerCase(), nonce: p.nonce, expiresAt: p.exp };
+}
+
+/**
+ * Durable verification: the in-memory cache is a fast first check; the database claim is the source of truth. A store
+ * error, or a store that says "already used", rejects. Either way the nonce stays burnt in memory.
+ */
+export async function verifyServiceTokenDurable(
+  token: string,
+  ctx: VerifyContext,
+  store: NonceStore,
+): Promise<TokenResult> {
+  const r = verifyServiceToken(token, ctx);
+  if (!r.ok) return r;
+  try {
+    const first = await store.claim(r.nonce, r.tenantId, r.expiresAt);
+    return first ? r : { ok: false, reason: "REPLAYED" };
+  } catch {
+    return { ok: false, reason: "STORE_ERROR" };
+  }
 }

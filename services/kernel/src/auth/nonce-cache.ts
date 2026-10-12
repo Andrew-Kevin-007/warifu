@@ -9,7 +9,8 @@ export class NonceCache {
   readonly #capacity: number;
 
   constructor(capacity = 100_000) {
-    if (!Number.isInteger(capacity) || capacity < 1) throw new RangeError("capacity must be a positive integer");
+    if (!Number.isInteger(capacity) || capacity < 1)
+      throw new RangeError("capacity must be a positive integer");
     this.#capacity = capacity;
   }
 
