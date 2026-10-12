@@ -6,5 +6,19 @@
   "license": "Apache-2.0",
   "type": "module",
   "exports": { ".": "./src/index.ts" },
-  "scripts": { "typecheck": "tsc --noEmit -p ." }
+  "scripts": { "typecheck": "tsc --noEmit -p ." },
+  "dependencies": {
+    "@hono/node-server": "2.1.4",
+    "@symbolon/chain": "workspace:*",
+    "@symbolon/kernel-core": "workspace:*",
+    "@symbolon/policy": "workspace:*",
+    "@symbolon/schemas": "workspace:*",
+    "hono": "4.13.13",
+    "pg": "8.23.1",
+    "viem": "2.56.9",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@types/pg": "8.23.1"
+  }
 }

@@ -1,7 +1,7 @@
 ROLE: KERNEL-SVC   WP: 14 — Scheduler, TOCTOU re-eval (+ discount window), attestation signer, release   BRANCH: wp-14/scheduler-toctou-re-eval   WORKTREE: yes
 PRIORITY: P0   WAVE: W2   EFFORT: ~6 agent-hours   DEPENDS ON: 05,11,12
-MODEL: opus   EFFORT LEVEL: xhigh   (override: attestation signer + release path + TOCTOU)
-LAUNCH: claude --model opus --effort xhigh
+MODEL: opus   EFFORT LEVEL: high   (override: attestation signer + release path + TOCTOU (stays opus; sonnet-first 2026-10-12: xhigh -> high))
+LAUNCH: claude --model opus --effort high
 
 READ FIRST (in order):
   1. AGENTS.md  (prime directives §0.1-§0.12 — if a spec conflicts, the spec wins; log it in docs/QUESTIONS.md)

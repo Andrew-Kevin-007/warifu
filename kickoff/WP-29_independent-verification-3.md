@@ -1,7 +1,7 @@
 ROLE: VERIFIER   WP: 29 — Independent verification ×3   BRANCH: wp-29/independent-verification-3   WORKTREE: yes
 PRIORITY: P0   WAVE: W3,W5,W6   EFFORT: ~6 agent-hours   DEPENDS ON: varies
-MODEL: opus   EFFORT LEVEL: xhigh   (role default (VERIFIER))
-LAUNCH: claude --model opus --effort xhigh
+MODEL: opus   EFFORT LEVEL: high   (role default (VERIFIER))
+LAUNCH: claude --model opus --effort high
 
 READ FIRST (in order):
   1. AGENTS.md  (prime directives §0.1-§0.12 — if a spec conflicts, the spec wins; log it in docs/QUESTIONS.md)
