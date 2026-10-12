@@ -7,7 +7,7 @@
 //     HOLD with KERNEL_ERROR;
 //   - an unknown status / onFail value (corrupted input) is a HOLD with KERNEL_ERROR;
 //   - RELEASE additionally requires every required check to be present exactly once and nothing else.
-import { CHECK_NAMES, VERDICT_SEVERITY, untrusted } from "@symbolon/schemas";
+import { CHECK_NAMES, VERDICT_SEVERITY, inspectUntrusted, untrusted } from "@symbolon/schemas";
 import type { CheckId, CheckResult, OnFail, ReasonCode, Verdict } from "@symbolon/schemas";
 
 export type FinalVerdict = Exclude<Verdict, "REPLAY">;
@@ -49,6 +49,20 @@ function build(id: CheckId, status: CheckResult["status"], onFail: OnFail | null
 
 export function pass(id: CheckId, detail: string, refs: readonly string[] = []): CheckResult {
   return build(id, "PASS", null, null, detail, refs);
+}
+
+/**
+ * A PASS that records a non-blocking finding in the receipt (WP-05): a timing flag (TIMING_CLAMPED, LATE,
+ * PLAN_OUT_OF_ENVELOPE) or an ESCALATE finding the owner resolved with a bound OwnerApproval. A PASS never raises the
+ * verdict, so its code does not enter `reasons`; it is machine-readable for auditors and the explanation.
+ */
+export function note(id: CheckId, code: ReasonCode, detail: string, refs: readonly string[] = []): CheckResult {
+  return build(id, "PASS", null, code, detail, refs);
+}
+
+/** A check the policy disabled (only SKIPPABLE_CHECKS; any other SKIP aggregates to HOLD KERNEL_ERROR). */
+export function skip(id: CheckId, code: ReasonCode, detail: string): CheckResult {
+  return build(id, "SKIP", null, code, detail, []);
 }
 
 export function fail(id: CheckId, onFail: OnFail, code: ReasonCode, detail: string, refs: readonly string[] = []): CheckResult {
@@ -94,6 +108,21 @@ export function severity(v: FinalVerdict): number {
 }
 
 /**
+ * Issues behind a combined CheckResult (WP-05). The verdict gates (gates.ts) resolve findings issue by issue, so an
+ * owner approval of an ESCALATE finding can never hide a HOLD or REJECT finding of the same check. A deterministic,
+ * identity-keyed side table: it never changes a result and holds nothing beyond the evaluation's own objects.
+ */
+const ISSUES = new WeakMap<CheckResult, readonly Issue[]>();
+
+/** The issues behind `r`: those recorded by combine(), else the result itself as one issue (a FAIL), else none. */
+export function issuesOf(r: CheckResult): readonly Issue[] {
+  const recorded = ISSUES.get(r);
+  if (recorded !== undefined) return recorded;
+  if (r.status !== "FAIL" || r.onFail === null || r.code === null) return [];
+  return [{ onFail: r.onFail, code: r.code, detail: inspectUntrusted(r.detail), refs: r.refs }];
+}
+
+/**
  * Combine a check's issues into one CheckResult: none => PASS; otherwise the most severe issue (ties: the first)
  * becomes status/onFail/code, and every issue is listed in the detail in order.
  */
@@ -105,7 +134,9 @@ export function combine(id: CheckId, issues: readonly Issue[], passDetail: strin
   if (worst === undefined) return pass(id, passDetail, passRefs);
   const detail = issues.length === 1 ? worst.detail : issues.map((i) => `${i.code}: ${i.detail}`).join(" | ");
   const refs = issues.flatMap((i) => i.refs ?? []);
-  return fail(id, worst.onFail, worst.code, detail, refs);
+  const result = fail(id, worst.onFail, worst.code, detail, refs);
+  ISSUES.set(result, [...issues]);
+  return result;
 }
 
 export interface Aggregate {

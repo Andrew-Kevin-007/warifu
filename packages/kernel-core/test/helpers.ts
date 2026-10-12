@@ -11,11 +11,10 @@ import {
   keccak256Utf8,
   untrusted,
 } from "@symbolon/schemas";
-import type { CheckId, Engagement, Hex32, Milestone, PaymentTerms } from "@symbolon/schemas";
+import type { CheckId, Engagement, Evidence, Hex32, Milestone, PaymentTerms } from "@symbolon/schemas";
 import { expect } from "vitest";
 import type { DecisionSummary, Evaluation, KernelContext } from "../src/index";
 import { KERNEL_PIPELINE } from "../src/index";
-import { PENDING_CHECKS } from "../src/checks/pending";
 import { runPipeline } from "../src/pipeline";
 import type { PipelineConfig } from "../src/pipeline";
 
@@ -51,6 +50,7 @@ export function policy(overrides: Record<string, unknown> = {}): LoadedPolicy {
     tenant: "edith-studio",
     currency: { code: "USDC", decimals: 6, treatUsdAsUsdc: true },
     caps: { perTxHardCap: "2000", dailyCap: "5000", weeklyCap: "10000", humanApprovalAbove: "1500" },
+    velocity: { maxReleasesPerDay: 10, maxReleasesPerPayeePerDay: 3, maxAmountPerPayeePerDay: "5000" },
     categories: { design: "5000", dev: "5000" },
     ...overrides,
   });
@@ -166,12 +166,12 @@ export function context(over: Partial<KernelContext> = {}): KernelContext {
       e === null ? null : { engagementId: e.engagementId, payee: e.payee, capBaseUnits: BigInt(e.capBaseUnits), start: e.start, end: e.end, termsHash: e.termsHash, active: true },
     milestone: e === null ? null : (e.milestones.find((m) => m.milestoneId === M1) ?? null),
     priorDecisions: [],
-    released: { engagementTotal: 0n, tenantDay: 0n, tenantWeek: 0n, payeeDay: 0n, payeeCountDay: 0, categoryMonth: {} },
-    evidence: [],
+    released: { engagementTotal: 0n, tenantDay: 0n, tenantWeek: 0n, payeeDay: 0n, payeeCountDay: 0, tenantCountDay: 0, categoryMonth: {} },
+    evidence: e === null ? [] : [ownerAck(M1)],
     ownerApproval: null,
     screening: null,
     balances: { vaultAvailable: 10_000_000_000n, pendingReleases: 0n, obligations14d: 0n },
-    payeeHistory: { priorPayments: 0, onTime: 0, disputes: 0 },
+    payeeHistory: { priorPayments: 5, onTime: 5, disputes: 0 },
     doc: { hash: DOC_HASH, normalizedHash: keccak256Utf8(DOC_TEXT), normalizedText: untrusted(DOC_TEXT), zeroWidthCount: 0 },
     invoiceReceivedAt: RECEIVED,
     paymentTerms: e === null ? null : e.paymentTerms,
@@ -180,8 +180,32 @@ export function context(over: Partial<KernelContext> = {}): KernelContext {
     breaker: { halted: false, reason: null },
     payeeChangePending: false,
     reevaluation: null,
+    planningAsOf: null,
+    approvedEscalation: null,
     ...over,
   };
+}
+
+/** A kernel-collected OWNER_ACK for `milestoneId` signed by the engagement owner (production contract, src/evidence.ts). */
+export function ownerAck(milestoneId: Hex32 = M1, over: Partial<Evidence> = {}, payload: Record<string, unknown> = {}): Evidence {
+  return {
+    evidenceId: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    milestoneId,
+    type: "OWNER_ACK",
+    collectedBy: "kernel",
+    collectedAt: "2026-10-05T11:00:00Z",
+    source: "eip712:MilestoneAck",
+    payload: { milestoneId, artifactHash: `0x${"00".repeat(32)}`, override: false, deadline: "1893456000", signer: OWNER, ...payload },
+    payloadHash: H("ack payload"),
+    result: "PASS",
+    details: untrusted("owner acknowledged the milestone"),
+    ...over,
+  };
+}
+
+/** An OwnerApproval message bound to `intentId`, `amount` and the escalation receipt `receiptHash`. */
+export function approvalFor(intentId: Hex32, amount: bigint, receiptHash: Hex32 = H("escalation receipt"), deadline = "1893456000") {
+  return { intentId, receiptHash, amount: amount.toString(), deadline };
 }
 
 /** A context whose document text is `text` (hash kept consistent). */
@@ -211,7 +235,7 @@ export const PHASE_A_IDS: readonly CheckId[] = ["K-01", "K-02", "K-03", "K-04", 
 /** The real K-01..K-08 stages with the real aggregation, without the WP-05 placeholders. */
 export const PHASE_A: PipelineConfig = {
   pre: [],
-  stages: KERNEL_PIPELINE.stages.filter((s) => !PENDING_CHECKS.includes(s.id)),
+  stages: KERNEL_PIPELINE.stages.filter((s) => PHASE_A_IDS.includes(s.id)),
   required: PHASE_A_IDS,
 };
 

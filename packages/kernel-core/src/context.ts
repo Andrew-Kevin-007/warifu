@@ -8,9 +8,14 @@
 //   engagementOnChain         K-05 "indexed from on-chain EngagementRegistered with matching termsHash".
 //   reevaluation              TOCTOU re-evaluation at payAt (docs/04 §5): the scheduled decision whose
 //                             release amount K-08 re-checks and whose own intentId K-04 must not REPLAY.
+// WP-05 additions (docs/QUESTIONS.md "WP-05"):
+//   released.tenantCountDay   K-12 velocity.maxReleasesPerDay.
+//   planningAsOf              K-14 validates a planner selection against the plan set as it was offered.
+//   approvedEscalation        the escalation receipt and findings an OwnerApproval covers (gates.ts).
 import { hashJcs } from "@symbolon/schemas";
 import type {
   Address,
+  CheckId,
   Eip712Message,
   Engagement,
   Evidence,
@@ -19,6 +24,7 @@ import type {
   Milestone,
   PaymentTerms,
   Profile,
+  ReasonCode,
   UUID,
   Untrusted,
   Verdict,
@@ -65,13 +71,20 @@ export interface DecisionSummary {
   readonly createdAt: ISODateTime;
 }
 
-/** Totals INCLUDING decided-but-unsettled amounts (race guard). */
+/**
+ * Totals INCLUDING decided-but-unsettled amounts (race guard). Binding on KERNEL-SVC (docs/QUESTIONS.md "WP-05"):
+ * the "Day" fields are ROLLING 24 h sums/counts ending at ctx.now (the vault's window), tenantWeek is a rolling
+ * 7 days, categoryMonth the current calendar month per category key (a missing key means nothing spent); at a
+ * TOCTOU re-evaluation the decision being re-evaluated is EXCLUDED from every total (it would count twice).
+ */
 export interface ReleasedTotals {
   readonly engagementTotal: bigint;
   readonly tenantDay: bigint;
   readonly tenantWeek: bigint;
   readonly payeeDay: bigint;
   readonly payeeCountDay: number;
+  /** WP-05: tenant-wide release count in the rolling 24 h (velocity.maxReleasesPerDay, <= the vault ring of 64). */
+  readonly tenantCountDay: number;
   readonly categoryMonth: Readonly<Record<string, bigint>>;
 }
 
@@ -153,6 +166,31 @@ export interface KernelContext {
   readonly payeeChangePending: boolean;
   /** Non-null only when the service re-evaluates a scheduled decision at its payAt. */
   readonly reevaluation: Reevaluation | null;
+  /**
+   * WP-05: the `now` of the evaluation whose feasible plan set was shown to the planner (GET /intents/:id/plans).
+   * K-14 checks intent.planSelection against the set as offered at this instant, then re-derives the chosen mode at
+   * ctx.now (a plan whose payAt is "now" changes id every second). null => the set at ctx.now. Must lie in
+   * [invoiceReceivedAt, now].
+   */
+  readonly planningAsOf: ISODateTime | null;
+  /**
+   * WP-05: the escalation the owner approved, filled by the service from the intent's supersedes chain: the receipt
+   * hash of the escalated decision (must equal ownerApproval.receiptHash) and the approvable findings that decision
+   * listed (Evaluation.approvableFindings). An approval resolves ONLY those (check, code) findings; anything new needs
+   * a new approval. null => no approval can resolve anything.
+   */
+  readonly approvedEscalation: ApprovedEscalation | null;
+}
+
+/** One finding an owner can approve: an ESCALATE issue of a check (docs/04 §1). */
+export interface FindingRef {
+  readonly checkId: CheckId;
+  readonly code: ReasonCode;
+}
+
+export interface ApprovedEscalation {
+  readonly receiptHash: Hex32;
+  readonly findings: readonly FindingRef[];
 }
 
 type Json = null | boolean | number | string | Json[] | { [key: string]: Json };

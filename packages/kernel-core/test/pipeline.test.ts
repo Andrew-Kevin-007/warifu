@@ -90,7 +90,7 @@ describe("evaluate()", () => {
     const e = evaluate({ nonsense: true }, context(), policy());
     expect(e.checks.map((c) => c.id)).toEqual(["K-16", "K-01"]);
     expect(e.verdict).toBe("REJECT");
-    expect(e.reasons).toEqual(["KERNEL_ERROR", "SCHEMA_INVALID"]);
+    expect(e.reasons).toEqual(["SCHEMA_INVALID"]); // the K-16 pre-check passes (breaker OK)
   });
 
   it("never throws: a context that is not an object yields HOLD KERNEL_ERROR on every required check", () => {
@@ -155,7 +155,7 @@ describe("summarizeEvaluation", () => {
         payee: e.payee,
         normInvoiceNo: "INV0042",
         amountBaseUnits: 1_000_000_000n,
-        releaseAmountBaseUnits: null,
+        releaseAmountBaseUnits: 1_000_000_000n, // the scheduled plan's amountDue (no signed terms: the gross)
         createdAt: meta.createdAt,
       },
     });

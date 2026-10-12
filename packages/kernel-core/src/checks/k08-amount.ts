@@ -53,12 +53,20 @@ export function checkK08(ctx: KernelContext, facts: Facts): CheckResult {
   }
   const r = facts.release;
   if (r !== null) {
-    if (!r.expected.ok) {
-      issues.push({ onFail: "HOLD", code: "KERNEL_ERROR", detail: `amountDue not computable: ${r.expected.error.message}` });
-    } else if (r.scheduledAmount > r.expected.value.amountDue) {
-      issues.push({ onFail: "REJECT", code: "OVERPAY", detail: `release amount ${r.scheduledAmount} > amountDue(${r.payAt}) ${r.expected.value.amountDue}` });
-    } else if (r.scheduledAmount < r.expected.value.amountDue) {
-      issues.push({ onFail: "ESCALATE", code: "UNDERPAY_PARTIAL", detail: `release amount ${r.scheduledAmount} < amountDue(${r.payAt}) ${r.expected.value.amountDue}` });
+    const due = r.expected.ok ? r.expected.value : null;
+    if (due === null) {
+      issues.push({ onFail: "HOLD", code: "KERNEL_ERROR", detail: "amountDue at payAt is not computable from the signed terms" });
+    } else if (r.scheduledAmount > due.amountDue) {
+      issues.push({ onFail: "REJECT", code: "OVERPAY", detail: `release amount ${r.scheduledAmount} > amountDue(${r.payAt}) ${due.amountDue}` });
+    } else if (r.scheduledAmount < due.amountDue) {
+      // WP-05: a discounted amount scheduled inside the window whose window has closed by payAt is the TOCTOU case
+      // (docs/04 K-14 §5): the owner decides; it is reported as such, never silently switched to the full amount.
+      const windowClosed = due.windowEnd !== null && !due.discountApplied && epochSecondsFromIso(r.scheduledPayAt) <= epochSecondsFromIso(due.windowEnd);
+      issues.push(
+        windowClosed
+          ? { onFail: "ESCALATE", code: "DISCOUNT_WINDOW_CLOSED", detail: `the discount window closed at ${due.windowEnd}; scheduled ${r.scheduledAmount} < amountDue(${r.payAt}) ${due.amountDue}` }
+          : { onFail: "ESCALATE", code: "UNDERPAY_PARTIAL", detail: `release amount ${r.scheduledAmount} < amountDue(${r.payAt}) ${due.amountDue}` },
+      );
     }
   }
   return combine("K-08", issues, `gross equals the signed milestone amount${r === null ? "" : "; release amount equals amountDue(payAt)"}`);
