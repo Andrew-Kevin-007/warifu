@@ -157,7 +157,7 @@ describe("G10 and the secret inventory (SEC-07 review findings)", () => {
 
   it("the redaction list holds the URL, userinfo, password and user, raw and URL-decoded, and every other configured secret", () => {
     const pw = "p@ss/w0rd:with%chars-1234";
-    const env = {
+    const env: Record<string, string> = {
       ...production(),
       DATABASE_URL: `postgres://kernel_user:${encodeURIComponent(pw)}@db.prod.example.test:5432/x`,
       SUPABASE_SERVICE_ROLE_KEY: "service-role-key-0123456789",
@@ -167,7 +167,7 @@ describe("G10 and the secret inventory (SEC-07 review findings)", () => {
       GITHUB_TOKEN: "github-token-0123456789",
     };
     const list = loadConfig(env).logSecrets.map((s) => s.reveal());
-    for (const must of [pw, encodeURIComponent(pw), `kernel_user:${pw}`, `kernel_user:${encodeURIComponent(pw)}`, env.DATABASE_URL, "kernel_user", env.SUPABASE_SERVICE_ROLE_KEY, env.ANTHROPIC_API_KEY, env.CIRCLE_API_KEY, env.CIRCLE_ENTITY_SECRET, env.GITHUB_TOKEN, env.SERVICE_TOKEN_SECRET, env.KERNEL_SIGNER_PRIVATE_KEY]) {
+    for (const must of [pw, encodeURIComponent(pw), `kernel_user:${pw}`, `kernel_user:${encodeURIComponent(pw)}`, "kernel_user", ...Object.values(env).filter((v) => v.length >= 16)]) {
       expect(list, must).toContain(must);
     }
   });

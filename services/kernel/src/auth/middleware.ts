@@ -5,6 +5,7 @@ import { ApiError } from "../errors";
 import type { Logger } from "../log";
 import type { Profile } from "../boot";
 import { NonceCache } from "./nonce-cache";
+import type { ClockGuard } from "./clock-guard";
 import type { NonceStore } from "./nonce-store";
 import { verifyServiceTokenDurable } from "./token";
 
@@ -27,6 +28,7 @@ export interface AuthOptions {
   readonly clock: () => number;
   /** Durable replay protection (Postgres). Required: there is no in-memory-only mode in the service. */
   readonly nonceStore: NonceStore;
+  readonly clockGuard: ClockGuard;
   readonly nonces?: NonceCache;
   readonly maxTtlSec?: number;
   readonly logger: Logger;
@@ -50,6 +52,7 @@ export function authMiddleware(o: AuthOptions) {
     if (header === undefined) throw unauthenticated("NO_HEADER");
     const m = BEARER.exec(header);
     if (m === null || m[1] === undefined) throw unauthenticated("BAD_SCHEME");
+    await o.clockGuard.assertSynced(); // fail closed when the app and database clocks disagree (RT-31)
     const nowSec = Math.floor(o.clock() / 1000);
     const r = await verifyServiceTokenDurable(
       m[1],

@@ -163,8 +163,10 @@ export async function verifyServiceTokenDurable(
   const r = verifyServiceToken(token, ctx);
   if (!r.ok) return r;
   try {
-    const first = await store.claim(r.nonce, r.tenantId, r.expiresAt);
-    return first ? r : { ok: false, reason: "REPLAYED" };
+    // A reject from either clock wins: the app clock was checked above, the database clock decides here.
+    const claim = await store.claim(r.nonce, r.tenantId, r.expiresAt);
+    if (claim === "OK") return r;
+    return { ok: false, reason: claim === "REPLAYED" ? "REPLAYED" : claim === "EXPIRED" ? "EXPIRED" : "TTL_TOO_LONG" };
   } catch {
     return { ok: false, reason: "STORE_ERROR" };
   }
