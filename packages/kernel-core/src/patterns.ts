@@ -3,15 +3,19 @@
 // adversarial corpus (test/k11-corpus.ts, results/k11-corpus.json).
 //
 // ONE canonical normalization runs before any pattern (foldForScan), on the KERNEL-STORED normalized document text
-// (never on extractor output). Per code point: NFKC (full-width, ligature, mathematical and other compatibility
-// forms become plain letters); hidden characters are stripped AND counted (format characters: zero-width, bidi
-// controls, BOM, soft hyphen, Unicode tags U+E0000-E007F; variation selectors; combining grapheme joiner; Hangul
-// fillers); common Cyrillic, Greek and small-capital lookalikes are mapped to ASCII; lowercase; accents are removed
-// (canonical decomposition, combining marks dropped); whitespace runs collapse (a run containing a line break becomes
-// "\n", any other run one space). Patterns are matched against two views of that text:
-//   folded   the normalized text itself, with word boundaries;
-//   squashed only [a-z0-9] kept, so separators inside words cannot split a keyword ("i.g.n.o.r.e", "i g n o r e",
-//            "ig-nore"). Squashed patterns are the multi-word phrases written without separators.
+// (never on extractor output). Per code point, the hidden-character test comes FIRST (also before the ASCII fast
+// path): hidden characters are counted and stripped (C0/C1 controls and DEL except TAB/LF/CR; format characters:
+// zero-width, bidi controls, BOM, soft hyphen, Unicode tags U+E0000-E007F; variation selectors; combining grapheme
+// joiner; Hangul fillers). Then compatibility folding (NFKC letters: full-width, ligature, mathematical forms become
+// plain letters; implemented as NFKD with combining marks removed, which yields the same letters and removes accents),
+// the Cyrillic/Greek/small-capital lookalike map on each DECOMPOSED base letter (so accented lookalikes such as
+// Cyrillic yo or Greek omicron-tonos map too), lowercase, and whitespace runs collapse (a run containing a line break
+// becomes "\n", any other run one space). Patterns are matched against these views:
+//   folded   the canonical text, with word boundaries;
+//   literal  only when hidden characters are present: the same text folded exactly as symbolon-patterns/1.0.0 did
+//            (controls kept as non-letters), so stripping can never lose a match 1.0.0 had (k11-oracle.test.ts);
+//   squashed only [a-z0-9] of the canonical text, so separators inside words cannot split a keyword ("i.g.n.o.r.e",
+//            "i g n o r e", "ig-nore", "ign<NUL>ore"). Squashed patterns are the multi-word phrases without separators.
 // Every match reports the UTF-16 offset of its start in the ORIGINAL text and a kernel-written label; the document's
 // own words are never copied into the receipt (INV-15/20).
 //
@@ -25,10 +29,12 @@
 //   IN-01 "ignore all/any/previous/above" does not fire on "ignore (any) previous invoice(s)/reminder(s)/email(s)...".
 //   IN-03/IN-04 "system:" / "assistant:" fire at a line start or after punctuation/markup, not inside prose
 //         ("Operating system: Linux", "Virtual assistant: 10 h"); letters may be split by single separators.
-//   IN-05 "you are (now) a/an" is narrowed to an AI-role word or a "... mode" ("you are now in maintenance mode").
+//   IN-05 keeps 1.0.0 ("you are now", "you are a/the <AI role>", widened to roles/modes two words away) and only
+//         excludes honest account language right after "you are now" ("on the Team plan", "subscribed", ...).
+// No other pattern detects less than 1.0.0: test/k11-oracle.test.ts compares against the frozen 1.0.0 scan.
 // K-11 is a heuristic and cannot be complete: bypasses beyond this normalization are an ACCEPTED RESIDUAL covered by
 // the binding checks (amount, payee, terms; INV-8) and by the hold-out adversary (docs/QUESTIONS.md, owner SEC/WP-37).
-export const PATTERNS_VERSION = "symbolon-patterns/1.1.0" as const;
+export const PATTERNS_VERSION = "symbolon-patterns/1.2.0" as const;
 
 export type PatternGroup = "CHANGE_OF_DETAILS" | "INSTRUCTION" | "STRUCTURE" | "EXTRACTOR";
 
@@ -44,7 +50,8 @@ export interface TextPattern {
 }
 
 const S = String.raw`\s`;
-const DOC_NOUN = String.raw`(?:invoices?|reminders?|emails?|e-mails?|statements?|versions?|copies|copy|notices?|messages?)`;
+// Exactly the 1.0.0 list: adding a noun here would exclude more and detect less than 1.0.0 (k11-oracle.test.ts).
+const DOC_NOUN = String.raw`(?:invoices?|reminders?|emails?|e-mails?|statements?|versions?|copies|notices?|messages?)`;
 const NOT_DOC_NOUN = String.raw`(?!${S}(?:previous${S}|prior${S}|earlier${S})?${DOC_NOUN}\b)`;
 const NOT_DOC_NOUN_SQ = "(?!(?:previous|prior|earlier)?(?:invoice|reminder|email|statement|version|cop|notice|message))";
 // Not inside prose: the role word is not preceded by a letter/digit (optionally followed by one space). A line break,
@@ -125,8 +132,13 @@ export const TEXT_PATTERNS: readonly TextPattern[] = Object.freeze([
   {
     id: "IN-05",
     group: "INSTRUCTION",
-    label: "you are now an AI role / mode",
-    re: new RegExp(String.raw`\byou${S}are${S}(?:now${S})?(?:an?${S}|the${S}|in${S})?(?:[a-z]+${S}){0,2}(?:ai|assistant|bot|chatbot|llm|agent|language${S}model|ai${S}model|mode)\b`, "g"),
+    label: "you are now / you are an AI role",
+    // 1.0.0 ("you are now", "you are a/the <AI role>") plus roles/modes up to two words away; the only narrowing is
+    // honest account language right after "you are now" ("you are now on the Team plan", "...subscribed").
+    re: new RegExp(
+      String.raw`\byou${S}are${S}(?:now\b(?!${S}(?:on|subscribed|enrolled|registered|signed|eligible|part${S}of|a${S}(?:member|customer|subscriber))\b)|(?:now${S})?(?:an?${S}|the${S}|in${S})?(?:[a-z]+${S}){0,2}(?:ai|assistant|bot|chatbot|model|llm|agent|language${S}model|mode)\b)`,
+      "g",
+    ),
     squashed: null,
   },
   {
@@ -232,17 +244,20 @@ const HOMOGLYPHS: Readonly<Record<string, string>> = Object.freeze(
 );
 
 const MARK = /\p{M}/u;
+const FORMAT = /\p{Cf}/u;
 const SPACE = /\s/u;
 
 /**
- * Hidden characters: invisible in a rendered document, never needed in an invoice. Format characters (zero-width,
- * bidi controls and marks, BOM, soft hyphen, word joiner, Unicode tags), variation selectors, the combining grapheme
- * joiner and the Hangul/half-width fillers.
+ * Hidden characters: invisible in a rendered document, never needed in an invoice. Control characters (every C0 and C1
+ * control and DEL, except TAB, LF and CR), format characters (zero-width, bidi controls and marks, BOM, soft hyphen,
+ * word joiner, Unicode tags), variation selectors, the combining grapheme joiner and the Hangul/half-width fillers.
  */
 export function isHidden(ch: string): boolean {
   const cp = ch.codePointAt(0) as number;
   return (
-    /\p{Cf}/u.test(ch) ||
+    (cp <= 0x1f && cp !== 0x09 && cp !== 0x0a && cp !== 0x0d) ||
+    (cp >= 0x7f && cp <= 0x9f) ||
+    FORMAT.test(ch) ||
     (cp >= 0xfe00 && cp <= 0xfe0f) ||
     (cp >= 0xe0100 && cp <= 0xe01ef) ||
     cp === 0x034f ||
@@ -257,12 +272,24 @@ export interface Folded {
   readonly text: string;
   /** offsets[k] = UTF-16 index in the original text of the code point that produced folded unit k. */
   readonly offsets: readonly number[];
-  /** Hidden characters stripped while folding. */
+  /** Hidden characters seen (counted in both modes). */
   readonly hidden: number;
 }
 
-/** The canonical normalization (see the module comment). Deterministic; no locale-dependent API. */
-export function foldForScan(text: string): Folded {
+/**
+ * How hidden characters are treated. `canonical`: stripped (they can never split a keyword). `literal`: exactly as
+ * symbolon-patterns/1.0.0 folded them (format characters and marks stripped, controls kept as non-letters, VT/FF as
+ * spaces, fillers decomposed and kept). The scan uses the literal view as well whenever a hidden character is present,
+ * so detection is never below 1.0.0 (test/k11-oracle.test.ts) while the canonical view closes the split-keyword gap.
+ */
+export type FoldMode = "canonical" | "literal";
+
+/**
+ * The canonical normalization (see the module comment). Letters: compatibility decomposition with marks removed
+ * (the same letters NFKC + accent removal yields), the lookalike map on each decomposed base letter, lowercase.
+ * Deterministic; no locale-dependent API.
+ */
+export function foldForScan(text: string, mode: FoldMode = "canonical"): Folded {
   let out = "";
   const offsets: number[] = [];
   let hidden = 0;
@@ -288,21 +315,25 @@ export function foldForScan(text: string): Folded {
   for (let i = 0; i < text.length; ) {
     const cp = text.codePointAt(i) as number;
     const ch = String.fromCodePoint(cp);
-    if (cp < 0x80) {
-      if (SPACE.test(ch)) space(ch === "\r" ? "\n" : ch, i);
-      else emit(cp >= 0x41 && cp <= 0x5a ? String.fromCharCode(cp + 32) : ch, i);
-    } else if (isHidden(ch)) {
+    i += ch.length;
+    const at = i - ch.length;
+    if (isHidden(ch)) {
       hidden++;
-    } else {
-      for (const part of ch.normalize("NFKC")) {
-        for (const c of (HOMOGLYPHS[part] ?? part).toLowerCase().normalize("NFD")) {
-          if (MARK.test(c)) continue;
-          if (SPACE.test(c)) space(c, i);
-          else emit(c, i);
-        }
+      if (mode === "canonical") continue;
+    }
+    if (cp < 0x80) {
+      if (SPACE.test(ch)) space(ch === "\r" ? "\n" : ch, at);
+      else emit(cp >= 0x41 && cp <= 0x5a ? String.fromCharCode(cp + 32) : ch, at);
+      continue;
+    }
+    for (const part of ch.normalize("NFKD")) {
+      if (MARK.test(part) || FORMAT.test(part)) continue;
+      for (const c of (HOMOGLYPHS[part] ?? part).toLowerCase().normalize("NFKD")) {
+        if (MARK.test(c)) continue;
+        if (SPACE.test(c)) space(c, at);
+        else emit(c, at);
       }
     }
-    i += ch.length;
   }
   if (pending !== null) {
     out += pending;
@@ -363,8 +394,11 @@ export function scanDocument(input: ScanInput): readonly PatternMatch[] {
   const hidden = input.zeroWidthCount + folded.hidden;
   if (hidden > HIDDEN_CHAR_LIMIT) add({ id: "ST-01", group: "STRUCTURE", label: "hidden or bidi characters", offset: -1 });
 
+  // The literal view differs from the canonical one only where hidden characters are present.
+  const literal = folded.hidden > 0 ? [foldForScan(input.text, "literal")] : [];
+  const folds = [folded, ...literal];
   const views = [
-    { view: folded, pick: (p: TextPattern) => p.re },
+    ...folds.map((view) => ({ view, pick: (p: TextPattern) => p.re })),
     { view: squashed, pick: (p: TextPattern) => p.squashed },
   ];
   for (const { view, pick } of views) {
@@ -383,8 +417,10 @@ export function scanDocument(input: ScanInput): readonly PatternMatch[] {
   for (const m of input.text.matchAll(BASE64_RUN)) {
     add({ id: "ST-02", group: "STRUCTURE", label: `base64-like run over ${BASE64_RUN_LIMIT} characters`, offset: m.index });
   }
-  for (const m of folded.text.matchAll(ADDRESS)) {
-    if (!known.has(m[0])) add({ id: "ST-03", group: "STRUCTURE", label: "an address that is not the engagement payee", offset: folded.offsets[m.index] as number });
+  for (const view of folds) {
+    for (const m of view.text.matchAll(ADDRESS)) {
+      if (!known.has(m[0])) add({ id: "ST-03", group: "STRUCTURE", label: "an address that is not the engagement payee", offset: view.offsets[m.index] as number });
+    }
   }
   return [...found.values()].sort((a, b) => a.offset - b.offset);
 }

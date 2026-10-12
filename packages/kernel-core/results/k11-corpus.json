@@ -1,6 +1,6 @@
 {
   "schema": "k11-corpus/1",
-  "patternsVersion": "symbolon-patterns/1.1.0",
+  "patternsVersion": "symbolon-patterns/1.2.0",
   "note": "Hand-written corpus (packages/kernel-core/test/k11-corpus.ts) by the KERNEL-CORE lane; not a sample of real invoices. Independent sets are ATTACK-lane fixtures. Hidden characters are counted with normalizeUntrusted().removedCount.",
   "positives": {
     "n": 79,
