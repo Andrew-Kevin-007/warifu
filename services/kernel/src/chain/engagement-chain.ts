@@ -20,7 +20,8 @@ export interface VaultLog extends RawLog {
   readonly blockHash: Hex32;
 }
 
-export type TxStatus = "success" | "reverted" | "pending";
+/** unknown = neither a receipt nor a pending transaction: the node does not have it (dropped, replaced or reorged out). */
+export type TxStatus = "success" | "reverted" | "pending" | "unknown";
 
 export interface EngagementChain {
   readonly chainId: number;
@@ -118,7 +119,13 @@ export function viemEngagementChain(client: PublicClient, chainId: number): Enga
         const r = await client.getTransactionReceipt({ hash: txHash });
         return r.status === "success" ? "success" : "reverted";
       } catch (e) {
-        if (e instanceof Error && e.name === "TransactionReceiptNotFoundError") return "pending";
+        if (!(e instanceof Error && e.name === "TransactionReceiptNotFoundError")) throw e;
+      }
+      try {
+        await client.getTransaction({ hash: txHash });
+        return "pending";
+      } catch (e) {
+        if (e instanceof Error && e.name === "TransactionNotFoundError") return "unknown";
         throw e;
       }
     },

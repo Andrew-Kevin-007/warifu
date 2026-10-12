@@ -13,6 +13,7 @@ alter table engagements add constraint engagements_status_check
 alter table engagements add column submitted_tx text check (submitted_tx is null or submitted_tx ~ '^0x[0-9a-f]{64}$');
 alter table engagements add column registration_error text check (registration_error is null or length(registration_error) <= 200);
 alter table engagements add column registration_attempts int not null default 0 check (registration_attempts >= 0);
+alter table engagements add column submitted_at timestamptz;
 -- An ACTIVE engagement always carries both signatures and the registration tx the indexer saw (fail closed even if a
 -- buggy writer forgets one of them).
 alter table engagements add constraint engagements_active_is_registered

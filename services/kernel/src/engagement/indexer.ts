@@ -33,9 +33,11 @@ export interface IndexerOptions {
   readonly startBlock: bigint;
   /** How many blocks behind the safe head are re-verified against the node on every run. */
   readonly reorgLookback: bigint;
+  /** A submitted transaction the node no longer knows (dropped, replaced, reorged out) is retried after this long. */
+  readonly droppedAfterSeconds: number;
 }
 
-export const DEFAULT_INDEXER_OPTIONS: IndexerOptions = { confirmations: 2n, maxBlockRange: 2000n, startBlock: 0n, reorgLookback: 64n };
+export const DEFAULT_INDEXER_OPTIONS: IndexerOptions = { confirmations: 2n, maxBlockRange: 2000n, startBlock: 0n, reorgLookback: 64n, droppedAfterSeconds: 120 };
 
 export interface IndexerDeps {
   readonly db: Db;
@@ -53,7 +55,7 @@ export interface IndexResult {
 }
 
 function assertOptions(o: IndexerOptions): void {
-  if (o.confirmations < 0n || o.maxBlockRange < 1n || o.startBlock < 0n || o.reorgLookback < 0n) throw new RangeError("invalid indexer options");
+  if (o.confirmations < 0n || o.maxBlockRange < 1n || o.startBlock < 0n || o.reorgLookback < 0n || o.droppedAfterSeconds < 0) throw new RangeError("invalid indexer options");
 }
 
 /** Mark reorged blocks and undo their effects. Returns the number of events undone. */
@@ -82,23 +84,29 @@ export async function detectReorgs(d: IndexerDeps, tenantId: string, safeHead: b
   });
 }
 
-/** Re-check submissions that never turned into an event: a reverted tx frees the engagement / change for a fresh relay. */
-export async function reconcileSubmissions(d: IndexerDeps, tenantId: string): Promise<void> {
-  const pending = await repo.listPendingRegistrations(d.db, tenantId);
-  for (const p of pending) {
+/** Re-check submissions that never turned into an event: a reverted or vanished tx frees the engagement / change for a fresh relay. */
+export async function reconcileSubmissions(d: IndexerDeps, tenantId: string, o: IndexerOptions): Promise<void> {
+  const gone = async (tx: string, ageSeconds: number | null): Promise<"TX_REVERTED" | "TX_DROPPED" | null> => {
+    const st = await d.chain.txStatus(tx as Hex32);
+    if (st === "reverted") return "TX_REVERTED";
+    if (st === "unknown" && (ageSeconds ?? 0) >= o.droppedAfterSeconds) return "TX_DROPPED";
+    return null;
+  };
+  for (const p of await repo.listPendingRegistrations(d.db, tenantId)) {
     if (p.submittedTx === null) continue;
-    if ((await d.chain.txStatus(p.submittedTx as Hex32)) === "reverted") {
-      await repo.clearSubmission(d.db, tenantId, p.engagementId, "TX_REVERTED");
-      d.logger.warn("engagement.registration_reverted", { tenantId, engagementId: p.engagementId, txHash: p.submittedTx });
+    const why = await gone(p.submittedTx, p.submittedAgeSeconds);
+    if (why !== null) {
+      await repo.clearSubmission(d.db, tenantId, p.engagementId, why);
+      d.logger.warn("engagement.registration_not_mined", { tenantId, engagementId: p.engagementId, txHash: p.submittedTx, reasonCode: why });
     }
   }
-  for (const c of await repo.submittedPayeeChanges(d.db, tenantId)) {
+  for (const { change: c, ageSeconds } of await repo.submittedPayeeChanges(d.db, tenantId)) {
     const exec = c.status === "EXECUTING";
     const tx = exec ? c.executedTx : c.submittedTx;
     if (tx === null) continue;
-    if ((await d.chain.txStatus(tx as Hex32)) === "reverted") {
-      await repo.setPayeeChangeStatus(d.db, c.id, exec ? "PROPOSED" : "FAILED", exec ? { executedTx: null, error: "TX_REVERTED" } : { error: "TX_REVERTED" });
-    }
+    const why = await gone(tx, ageSeconds);
+    if (why === null) continue;
+    await repo.setPayeeChangeStatus(d.db, c.id, exec ? "PROPOSED" : "COLLECTING", exec ? { executedTx: null, error: why } : { submittedTx: null, error: why });
   }
 }
 
@@ -169,7 +177,7 @@ export async function indexTenant(d: IndexerDeps, tenantId: string, options: Par
   await d.db.tx(async (q) => {
     if (await repo.lockIndexer(q, tenantId)) await activatePending(q, tenantId);
   });
-  await reconcileSubmissions(d, tenantId);
+  await reconcileSubmissions(d, tenantId, o);
   const cursor = (await repo.getCursor(d.db, tenantId)) ?? 0n;
   if (applied > 0) d.logger.info("indexer.applied", { tenantId, count: applied });
   return { outcome, applied, reorged, nextBlock: cursor };

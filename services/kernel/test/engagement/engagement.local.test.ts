@@ -180,7 +180,7 @@ describe.skipIf(!enabled)("local engagements: sign flows, relay, indexer", () =>
       const ev = await w.t.db.query("select event, status, block_hash from chain_events where tx_hash = $1", [r.json.submittedTx]);
       expect(ev.rows).toHaveLength(1);
       expect(ev.rows[0]).toMatchObject({ event: "EngagementRegistered", status: "CONFIRMED" });
-      expect(ev.rows[0].block_hash).toMatch(/^0x[0-9a-f]{64}$/);
+      expect(ev.rows[0]?.block_hash).toMatch(/^0x[0-9a-f]{64}$/);
     });
 
     it("no relayer configured: the signatures are kept, nothing reaches the chain, and the engagement stays REGISTERING", async () => {

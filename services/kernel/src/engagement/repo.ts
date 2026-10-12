@@ -77,7 +77,7 @@ export async function storeSignature(q: Queryable, tenantId: string, engagementI
 
 export async function markSubmitted(q: Queryable, tenantId: string, engagementId: string, txHash: string): Promise<void> {
   await q.query(
-    "update engagements set submitted_tx = $3, registration_error = null, registration_attempts = registration_attempts + 1 where engagement_id = $1 and tenant_id = $2",
+    "update engagements set submitted_tx = $3, submitted_at = now(), registration_error = null, registration_attempts = registration_attempts + 1 where engagement_id = $1 and tenant_id = $2",
     [engagementId, tenantId, txHash],
   );
 }
@@ -91,7 +91,7 @@ export async function markRelayFailed(q: Queryable, tenantId: string, engagement
 
 /** The submitted tx is known not to have registered (reverted or replaced): allow a fresh relay. */
 export async function clearSubmission(q: Queryable, tenantId: string, engagementId: string, errorCode: string): Promise<void> {
-  await q.query("update engagements set submitted_tx = null, registration_error = $3 where engagement_id = $1 and tenant_id = $2", [engagementId, tenantId, errorCode.slice(0, 200)]);
+  await q.query("update engagements set submitted_tx = null, submitted_at = null, registration_error = $3 where engagement_id = $1 and tenant_id = $2", [engagementId, tenantId, errorCode.slice(0, 200)]);
 }
 
 /** ACTIVE is written here and only here (called by the indexer after a confirmed, matching EngagementRegistered). */
@@ -121,12 +121,12 @@ export async function setPayee(q: Queryable, tenantId: string, engagementId: str
 }
 
 /** Engagements waiting for the chain: both signatures stored, not yet ACTIVE. */
-export async function listPendingRegistrations(q: Queryable, tenantId: string): Promise<Array<{ engagementId: string; submittedTx: string | null; status: string }>> {
-  const r = await q.query<{ engagement_id: string; submitted_tx: string | null; status: string }>(
-    "select engagement_id, submitted_tx, status from engagements where tenant_id = $1 and status in ('DRAFT','AWAITING_PAYEE','REGISTERING') and owner_sig is not null and payee_sig is not null order by created_at",
+export async function listPendingRegistrations(q: Queryable, tenantId: string): Promise<Array<{ engagementId: string; submittedTx: string | null; status: string; submittedAgeSeconds: number | null }>> {
+  const r = await q.query<{ engagement_id: string; submitted_tx: string | null; status: string; age: number | null }>(
+    "select engagement_id, submitted_tx, status, extract(epoch from now() - submitted_at)::int as age from engagements where tenant_id = $1 and status in ('DRAFT','AWAITING_PAYEE','REGISTERING') and owner_sig is not null and payee_sig is not null order by created_at",
     [tenantId],
   );
-  return r.rows.map((x) => ({ engagementId: x.engagement_id, submittedTx: x.submitted_tx, status: x.status }));
+  return r.rows.map((x) => ({ engagementId: x.engagement_id, submittedTx: x.submitted_tx, status: x.status, submittedAgeSeconds: x.age }));
 }
 
 // --- chain_events and the cursor ---------------------------------------------------------------------------------------------
@@ -410,7 +410,10 @@ export async function cancelProposedChanges(q: Queryable, tenantId: string): Pro
   return r.rowCount;
 }
 
-export async function submittedPayeeChanges(q: Queryable, tenantId: string): Promise<PayeeChangeRow[]> {
-  const r = await q.query<PcRow>(`select ${PC_COLUMNS} from payee_changes where tenant_id = $1 and status in ('SUBMITTED','EXECUTING') and (submitted_tx is not null or executed_tx is not null)`, [tenantId]);
-  return r.rows.map(mapPc);
+export async function submittedPayeeChanges(q: Queryable, tenantId: string): Promise<Array<{ change: PayeeChangeRow; ageSeconds: number }>> {
+  const r = await q.query<PcRow & { age: number }>(
+    `select ${PC_COLUMNS}, extract(epoch from now() - updated_at)::int as age from payee_changes where tenant_id = $1 and status in ('SUBMITTED','EXECUTING') and (submitted_tx is not null or executed_tx is not null)`,
+    [tenantId],
+  );
+  return r.rows.map((x) => ({ change: mapPc(x), ageSeconds: x.age }));
 }
