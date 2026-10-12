@@ -13,7 +13,8 @@ export type LogLevel = "info" | "warn" | "error";
 export const MAX_FIELD = 200;
 
 // Keys that may carry content or credentials. Summaries of content (hash, length, bytes, count) are fine to log.
-const SENSITIVE_KEY = /text|body|raw|payload|authorization|token|secret|password|private|apikey|signature|cookie|^key$|_key$|key$/i;
+const SENSITIVE_KEY =
+  /text|body|raw|payload|authorization|auth|token|secret|password|private|apikey|signature|cookie|cred|url|dsn|conn|^key$|_key$|key$|^(err|error|message|msg|stack|cause|reason_text)$/i;
 const SAFE_SUFFIX = /(hash|length|len|bytes|count)$/i;
 
 export interface LogSink {
@@ -24,6 +25,49 @@ export interface Logger {
   info(event: string, fields?: LogFields): void;
   warn(event: string, fields?: LogFields): void;
   error(event: string, fields?: LogFields): void;
+}
+
+/**
+ * What may be logged about a caught error: its class and a short machine code, never its message, stack or cause
+ * (a pg, fetch or Circle error message can carry the connection string, a header or a response body).
+ */
+export function errorFields(e: unknown): { errClass: string; errCode: string } {
+  const cls = e instanceof Error ? e.constructor.name : typeof e;
+  const code = typeof e === "object" && e !== null && "code" in e ? (e as { code: unknown }).code : undefined;
+  return {
+    errClass: /^[A-Za-z0-9_]{1,60}$/.test(cls) ? cls : "Error",
+    errCode: typeof code === "string" && /^[A-Za-z0-9_]{1,40}$/.test(code) ? code : "none",
+  };
+}
+
+const MIN_REDACT = 8;
+
+/**
+ * Every spelling of a secret that can reach a JSON log line: raw, JSON-escaped (quotes, backslashes and control
+ * characters are escaped inside the encoded line), percent-encoded, hex (both cases), and base64 / base64url at each of
+ * the three byte alignments (a secret embedded in a longer base64 string starts at any offset), padding stripped.
+ */
+export function secretVariants(secret: string): string[] {
+  const out = new Set<string>();
+  const add = (v: string): void => {
+    if (v.length >= MIN_REDACT) out.add(v);
+  };
+  add(secret);
+  add(JSON.stringify(secret).slice(1, -1));
+  add(encodeURIComponent(secret));
+  const bytes = Buffer.from(secret, "utf8");
+  add(bytes.toString("hex"));
+  add(bytes.toString("hex").toUpperCase());
+  const start = [0, 2, 3];
+  for (let k = 0; k < 3; k++) {
+    const b64 = Buffer.concat([Buffer.alloc(k), bytes]).toString("base64").replace(/=+$/, "");
+    const total = k + bytes.length;
+    const cut = total % 3 === 0 ? 0 : 1; // the last char of a partial final group mixes in zero padding bits
+    const stable = b64.slice(start[k] ?? 0, b64.length - cut);
+    add(stable);
+    add(stable.replace(/\+/g, "-").replace(/\//g, "_"));
+  }
+  return [...out];
 }
 
 export interface LoggerOptions {
@@ -42,7 +86,7 @@ function clip(s: string): string {
   return s.length <= MAX_FIELD ? s : `${s.slice(0, MAX_FIELD)}...(truncated ${s.length - MAX_FIELD})`;
 }
 
-export function scrubFields(fields: LogFields): Record<string, LogValue> {
+export function scrubFields(fields: LogFields, redact: (s: string) => string = (s) => s): Record<string, LogValue> {
   const out: Record<string, LogValue> = {};
   for (const [k, v] of Object.entries(fields)) {
     if (v === undefined) continue;
@@ -50,18 +94,23 @@ export function scrubFields(fields: LogFields): Record<string, LogValue> {
       out[k] = "[dropped]";
       continue;
     }
-    out[k] = typeof v === "string" ? clip(v) : v;
+    // Redact BEFORE clipping: truncation must not cut a secret in half and leave an unmatched prefix behind.
+    out[k] = typeof v === "string" ? clip(redact(v)) : v;
   }
   return out;
 }
 
 export function createLogger(options: LoggerOptions = {}): Logger {
   const sink: LogSink = options.sink ?? { write: (line) => void process.stdout.write(line) };
-  const secrets = (options.secrets ?? []).filter((s) => s.length >= 8);
+  const secrets = [...new Set((options.secrets ?? []).filter((s) => s.length >= MIN_REDACT).flatMap(secretVariants))].sort((a, b) => b.length - a.length);
   const clock = options.clock ?? (() => Date.now());
+  const redact = (t: string): string => {
+    let r = t;
+    for (const x of secrets) r = r.split(x).join("[redacted]");
+    return r;
+  };
   const emit = (level: LogLevel, event: string, fields: LogFields = {}): void => {
-    let line = JSON.stringify({ at: new Date(clock()).toISOString(), level, event: clip(event), ...scrubFields(fields) });
-    for (const s of secrets) line = line.split(s).join("[redacted]");
+    const line = redact(JSON.stringify({ at: new Date(clock()).toISOString(), level, event: clip(redact(event)), ...scrubFields(fields, redact) }));
     sink.write(`${line}\n`);
   };
   return {
