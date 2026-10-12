@@ -24,7 +24,7 @@ function totalsOf(m: AttackMatrix, target: string): TargetTotals {
 function lossLine(t: TargetTotals): string {
   const y = t.applicable;
   const x = t.oracleScored.loss + t.signalScored.loss;
-  return `${x} of ${y} applicable attacks (oracle-scored ${t.oracleScored.loss} of ${t.oracleScored.applicable}; signal-scored ${t.signalScored.loss} of ${t.signalScored.applicable})`;
+  return `${x} of ${y} applicable attacks (oracle-scored ${t.oracleScored.loss} of ${t.oracleScored.applicable}; signal-scored ${t.signalScored.loss} of ${t.signalScored.applicable}; not run at all ${t.oracleScored.notRun + t.signalScored.notRun})`;
 }
 
 function rateLine(t: TargetTotals): string {
@@ -37,8 +37,7 @@ function rateLine(t: TargetTotals): string {
 function cell(r: AttackResult | undefined): string {
   if (r === undefined) return "-";
   if (r.outcome === "N/A") return "N/A";
-  const flags = [r.complete ? "" : "partial", r.outcome === "NOT_RUN" ? "" : ""].filter(Boolean).join(",");
-  return `${r.outcome}${flags === "" ? "" : ` (${flags})`}`;
+  return r.complete ? r.outcome : `${r.outcome} (partial)`;
 }
 
 export function renderMarkdown(m: AttackMatrix): string {
@@ -65,7 +64,7 @@ export function renderMarkdown(m: AttackMatrix): string {
   p("- **B0 and B2:** not built yet (WP-36); their applicability rows are undecided and are not counted as blocked or as applicable.");
   p(`- **Complete attacks:** Symbolon ${sym.completeAttacks} of ${sym.applicable} ran every step; the others are partial or NOT_RUN (reasons below). NOT_RUN is never counted as blocked.`);
   p(`- **Oracle/fixture agreement:** ${m.agreement.rows} intended releases checked, ${m.agreement.disagreements} disagreement(s) (must be 0); ${m.agreement.extrasInformational} release(s) break more rules than the fixture lists (information only).`);
-  p(`- **Hold-out:** ${m.holdout.status}. ${m.holdout.reason}.`);
+  p(`- **Hold-out:** ${m.holdout.status.replace("-", " ")}. ${m.holdout.reason.charAt(0).toUpperCase()}${m.holdout.reason.slice(1)}.`);
   p();
 
   p("## Targets and provenance");
@@ -85,14 +84,14 @@ export function renderMarkdown(m: AttackMatrix): string {
   p();
   p("Outcome per target. `LOSS` is decided by the oracle on the releases the target made (scoring \"oracle\") or, for the five attacks the oracle cannot express, by a documented signal (scoring \"signal\"). Loss in USDC is the money that left the correct-payee/correct-amount rule; a rule violation with the right payee and amount shows 0.000000.");
   p();
-  p("| Attack | Class | Scoring | Symbolon | checks fired | expectations (match/mismatch/inconclusive) | control | B1 | B1 loss (USDC) | B1 oracle predicates | B0 | B2 |");
-  p("|---|---|---|---|---|---|---|---|---|---|---|---|");
+  p("| Attack | Class | Scoring | Symbolon | checks fired | expectations (match/mismatch/inconclusive) | Symbolon control | B1 | B1 loss (USDC) | B1 oracle predicates | B1 control | B0 | B2 |");
+  p("|---|---|---|---|---|---|---|---|---|---|---|---|---|");
   for (const id of ATTACK_META_IDS) {
     const s = m.attacks.find((a) => a.attackId === id && a.target === "symbolon");
     const b = m.attacks.find((a) => a.attackId === id && a.target === "b1");
     const meta = ATTACK_META[id];
     p(
-      `| ${id} | ${meta.errorClass} | ${s?.scoring ?? "-"} | ${cell(s)} | ${s?.checksFired.join(", ") ?? ""} | ${s === undefined ? "" : `${s.expectations.match}/${s.expectations.mismatch}/${s.expectations.inconclusive}`} | ${s?.control.status ?? ""} | ${cell(b)} | ${b === undefined || b.outcome === "N/A" ? "" : formatUsdc(BigInt(b.lossBaseUnits))} | ${b?.oracle?.predicates.join("+") ?? ""} | not built | not built |`,
+      `| ${id} | ${meta.errorClass} | ${s?.scoring ?? "-"} | ${cell(s)} | ${s?.checksFired.join(", ") ?? ""} | ${s === undefined ? "" : `${s.expectations.match}/${s.expectations.mismatch}/${s.expectations.inconclusive}`} | ${s?.control.status ?? ""} | ${cell(b)} | ${b === undefined || b.outcome === "N/A" ? "" : formatUsdc(BigInt(b.lossBaseUnits))} | ${b?.oracle?.predicates.join("+") ?? ""} | ${b === undefined || b.outcome === "N/A" ? "" : b.control.status} | not built | not built |`,
     );
   }
   p();
