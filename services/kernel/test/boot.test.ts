@@ -140,3 +140,35 @@ describe("boot guards (INV-16, RT-05, docs/15 s3)", () => {
     expect(loadConfig(production()).maxBlobBytes).toBeGreaterThan(0);
   });
 });
+
+describe("G10 and the secret inventory (SEC-07 review findings)", () => {
+  it("refuses any configured secret shorter than 16 characters, including ones not in the old list", () => {
+    for (const name of ["CIRCLE_API_KEY", "CIRCLE_ENTITY_SECRET", "SUPABASE_SERVICE_ROLE_KEY", "ANTHROPIC_API_KEY", "GITHUB_TOKEN", "CIRCLE_WEBHOOK_SECRET", "SOMETHING_NEW_SECRET", "MY_API_KEY"]) {
+      expect(rules({ ...production(), [name]: "short" }), name).toContain(`G10:${name}`);
+      expect(rules({ ...production(), [name]: "x".repeat(16) }), `${name} ok`).toEqual([]);
+    }
+    expect(rules({ ...production(), CIRCLE_WEBHOOK_PUBLIC_KEY_ID: "id" })).toEqual([]); // a public id is not a secret
+  });
+
+  it("refuses a short database password", () => {
+    expect(rules({ ...production(), DATABASE_URL: "postgres://kernel:hunter2@db.prod.example.test:5432/x" })).toContain("G10:DATABASE_URL");
+    expect(rules({ ...production(), DATABASE_URL: `postgres://kernel:${"p".repeat(20)}@db.prod.example.test:5432/x` })).toEqual([]);
+  });
+
+  it("the redaction list holds the URL, userinfo, password and user, raw and URL-decoded, and every other configured secret", () => {
+    const pw = "p@ss/w0rd:with%chars-1234";
+    const env = {
+      ...production(),
+      DATABASE_URL: `postgres://kernel_user:${encodeURIComponent(pw)}@db.prod.example.test:5432/x`,
+      SUPABASE_SERVICE_ROLE_KEY: "service-role-key-0123456789",
+      ANTHROPIC_API_KEY: "anthropic-key-0123456789",
+      CIRCLE_API_KEY: "circle-api-key-0123456789",
+      CIRCLE_ENTITY_SECRET: "circle-entity-0123456789",
+      GITHUB_TOKEN: "github-token-0123456789",
+    };
+    const list = loadConfig(env).logSecrets.map((s) => s.reveal());
+    for (const must of [pw, encodeURIComponent(pw), `kernel_user:${pw}`, `kernel_user:${encodeURIComponent(pw)}`, env.DATABASE_URL, "kernel_user", env.SUPABASE_SERVICE_ROLE_KEY, env.ANTHROPIC_API_KEY, env.CIRCLE_API_KEY, env.CIRCLE_ENTITY_SECRET, env.GITHUB_TOKEN, env.SERVICE_TOKEN_SECRET, env.KERNEL_SIGNER_PRIVATE_KEY]) {
+      expect(list, must).toContain(must);
+    }
+  });
+});

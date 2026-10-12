@@ -3,6 +3,7 @@
 import { assertBootGuards, parseProfile } from "./boot";
 import type { EnvLike, Profile } from "./boot";
 import { Secret } from "./secret";
+import { redactionList } from "./secrets";
 
 export type NetworkName = "testnet" | "local";
 
@@ -71,6 +72,6 @@ export function loadConfig(env: EnvLike): KernelConfig {
     maxBlobBytes: profile === "sandbox" ? 0 : intOf(env, "MAX_BLOB_BYTES", DEFAULT_MAX_BLOB_BYTES, 0, 64 * 1024 * 1024),
     maxTokenTtlSeconds: TOKEN_TTL_CEILING_SECONDS,
     challengeEnabled: profile === "sandbox" && env["CHALLENGE_ENABLED"] !== "false",
-    logSecrets: [databaseUrl, serviceTokenSecret, kernelSignerKey, env["GUARDIAN_PRIVATE_KEY"] ?? "", env["CIRCLE_API_KEY"] ?? "", env["CIRCLE_ENTITY_SECRET"] ?? ""].filter((s) => s !== "").map((s) => new Secret(s)),
+    logSecrets: redactionList(env).map((s) => new Secret(s)),
   });
 }

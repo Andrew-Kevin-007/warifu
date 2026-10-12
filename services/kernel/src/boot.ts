@@ -12,8 +12,11 @@
 //   G6  sandbox: CHALLENGE_LLM_DAILY_BUDGET_USD and CHALLENGE_IP_SALT set                    (15 s3.6)
 //   G8  SERVICE_TOKEN_SECRET present, >= 32 bytes, not a placeholder; a sandbox secret is
 //       not one of the PROD_* values (impossible by G3) and never equals KERNEL_SIGNER_PRIVATE_KEY (RT-31)
+//   G10 every configured secret (and a DATABASE_URL password) is >= 16 characters: a short secret cannot be
+//       redacted from logs reliably, so it is refused rather than silently left in the clear (SEC-07)
 //   G9  production: no challenge switches (CHALLENGE_ENABLED=true, CHALLENGE_*)
 import { privateKeyToAccount } from "viem/accounts";
+import { MIN_SECRET_CHARS, configuredSecrets } from "./secrets";
 
 export type EnvLike = Readonly<Record<string, string | undefined>>;
 
@@ -70,6 +73,20 @@ export function evaluateBootGuards(env: EnvLike): BootViolation[] {
   if (profile === null) {
     add("G0", "KERNEL_PROFILE", 'must be exactly "production" or "sandbox" (there is no default)');
     return v; // nothing else is meaningful without a profile
+  }
+
+  // G10: nothing short enough to be guessed or to collide with ordinary log text.
+  for (const [name, value] of configuredSecrets(env)) {
+    if (value.length < MIN_SECRET_CHARS) add("G10", name, `must be at least ${String(MIN_SECRET_CHARS)} characters`);
+  }
+  const dbUrl = set(env, "DATABASE_URL");
+  if (dbUrl !== undefined) {
+    try {
+      const pw = decodeURIComponent(new URL(dbUrl).password);
+      if (pw !== "" && pw.length < MIN_SECRET_CHARS) add("G10", "DATABASE_URL", `its password must be at least ${String(MIN_SECRET_CHARS)} characters`);
+    } catch {
+      // an unparsable URL is reported by G4 (sandbox) or fails at connect time; no password to measure
+    }
   }
 
   // G8: the web->kernel HMAC secret (RT-31, SEC-14).
