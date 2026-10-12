@@ -1,7 +1,7 @@
 ROLE: KERNEL-CORE   WP: 02 — Receipts (JCS/hash/sign/verify CLI)   BRANCH: wp-02/receipts-jcs-hash-sign   WORKTREE: yes
 PRIORITY: P0   WAVE: W1   EFFORT: ~3 agent-hours   DEPENDS ON: 01
-MODEL: opus   EFFORT LEVEL: xhigh   (role default (KERNEL-CORE))
-LAUNCH: claude --model opus --effort xhigh
+MODEL: sonnet   EFFORT LEVEL: high   (override: receipts; gated by WP-01 golden vectors (sonnet-first 2026-10-12))
+LAUNCH: claude --model sonnet --effort high
 
 READ FIRST (in order):
   1. AGENTS.md  (prime directives §0.1-§0.12 — if a spec conflicts, the spec wins; log it in docs/QUESTIONS.md)

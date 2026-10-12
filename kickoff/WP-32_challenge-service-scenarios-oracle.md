@@ -1,7 +1,7 @@
 ROLE: KERNEL-SVC   WP: 32 — Challenge service: scenarios, oracle wiring (`packages/oracle`, WP-23), budget ledger, rate limits, boot guards, house attackers   BRANCH: wp-32/challenge-service-scenarios-oracle   WORKTREE: yes
 PRIORITY: P0   WAVE: W4–W5   EFFORT: ~7 agent-hours   DEPENDS ON: 14,23
-MODEL: opus   EFFORT LEVEL: high   (override: public attack surface, isolation, abuse controls (lean: high))
-LAUNCH: claude --model opus --effort high
+MODEL: sonnet   EFFORT LEVEL: high   (override: public attack surface, isolation, abuse controls (sonnet-first 2026-10-12))
+LAUNCH: claude --model sonnet --effort high
 
 READ FIRST (in order):
   1. AGENTS.md  (prime directives §0.1-§0.12 — if a spec conflicts, the spec wins; log it in docs/QUESTIONS.md)

@@ -1,7 +1,7 @@
 ROLE: BLAST   WP: 34 — Loss Bound Certificate: build/verify/CLI/API (+ UI page via WP-21)   BRANCH: wp-34/loss-bound-certificate-build   WORKTREE: yes
 PRIORITY: P0   WAVE: W4   EFFORT: ~6 agent-hours   DEPENDS ON: 25,07
-MODEL: opus   EFFORT LEVEL: high   (override: certificate soundness (INV-22))
-LAUNCH: claude --model opus --effort high
+MODEL: sonnet   EFFORT LEVEL: high   (override: certificate soundness (INV-22) (sonnet-first 2026-10-12))
+LAUNCH: claude --model sonnet --effort high
 
 READ FIRST (in order):
   1. AGENTS.md  (prime directives §0.1-§0.12 — if a spec conflicts, the spec wins; log it in docs/QUESTIONS.md)
