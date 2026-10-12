@@ -151,14 +151,13 @@ export async function assembleContext(a: AssembleInput): Promise<KernelContext> 
 
   const exclIntent = a.excludeIntentId ?? null;
   const exclDecision = a.excludeDecisionId ?? null;
-  const [prior, released, obligations, history, escalations, breakerRow] = await Promise.all([
-    repo.loadPriorDecisions(a.q, a.tenantId, a.now, exclIntent),
-    repo.loadReleasedTotals(a.q, a.tenantId, a.now, engagement?.engagementId ?? null, engagement?.payee ?? null, exclDecision),
-    repo.loadObligations(a.q, a.tenantId, a.now, a.policy.policy.reserve.lookaheadDays),
-    repo.loadPayeeHistory(a.q, a.tenantId, engagement?.payee ?? null),
-    repo.loadEscalations(a.q, a.tenantId, a.now, exclIntent),
-    repo.loadBreaker(a.q, a.tenantId),
-  ]);
+  // Sequential on purpose: one transaction is one connection, and pg does not allow overlapping queries on it.
+  const prior = await repo.loadPriorDecisions(a.q, a.tenantId, a.now, exclIntent);
+  const released = await repo.loadReleasedTotals(a.q, a.tenantId, a.now, engagement?.engagementId ?? null, engagement?.payee ?? null, exclDecision);
+  const obligations = await repo.loadObligations(a.q, a.tenantId, a.now, a.policy.policy.reserve.lookaheadDays);
+  const history = await repo.loadPayeeHistory(a.q, a.tenantId, engagement?.payee ?? null);
+  const escalations = await repo.loadEscalations(a.q, a.tenantId, a.now, exclIntent);
+  const breakerRow = await repo.loadBreaker(a.q, a.tenantId);
   let evidence: KernelContext["evidence"] = [];
   if (milestone !== null) {
     try {
