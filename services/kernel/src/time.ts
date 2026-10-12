@@ -35,6 +35,10 @@ export function toIsoSeconds(v: unknown): ISODateTime {
   return isoFromEpochSeconds(BigInt(Math.floor(ms / 1000)));
 }
 
+export function isoFromEpochSecondsBig(seconds: bigint): ISODateTime {
+  return isoFromEpochSeconds(seconds);
+}
+
 export function plusSeconds(iso: ISODateTime, seconds: number): ISODateTime {
   return isoFromEpochSeconds(epochSecondsFromIso(iso) + BigInt(seconds));
 }
