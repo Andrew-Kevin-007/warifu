@@ -12,7 +12,7 @@
 // captured earlier must not become replayable after one).
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import * as z from "zod";
-import { NonceCache } from "./nonce-cache";
+import type { NonceCache } from "./nonce-cache";
 import type { Profile } from "../boot";
 
 export const TOKEN_VERSION = "v1";
