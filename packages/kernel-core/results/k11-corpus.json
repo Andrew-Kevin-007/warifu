@@ -1,19 +1,21 @@
 {
   "schema": "k11-corpus/1",
-  "patternsVersion": "symbolon-patterns/1.0.0",
-  "note": "Hand-written corpus (packages/kernel-core/test/k11-corpus.ts) by the KERNEL-CORE lane; not a sample of real invoices. Independent sets are ATTACK-lane fixtures.",
+  "patternsVersion": "symbolon-patterns/1.1.0",
+  "note": "Hand-written corpus (packages/kernel-core/test/k11-corpus.ts) by the KERNEL-CORE lane; not a sample of real invoices. Independent sets are ATTACK-lane fixtures. Hidden characters are counted with normalizeUntrusted().removedCount.",
   "positives": {
-    "n": 60,
-    "flagged": 60,
+    "n": 79,
+    "flagged": 79,
     "missed": []
   },
   "negatives": {
-    "n": 60,
-    "falsePositives": 1,
+    "n": 68,
+    "falsePositives": 3,
     "falsePositiveIds": [
-      "N19"
+      "N19",
+      "N61",
+      "N62"
     ],
-    "rate": "1/60"
+    "rate": "3/68"
   },
   "independent": {
     "attackSuiteInjections": {
@@ -25,7 +27,7 @@
       },
       "notRequired": {
         "n": 7,
-        "flagged": 5
+        "flagged": 6
       }
     },
     "attackSuiteHonest": {
