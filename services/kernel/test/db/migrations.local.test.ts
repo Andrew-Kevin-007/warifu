@@ -64,7 +64,10 @@ describe.skipIf(!enabled)("local migrations", () => {
        from information_schema.columns c join information_schema.tables t on t.table_schema = c.table_schema and t.table_name = c.table_name
        where c.table_schema = 'public' and t.table_type = 'BASE TABLE' and (c.column_name like '%base_units%' or c.column_name in ('bound_24h', 'bound_7d'))`,
     );
-    expect(money.length).toBeGreaterThanOrEqual(10);
+    expect(money.map((m) => `${m.table_name}.${m.column_name}`).sort()).toEqual([
+      "approvals.amount_base_units", "attack_results.loss_base_units", "blast_reports.bound_24h", "blast_reports.bound_7d", "decisions.amount_base_units",
+      "decisions.release_amount_base_units", "engagements.cap_base_units", "milestones.amount_base_units", "traction_events.amount_base_units",
+    ]);
     for (const m of money) {
       expect(m.data_type, `${m.table_name}.${m.column_name}`).toBe("numeric");
       expect(m.numeric_scale, `${m.table_name}.${m.column_name}`).toBe(0);
