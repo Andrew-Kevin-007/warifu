@@ -17,17 +17,17 @@
 //   G9  production: no challenge switches (CHALLENGE_ENABLED=true, CHALLENGE_*)
 import { privateKeyToAccount } from "viem/accounts";
 import { MIN_SECRET_CHARS, configuredSecrets } from "./secrets";
+import { PROFILES } from "./types";
+import type { EnvLike, Profile } from "./types";
 
-export type EnvLike = Readonly<Record<string, string | undefined>>;
+export { PROFILES };
+export type { EnvLike, Profile };
 
 export interface BootViolation {
   readonly rule: string;
   readonly variable: string;
   readonly message: string;
 }
-
-export const PROFILES = ["production", "sandbox"] as const;
-export type Profile = (typeof PROFILES)[number];
 
 const DENYLIST_NAMES = new Set(["PROD_SIGNER_ADDRESSES", "PROD_SUPABASE_HOST"]);
 const PLACEHOLDER = /^(change.?me|secret|password|test|todo|xxx+|0+|1+|replace.?me|example|placeholder)$/i;

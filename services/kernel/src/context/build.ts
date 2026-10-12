@@ -139,12 +139,14 @@ export async function assembleContext(a: AssembleInput): Promise<KernelContext> 
   const doc = await repo.getDocument(a.q, a.tenantId, a.peek.documentId);
   if (doc === null) throw new ContextError("NO_DOCUMENT", "document not found for this tenant");
 
-  let engagement = null;
-  try {
-    engagement = a.peek.engagementId === null ? null : await repo.loadEngagement(a.q, a.tenantId, a.peek.engagementId);
-  } catch (cause) {
-    throw new ContextError("DB_ROW_INVALID", "engagement row does not parse", { cause });
-  }
+  const engagement = await (async () => {
+    if (a.peek.engagementId === null) return null;
+    try {
+      return await repo.loadEngagement(a.q, a.tenantId, a.peek.engagementId);
+    } catch (cause) {
+      throw new ContextError("DB_ROW_INVALID", "engagement row does not parse", { cause });
+    }
+  })();
   const milestone = engagement === null || a.peek.milestoneId === null ? null : (engagement.milestones.find((m) => m.milestoneId === a.peek.milestoneId) ?? null);
 
   const exclIntent = a.excludeIntentId ?? null;

@@ -1,7 +1,7 @@
 // The inventory of configured secrets (SEC-07). One list drives three things: the >= 16 character boot guard (a short
 // secret cannot be redacted reliably, so it is refused instead of silently left in the clear), the log redactor, and
 // the config's Secret wrappers.
-import type { EnvLike } from "./boot";
+import type { EnvLike } from "./types";
 
 /** Secret env names from services/kernel/.env.example plus the sandbox salt and the LLM key. */
 export const NAMED_SECRETS = [
