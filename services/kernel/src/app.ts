@@ -25,6 +25,10 @@ import type { Logger } from "./log";
 import type { KernelSigner } from "./receipt/build";
 import { ingestDocument } from "./service/documents";
 import { contextFailure, submitIntent } from "./service/intents";
+import type { EngagementChain } from "./chain/engagement-chain";
+import type { VaultRelayer } from "./chain/relayer";
+import { createEngagement, getEngagementView, payeeChangeFlow, signEngagement } from "./engagement/service";
+import type { EngagementServiceDeps } from "./engagement/service";
 import { unavailablePlanProvider } from "./service/plans";
 import type { PlanProvider } from "./service/plans";
 import { nowIso } from "./time";
@@ -46,6 +50,8 @@ export interface AppDeps {
   readonly maxBlobBytes: number;
   readonly plans?: PlanProvider;
   readonly newId?: () => string;
+  /** WP-12. Absent = the engagement routes answer 501 (a build without an indexer/relayer edge never half-works). */
+  readonly engagements?: { readonly chain: EngagementChain; readonly relayer: VaultRelayer | null; readonly newUuid?: () => string };
 }
 
 const IDEMPOTENCY_KEY = /^[A-Za-z0-9_:.-]{1,128}$/;
@@ -289,6 +295,44 @@ export function createApp(d: AppDeps): Hono<AppEnv> {
     } catch (e) {
       throw contextFailure(e, d.logger);
     }
+  });
+
+  // --- engagements (WP-12): typed data, signature collection, registration relay, payee change ----------------------------
+  const eng = d.engagements;
+  const engagementDeps = (): EngagementServiceDeps => {
+    if (eng === undefined) throw new ApiError("NOT_IMPLEMENTED", "engagements are not available in this build");
+    return { db: d.db, chain: d.chain, engagementChain: eng.chain, relayer: eng.relayer, logger: d.logger, ...(eng.newUuid === undefined ? {} : { newUuid: eng.newUuid }) };
+  };
+  const jsonBody = async (c: { req: { json(): Promise<unknown> } }): Promise<unknown> => {
+    try {
+      return await c.req.json();
+    } catch {
+      throw new ApiError("BAD_REQUEST", "malformed JSON body");
+    }
+  };
+
+  v1.post("/engagements", tooLarge, async (c) => {
+    const { tenantId } = c.get("auth");
+    const r = await createEngagement(engagementDeps(), tenantId, await jsonBody(c));
+    return c.json(r.engagement, r.created ? 201 : 200);
+  });
+
+  v1.get("/engagements/:id", async (c) => {
+    const { tenantId } = c.get("auth");
+    return c.json(await getEngagementView(engagementDeps(), tenantId, hex32Param(c.req.param("id"))));
+  });
+
+  v1.post("/engagements/:id/sign", tooLarge, async (c) => {
+    const { tenantId } = c.get("auth");
+    const id = hex32Param(c.req.param("id"));
+    return c.json(await signEngagement(engagementDeps(), tenantId, id, await jsonBody(c)));
+  });
+
+  v1.post("/engagements/:id/payee-change", tooLarge, async (c) => {
+    const { tenantId } = c.get("auth");
+    const id = hex32Param(c.req.param("id"));
+    const r = await payeeChangeFlow(engagementDeps(), tenantId, id, await jsonBody(c));
+    return c.json(r.change, r.created ? 201 : 200);
   });
 
   // --- stubs mounted per profile --------------------------------------------------------------------------------------
