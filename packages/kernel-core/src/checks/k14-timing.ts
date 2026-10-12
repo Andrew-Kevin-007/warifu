@@ -65,15 +65,14 @@ export function checkK14(intent: PaymentIntent, ctx: KernelContext, policy: Load
   const extractions = intent.extraction.b === null ? [intent.extraction.a] : [intent.extraction.a, intent.extraction.b];
   extractions.forEach((x, i) => issues.push(...termsIssues(x.statedTerms, terms.value, i === 0 ? "A" : "B")));
 
-  const re = ctx.reevaluation;
   const r = facts.release;
-  if (re !== null && r !== null) {
+  if (r !== null) {
     if (!r.expected.ok) {
-      issues.push({ onFail: "HOLD", code: "KERNEL_ERROR", detail: `amountDue at payAt not computable: ${r.expected.error.message}` });
+      issues.push({ onFail: "HOLD", code: "KERNEL_ERROR", detail: "amountDue at payAt is not computable from the signed terms" });
       return combine("K-14", issues, "");
     }
     const due = r.expected.value;
-    const scheduledInWindow = due.windowEnd !== null && epochSecondsFromIso(re.payAt) <= epochSecondsFromIso(due.windowEnd);
+    const scheduledInWindow = due.windowEnd !== null && epochSecondsFromIso(r.scheduledPayAt) <= epochSecondsFromIso(due.windowEnd);
     if (scheduledInWindow && !due.discountApplied && r.scheduledAmount !== due.amountDue) {
       issues.push({ onFail: "ESCALATE", code: "DISCOUNT_WINDOW_CLOSED", detail: `the discount window closed at ${due.windowEnd}; the scheduled ${r.scheduledAmount} is no longer amountDue(${r.payAt}) ${due.amountDue}` });
     }

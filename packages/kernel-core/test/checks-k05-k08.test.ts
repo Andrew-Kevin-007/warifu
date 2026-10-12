@@ -355,10 +355,12 @@ describe("K-08 AMOUNT_CONFORMANCE", () => {
       expectCheck(reeval("2026-10-06T00:00:00Z", "2026-10-06T00:00:00Z", 970_000_000n), "K-08", "ESCALATE", "UNDERPAY_PARTIAL");
     });
 
-    it("window boundary at ±1 s: at the end the discount holds; one second later the discounted amount is UNDERPAY", () => {
+    it("window boundary at ±1 s: at the end the discount holds; one second later the window has closed (WP-05: DISCOUNT_WINDOW_CLOSED)", () => {
       expectCheck(reeval("2026-10-15T10:00:00Z", "2026-10-15T10:00:00Z", 980_000_000n), "K-08", null, null);
-      expectCheck(reeval("2026-10-15T10:00:01Z", "2026-10-15T10:00:00Z", 980_000_000n), "K-08", "ESCALATE", "UNDERPAY_PARTIAL");
+      expectCheck(reeval("2026-10-15T10:00:01Z", "2026-10-15T10:00:00Z", 980_000_000n), "K-08", "ESCALATE", "DISCOUNT_WINDOW_CLOSED");
       expectCheck(reeval("2026-10-15T10:00:01Z", "2026-10-15T10:00:00Z", 1_000_000_000n), "K-08", null, null);
+      // scheduled one second AFTER the window: a discounted amount was never due, so it is an underpayment
+      expectCheck(reeval("2026-10-15T10:00:01Z", "2026-10-15T10:00:01Z", 980_000_000n), "K-08", "ESCALATE", "UNDERPAY_PARTIAL");
     });
 
     it("amountDue is taken at max(now, scheduled payAt)", () => {
@@ -381,10 +383,12 @@ describe("K-08 AMOUNT_CONFORMANCE", () => {
       expect(e.releaseAmountBaseUnits).toBeNull();
     });
 
-    it("a first evaluation has no release amount yet (K-14 picks payAt in WP-05)", () => {
+    it("a first evaluation reports the scheduled plan (WP-05): the last safe instant in the discount window", () => {
+      // window end 10-15T10:00 minus the 60-minute safety margin; floor(1e9 * 200 / 10000) = 20,000,000 off
       const e = phaseA(intent(), ctxFor(termsEng));
-      expect(e.releaseAmountBaseUnits).toBeNull();
-      expect(e.payAt).toBeNull();
+      expect(e.releaseAmountBaseUnits).toBe("980000000");
+      expect(e.payAt).toBe("2026-10-15T09:00:00Z");
+      expect([e.timingSource, e.plannerFallback]).toEqual(["DEFAULT", true]);
     });
   });
 

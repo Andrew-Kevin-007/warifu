@@ -62,7 +62,11 @@ describe("P-MONO: adding a failing condition never improves the verdict", () => 
 });
 
 describe("P-NO-LLM: model confidence, recommendations and prose never change the evaluation", () => {
-  it("mutating confidence, agentRecommendation, planSelection/timingProposal rationale and statedTerms.raw leaves evaluate() identical", () => {
+  // WP-05: the planner's planId and the timing proposal's instant are structured CHOICES the kernel re-checks; the same
+  // choice is used on both sides. Everything else the LLM writes (confidence, recommendation, rationale, deviation
+  // reason, factors, risk flags, statedTerms.raw) must not change a single byte of the evaluation.
+  it("mutating confidence, agentRecommendation, planner/timing prose and flags, and statedTerms.raw leaves evaluate() identical", () => {
+    let agentPlans = 0;
     fc.assert(
       fc.property(
         scenarioArb,
@@ -72,19 +76,31 @@ describe("P-NO-LLM: model confidence, recommendations and prose never change the
         fc.array(proseArb, { maxLength: 3 }),
         proseArb,
         proseArb,
-        (s, ca, cb, verdict, reasons, rationale, raw) => {
-          const m = clone(s.raw);
+        fc.nat(),
+        fc.subarray(["due_date", "discount_window", "implied_apr", "liquidity", "payee_history", "evidence_status", "policy_rule", "delivery_risk"] as const),
+        fc.subarray(["DELIVERY_UNCERTAIN", "VENDOR_HISTORY_POOR", "LIQUIDITY_TIGHT", "TERMS_AMBIGUOUS", "OTHER"] as const),
+        (s, ca, cb, verdict, reasons, rationale, raw, pick, factors, flags) => {
+          const offered = evaluate(s.raw, s.ctx, s.policy).plans;
+          const chosen = offered.length > 0 && pick % 3 !== 0 ? offered[pick % offered.length] : undefined;
+          const planId = chosen === undefined ? hashJcs(`not a plan ${pick}`) : chosen.planId;
+          if (chosen !== undefined && chosen.mode !== "HOLD") agentPlans++;
+          const base = {
+            ...clone(s.raw),
+            planSelection: { planId, rationale: "x", factorsConsidered: [] as string[], riskFlags: [] as string[], deviatesFromEvaluator: false, deviationReason: null as string | null },
+            timingProposal: { payAt: "2026-10-06T00:00:00Z", rationale: "x" },
+          };
+          const m = clone(base);
           m.extraction.a.confidence = ca;
           if (m.extraction.b !== null) m.extraction.b.confidence = cb;
           m.agentRecommendation = { verdict, reasons };
-          m.planSelection = { planId: hashJcs(rationale), rationale, factorsConsidered: ["due_date"], riskFlags: [], deviatesFromEvaluator: false, deviationReason: null };
+          m.planSelection = { planId, rationale, factorsConsidered: [...factors], riskFlags: [...flags], deviatesFromEvaluator: true, deviationReason: raw };
           m.timingProposal = { payAt: "2026-10-06T00:00:00Z", rationale };
           const mutated = eachExtraction(m, (x) => (x.statedTerms = { ...x.statedTerms, raw }));
-          const before = { ...clone(s.raw), timingProposal: { payAt: "2026-10-06T00:00:00Z", rationale: "x" } };
-          expect(canon(evaluate(mutated, s.ctx, s.policy))).toBe(canon(evaluate(before, s.ctx, s.policy)));
+          expect(canon(evaluate(mutated, s.ctx, s.policy))).toBe(canon(evaluate(base, s.ctx, s.policy)));
         },
       ),
       RUNS,
     );
+    expect(agentPlans).toBeGreaterThan(200);
   });
 });

@@ -11,9 +11,11 @@
 // WP-05 additions (docs/QUESTIONS.md "WP-05"):
 //   released.tenantCountDay   K-12 velocity.maxReleasesPerDay.
 //   planningAsOf              K-14 validates a planner selection against the plan set as it was offered.
+//   approvedEscalation        the escalation receipt and findings an OwnerApproval covers (gates.ts).
 import { hashJcs } from "@symbolon/schemas";
 import type {
   Address,
+  CheckId,
   Eip712Message,
   Engagement,
   Evidence,
@@ -22,6 +24,7 @@ import type {
   Milestone,
   PaymentTerms,
   Profile,
+  ReasonCode,
   UUID,
   Untrusted,
   Verdict,
@@ -170,6 +173,24 @@ export interface KernelContext {
    * [invoiceReceivedAt, now].
    */
   readonly planningAsOf: ISODateTime | null;
+  /**
+   * WP-05: the escalation the owner approved, filled by the service from the intent's supersedes chain: the receipt
+   * hash of the escalated decision (must equal ownerApproval.receiptHash) and the approvable findings that decision
+   * listed (Evaluation.approvableFindings). An approval resolves ONLY those (check, code) findings; anything new needs
+   * a new approval. null => no approval can resolve anything.
+   */
+  readonly approvedEscalation: ApprovedEscalation | null;
+}
+
+/** One finding an owner can approve: an ESCALATE issue of a check (docs/04 §1). */
+export interface FindingRef {
+  readonly checkId: CheckId;
+  readonly code: ReasonCode;
+}
+
+export interface ApprovedEscalation {
+  readonly receiptHash: Hex32;
+  readonly findings: readonly FindingRef[];
 }
 
 type Json = null | boolean | number | string | Json[] | { [key: string]: Json };

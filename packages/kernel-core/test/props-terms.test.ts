@@ -1,12 +1,12 @@
 // P-TERMS-IGNORE-INVOICE, P-TERMS-WINDOW (kernel level) and P-NO-BINARY (docs/04 §9), 1,000 runs each.
 import { describe, expect, it, vi } from "vitest";
 import fc from "fast-check";
-import { epochSecondsFromIso, isoFromEpochSeconds } from "@symbolon/schemas";
+import { epochSecondsFromIso, isoFromEpochSeconds, jcs } from "@symbolon/schemas";
 import { evaluate } from "../src/index";
 import type { KernelContext } from "../src/index";
 import { DOC_TEXT, GROSS, START, context, engagement, intent, phaseA, policy, withDoc } from "./helpers";
 import type { RawIntent } from "./helpers";
-import { META, PROPERTY_TIMEOUT_MS, RUNS, eachExtraction } from "./props-common";
+import { META, PROPERTY_TIMEOUT_MS, RUNS, eachExtraction, issueKeys, sev } from "./props-common";
 import { proseArb, scenarioArb } from "./scenario";
 
 vi.setConfig({ testTimeout: PROPERTY_TIMEOUT_MS });
@@ -19,7 +19,8 @@ describe("P-TERMS-IGNORE-INVOICE: invoice-stated terms never change amountDue, p
     ambiguous: fc.boolean(),
   });
 
-  it("they may only add ESCALATE findings (none in WP-04; K-14 compares them in WP-05)", () => {
+  it("they never change the amounts, the schedule or the plan set; they may only add ESCALATE TERMS_* findings (WP-05 K-14)", () => {
+    let added = 0;
     fc.assert(
       fc.property(scenarioArb, stated, (s, terms) => {
         const mutated = eachExtraction(s.raw, (x) => (x.statedTerms = terms));
@@ -29,15 +30,22 @@ describe("P-TERMS-IGNORE-INVOICE: invoice-stated terms never change amountDue, p
         expect(after.payAt).toBe(before.payAt);
         expect(after.amountBaseUnits).toBe(before.amountBaseUnits);
         expect(after.intentId).toBe(before.intentId);
-        expect(after.checks.length).toBe(before.checks.length);
+        expect(after.planId).toBe(before.planId);
+        expect(jcs(after.plans)).toBe(jcs(before.plans));
+        expect(after.checks.map((c) => c.id)).toEqual(before.checks.map((c) => c.id));
+        expect(sev(after)).toBeGreaterThanOrEqual(sev(before));
         after.checks.forEach((c, i) => {
-          const b = before.checks[i];
-          const same = JSON.stringify(c) === JSON.stringify(b);
-          expect(same || (b?.status === "PASS" && c.status === "FAIL" && c.onFail === "ESCALATE")).toBe(true);
+          const was = issueKeys(before.checks[i] as (typeof before.checks)[number]);
+          const now = issueKeys(c);
+          for (const k of was) expect(now).toContain(k);
+          const extra = now.filter((k) => !was.includes(k));
+          for (const k of extra) expect(["ESCALATE:TERMS_NOT_SIGNED", "ESCALATE:TERMS_MISMATCH"]).toContain(k);
+          added += extra.length;
         });
       }),
       RUNS,
     );
+    expect(added).toBeGreaterThan(300);
   });
 });
 
