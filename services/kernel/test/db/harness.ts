@@ -189,7 +189,7 @@ export function run(db: string, sql: string, opts: SessionOpts = {}): string {
 }
 
 /** Run statements that are expected to fail; returns psql's error text (and fails the test if nothing failed). */
-export function runFails(db: string, sql: string, opts: SessionOpts = {}): string {
+export function execFails(db: string, sql: string, opts: SessionOpts = {}): string {
   assertOurs(db);
   const r = runSync(db, wrap(sql, opts), ["-At"]);
   if (r.ok) throw new Error(`expected an error but the statements succeeded:\n${sql}`);
