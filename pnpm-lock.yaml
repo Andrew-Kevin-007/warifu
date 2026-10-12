@@ -95,7 +95,11 @@ importers:
         specifier: workspace:*
         version: link:../terms
 
-  packages/oracle: {}
+  packages/oracle:
+    dependencies:
+      '@symbolon/schemas':
+        specifier: workspace:*
+        version: link:../schemas
 
   packages/policy:
     dependencies:
