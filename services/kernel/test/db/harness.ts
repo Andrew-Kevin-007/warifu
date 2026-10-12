@@ -196,6 +196,16 @@ export function runFails(db: string, sql: string, opts: SessionOpts = {}): strin
   return r.stderr;
 }
 
+/**
+ * Run many statements in ONE psql session with ON_ERROR_STOP off, and return each error message (one per failing
+ * statement, in order). A statement that succeeds yields no entry, so callers compare the count with the number sent.
+ */
+export function errorsOf(db: string, statements: string[], opts: SessionOpts = {}): string[] {
+  assertOurs(db);
+  const r = runSync(db, `\\set ON_ERROR_STOP off\n${wrap(statements.join("\n"), opts)}`, ["-At"]);
+  return [...r.stderr.matchAll(/ERROR:\s+(.*)/g)].map((m) => m[1] ?? "");
+}
+
 export async function runSqlAsync(db: string, sql: string, opts: SessionOpts = {}): Promise<RunResult> {
   assertOurs(db);
   return runAsync(db, wrap(sql, opts), ["-At"]);
