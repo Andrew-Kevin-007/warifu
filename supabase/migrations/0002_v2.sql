@@ -96,7 +96,8 @@ alter table certificates enable row level security;
 alter table replay_bundles enable row level security;
 
 -- Grants: dropping and recreating a view drops its grants, so restate them. releases_public stays internal.
-revoke all on all tables in schema public from anon, authenticated;
-revoke all on all sequences in schema public from anon, authenticated;
+revoke all on all tables in schema public from public, anon, authenticated;
+revoke all on all sequences in schema public from public, anon, authenticated;
+revoke all on all functions in schema public from public, anon, authenticated;
 grant select on public_receipts, public_pilot_stats, public_traction_summary, public_attack_latest, public_blast_latest
   to anon, authenticated;

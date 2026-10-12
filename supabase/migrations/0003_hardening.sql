@@ -24,6 +24,9 @@ end $$;
 create trigger tenants_sync_internal before insert or update of kind, is_internal on tenants
   for each row execute function sync_tenant_internal();
 update tenants set is_internal = (kind <> 'pilot') where is_internal is distinct from (kind <> 'pilot');
+-- Belt and braces: even with the trigger disabled (replica role, a test that disables triggers), the flag cannot
+-- disagree with kind, so no code path that still reads is_internal can count a demo/challenge tenant as a pilot.
+alter table tenants add constraint tenants_internal_matches_kind check (is_internal = (kind <> 'pilot'));
 
 -- 2. Pasted text has no stored object.
 alter table documents alter column storage_key drop not null;
@@ -88,9 +91,40 @@ with latest as (
   from attack_runs where finished_at is not null and suite = 'core'
   order by finished_at desc limit 1
 )
-select l.run_id, l.mode, l.finished_at, l.git_sha,
+select l.mode, l.finished_at, l.git_sha,
        a.attack_id, a.target, a.outcome, a.loss_base_units, a.checks_fired
 from latest l join attack_results a on a.run_id = l.run_id;
+
+-- 6c. public_receipts flags demo/challenge receipts from `kind` (the source of truth), not from the derived flag.
+-- Same columns, same order as 0001. After this migration no public view reads tenants.is_internal.
+create or replace view public_receipts with (security_barrier = true) as
+select
+  r.receipt_hash,
+  case when d.verdict in ('RELEASE','HOLD','ESCALATE','REJECT','REPLAY') then d.verdict end as verdict,
+  coalesce((
+    select jsonb_agg(jsonb_build_object(
+             'id',     case when c.v ->> 'id'     ~ '^K-[0-9A-Z]{1,8}$'       then c.v ->> 'id' end,
+             'status', case when c.v ->> 'status' in ('PASS','FAIL','SKIP')   then c.v ->> 'status' end,
+             'code',   case when c.v ->> 'code'   ~ '^[A-Z][A-Z0-9_]{0,63}$'  then c.v ->> 'code' end)
+           order by c.ord)
+    from jsonb_array_elements(case when jsonb_typeof(d.checks) = 'array' then d.checks else '[]'::jsonb end)
+         with ordinality as c(v, ord)
+  ), '[]'::jsonb) as checks,
+  array(select x from unnest(d.reasons) as x where x ~ '^[A-Z][A-Z0-9_]{0,63}$') as reasons,
+  d.policy_hash,
+  rel.tx_hash,
+  case when t.public_amounts then d.amount_base_units end as amount_base_units,
+  r.issued_at,
+  t.network,
+  (t.kind <> 'pilot') as demo
+from receipts r
+join decisions d on d.decision_id = r.decision_id
+join tenants t on t.id = d.tenant_id
+left join lateral (
+  select x.tx_hash from releases x
+  where x.decision_id = d.decision_id and x.status = 'CONFIRMED'
+  order by x.confirmed_at nulls last limit 1
+) rel on true;
 
 -- 7. Atomic budget ledger. One transaction-scoped advisory lock serializes every reservation, so "check the remaining
 -- budget, then book" cannot interleave (no burst overshoots by even one call). The day is the database's UTC date;
@@ -187,7 +221,13 @@ begin
   return query select a, b;
 end $$;
 
--- Only the kernel service calls these. (Default function privileges were already revoked in 0001; restated.)
+-- Every relation, sequence and function in public is closed to the API roles; then the explicit allow-list below is
+-- re-opened. (Supabase's default privileges grant ALL on new relations, views included, to anon / authenticated;
+-- an owner-run view would otherwise leak past RLS. The tests apply those defaults before the migrations.)
+revoke all on all tables in schema public from public, anon, authenticated;
+revoke all on all sequences in schema public from public, anon, authenticated;
+revoke all on all functions in schema public from public, anon, authenticated;
+-- Only the kernel service calls these.
 revoke all on function llm_budget_reserve(text, text, int, int, bigint, bigint, bigint) from public, anon, authenticated;
 revoke all on function llm_budget_commit(bigint, int, int, bigint) from public, anon, authenticated;
 revoke all on function llm_budget_record_cache_hit(text, text) from public, anon, authenticated;

@@ -117,7 +117,7 @@ describe("migration files (static)", () => {
     // The set of mutating statements in 0002 outside the markers is limited to RLS enables and grants/revokes.
     const file = read("0002_v2.sql");
     const after = splitStatements(file.slice(file.indexOf("-- END docs/05 3b")));
-    for (const s of after) expect(s).toMatch(/^(alter table \w+ enable row level security|revoke all on all (tables|sequences) in schema public from anon,authenticated|grant select on [\w,]+ to anon,authenticated)$/);
+    for (const s of after) expect(s).toMatch(/^(alter table \w+ enable row level security|revoke all on all (tables|sequences|functions) in schema public from public,anon,authenticated|grant select on [\w,]+ to anon,authenticated)$/);
   });
 
   it("define no RLS policy, no SECURITY DEFINER function, no dynamic SQL and no float/money type", () => {
@@ -138,6 +138,20 @@ describe("migration files (static)", () => {
       expect(sql).toMatch(new RegExp(`revoke all on function ${fn}\\([^)]*\\)\\s*from public,anon,authenticated`));
       expect(sql).toMatch(new RegExp(`grant execute on function ${fn}\\([^)]*\\)\\s*to service_role`));
     }
+  });
+
+  it("grant anon / authenticated SELECT on exactly the five allow-listed public views, and nothing else", () => {
+    const allowed = ["public_receipts", "public_pilot_stats", "public_traction_summary", "public_attack_latest", "public_blast_latest"];
+    for (const f of readdirSync(MIGRATIONS_DIR).filter((x) => x.endsWith(".sql"))) {
+      for (const s of splitStatements(read(f))) {
+        if (!/^grant /.test(s) || /to service_role$/.test(s)) continue;
+        const m = /^grant select on ([\w,]+) to anon,authenticated$/.exec(s);
+        expect(m, `${f}: unexpected grant: ${s}`).not.toBeNull();
+        expect((m?.[1] ?? "").split(",").sort()).toEqual([...allowed].sort());
+      }
+    }
+    // negative control for the matcher
+    expect(/^grant select on ([\w,]+) to anon,authenticated$/.exec("grant select on releases_public to anon,authenticated")?.[1]).toBe("releases_public");
   });
 
   it("contain no secret-looking material (private keys, JWTs, service keys)", () => {

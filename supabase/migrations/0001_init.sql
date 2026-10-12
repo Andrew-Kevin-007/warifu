@@ -236,7 +236,7 @@ with latest as (
   from attack_runs where finished_at is not null
   order by finished_at desc limit 1
 )
-select l.run_id, l.mode, l.finished_at, l.git_sha,
+select l.mode, l.finished_at, l.git_sha,
        a.attack_id, a.target, a.outcome, a.loss_base_units, a.checks_fired
 from latest l join attack_results a on a.run_id = l.run_id;
 
@@ -249,7 +249,7 @@ where b.tenant_id is null
 order by b.threat_model, b.created_at desc;
 
 -- (6) Grants: the API roles get SELECT on the public views and nothing else.
-revoke all on all tables in schema public from anon, authenticated;
-revoke all on all sequences in schema public from anon, authenticated;
+revoke all on all tables in schema public from public, anon, authenticated;
+revoke all on all sequences in schema public from public, anon, authenticated;
 grant select on public_receipts, public_pilot_stats, public_traction_summary, public_attack_latest, public_blast_latest
   to anon, authenticated;
