@@ -48,6 +48,8 @@ export const pgRequired = process.env["REQUIRE_PG"] === "1" || process.env["CI"]
 function baseArgs(db: string): string[] {
   return ["-X", "-q", "-v", "ON_ERROR_STOP=1", "-h", pgConfig.host, "-p", pgConfig.port, "-U", pgConfig.user, "-d", db];
 }
+/** psql on Windows ends lines with CRLF; normalise once here so no test sees a stray carriage return. */
+const lf = (s: string): string => s.split("\r\n").join("\n");
 
 const psqlEnv = { ...process.env, PGOPTIONS: "-c client_min_messages=warning", PGCONNECT_TIMEOUT: "5" };
 
@@ -60,7 +62,7 @@ export interface RunResult {
 function runSync(db: string, input: string, extra: string[] = []): RunResult {
   const r = spawnSync(pgConfig.psql, [...baseArgs(db), ...extra], { input, encoding: "utf8", env: psqlEnv });
   if (r.error) return { ok: false, stdout: "", stderr: String(r.error.message) };
-  return { ok: r.status === 0, stdout: r.stdout, stderr: r.stderr };
+  return { ok: r.status === 0, stdout: lf(r.stdout), stderr: lf(r.stderr) };
 }
 
 function runAsync(db: string, input: string, extra: string[] = []): Promise<RunResult> {
@@ -71,7 +73,7 @@ function runAsync(db: string, input: string, extra: string[] = []): Promise<RunR
     child.stdout.on("data", (d: Buffer) => (stdout += d.toString("utf8")));
     child.stderr.on("data", (d: Buffer) => (stderr += d.toString("utf8")));
     child.on("error", (e) => resolveP({ ok: false, stdout, stderr: stderr + String(e.message) }));
-    child.on("close", (code) => resolveP({ ok: code === 0, stdout, stderr }));
+    child.on("close", (code) => resolveP({ ok: code === 0, stdout: lf(stdout), stderr: lf(stderr) }));
     child.stdin.end(input);
   });
 }
