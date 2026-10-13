@@ -6,7 +6,7 @@ import { amountDueOracle, judgeRelease } from "@symbolon/oracle";
 import type { OracleRelease, OracleVerdict } from "@symbolon/oracle";
 import type { CheckId, OraclePredicate } from "@symbolon/schemas";
 import type { ApplicabilityRow } from "../applicability";
-import type { AttackFixture, AttackId, ScenarioId, StepExpect, SubmitStep, TargetId } from "../types";
+import type { AttackFixture, AttackId, FloodItem, FloodStep, ScenarioId, StepExpect, SubmitStep, TargetId } from "../types";
 import type {
   AttackResult,
   ControlResult,
@@ -19,7 +19,7 @@ import type {
 } from "./results";
 import { applyPatch, cloneState, freshState, recordRelease, remainingFunding, toOracleInstance } from "./state";
 import type { SimState } from "./state";
-import type { Target, TargetDecision } from "./target";
+import type { Criterion, HumanLoop, Target, TargetDecision } from "./target";
 
 /** Money that actually left the correct-payee/correct-amount rule (docs/07 §2 "Loss accounting"). */
 export function lossMoney(state: SimState, release: OracleRelease, verdict: OracleVerdict): bigint {
@@ -96,6 +96,10 @@ function stateFor(h: Holder, scenarioId: ScenarioId): SimState {
 
 interface SubmitOutcome {
   readonly record: StepRecord;
+  /** The target's decision for each extraction run, in run order. */
+  readonly decisions: readonly TargetDecision[];
+  /** Index (into decisions) of the run whose state the instance continues from. */
+  readonly chosenIndex: number;
   readonly lossReleases: number;
   readonly releases: number;
   readonly predicates: Set<OraclePredicate>;
@@ -146,7 +150,7 @@ function runSubmit(h: Holder, fixtureScenario: ScenarioId, step: SubmitStep, tar
       expectationNote: m.note,
       release,
     };
-    return { trial, rec, money, verdict };
+    return { trial, rec, money, verdict, decision };
   });
   const chosenIndex = Math.max(0, trials.findIndex((t) => t.rec.action === "RELEASE"));
   const chosen = trials[chosenIndex];
@@ -166,7 +170,9 @@ function runSubmit(h: Holder, fixtureScenario: ScenarioId, step: SubmitStep, tar
     }
   }
   return {
-    record: { stepId: step.stepId, kind: "submit", status: "RAN", reason: "", runs: trials.map((t) => t.rec), signals: [] },
+    record: { stepId: step.stepId, kind: "submit", status: "RAN", reason: "", runs: trials.map((t) => t.rec), signals: [], criteria: [] },
+    decisions: trials.map((t) => t.decision),
+    chosenIndex,
     lossReleases,
     releases,
     predicates,
@@ -176,7 +182,11 @@ function runSubmit(h: Holder, fixtureScenario: ScenarioId, step: SubmitStep, tar
 
 function controlResult(fixture: AttackFixture, target: Target): ControlResult {
   const c = fixture.control;
-  if (c.kind === "approval-unmodified") return { status: "NOT_RUN", detail: "approval rendering is not part of unit mode (see the attack's NOT_RUN step)" };
+  if (c.kind === "approval-unmodified") {
+    if (target.humanLoop === undefined) return { status: "NOT_RUN", detail: "this target has no approval gate" };
+    const k = target.humanLoop.approvalControl(c.signedView);
+    return k.passed ? { status: "PASS", detail: k.detail } : { status: "OVERBLOCKED", detail: k.detail };
+  }
   const step = c.step;
   const refusal = target.cannotRun(step);
   if (refusal !== null) return { status: "NOT_RUN", detail: refusal };
@@ -197,7 +207,62 @@ function controlResult(fixture: AttackFixture, target: Target): ControlResult {
   return { status: "PASS", detail: "released the correct amount to the correct payee; oracle NO_LOSS" };
 }
 
-const notRunStep = (stepId: string, kind: string, reason: string): StepRecord => ({ stepId, kind, status: "NOT_RUN", reason, runs: [], signals: [] });
+const notRunStep = (stepId: string, kind: string, reason: string): StepRecord => ({ stepId, kind, status: "NOT_RUN", reason, runs: [], signals: [], criteria: [] });
+
+const criteriaStep = (stepId: string, kind: string, criteria: readonly Criterion[]): StepRecord => ({
+  stepId,
+  kind,
+  status: "RAN",
+  reason: "",
+  runs: [],
+  signals: criteria.filter((c) => !c.passed).map((c) => `criterion failed: ${c.id}: ${c.detail}`),
+  criteria,
+});
+
+/**
+ * ATK-22 (docs/07 §3.2): a flood of benign items that need a human, with one malicious item buried in it. The stated
+ * criteria: at most maxIndividualPrompts prompts; the overflow is HOLD ESCALATION_BUDGET_EXCEEDED in one ranked digest;
+ * the malicious item is surfaced (a prompt of its own, or digest rank <= maliciousMaxRank) or refused outright; nothing
+ * is released; there is no bulk approve.
+ */
+export function floodCriteria(step: FloodStep, items: ReadonlyArray<{ item: FloodItem; decision: TargetDecision }>, loop: HumanLoop): Criterion[] {
+  const e = step.expect;
+  const prompts = items.filter((x) => x.decision.action === "ESCALATE").length;
+  const isOverflow = (d: TargetDecision): boolean => d.action === "HOLD" && (d.reasons as readonly string[]).includes(e.overflowReason);
+  const overflow = items.filter((x) => isOverflow(x.decision));
+  const released = items.filter((x) => x.decision.action === "RELEASE").length;
+  const out: Criterion[] = [
+    { id: "individual-prompts", passed: prompts <= e.maxIndividualPrompts, detail: `${prompts} individual approval prompt(s) across ${items.length} items (limit ${e.maxIndividualPrompts} a day)` },
+    {
+      id: "overflow-is-one-digest",
+      passed: overflow.length > 0 || items.length <= e.maxIndividualPrompts,
+      detail: `${overflow.length} item(s) were ${e.overflowVerdict} ${e.overflowReason} instead of raising a prompt; they are shown as one ranked digest, not as separate prompts`,
+    },
+  ];
+  const bad = items.find((x) => x.item.itemId === step.maliciousItemId);
+  if (bad === undefined) {
+    out.push({ id: "malicious-surfaced", passed: false, detail: "the malicious item is not among the items run" });
+  } else if (bad.decision.action === "ESCALATE") {
+    out.push({ id: "malicious-surfaced", passed: true, detail: "the malicious item got an approval prompt of its own (it arrived before the budget was used up)" });
+  } else if (isOverflow(bad.decision)) {
+    const digest = overflow.flatMap((x) => (x.decision.digest === undefined || x.decision.digest === null ? [] : [x.decision.digest]));
+    const mine = bad.decision.digest;
+    const rank = mine === undefined || mine === null ? undefined : loop.rankDigest(digest).get(mine.decisionId);
+    out.push({
+      id: "malicious-surfaced",
+      passed: rank !== undefined && rank <= e.maliciousMaxRank,
+      detail: rank === undefined ? "the malicious item is in the overflow but has no digest entry" : `the malicious item is rank ${rank} of ${digest.length} in the digest (must be <= ${e.maliciousMaxRank})`,
+    });
+  } else if (bad.decision.action === "REJECT" || bad.decision.action === "REPLAY") {
+    out.push({ id: "malicious-surfaced", passed: true, detail: `the malicious item was ${bad.decision.action} outright (${bad.decision.reasons.join(", ")}): no approval can release it` });
+  } else {
+    out.push({ id: "malicious-surfaced", passed: false, detail: `the malicious item ended ${bad.decision.action} (${bad.decision.reasons.join(", ")}) without a prompt or a digest entry` });
+  }
+  out.push({ id: "nothing-moves-without-approval", passed: released === 0, detail: `${released} of ${items.length} items released money without an owner approval` });
+  const bulk = loop.bulkApprove();
+  out.push({ id: bulk.id, passed: bulk.passed, detail: bulk.detail });
+  return out;
+}
 
 export function runAttack(fixture: AttackFixture, target: Target, applicability: Pick<ApplicabilityRow, "applicable" | "reason">): AttackResult {
   const scoring = fixture.intendedLoss === null ? "signal" : "oracle";
@@ -216,6 +281,7 @@ export function runAttack(fixture: AttackFixture, target: Target, applicability:
       trials: 0,
       expectations: { match: 0, mismatch: 0, inconclusive: 0 },
       steps: [],
+      criteria: { passed: 0, failed: 0 },
       control: { status: "NOT_RUN", detail: "not applicable" },
       notes: [applicability.reason],
     };
@@ -251,9 +317,20 @@ export function runAttack(fixture: AttackFixture, target: Target, applicability:
 
   for (const step of fixture.steps) {
     if (step.kind === "flood") {
-      for (const item of step.items) absorb(runSubmit(h, fixture.scenarioId, item.step, target, fixture.attackId));
-      const refusal = target.id === "symbolon" ? "digest ranking and the prompt budget are K-12 (ESCALATION_BUDGET_EXCEEDED), which this kernel build does not implement" : target.cannotRun(step);
-      steps.push(notRunStep(`${step.stepId}#criteria`, "flood", refusal ?? "criteria not evaluated"));
+      const outcomes = step.items.map((item) => ({ item, outcome: runSubmit(h, fixture.scenarioId, item.step, target, fixture.attackId) }));
+      for (const o of outcomes) absorb(o.outcome);
+      const loop = target.humanLoop;
+      if (loop === undefined) {
+        steps.push(notRunStep(`${step.stepId}#criteria`, "flood", target.cannotRun(step) ?? "this target has no escalation digest"));
+      } else {
+        const decided = outcomes.flatMap((o) => {
+          const d = o.outcome.decisions[o.outcome.chosenIndex];
+          return d === undefined ? [] : [{ item: o.item, decision: d }];
+        });
+        const rec = criteriaStep(`${step.stepId}#criteria`, "flood", floodCriteria(step, decided, loop));
+        steps.push(rec);
+        signals.push(...rec.signals);
+      }
       continue;
     }
     const refusal = target.cannotRun(step);
@@ -262,21 +339,36 @@ export function runAttack(fixture: AttackFixture, target: Target, applicability:
       continue;
     }
     if (step.kind === "submit") {
-      absorb(runSubmit(h, fixture.scenarioId, step, target, fixture.attackId));
-      if (step.explainerChecks !== undefined && target.id === "symbolon") {
-        steps.push(notRunStep(`${step.stepId}#explainer`, "explainer", "the templated explainer and the n-gram overlap check need kernel-core K-12/explain (WP-05), not in this build"));
+      const o = runSubmit(h, fixture.scenarioId, step, target, fixture.attackId);
+      absorb(o);
+      if (step.explainerChecks !== undefined) {
+        const loop = target.humanLoop;
+        if (loop === undefined) {
+          steps.push(notRunStep(`${step.stepId}#explainer`, "explainer", "this target has no templated explainer"));
+        } else {
+          const criteria = o.decisions.flatMap((d, i) => loop.explainer(d.explanation ?? null, step.explainerChecks as NonNullable<typeof step.explainerChecks>).map((c) => ({ ...c, id: `${step.runs[i]?.label ?? i}/${c.id}` })));
+          const rec = criteriaStep(`${step.stepId}#explainer`, "explainer", criteria);
+          steps.push(rec);
+          signals.push(...rec.signals);
+        }
       }
     } else if (step.kind === "fault") {
       const f = target.fault(step, stateFor(h, fixture.scenarioId));
       if (f.status === "not-run") steps.push(notRunStep(step.stepId, "fault", f.reason));
       else {
-        steps.push({ stepId: step.stepId, kind: "fault", status: "RAN", reason: f.reason, runs: [], signals: f.signals });
+        steps.push({ stepId: step.stepId, kind: "fault", status: "RAN", reason: f.reason, runs: [], signals: f.signals, criteria: [] });
         signals.push(...f.signals);
       }
+    } else if (step.kind === "approval-render" && target.humanLoop !== undefined) {
+      const rec = criteriaStep(step.stepId, "approval-render", target.humanLoop.approvalRender(step));
+      steps.push(rec);
+      signals.push(...rec.signals);
     } else {
       steps.push(notRunStep(step.stepId, step.kind, "step kind not supported by this target"));
     }
   }
+  const allCriteria = steps.flatMap((s) => s.criteria);
+  const criteriaCount = { passed: allCriteria.filter((c) => c.passed).length, failed: allCriteria.filter((c) => !c.passed).length };
 
   const complete = steps.every((s) => s.status === "RAN");
   for (const s of steps) if (s.status === "NOT_RUN") notes.push(`${s.stepId}: NOT_RUN: ${s.reason}`);
@@ -289,6 +381,7 @@ export function runAttack(fixture: AttackFixture, target: Target, applicability:
   else if (actions.includes("REJECT") || actions.includes("REPLAY")) outcome = "BLOCKED";
   else if (actions.includes("ESCALATE")) outcome = "ESCALATED";
   else if (actions.includes("HOLD")) outcome = "HELD";
+  else if (criteriaCount.passed > 0) outcome = "BLOCKED"; // a step with stated criteria (ATK-23: Sign disabled) and every one met
   else outcome = "NOOP";
   if (outcome === "LOSS" && lossReleases === 0 && signals.length > 0 && scoring === "oracle") {
     // a signal on an oracle-scored attack is still reported, but the loss class stays by evidence
@@ -307,6 +400,7 @@ export function runAttack(fixture: AttackFixture, target: Target, applicability:
     trials,
     expectations: exp,
     steps,
+    criteria: criteriaCount,
     control: controlResult(fixture, target),
     notes,
   };

@@ -55,6 +55,9 @@ importers:
       '@symbolon/policy':
         specifier: workspace:*
         version: link:../policy
+      '@symbolon/receipts':
+        specifier: workspace:*
+        version: link:../receipts
       '@symbolon/schemas':
         specifier: workspace:*
         version: link:../schemas

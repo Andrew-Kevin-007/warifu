@@ -3,16 +3,19 @@
 // chain, no model.
 //
 // What this target is and is not (reported verbatim in results/attack-matrix.md):
-//   - It runs whatever checks the merged kernel-core implements. On this build K-01..K-08 are real; K-09..K-14
-//     and K-16 are fail-closed placeholders (they report FAIL / HOLD / KERNEL_ERROR), so no intent can reach
-//     RELEASE. Every such HOLD is flagged `heldByUnimplementedChecks`, and 0 loss is then reported as
-//     "no release path in this build", never as evidence that the defence works.
+//   - It runs whatever checks the merged kernel-core implements. With WP-05 merged K-01..K-14 and K-16 are real and an
+//     intent can reach RELEASE; the oracle judges those releases. The plumbing that detects a fail-closed placeholder
+//     (`heldByUnimplementedChecks`) stays, so a future regression to a placeholder is reported, never read as a defence.
+//   - The context is built the way the service builds it: rolling 24 h / 7 d totals and counts that include
+//     decided-but-unsettled releases, the escalation counts of the day (total and per engagement), the payee's payment
+//     history, and sandbox evidence in the shape K-09's sandbox contract requires (payload.requirement).
 //   - Engagements are the fixtures' templates, "activated" with PLACEHOLDER signatures and a placeholder
 //     registration tx (K-05 checks they are present, not that they verify). They are SIMULATED, not signed.
 //   - Extraction reads are the fixtures' REFERENCE reads, not model outputs.
-//   - Faults, contract calls (ATK-17), approval rendering (ATK-23) and the explainer (ATK-24) are not part of the
-//     pure kernel; those steps are reported NOT_RUN with the reason.
-import { evaluate, summarizeEvaluation } from "@symbolon/kernel-core";
+//   - Faults (reconciler, K-15) and contract calls (ATK-17) are not part of the pure kernel; those steps are reported
+//     NOT_RUN with the reason. The human-loop attacks (ATK-22 digest, ATK-23 approval rendering, ATK-24 explainer) run
+//     in symbolon-human.ts against kernel-core and packages/receipts.
+import { digestItem, evaluate, summarizeEvaluation } from "@symbolon/kernel-core";
 import type { DecisionSummary, Evaluation, KernelContext } from "@symbolon/kernel-core";
 import { applyPolicyOverrides, normalizePolicy } from "@symbolon/policy";
 import type { LoadedPolicy } from "@symbolon/policy";
@@ -20,6 +23,7 @@ import { consensus, epochSecondsFromIso, hashJcs, inspectUntrusted, keccak256Utf
 import type { CheckId, Engagement, Evidence, ISODateTime } from "@symbolon/schemas";
 import { hex32FromLabel, uuidFromLabel } from "../ids";
 import { CHAIN_ID, POLICY_OVERRIDES, TENANT_ID, VAULT, evidenceFixturesFor, milestoneId, OWNER } from "../world";
+import { symbolonHumanLoop } from "./symbolon-human";
 import type { DecideInput, FaultOutcome, Target, TargetDecision } from "./target";
 import type { SimState } from "./state";
 import type { AttackStep, FaultStep } from "../types";
@@ -58,19 +62,31 @@ function activatedEngagement(state: SimState): Engagement {
   };
 }
 
+/**
+ * Sandbox evidence exactly as K-09's sandbox contract wants it (kernel-core/src/evidence.ts header): source
+ * `fixture:<id>`, `collectedBy` 'kernel', and `payload.requirement` JCS-equal to the signed spec entry the fixture
+ * satisfies; the fixture's `result` is authoritative. Fixtures not yet available (`availableAt` after now) are absent.
+ */
 function evidenceFor(state: SimState, now: ISODateTime): Evidence[] {
-  return evidenceFixturesFor(state.world, state.evidencePlan).map((f) => ({
-    evidenceId: uuidFromLabel(`evidence/${f.fixtureId}`),
-    milestoneId: f.milestoneId,
-    type: f.requirement.type,
-    collectedBy: "kernel" as const,
-    collectedAt: now,
-    source: `fixture:${f.fixtureId}`,
-    payload: f.payload,
-    payloadHash: hashJcs(f.payload),
-    result: f.result,
-    details: untrusted(f.details),
-  }));
+  return evidenceFixturesFor(state.world, state.evidencePlan)
+    .filter((f) => f.availableAt === null || f.availableAt <= now)
+    .map((f) => {
+      const fixturePayload: unknown = f.payload;
+      const body = typeof fixturePayload === "object" && fixturePayload !== null && !Array.isArray(fixturePayload) ? (fixturePayload as Record<string, unknown>) : { value: fixturePayload };
+      const payload = { ...body, requirement: f.requirement };
+      return {
+        evidenceId: uuidFromLabel(`evidence/${f.fixtureId}`),
+        milestoneId: f.milestoneId,
+        type: f.requirement.type,
+        collectedBy: "kernel" as const,
+        collectedAt: now,
+        source: `fixture:${f.fixtureId}`,
+        payload,
+        payloadHash: hashJcs(payload),
+        result: f.result,
+        details: untrusted(f.details),
+      };
+    });
 }
 
 const DAY = 86_400n;
@@ -98,6 +114,31 @@ function releasedTotals(state: SimState, now: ISODateTime): KernelContext["relea
     payeeCountDay: payeeDay.length,
     categoryMonth: category,
   };
+}
+
+/**
+ * What the service knows about the payee: how many payments it has already made (releases in this instance, the
+ * fixture's `priorReleases` included). `onTime` and `disputes` are not modelled by any fixture and no check reads
+ * them; they stay 0 rather than being invented.
+ */
+function payeeHistory(state: SimState): KernelContext["payeeHistory"] {
+  const payee = state.world.payee.toLowerCase();
+  return { priorPayments: state.releases.filter((r) => r.payee.toLowerCase() === payee).length, onTime: 0, disputes: 0 };
+}
+
+const ESCALATIONS_KEY = "escalationsByEngagement";
+
+/** Escalations raised today per engagement (the service counts ESCALATE decisions only, docs/04 K-12 v2). */
+function escalationsByEngagement(state: SimState): Readonly<Record<string, number>> {
+  return (state.memory[ESCALATIONS_KEY] ?? {}) as Record<string, number>;
+}
+
+function countEscalation(state: SimState, engagementId: string | null): void {
+  state.escalationsToday += 1;
+  if (engagementId === null) return;
+  const by = { ...escalationsByEngagement(state) };
+  by[engagementId] = (by[engagementId] ?? 0) + 1;
+  state.memory[ESCALATIONS_KEY] = by;
 }
 
 function priorDecisions(state: SimState, engagement: Engagement): DecisionSummary[] {
@@ -146,11 +187,11 @@ export function buildContext(input: DecideInput): KernelContext {
     planningAsOf: null,
     screening: state.screening === null ? null : { status: state.screening, checkedAt: now, provider: "fixture" },
     balances: { vaultAvailable: 1_000_000_000_000n, pendingReleases: 0n, obligations14d: 0n },
-    payeeHistory: { priorPayments: 0, onTime: 0, disputes: 0 },
+    payeeHistory: payeeHistory(state),
     doc: { hash: keccak256Utf8(inspectUntrusted(step.doc.text)), normalizedHash: keccak256Utf8(text), normalizedText: norm.normalized, zeroWidthCount: norm.removedCount },
     invoiceReceivedAt: step.doc.receivedAt,
     paymentTerms: engagement === null ? null : engagement.paymentTerms,
-    escalations: { today: state.escalationsToday, todayByEngagement: {} },
+    escalations: { today: state.escalationsToday, todayByEngagement: escalationsByEngagement(state) },
     profile: "sandbox",
     breaker: state.breakerHalted ? { halted: true, reason: "FIXTURE" } : { halted: false, reason: null },
     payeeChangePending: state.payeeChangePending,
@@ -234,14 +275,17 @@ export function makeSymbolonUnitTarget(): Target & { observedUnimplemented(): re
       const ctx = buildContext(input);
       const e = evaluate(buildIntent(input, ctx), ctx, sandboxPolicy());
       for (const id of pendingFailures(e)) seenPending.add(id);
-      const decision = toDecision(e, ctx);
+      const base = toDecision(e, ctx);
       // Remember the decision for K-04 in later steps of the same instance (a REPLAY is not a new decision).
-      const summary = summarizeEvaluation(e, { decisionId: uuidFromLabel(`decision/${input.step.stepId}/${input.run.label}`), createdAt: input.view.now });
+      const decisionId = uuidFromLabel(`decision/${input.step.stepId}/${input.run.label}`);
+      const summary = summarizeEvaluation(e, { decisionId, createdAt: input.view.now });
       if (summary.ok) {
         const list = (input.state.memory["decisions"] ?? []) as DecisionSummary[];
         input.state.memory["decisions"] = [...list, summary.value];
       }
-      return decision;
+      // The service counts ESCALATE decisions towards the day's escalation budget (RT-14); HOLD and REJECT do not consume it.
+      if (e.verdict === "ESCALATE") countEscalation(input.state, e.engagementId);
+      return { ...base, explanation: e.humanExplanation, digest: digestItem(e, decisionId, ctx.payeeHistory.priorPayments) };
     },
 
     fault(step: FaultStep): FaultOutcome {
@@ -261,7 +305,7 @@ export function makeSymbolonUnitTarget(): Target & { observedUnimplemented(): re
         case "vault-call":
           return "contract-level test: needs the SymbolonVault on arc-anvil (e2e-local, docs/07 §6); unit mode has no chain";
         case "approval-render":
-          return "needs buildApprovalTypedData/renderModel from packages/receipts (WP-02), not merged in this build";
+          return null; // renderModel / checkWysiwys from packages/receipts, run in symbolon-human.ts
         default: {
           const never: never = step;
           throw new RangeError(`unknown step ${JSON.stringify(never)}`);
@@ -269,6 +313,7 @@ export function makeSymbolonUnitTarget(): Target & { observedUnimplemented(): re
       }
     },
 
+    humanLoop: symbolonHumanLoop,
     unimplementedChecks: () => [...seenPending].sort(),
     observedUnimplemented: () => [...seenPending].sort(),
   };

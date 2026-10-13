@@ -20,6 +20,7 @@
     "@symbolon/kernel-core": "workspace:*",
     "@symbolon/oracle": "workspace:*",
     "@symbolon/policy": "workspace:*",
+    "@symbolon/receipts": "workspace:*",
     "@symbolon/schemas": "workspace:*",
     "@symbolon/terms": "workspace:*",
     "zod": "4.6.5"
