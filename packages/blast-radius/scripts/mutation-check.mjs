@@ -24,6 +24,7 @@ const SUITES = [
   "packages/blast-radius/test/lbc/body.test.ts",
   "packages/blast-radius/test/lbc/verify.test.ts",
   "packages/blast-radius/test/lbc/verify.edges.test.ts",
+  "packages/blast-radius/test/lbc/edges.test.ts",
   "packages/blast-radius/test/lbc/surfaces.test.ts",
   "packages/blast-radius/test/lbc/properties.test.ts",
 ];
@@ -34,6 +35,10 @@ const ACCEPTED = new Map([
   ["src/bounds.ts:138:35:<-><=", "choosing the first or the last of equal minima gives the same value; binding is computed separately from all ties"],
   ["src/bounds.ts:191:15:>->>=", "byDay and byHour equal: either branch returns the same value"],
   ["src/bounds.ts:70:15:===->!==", "only changes the text of an error message"],
+  ["src/lbc/validation.ts:51:33:>->>=", "trials = 3 with 0 violations: 3/3 = 1, the same string either way"],
+  ["src/lbc/terms.ts:119:25:<-><=", "sum equal to the cap: either branch is the same number"],
+  ["src/lbc/digest.ts:75:50:>-><", "second comparator branch only separates equal ids, which are rejected as duplicates immediately after"],
+  ["src/lbc/digest.ts:75:50:>->>=", "second comparator branch only separates equal ids, which are rejected as duplicates immediately after"],
   ["src/lbc/verify.ts:110:26:>->>=", "re-raising an outcome of equal severity changes nothing"],
   ["src/lbc/verify.ts:388:27:>->>=", "nowSeconds equal to the latest block timestamp: either branch is the same number"],
   ["src/bounds.ts:128:92:<=-><", "daySeconds = 0 is still refused: ceilDiv throws the same BoundsError when the day window is used (always)"],
