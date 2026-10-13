@@ -38,6 +38,8 @@ export interface KernelConfig {
   readonly githubToken: Secret | null;
   /** WP-13. Largest artifact the kernel hashes for ARTIFACT_HASH evidence. */
   readonly maxArtifactBytes: number;
+  /** WP-14 payAt scheduler. `testClockOffsetSeconds` shifts ONLY the scheduler's clock (never token or clock-guard time); refused in production (boot guard G11). */
+  readonly scheduler: { readonly enabled: boolean; readonly pollMs: number; readonly testClockOffsetSeconds: number | null };
   /** Names + values that must never be logged. */
   readonly logSecrets: readonly Secret[];
 }
@@ -139,6 +141,11 @@ export function loadConfig(env: EnvLike): KernelConfig {
     evidenceEgressProxy: parseProxy("EVIDENCE_EGRESS_PROXY", env["EVIDENCE_EGRESS_PROXY"]),
     githubToken: env["GITHUB_TOKEN"] === undefined || env["GITHUB_TOKEN"] === "" ? null : new Secret(env["GITHUB_TOKEN"]),
     maxArtifactBytes: intOf(env, "MAX_ARTIFACT_BYTES", 5 * 1024 * 1024, 1, 64 * 1024 * 1024),
+    scheduler: {
+      enabled: env["SCHEDULER_ENABLED"] !== "false",
+      pollMs: intOf(env, "SCHEDULER_POLL_MS", 5000, 250, 3_600_000),
+      testClockOffsetSeconds: env["TEST_CLOCK_OFFSET_SECONDS"] === undefined || env["TEST_CLOCK_OFFSET_SECONDS"].trim() === "" ? null : intOf(env, "TEST_CLOCK_OFFSET_SECONDS", 0, 0, 10 * 365 * 86_400),
+    },
     logSecrets: redactionList(env).map((s) => new Secret(s)),
   });
 }
