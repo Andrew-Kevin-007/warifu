@@ -282,7 +282,10 @@ export function createApp(d: AppDeps): Hono<AppEnv> {
       const engagement = await repo.loadEngagement(d.db, tenantId, latest.decision.engagementId);
       const tv = await resolveTenantVault(d.db, tenantId, d.chain);
       if (engagement === null) throw new ApiError("NOT_FOUND", "not found");
-      return c.json(buildApprovalView({ decision: latest.decision, receiptHash: latest.receiptHash, engagement, chainId: tv.chainId, vault: tv.vault, now: nowIso(d.clock) }));
+      const extras = await repo.getDecisionExtras(d.db, tenantId, latest.decision.decisionId);
+      return c.json(
+        buildApprovalView({ decision: latest.decision, receiptHash: latest.receiptHash, engagement, chainId: tv.chainId, vault: tv.vault, now: nowIso(d.clock), planSummary: extras?.planSummary ?? null }),
+      );
     } catch (e) {
       throw contextFailure(e, d.logger);
     }

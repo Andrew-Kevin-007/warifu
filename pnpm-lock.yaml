@@ -182,6 +182,9 @@ importers:
       '@symbolon/policy':
         specifier: workspace:*
         version: link:../../packages/policy
+      '@symbolon/receipts':
+        specifier: workspace:*
+        version: link:../../packages/receipts
       '@symbolon/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas
