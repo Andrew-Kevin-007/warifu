@@ -6,6 +6,7 @@
 // token; a body or URL naming another tenant is refused.
 import { randomUUID } from "node:crypto";
 import { Hono } from "hono";
+import type { Context } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { secureHeaders } from "hono/secure-headers";
 import { Hex32Schema, PlanSelectionSchema, UUIDSchema } from "@symbolon/schemas";
@@ -31,6 +32,8 @@ import { createEngagement, getEngagementView, payeeChangeFlow, signEngagement } 
 import type { EngagementServiceDeps } from "./engagement/service";
 import { unavailablePlanProvider } from "./service/plans";
 import type { PlanProvider } from "./service/plans";
+import { WEBHOOK_MAX_BYTES } from "./circle/webhook";
+import type { WebhookOutcome, WebhookRequest } from "./circle/webhook";
 import { nowIso } from "./time";
 import type { Clock } from "./time";
 import type { Profile } from "./boot";
@@ -51,6 +54,8 @@ export interface AppDeps {
   readonly plans?: PlanProvider;
   readonly newId?: () => string;
   /** WP-12. Absent = the engagement routes answer 501 (a build without an indexer/relayer edge never half-works). */
+  /** WP-11. Absent = POST /webhooks/circle answers 501 (no Circle edge configured). Verified by the handler, not by a service token. */
+  readonly circleWebhook?: (r: WebhookRequest) => Promise<WebhookOutcome>;
   readonly engagements?: { readonly chain: EngagementChain; readonly relayer: VaultRelayer | null; readonly newUuid?: () => string };
 }
 
@@ -99,6 +104,20 @@ export function createApp(d: AppDeps): Hono<AppEnv> {
     return c.json(INTERNAL_ERROR_BODY, 500);
   });
   app.notFound((c) => c.json(errorBody(new ApiError("NOT_FOUND", "not found")), 404));
+
+  // --- Circle webhook (WP-11): called by Circle, so NOT behind the service-token middleware; authenticated by its signature ---
+  const webhookLimit = bodyLimit({
+    maxSize: WEBHOOK_MAX_BYTES,
+    onError: (c) => c.json(errorBody(new ApiError("PAYLOAD_TOO_LARGE", "request body is too large")), 413),
+  });
+  const webhook = async (c: Context): Promise<Response> => {
+    if (d.circleWebhook === undefined) throw new ApiError("NOT_IMPLEMENTED", "the Circle webhook is not configured in this build");
+    const rawBody = await c.req.text();
+    const outcome = await d.circleWebhook({ rawBody, signature: c.req.header("x-circle-signature"), keyId: c.req.header("x-circle-key-id") });
+    return c.json({ status: outcome.toLowerCase() }, 200);
+  };
+  app.post("/webhooks/circle", webhookLimit, webhook);
+  app.post("/v1/webhooks/circle", webhookLimit, webhook);
 
   const v1 = new Hono<AppEnv>();
 

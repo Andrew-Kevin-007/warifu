@@ -16,9 +16,13 @@ import { fileBlobStore, noBlobStore } from "./blob/store";
 import { viemEngagementChain } from "./chain/engagement-chain";
 import { viemChainReader } from "./chain/reader";
 import { viemVaultRelayer } from "./chain/relayer";
+import type { VaultRelayer } from "./chain/relayer";
+import { createCircleHttpApi } from "./circle/client";
+import { circleVaultRelayer } from "./circle/relayer";
+import { createCircleWebhookHandler } from "./circle/webhook";
 import { loadConfig } from "./config";
 import { createPgDb } from "./db/pool";
-import { startIndexerLoop } from "./engagement/indexer";
+import { indexAll, startIndexerLoop } from "./engagement/indexer";
 import { createLogger, errorFields } from "./log";
 import { createKernelSigner } from "./receipt/build";
 import { StartupError, runStartupChecks } from "./startup";
@@ -36,16 +40,44 @@ async function main(): Promise<void> {
   await runStartupChecks({ db, chain, profile: config.profile, expectedChainId: arc.chainId, clock });
 
   const engagementChain = viemEngagementChain(client, arc.chainId);
-  // A throwaway-key relayer exists only if RELAYER_PRIVATE_KEY is set (local/testnet). The Circle relayer is WP-11.
-  const relayer =
-    config.relayerKey === null
-      ? null
-      : viemVaultRelayer({ publicClient: client, walletClient: createWalletClient({ chain: arc.chain, transport: http(arc.rpcUrl) }), account: privateKeyToAccount(config.relayerKey.reveal() as `0x${string}`) });
+  // Relayer: Circle developer-controlled wallet when CIRCLE_* + RELAYER_WALLET_* are set (WP-11); else a throwaway-key relayer
+  // only if RELAYER_PRIVATE_KEY is set (local/testnet; config refuses both at once); else none.
+  const circleApi = config.circle === null ? null : createCircleHttpApi({ apiKey: config.circle.apiKey });
+  let relayer: VaultRelayer | null = null;
+  if (config.circle !== null && circleApi !== null) {
+    relayer = circleVaultRelayer({
+      api: circleApi,
+      publicClient: client,
+      chainId: arc.chainId,
+      walletId: config.circle.walletId,
+      walletAddress: config.circle.walletAddress as `0x${string}`,
+      entitySecret: config.circle.entitySecret,
+    });
+  } else if (config.relayerKey !== null) {
+    relayer = viemVaultRelayer({ publicClient: client, walletClient: createWalletClient({ chain: arc.chain, transport: http(arc.rpcUrl) }), account: privateKeyToAccount(config.relayerKey.reveal() as `0x${string}`) });
+  }
   const indexer = config.indexer.enabled
     ? startIndexerLoop({ db, chain: engagementChain, logger }, { intervalMs: config.indexer.pollMs, options: { confirmations: BigInt(config.indexer.confirmations), startBlock: BigInt(config.indexer.startBlock) } })
     : null;
 
+  // The webhook only TRIGGERS an indexer pass (fire and forget: the answer to Circle must not wait for chain reads).
+  const circleWebhook =
+    config.circle === null || circleApi === null
+      ? undefined
+      : createCircleWebhookHandler({
+          db,
+          api: circleApi,
+          clock,
+          logger,
+          allowedKeyIds: config.circle.webhookKeyIds,
+          trigger: () => {
+            void indexAll({ db, chain: engagementChain, logger }, { confirmations: BigInt(config.indexer.confirmations), startBlock: BigInt(config.indexer.startBlock) }).catch((e: unknown) => logger.warn("webhook.trigger_failed", { ...errorFields(e) }));
+            return Promise.resolve();
+          },
+        });
+
   const app = createApp({
+    ...(circleWebhook === undefined ? {} : { circleWebhook }),
     profile: config.profile,
     db,
     chain,
