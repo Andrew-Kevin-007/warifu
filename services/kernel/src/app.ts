@@ -27,6 +27,8 @@ import { ingestDocument } from "./service/documents";
 import { contextFailure, submitIntent } from "./service/intents";
 import type { EngagementChain } from "./chain/engagement-chain";
 import type { VaultRelayer } from "./chain/relayer";
+import { buildCertificate, getCertificateByHash, getLatestCertificate } from "./certificates/service";
+import type { CertificateDeps, CertificateServiceConfig } from "./certificates/service";
 import { createEngagement, getEngagementView, payeeChangeFlow, signEngagement } from "./engagement/service";
 import type { EngagementServiceDeps } from "./engagement/service";
 import { unavailablePlanProvider } from "./service/plans";
@@ -52,6 +54,8 @@ export interface AppDeps {
   readonly newId?: () => string;
   /** WP-12. Absent = the engagement routes answer 501 (a build without an indexer/relayer edge never half-works). */
   readonly engagements?: { readonly chain: EngagementChain; readonly relayer: VaultRelayer | null; readonly newUuid?: () => string };
+  /** WP-34. Absent = the certificate routes answer 501. */
+  readonly certificates?: CertificateServiceConfig;
 }
 
 const IDEMPOTENCY_KEY = /^[A-Za-z0-9_:.-]{1,128}$/;
@@ -336,9 +340,25 @@ export function createApp(d: AppDeps): Hono<AppEnv> {
   });
 
   // --- stubs mounted per profile --------------------------------------------------------------------------------------
-  v1.get("/certificates/:vault", notImplemented("certificates"));
-  v1.get("/certificates/:vault/:certHash", notImplemented("certificates"));
-  v1.post("/certificates/:vault/build", notImplemented("certificate builds"));
+  // --- Loss Bound Certificates (WP-34): reads always carry a fresh server-side re-check against the configured RPC ------------
+  const certs = d.certificates;
+  const certDeps = (): CertificateDeps => {
+    if (certs === undefined) throw new ApiError("NOT_IMPLEMENTED", "certificates are not available in this build");
+    return { ...certs, db: d.db, clock: d.clock, profile: d.profile, logger: d.logger };
+  };
+  v1.get("/certificates/:vault", async (c) => {
+    const { tenantId } = c.get("auth");
+    return c.json(await getLatestCertificate(certDeps(), tenantId, c.req.param("vault")));
+  });
+  v1.get("/certificates/:vault/:certHash", async (c) => {
+    const { tenantId } = c.get("auth");
+    return c.json(await getCertificateByHash(certDeps(), tenantId, c.req.param("vault"), c.req.param("certHash")));
+  });
+  v1.post("/certificates/:vault/build", tooLarge, async (c) => {
+    const { tenantId } = c.get("auth");
+    const r = await buildCertificate(certDeps(), tenantId, c.req.param("vault"));
+    return c.json(r.response, r.created ? 201 : 200);
+  });
   if (d.profile === "sandbox") {
     v1.get("/challenge/scenarios", notImplemented("the challenge (WP-32)"));
     v1.post("/challenge/attempts", notImplemented("the challenge (WP-32)"));
