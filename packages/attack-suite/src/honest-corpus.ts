@@ -3,7 +3,7 @@
 //
 // What this corpus is, and what it is not:
 //  - Every document is rendered from a seeded InvoiceSpec by the same templates the attacks use, so a defence cannot
-//    separate "attack documents" from "honest documents" by their shape. Every fixture is honest: the payee is the
+//    tell attack documents and honest ones apart by their shape. Every fixture is honest: the payee is the
 //    registered one, the amount is the milestone's (or a signed partial), terms (when stated) equal the signed terms.
 //  - Expectations come from docs/04, not from a run: an `AUTO_RELEASE` fixture says "a correct kernel pays this with no
 //    human"; a `HUMAN_REVIEW` fixture says "a human is needed by design (ambiguity, a claimed address change, a pending

@@ -7,7 +7,7 @@
 // honest document costs a human review, not money, and is counted separately. No model is involved; no clock.
 import { parseAmountPrinted, parseStatedTerms } from "@symbolon/extractor";
 import { inspectUntrusted, normalizeUntrusted } from "@symbolon/schemas";
-import type { HonestFixture } from "./types";
+import type { HonestFixture } from "../types";
 
 export const PARSER_CHECK_VERSION = "honest-parser/1" as const;
 

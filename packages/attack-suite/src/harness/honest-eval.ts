@@ -12,11 +12,11 @@
 //  - No model is called; extraction reads are the fixtures' REFERENCE reads (cost: zero, by construction).
 import { judgeRelease } from "@symbolon/oracle";
 import type { CheckId } from "@symbolon/schemas";
-import { applyPatch, cloneState, freshState, toOracleInstance } from "./harness/state";
-import type { Target, TargetDecision } from "./harness/target";
-import { wilson } from "./stats";
-import { HONEST_GROUPS, type HonestExpect, type HonestFixture, type HonestGroup } from "./types";
-import { expectationOf } from "./honest-corpus";
+import { applyPatch, cloneState, freshState, toOracleInstance } from "./state";
+import type { Target, TargetDecision } from "./target";
+import { wilson } from "../stats";
+import { HONEST_GROUPS, type HonestExpect, type HonestFixture, type HonestGroup } from "../types";
+import { expectationOf } from "../honest-corpus";
 
 export const HONEST_EVAL_VERSION = "honest-eval/1" as const;
 

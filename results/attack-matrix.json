@@ -4,10 +4,10 @@
   "harness": "attack-harness/1",
   "oracleVersion": "oracle-v1",
   "provenance": {
-    "gitSha": "dc98c00b1b6df1a844306f5d55a8d4e680fa7dc1",
+    "gitSha": null,
     "seed": "base",
     "fixtureGenerator": "attack-fixtures/1",
-    "fixtureManifestSha256": "0x29459c6755537ad98c1a2dc55e219a14dc4efbd4dc154d8fe5959c86fa11145a",
+    "fixtureManifestSha256": "0x09f182033293cafeaff3d490eafe5f672efd4e6bb9dae5698a009cab82fee76b",
     "models": "none: no model was called (reference extraction reads; B1 validator is a deterministic SIMULATED stand-in)",
     "recordedOutputs": false,
     "anvilForkBlock": null,

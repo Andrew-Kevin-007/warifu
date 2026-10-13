@@ -4,12 +4,12 @@
 // Deterministic apart from `latency`, which is a wall-clock measurement taken by the writer script. The freshness test
 // rebuilds everything with a counting clock and compares every field except `latency`.
 import { epochSecondsFromIso, sha256Utf8 } from "@symbolon/schemas";
-import { asciiJson, buildFixtureFiles, GENERATOR_VERSION } from "./files";
-import { b1Target, B1_PROVENANCE } from "./harness/b1";
-import { makeSymbolonUnitTarget } from "./harness/symbolon-unit";
-import type { Target } from "./harness/target";
+import { asciiJson, buildFixtureFiles, GENERATOR_VERSION } from "../files";
+import { b1Target, B1_PROVENANCE } from "./b1";
+import { makeSymbolonUnitTarget } from "./symbolon-unit";
+import type { Target } from "./target";
 import { checkParsers, type ParserSummary } from "./honest-parser";
-import { expectationOf, buildHonestCorpus, GENERAL_COUNT, UGLY_COUNT } from "./honest-corpus";
+import { expectationOf, buildHonestCorpus, GENERAL_COUNT, UGLY_COUNT } from "../honest-corpus";
 import {
   HONEST_EVAL_VERSION,
   evaluateHonestCorpus,
@@ -20,8 +20,8 @@ import {
   type HonestCorpusSummary,
   type LatencySummary,
 } from "./honest-eval";
-import { BASE_SEED } from "./registry";
-import type { HonestFixture, HonestGroup } from "./types";
+import { BASE_SEED } from "../registry";
+import type { HonestFixture, HonestGroup } from "../types";
 
 export const HONEST_RESULTS_SCHEMA = "honest-corpus/1" as const;
 
