@@ -29,6 +29,8 @@ import type { EngagementChain } from "./chain/engagement-chain";
 import type { VaultRelayer } from "./chain/relayer";
 import { createEngagement, getEngagementView, payeeChangeFlow, signEngagement } from "./engagement/service";
 import type { EngagementServiceDeps } from "./engagement/service";
+import { assertEvidencePairing, collectEvidence, submitOwnerAck, uploadArtifact } from "./evidence/service";
+import type { EvidenceServiceDeps } from "./evidence/service";
 import { unavailablePlanProvider } from "./service/plans";
 import type { PlanProvider } from "./service/plans";
 import { nowIso } from "./time";
@@ -52,6 +54,8 @@ export interface AppDeps {
   readonly newId?: () => string;
   /** WP-12. Absent = the engagement routes answer 501 (a build without an indexer/relayer edge never half-works). */
   readonly engagements?: { readonly chain: EngagementChain; readonly relayer: VaultRelayer | null; readonly newUuid?: () => string };
+  /** WP-13. Absent = the evidence routes answer 501. Present = the source must match the profile (live in production, fixtures in the sandbox). */
+  readonly evidence?: EvidenceServiceDeps;
 }
 
 const IDEMPOTENCY_KEY = /^[A-Za-z0-9_:.-]{1,128}$/;
@@ -74,6 +78,10 @@ const notImplemented = (what: string) => (): never => {
 export function createApp(d: AppDeps): Hono<AppEnv> {
   const app = new Hono<AppEnv>();
   const plans = d.plans ?? unavailablePlanProvider;
+  if (d.evidence !== undefined) {
+    if (d.evidence.profile !== d.profile) throw new Error("evidence service built for another profile");
+    assertEvidencePairing(d.profile, d.evidence.source);
+  }
 
   // --- request id, access log, headers -------------------------------------------------------------------------------
   app.use("*", async (c, next) => {
@@ -333,6 +341,34 @@ export function createApp(d: AppDeps): Hono<AppEnv> {
     const id = hex32Param(c.req.param("id"));
     const r = await payeeChangeFlow(engagementDeps(), tenantId, id, await jsonBody(c));
     return c.json(r.change, r.created ? 201 : 200);
+  });
+
+  // --- evidence (WP-13): collection, artifact hashing, owner acks -------------------------------------------------------------
+  const evd = (): EvidenceServiceDeps => {
+    if (d.evidence === undefined) throw new ApiError("NOT_IMPLEMENTED", "evidence collection is not available in this build");
+    return d.evidence;
+  };
+  v1.post("/evidence/collect", tooLarge, async (c) => {
+    const { tenantId } = c.get("auth");
+    return c.json(await collectEvidence(evd(), tenantId, await jsonBody(c)));
+  });
+  v1.post("/evidence/ack", tooLarge, async (c) => {
+    const { tenantId } = c.get("auth");
+    return c.json(await submitOwnerAck(evd(), tenantId, await jsonBody(c)), 201);
+  });
+  v1.post("/evidence/artifact", uploadLimit, async (c) => {
+    const { tenantId } = c.get("auth");
+    const service = evd();
+    if (!(c.req.header("content-type") ?? "").toLowerCase().startsWith("multipart/form-data")) throw new ApiError("UNSUPPORTED_MEDIA_TYPE", "use multipart/form-data with milestoneId and file");
+    let form: Record<string, string | File | (string | File)[]>;
+    try {
+      form = await c.req.parseBody();
+    } catch {
+      throw new ApiError("BAD_REQUEST", "malformed multipart body");
+    }
+    const f = form["file"];
+    if (!(f instanceof File)) throw new ApiError("BAD_REQUEST", "file must be a file part");
+    return c.json(await uploadArtifact(service, tenantId, form["milestoneId"], new Uint8Array(await f.arrayBuffer())), 201); // bytes only: never decoded or parsed (INV-23)
   });
 
   // --- stubs mounted per profile --------------------------------------------------------------------------------------

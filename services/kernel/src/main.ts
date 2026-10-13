@@ -17,6 +17,8 @@ import { viemEngagementChain } from "./chain/engagement-chain";
 import { viemChainReader } from "./chain/reader";
 import { viemVaultRelayer } from "./chain/relayer";
 import { loadConfig } from "./config";
+import { emptyFixtureStore } from "./evidence/fixtures";
+import type { EvidenceSource } from "./evidence/service";
 import { createPgDb } from "./db/pool";
 import { startIndexerLoop } from "./engagement/indexer";
 import { createLogger, errorFields } from "./log";
@@ -45,6 +47,17 @@ async function main(): Promise<void> {
     ? startIndexerLoop({ db, chain: engagementChain, logger }, { intervalMs: config.indexer.pollMs, options: { confirmations: BigInt(config.indexer.confirmations), startBlock: BigInt(config.indexer.startBlock) } })
     : null;
 
+  // Evidence (WP-13, RT-02). The sandbox gets a fixture store and NO network code; production gets the guarded transport.
+  // The sandbox challenge orchestrator (WP-32) replaces the empty store with the scenario fixtures.
+  // The socket-owning module is imported only on the live branch, so a sandbox process never even loads it.
+  const evidenceSource: EvidenceSource =
+    config.evidenceMode === "fixtures"
+      ? { kind: "fixtures", fixtures: emptyFixtureStore }
+      : await (async (): Promise<EvidenceSource> => {
+          const { createPinnedHttpsTransport, systemResolver } = await import("./evidence/ssrf/transport");
+          return { kind: "live", guard: { resolver: systemResolver, transport: createPinnedHttpsTransport({ proxy: config.evidenceEgressProxy }) }, githubToken: config.githubToken?.reveal() ?? null };
+        })();
+
   const app = createApp({
     profile: config.profile,
     db,
@@ -59,6 +72,7 @@ async function main(): Promise<void> {
     maxJsonBytes: config.maxJsonBytes,
     maxBlobBytes: config.maxBlobBytes,
     engagements: { chain: engagementChain, relayer },
+    evidence: { db, clock, profile: config.profile, logger, source: evidenceSource, chain, engagementChain, blobs: config.blobDir === null ? noBlobStore : fileBlobStore(config.blobDir), maxArtifactBytes: config.maxArtifactBytes },
   });
   const port = Number.parseInt(process.env["PORT"] ?? "8787", 10);
   serve({ fetch: app.fetch, port, hostname: process.env["HOST"] ?? "127.0.0.1" });

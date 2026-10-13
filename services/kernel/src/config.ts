@@ -27,6 +27,12 @@ export interface KernelConfig {
   readonly indexer: { readonly enabled: boolean; readonly confirmations: number; readonly pollMs: number; readonly startBlock: number };
   /** Throwaway-key relayer for local/testnet (the Circle relayer is WP-11). null = signatures are collected, nothing is submitted. */
   readonly relayerKey: Secret | null;
+  /** WP-13. Optional deny-by-default egress proxy (HTTP CONNECT) for live evidence fetches; host:port. null = direct (pinned) connections. */
+  readonly evidenceEgressProxy: { readonly host: string; readonly port: number } | null;
+  /** WP-13. GitHub token for CI_PASS (public repos work without). Sent only to api.github.com. */
+  readonly githubToken: Secret | null;
+  /** WP-13. Largest artifact the kernel hashes for ARTIFACT_HASH evidence. */
+  readonly maxArtifactBytes: number;
   /** Names + values that must never be logged. */
   readonly logSecrets: readonly Secret[];
 }
@@ -52,6 +58,15 @@ function intOf(env: EnvLike, name: string, fallback: number, min: number, max: n
 export const DEFAULT_MAX_JSON_BYTES = 256 * 1024;
 export const DEFAULT_MAX_BLOB_BYTES = 10 * 1024 * 1024;
 export const TOKEN_TTL_CEILING_SECONDS = 60;
+
+/** "host:port" with a DNS-label-ish host or a bracketed IPv6; anything else is a ConfigError (the proxy is infrastructure, not input). */
+export function parseProxy(name: string, raw: string | undefined): { host: string; port: number } | null {
+  if (raw === undefined || raw === "") return null;
+  const m = /^([A-Za-z0-9.-]{1,253}):([0-9]{1,5})$/.exec(raw);
+  const port = m === null ? 0 : Number.parseInt(m[2] as string, 10);
+  if (m === null || port < 1 || port > 65535) throw new ConfigError(name, "expected host:port");
+  return { host: m[1] as string, port };
+}
 
 export function loadConfig(env: EnvLike): KernelConfig {
   assertBootGuards(env);
@@ -86,6 +101,9 @@ export function loadConfig(env: EnvLike): KernelConfig {
       startBlock: intOf(env, "INDEXER_START_BLOCK", 0, 0, Number.MAX_SAFE_INTEGER),
     },
     relayerKey: relayerKey === "" ? null : new Secret(relayerKey),
+    evidenceEgressProxy: parseProxy("EVIDENCE_EGRESS_PROXY", env["EVIDENCE_EGRESS_PROXY"]),
+    githubToken: env["GITHUB_TOKEN"] === undefined || env["GITHUB_TOKEN"] === "" ? null : new Secret(env["GITHUB_TOKEN"]),
+    maxArtifactBytes: intOf(env, "MAX_ARTIFACT_BYTES", 5 * 1024 * 1024, 1, 64 * 1024 * 1024),
     logSecrets: redactionList(env).map((s) => new Secret(s)),
   });
 }
