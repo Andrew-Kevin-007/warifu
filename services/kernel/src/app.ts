@@ -10,6 +10,9 @@ import type { Context } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { secureHeaders } from "hono/secure-headers";
 import { Hex32Schema, PlanSelectionSchema, UUIDSchema } from "@symbolon/schemas";
+import type { Hex32 } from "@symbolon/schemas";
+import { releaseForIntent } from "./release/repo";
+import type { ReleaseRow } from "./release/repo";
 import { ApiError, INTERNAL_ERROR_BODY, errorBody } from "./errors";
 import { authMiddleware } from "./auth/middleware";
 import type { AppEnv } from "./auth/middleware";
@@ -32,6 +35,8 @@ import { createEngagement, getEngagementView, payeeChangeFlow, signEngagement } 
 import type { EngagementServiceDeps } from "./engagement/service";
 import { assertEvidencePairing, collectEvidence, submitOwnerAck, uploadArtifact } from "./evidence/service";
 import type { EvidenceServiceDeps } from "./evidence/service";
+import { submitApproval } from "./service/approvals";
+import type { ApprovalsDeps } from "./service/approvals";
 import { unavailablePlanProvider } from "./service/plans";
 import type { PlanProvider } from "./service/plans";
 import { WEBHOOK_MAX_BYTES } from "./circle/webhook";
@@ -61,6 +66,10 @@ export interface AppDeps {
   readonly engagements?: { readonly chain: EngagementChain; readonly relayer: VaultRelayer | null; readonly newUuid?: () => string };
   /** WP-13. Absent = the evidence routes answer 501. Present = the source must match the profile (live in production, fixtures in the sandbox). */
   readonly evidence?: EvidenceServiceDeps;
+  /** WP-14. Absent = POST /approvals answers 501. */
+  readonly approvals?: ApprovalsDeps;
+  /** WP-14. Called after evidence for a milestone changed (collect, ack, artifact): HOLD decisions of that milestone are re-evaluated. Errors never reach the caller. */
+  readonly afterEvidence?: (tenantId: string, milestoneId: Hex32) => Promise<unknown>;
 }
 
 const IDEMPOTENCY_KEY = /^[A-Za-z0-9_:.-]{1,128}$/;
@@ -76,7 +85,12 @@ function uuidParam(v: string | undefined): string {
   return p.data.toLowerCase();
 }
 
-const notImplemented = (what: string) => (): never => {
+/** What an API client may see of a release row: its lifecycle and the transaction pointer, never the signed attestation. */
+function releaseSummary(r: ReleaseRow | null): { status: string; txHash: string | null; attempts: number; deadline: string | null } | null {
+  return r === null ? null : { status: r.status, txHash: r.txHash, attempts: r.attempts, deadline: r.deadline };
+}
+
+const notImplemented =(what: string) => (): never => {
   throw new ApiError("NOT_IMPLEMENTED", `${what} is not available in this build`);
 };
 
@@ -248,7 +262,15 @@ export function createApp(d: AppDeps): Hono<AppEnv> {
     const row = await repo.getIntentRow(d.db, tenantId, intentId);
     if (row === null) throw new ApiError("NOT_FOUND", "not found");
     const latest = await repo.getLatestStoredDecisionForIntent(d.db, tenantId, intentId);
-    return c.json({ intentId, documentId: row.documentId, createdAt: row.createdAt, intent: row.payload, decision: latest?.decision ?? null, receiptHash: latest?.receiptHash ?? null });
+    const rel = await releaseForIntent(d.db, tenantId, intentId);
+    return c.json({ intentId, documentId: row.documentId, createdAt: row.createdAt, intent: row.payload, decision: latest?.decision ?? null, receiptHash: latest?.receiptHash ?? null, release: releaseSummary(rel) });
+  });
+
+  // --- owner approval (docs/05 s4, INV-20): verifies the owner's signature on exactly what the ApprovalView showed, then re-evaluates ---
+  v1.post("/approvals", tooLarge, async (c) => {
+    const { tenantId } = c.get("auth");
+    if (d.approvals === undefined) throw new ApiError("NOT_IMPLEMENTED", "owner approvals are not available in this build");
+    return c.json(await submitApproval(d.approvals, tenantId, await jsonBody(c)));
   });
 
   v1.get("/intents/:id/plans", async (c) => {
@@ -303,7 +325,9 @@ export function createApp(d: AppDeps): Hono<AppEnv> {
     const { tenantId } = c.get("auth");
     const s = await repo.getStoredReceipt(d.db, tenantId, hex32Param(c.req.param("hash")));
     if (s === null) throw new ApiError("NOT_FOUND", "not found");
-    return c.json({ receipt: s.receipt, receiptHash: s.receiptHash, signature: s.signature, signer: s.signer });
+    const rel = await releaseForIntent(d.db, tenantId, s.decision.intentId);
+    const tx = rel !== null && rel.decisionId === s.decision.decisionId ? releaseSummary(rel) : null; // the release made under THIS receipt only
+    return c.json({ receipt: s.receipt, receiptHash: s.receiptHash, signature: s.signature, signer: s.signer, tx });
   });
 
   v1.get("/state", async (c) => {
@@ -370,13 +394,29 @@ export function createApp(d: AppDeps): Hono<AppEnv> {
     if (d.evidence === undefined) throw new ApiError("NOT_IMPLEMENTED", "evidence collection is not available in this build");
     return d.evidence;
   };
+  // New evidence may lift a HOLD ("auto re-evaluated when the missing thing changes", docs/04 s1): fire the re-check, never fail the call.
+  const evidenceChanged = async (tenantId: string, milestoneId: unknown): Promise<void> => {
+    const m = Hex32Schema.safeParse(milestoneId);
+    if (!m.success || d.afterEvidence === undefined) return;
+    try {
+      await d.afterEvidence(tenantId, m.data);
+    } catch (e) {
+      d.logger.warn("evidence.recheck_failed", { tenantId, ...errorFields(e) });
+    }
+  };
   v1.post("/evidence/collect", tooLarge, async (c) => {
     const { tenantId } = c.get("auth");
-    return c.json(await collectEvidence(evd(), tenantId, await jsonBody(c)));
+    const body = await jsonBody(c);
+    const out = await collectEvidence(evd(), tenantId, body);
+    await evidenceChanged(tenantId, (body as { milestoneId?: unknown }).milestoneId);
+    return c.json(out);
   });
   v1.post("/evidence/ack", tooLarge, async (c) => {
     const { tenantId } = c.get("auth");
-    return c.json(await submitOwnerAck(evd(), tenantId, await jsonBody(c)), 201);
+    const body = await jsonBody(c);
+    const out = await submitOwnerAck(evd(), tenantId, body);
+    await evidenceChanged(tenantId, (body as { milestoneId?: unknown }).milestoneId);
+    return c.json(out, 201);
   });
   v1.post("/evidence/artifact", uploadLimit, async (c) => {
     const { tenantId } = c.get("auth");
@@ -390,7 +430,9 @@ export function createApp(d: AppDeps): Hono<AppEnv> {
     }
     const f = form["file"];
     if (!(f instanceof File)) throw new ApiError("BAD_REQUEST", "file must be a file part");
-    return c.json(await uploadArtifact(service, tenantId, form["milestoneId"], new Uint8Array(await f.arrayBuffer())), 201); // bytes only: never decoded or parsed (INV-23)
+    const stored = await uploadArtifact(service, tenantId, form["milestoneId"], new Uint8Array(await f.arrayBuffer())); // bytes only: never decoded or parsed (INV-23)
+    await evidenceChanged(tenantId, form["milestoneId"]);
+    return c.json(stored, 201);
   });
 
   // --- stubs mounted per profile --------------------------------------------------------------------------------------
