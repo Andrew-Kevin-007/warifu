@@ -2839,9 +2839,9 @@
     "symbolon": {
       "unit": "ms",
       "samples": 1550,
-      "p50": 1.629,
-      "p95": 5.44,
-      "max": 26.181
+      "p50": 5.328,
+      "p95": 7.815,
+      "max": 102.373
     },
     "note": "Wall-clock milliseconds for one in-process kernel-core evaluate() (unit mode), 25 pass(es) over the corpus; machine-dependent and the only non-deterministic block in this file."
   },

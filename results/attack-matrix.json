@@ -1350,7 +1350,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "verdict REJECT not in [ESCALATE]",
+              "expectationNote": "verdict REJECT not in [ESCALATE] (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             },
             {
@@ -1554,8 +1554,8 @@
       "complete": true,
       "trials": 58,
       "expectations": {
-        "match": 22,
-        "mismatch": 36,
+        "match": 57,
+        "mismatch": 1,
         "inconclusive": 0
       },
       "steps": [
@@ -1737,8 +1737,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -1755,8 +1755,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -1801,8 +1801,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -1819,8 +1819,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -1867,8 +1867,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -1885,8 +1885,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             }
           ],
@@ -1913,8 +1913,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -1931,8 +1931,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             }
           ],
@@ -1959,8 +1959,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -1977,8 +1977,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             }
           ],
@@ -2005,8 +2005,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -2023,8 +2023,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             }
           ],
@@ -2051,8 +2051,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -2069,8 +2069,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -2117,8 +2117,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -2183,8 +2183,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -2201,8 +2201,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             }
           ],
@@ -2229,8 +2229,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -2273,8 +2273,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -2319,8 +2319,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -2385,8 +2385,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -2403,8 +2403,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             }
           ],
@@ -2431,8 +2431,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -2477,8 +2477,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -2495,8 +2495,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -2543,8 +2543,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -2589,8 +2589,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -2607,8 +2607,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             }
           ],
@@ -2635,8 +2635,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -2653,8 +2653,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             }
           ],
@@ -2681,8 +2681,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -2699,8 +2699,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -2747,8 +2747,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -2765,8 +2765,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -2813,8 +2813,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE, REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             },
             {
@@ -3205,7 +3205,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "verdict REJECT not in [RELEASE, ESCALATE, HOLD]",
+              "expectationNote": "verdict REJECT not in [RELEASE, ESCALATE, HOLD] (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             }
           ],
@@ -3229,7 +3229,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "verdict REJECT not in [RELEASE, ESCALATE, HOLD]",
+              "expectationNote": "verdict REJECT not in [RELEASE, ESCALATE, HOLD] (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             }
           ],
@@ -3253,7 +3253,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired",
+              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             }
           ],
@@ -3277,7 +3277,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired",
+              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             }
           ],
@@ -3301,7 +3301,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired",
+              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             }
           ],
@@ -3325,7 +3325,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired",
+              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             }
           ],
@@ -3349,7 +3349,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired",
+              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             }
           ],
@@ -3373,7 +3373,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired",
+              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             }
           ],
@@ -3397,7 +3397,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired",
+              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             }
           ],
@@ -3421,7 +3421,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired",
+              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             }
           ],
@@ -3445,7 +3445,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired",
+              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             }
           ],
@@ -3469,7 +3469,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired",
+              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             }
           ],
@@ -3493,7 +3493,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired",
+              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             }
           ],
@@ -3517,7 +3517,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired",
+              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             }
           ],
@@ -3541,7 +3541,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired",
+              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             }
           ],
@@ -3565,7 +3565,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired",
+              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             }
           ],
@@ -3589,7 +3589,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired",
+              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             }
           ],
@@ -3613,7 +3613,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired",
+              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             }
           ],
@@ -3637,7 +3637,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired",
+              "expectationNote": "none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             }
           ],
@@ -4447,7 +4447,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "verdict REJECT not in [ESCALATE]",
+              "expectationNote": "verdict REJECT not in [ESCALATE] (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             },
             {
@@ -4491,7 +4491,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "verdict REJECT not in [RELEASE]",
+              "expectationNote": "verdict REJECT not in [RELEASE] (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             },
             {
@@ -4535,7 +4535,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "verdict REJECT not in [RELEASE, HOLD, ESCALATE]",
+              "expectationNote": "verdict REJECT not in [RELEASE, HOLD, ESCALATE] (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             },
             {
@@ -4579,7 +4579,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "verdict REJECT not in [RELEASE, HOLD, ESCALATE]",
+              "expectationNote": "verdict REJECT not in [RELEASE, HOLD, ESCALATE] (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             },
             {
@@ -4623,7 +4623,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "verdict REJECT not in [RELEASE]",
+              "expectationNote": "verdict REJECT not in [RELEASE] (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             }
           ],
@@ -4674,7 +4674,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "verdict REJECT not in [ESCALATE]",
+              "expectationNote": "verdict REJECT not in [ESCALATE] (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             },
             {
@@ -4722,7 +4722,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "verdict REJECT not in [ESCALATE]",
+              "expectationNote": "verdict REJECT not in [ESCALATE] (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             },
             {
@@ -4770,7 +4770,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "verdict REJECT not in [ESCALATE]",
+              "expectationNote": "verdict REJECT not in [ESCALATE] (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             },
             {
@@ -4816,7 +4816,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "verdict REJECT not in [ESCALATE]",
+              "expectationNote": "verdict REJECT not in [ESCALATE] (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             },
             {
@@ -4905,7 +4905,7 @@
               ],
               "heldByUnimplementedChecks": false,
               "expectation": "MISMATCH",
-              "expectationNote": "verdict REJECT not in [ESCALATE]",
+              "expectationNote": "verdict REJECT not in [ESCALATE] (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)",
               "release": null
             },
             {
@@ -6294,8 +6294,8 @@
       "complete": true,
       "trials": 4,
       "expectations": {
-        "match": 3,
-        "mismatch": 1,
+        "match": 4,
+        "mismatch": 0,
         "inconclusive": 0
       },
       "steps": [
@@ -6470,8 +6470,8 @@
                 "ESCALATION_BUDGET_EXCEEDED"
               ],
               "heldByUnimplementedChecks": false,
-              "expectation": "MISMATCH",
-              "expectationNote": "verdict HOLD not in [ESCALATE] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)",
+              "expectation": "MATCH",
+              "expectationNote": "",
               "release": null
             }
           ],
@@ -11297,8 +11297,8 @@
         "notRun": 0
       },
       "expectations": {
-        "match": 116,
-        "mismatch": 76,
+        "match": 152,
+        "mismatch": 40,
         "inconclusive": 0
       }
     },
@@ -11619,9 +11619,9 @@
     "Engagements are the fixture templates activated with placeholder signatures and a placeholder registration (SIMULATED); no key signed anything and nothing was registered on a vault.",
     "Extraction reads are the fixture generator's REFERENCE reads, not model outputs; no model was called. B1's validator is a deterministic stand-in for an LLM validator (SIMULATED). Nothing in this report is labelled RECORDED because nothing was recorded.",
     "ATK-01, ATK-09, ATK-19, ATK-23 and ATK-24 have no oracle-expressible loss (docs/QUESTIONS WP-22 item 2). Their results are signal-scored or NOT_RUN and are counted separately from oracle-scored attacks.",
-    "ATK-17 (contract calls), ATK-23 (approval rendering), the ATK-24 explainer check, the ATK-22 digest criteria and the fault steps need e2e-local, packages/receipts or K-12/K-15; the Symbolon target reports them NOT_RUN with the reason.",
+    "ATK-17 (contract calls) and the fault steps (reconciler, K-15) need e2e-local; the Symbolon target reports them NOT_RUN with the reason. ATK-22 (digest), ATK-23 (WYSIWYS comparator) and ATK-24 (explainer) run against kernel-core and packages/receipts; whether the web screen really disables Sign is WP-19/SEC-13, not measured here.",
     "Trials are extraction runs of the committed fixtures. Runs of one fixture share a payee, an amount and a document and are not independent, so the upper bounds are optimistic; the hold-out set (WP-36) is the independent evidence.",
-    "Decisions accumulate across the steps of a fixture (docs/QUESTIONS WP-22 item 9). K-04 therefore sees earlier steps of the same fixture as near-duplicates or replays; see docs/QUESTIONS WP-23.",
+    "Decisions accumulate across the steps of a fixture (docs/QUESTIONS WP-22 item 9). K-04 therefore sees earlier steps of the same fixture as near-duplicates, replays or as a milestone already paid (and K-04 rejects a later instalment of a partialAllowed milestone); the later checks the attack was designed for are then not exercised in that run. See docs/QUESTIONS WP-23 (re-baseline).",
     "B1 pays the face amount of the document and has no terms logic, so it overpays the early-pay discount on honest invoices; that is part of the pattern, and it is reported, not hidden.",
     "Every scenario instance is prefunded with the same 1,000,000 USDC; a transfer above the remaining balance reverts and moves no money, so losses are bounded by it."
   ]

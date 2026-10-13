@@ -58,7 +58,11 @@ export function matchExpectation(expect: StepExpect, d: TargetDecision, unimplem
     const owner = REASON_OWNER[reason];
     return owner !== undefined && unimplemented.includes(owner);
   };
-  if (!(expect.verdictIn as readonly string[]).includes(d.action)) {
+  // docs/04 K-12 v2 (RT-14): once the day's escalation budget is used up, an ESCALATE degrades by design to
+  // HOLD ESCALATION_BUDGET_EXCEEDED (no prompt, ranked digest). That is the spec'd form of "needs a human", so a
+  // fixture expecting ESCALATE is met by it; any other expected verdict is not.
+  const budgetDowngrade = d.action === "HOLD" && (d.reasons as readonly string[]).includes("ESCALATION_BUDGET_EXCEEDED") && (expect.verdictIn as readonly string[]).includes("ESCALATE");
+  if (!(expect.verdictIn as readonly string[]).includes(d.action) && !budgetDowngrade) {
     (d.heldByUnimplementedChecks ? explained : real).push(`verdict ${d.action} not in [${expect.verdictIn.join(", ")}]`);
   }
   const reasons = d.reasons as readonly string[];
@@ -78,7 +82,14 @@ export function matchExpectation(expect: StepExpect, d: TargetDecision, unimplem
   if (real.length === 0 && explained.length === 0) return { expectation: "MATCH", note: "" };
   if (real.length === 0) return { expectation: "INCONCLUSIVE", note: `${explained.join("; ")} (needs checks this kernel build lacks: ${unimplemented.join(", ")})` };
   const dup = reasons.includes("NEAR_DUPLICATE") || reasons.includes("DUPLICATE_DOC") || d.action === "REPLAY";
-  return { expectation: "MISMATCH", note: [...real, ...explained.map((e) => `${e} (pending checks)`)].join("; ") + (dup ? " (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)" : "") };
+  const paid = reasons.includes("MILESTONE_ALREADY_PAID");
+  return {
+    expectation: "MISMATCH",
+    note:
+      [...real, ...explained.map((e) => `${e} (pending checks)`)].join("; ") +
+      (dup ? " (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)" : "") +
+      (paid ? " (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)" : ""),
+  };
 }
 
 interface Holder {

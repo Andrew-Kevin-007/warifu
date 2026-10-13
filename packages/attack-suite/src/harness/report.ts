@@ -55,10 +55,26 @@ export function renderMarkdown(m: AttackMatrix): string {
   p();
   p(`- **Symbolon (unit mode, real kernel-core pipeline):** loss on ${lossLine(sym)}. ${rateLine(sym)}.`);
   const unimpl = symT?.unimplementedChecks ?? [];
+  if (symT?.releasePathAvailable === true) {
+    const symReleases = m.attacks.filter((a) => a.target === "symbolon").reduce((n, a) => n + (a.oracle?.releases ?? 0), 0);
+    p(
+      `- **Release path available in this build: yes** (no check is a fail-closed placeholder). The oracle judged ${symReleases} real RELEASE verdict(s) of Symbolon across the attacks, so the count above is measured against a kernel that can pay. ` +
+        "Read it with the expectation mismatches below: where an earlier check (K-04) rejects first, the later checks the attack was designed for are not exercised in that run.",
+    );
+  } else {
+    p(
+      `- **Read this with the next line.** Release path available in this build: **no**` +
+        (unimpl.length > 0 ? ` (checks not implemented: ${unimpl.join(", ")}; they fail closed to HOLD, so no intent can reach RELEASE).` : ".") +
+        " With no release path a loss count of 0 says nothing about the checks that are missing; it only shows the implemented checks and the fail-closed default hold.",
+    );
+  }
+  const failedCriteria = m.attacks.filter((a) => a.target === "symbolon" && a.criteria.failed > 0);
+  const passedAll = m.attacks.filter((a) => a.target === "symbolon").reduce((n, a) => n + a.criteria.passed, 0);
+  const failedAll = m.attacks.filter((a) => a.target === "symbolon").reduce((n, a) => n + a.criteria.failed, 0);
   p(
-    `- **Read this with the next line.** Release path available in this build: **${symT?.releasePathAvailable === true ? "yes" : "no"}**` +
-      (unimpl.length > 0 ? ` (checks not implemented: ${unimpl.join(", ")}; they fail closed to HOLD, so no intent can reach RELEASE).` : ".") +
-      " With no release path a loss count of 0 says nothing about the checks that are missing; it only shows the implemented checks and the fail-closed default hold.",
+    `- **Human-loop criteria (ATK-22 digest, ATK-23 approval rendering, ATK-24 explainer; unit mode):** ${passedAll} of ${passedAll + failedAll} met` +
+      (failedCriteria.length > 0 ? `; NOT met in ${failedCriteria.map((a) => a.attackId).join(", ")} (those attacks are counted as LOSS above on a criterion, not on money: see the criteria section)` : "") +
+      ".",
   );
   p(`- **B1 (naive release-on-model-output pattern, ours, SIMULATED validator):** loses on ${lossLine(b1)}. ${rateLine(b1)}.`);
   p("- **B0 and B2:** not built yet (WP-36); their applicability rows are undecided and are not counted as blocked or as applicable.");
@@ -107,6 +123,16 @@ export function renderMarkdown(m: AttackMatrix): string {
   p();
   for (const a of m.attacks.filter((x) => x.target === "symbolon")) {
     for (const s of a.steps.filter((x) => x.status === "NOT_RUN")) p(`- ${s.stepId} (${s.kind}): ${s.reason}`);
+  }
+  p();
+
+  p("### Human-loop criteria (Symbolon, unit mode)");
+  p();
+  p("Stated criteria of ATK-22/23/24 (docs/07 §3.2). They test the kernel's escalation budget and digest, the packages/receipts WYSIWYS comparator and the templated explainer; whether the web screen really disables Sign is WP-19/SEC-13, not measured here.");
+  p();
+  for (const a of m.attacks.filter((x) => x.target === "symbolon" && (x.criteria.passed + x.criteria.failed) > 0)) {
+    p(`- ${a.attackId}: ${a.criteria.passed} met, ${a.criteria.failed} not met.`);
+    for (const s of a.steps) for (const c of s.criteria.filter((x) => !x.passed)) p(`  - NOT MET ${c.id}: ${c.detail}`);
   }
   p();
 

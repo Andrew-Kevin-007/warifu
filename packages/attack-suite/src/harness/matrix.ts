@@ -182,15 +182,15 @@ function limitationsFor(unimplemented: readonly string[]): string[] {
   const l: string[] = [];
   if (unimplemented.length > 0) {
     l.push(
-      `The Symbolon target runs the kernel-core build as merged: ${unimplemented.join(", ")} are fail-closed placeholders (WP-05 is not merged). Every intent ends HOLD, REJECT, ESCALATE or REPLAY; none can be released, so a count of 0 losses is not evidence about the missing checks.`,
+      `The Symbolon target runs the kernel-core build as merged: ${unimplemented.join(", ")} are fail-closed placeholders . Every intent ends HOLD, REJECT, ESCALATE or REPLAY; none can be released, so a count of 0 losses is not evidence about the missing checks.`,
     );
   }
   l.push("Engagements are the fixture templates activated with placeholder signatures and a placeholder registration (SIMULATED); no key signed anything and nothing was registered on a vault.");
   l.push("Extraction reads are the fixture generator's REFERENCE reads, not model outputs; no model was called. B1's validator is a deterministic stand-in for an LLM validator (SIMULATED). Nothing in this report is labelled RECORDED because nothing was recorded.");
   l.push("ATK-01, ATK-09, ATK-19, ATK-23 and ATK-24 have no oracle-expressible loss (docs/QUESTIONS WP-22 item 2). Their results are signal-scored or NOT_RUN and are counted separately from oracle-scored attacks.");
-  l.push("ATK-17 (contract calls), ATK-23 (approval rendering), the ATK-24 explainer check, the ATK-22 digest criteria and the fault steps need e2e-local, packages/receipts or K-12/K-15; the Symbolon target reports them NOT_RUN with the reason.");
+  l.push("ATK-17 (contract calls) and the fault steps (reconciler, K-15) need e2e-local; the Symbolon target reports them NOT_RUN with the reason. ATK-22 (digest), ATK-23 (WYSIWYS comparator) and ATK-24 (explainer) run against kernel-core and packages/receipts; whether the web screen really disables Sign is WP-19/SEC-13, not measured here.");
   l.push("Trials are extraction runs of the committed fixtures. Runs of one fixture share a payee, an amount and a document and are not independent, so the upper bounds are optimistic; the hold-out set (WP-36) is the independent evidence.");
-  l.push("Decisions accumulate across the steps of a fixture (docs/QUESTIONS WP-22 item 9). K-04 therefore sees earlier steps of the same fixture as near-duplicates or replays; see docs/QUESTIONS WP-23.");
+  l.push("Decisions accumulate across the steps of a fixture (docs/QUESTIONS WP-22 item 9). K-04 therefore sees earlier steps of the same fixture as near-duplicates, replays or as a milestone already paid (and K-04 rejects a later instalment of a partialAllowed milestone); the later checks the attack was designed for are then not exercised in that run. See docs/QUESTIONS WP-23 (re-baseline).");
   l.push("B1 pays the face amount of the document and has no terms logic, so it overpays the early-pay discount on honest invoices; that is part of the pattern, and it is reported, not hidden.");
   l.push("Every scenario instance is prefunded with the same 1,000,000 USDC; a transfer above the remaining balance reverts and moves no money, so losses are bounded by it.");
   return l;

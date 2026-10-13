@@ -173,17 +173,30 @@ describe("B1 on the fixtures (oracle-scored)", () => {
 });
 
 describe("Symbolon unit target (real kernel-core pipeline)", () => {
-  it("has no release path in this build: K-09..K-14 and K-16 are reported as unimplemented, K-01..K-08 are not", () => {
+  it("has a release path: no check is a fail-closed placeholder any more (WP-05 is in the tree)", () => {
     const t = matrix.targets.find((x) => x.id === "symbolon");
-    expect(t?.unimplementedChecks).toEqual(["K-09", "K-10", "K-11", "K-12", "K-13", "K-14", "K-16"]);
-    expect(t?.releasePathAvailable).toBe(false);
+    expect(t?.unimplementedChecks).toEqual([]);
+    expect(t?.releasePathAvailable).toBe(true);
   });
 
-  it("never releases: no run of any attack or honest fixture ends in RELEASE", () => {
-    const actions = matrix.attacks.filter((a) => a.target === "symbolon").flatMap((a) => a.steps.flatMap((s) => s.runs.map((r) => r.action)));
-    expect(actions.length).toBeGreaterThan(100);
-    expect(actions).not.toContain("RELEASE");
-    expect(matrix.honest.find((h) => h.target === "symbolon")?.released).toBe(0);
+  it("releases are possible and the oracle judges every one: honest invoices are paid at the correct amount, attack releases are NO_LOSS", () => {
+    const runs = matrix.attacks.filter((a) => a.target === "symbolon").flatMap((a) => a.steps.flatMap((s) => s.runs));
+    const released = runs.filter((r) => r.action === "RELEASE");
+    expect(released.length).toBeGreaterThan(0);
+    for (const r of released) {
+      expect(r.release).not.toBeNull();
+      expect(r.release?.oracle.result).toBe("NO_LOSS");
+    }
+    const honest = matrix.honest.find((h) => h.target === "symbolon");
+    expect(honest?.released).toBe(12);
+    expect(honest?.releasedCorrect).toBe(12);
+    expect(honest?.releasedLoss).toBe(0);
+  });
+
+  it("builds the sandbox evidence K-09 wants: without payload.requirement every honest invoice would be held EVIDENCE_SOURCE_DENIED", () => {
+    // The release path exists only because the harness injects fixtures in the shape of kernel-core's sandbox contract.
+    const honest = matrix.honest.find((h) => h.target === "symbolon");
+    expect(honest?.items.every((i) => i.released)).toBe(true);
   });
 
   it("really runs the implemented checks: a lookalike payee is REJECTed by K-06, an unknown vendor by K-05", () => {
@@ -196,17 +209,51 @@ describe("Symbolon unit target (real kernel-core pipeline)", () => {
     expect(result("ATK-16", "symbolon").steps.every((s) => s.runs.every((r) => r.reasons.includes("OUT_OF_WINDOW")))).toBe(true);
   });
 
-  it("flags a HOLD that exists only because later checks are missing, and does not flag a real REJECT", () => {
-    expect(result("ATK-03", "symbolon").steps[0]?.runs[0]?.heldByUnimplementedChecks).toBe(true);
+  it("no run is held only because a check is missing", () => {
+    const runs = matrix.attacks.filter((a) => a.target === "symbolon").flatMap((a) => a.steps.flatMap((s) => s.runs));
+    expect(runs.some((r) => r.heldByUnimplementedChecks)).toBe(false);
     expect(result("ATK-02", "symbolon").steps[0]?.runs[0]?.heldByUnimplementedChecks).toBe(false);
+    expect(result("ATK-03", "symbolon").steps[0]?.runs[0]?.reasons).toContain("CATEGORY_BUDGET");
   });
 
-  it("reports the steps it cannot run, with reasons, instead of calling them blocked", () => {
-    for (const id of ["ATK-09", "ATK-17", "ATK-23"]) expect(result(id, "symbolon").outcome).toBe("NOT_RUN");
+  it("reports the steps it cannot run (faults, contract calls), with reasons, instead of calling them blocked", () => {
+    for (const id of ["ATK-09", "ATK-17"]) expect(result(id, "symbolon").outcome).toBe("NOT_RUN");
     expect(result("ATK-17", "symbolon").steps.every((s) => s.status === "NOT_RUN" && s.reason.length > 20)).toBe(true);
-    expect(result("ATK-22", "symbolon").complete).toBe(false);
-    expect(result("ATK-24", "symbolon").complete).toBe(false);
     expect(result("ATK-01", "symbolon").notes.join(" ")).toContain("NOT_RUN");
+    expect(result("ATK-01", "symbolon").complete).toBe(false);
+  });
+
+  it("runs the human-loop attacks: ATK-22/23/24 are complete and carry criteria", () => {
+    for (const id of ["ATK-22", "ATK-23", "ATK-24"]) {
+      const r = result(id, "symbolon");
+      expect(r.complete).toBe(true);
+      expect(r.criteria.passed + r.criteria.failed).toBeGreaterThan(3);
+    }
+  });
+
+  it("ATK-23: every mutation of the rendered approval model disables Sign, the unmodified render does not", () => {
+    const r = result("ATK-23", "symbolon");
+    expect(r.criteria.failed).toBe(0);
+    expect(r.criteria.passed).toBe(10); // M1..M9 + raw typed data
+    expect(r.control.status).toBe("PASS");
+  });
+
+  it("ATK-24: the templated explanation shares no planted phrase and no n-gram with the document", () => {
+    const r = result("ATK-24", "symbolon");
+    expect(r.criteria.failed).toBe(0);
+    expect(r.steps.flatMap((s) => s.criteria).filter((c) => c.id.endsWith("ngram-overlap")).length).toBe(4);
+  });
+
+  it("ATK-22: the escalation budget caps the prompts and the overflow is one digest, nothing is released (finding: the malicious item's digest rank is reported, not forced)", () => {
+    const r = result("ATK-22", "symbolon");
+    const c = new Map(r.steps.flatMap((s) => s.criteria).map((x) => [x.id, x]));
+    expect(c.get("individual-prompts")?.passed).toBe(true);
+    expect(c.get("overflow-is-one-digest")?.passed).toBe(true);
+    expect(c.get("nothing-moves-without-approval")?.passed).toBe(true);
+    expect(c.get("no-bulk-approve")?.passed).toBe(true);
+    expect(r.oracle?.releases).toBe(0);
+    // the digest rank of the malicious item is a measured outcome: whatever it is, it is stated in the criterion text
+    expect(c.get("malicious-surfaced")?.detail).toMatch(/rank \d+ of \d+|own|outright/);
   });
 
   it("the Evaluation -> decision adapter maps a RELEASE with signed terms (adapter test with a synthetic evaluation)", () => {
@@ -245,6 +292,13 @@ describe("expectation matching", () => {
   it("INCONCLUSIVE when the unmet part belongs to a check the build lacks", () => {
     const held = d({ action: "HOLD", checksFired: ["K-12"], reasons: ["KERNEL_ERROR"], heldByUnimplementedChecks: true });
     expect(matchExpectation({ verdictIn: ["ESCALATE"], reasonsAnyOf: ["CATEGORY_BUDGET"], checksAnyOf: ["K-12"] }, held, ["K-12"]).expectation).toBe("INCONCLUSIVE");
+  });
+  it("an expected ESCALATE is met by the spec'd budget downgrade (HOLD ESCALATION_BUDGET_EXCEEDED), but not by an unrelated HOLD", () => {
+    const budget = d({ action: "HOLD", checksFired: ["K-12"], reasons: ["AMOUNT_AMBIGUOUS", "ESCALATION_BUDGET_EXCEEDED"] });
+    expect(matchExpectation({ verdictIn: ["ESCALATE"], reasonsAnyOf: ["AMOUNT_AMBIGUOUS"] }, budget, []).expectation).toBe("MATCH");
+    expect(matchExpectation({ verdictIn: ["REJECT"] }, budget, []).expectation).toBe("MISMATCH");
+    const other = d({ action: "HOLD", reasons: ["EVIDENCE_MISSING"] });
+    expect(matchExpectation({ verdictIn: ["ESCALATE"] }, other, []).expectation).toBe("MISMATCH");
   });
   it("a real mismatch is not hidden by a pending one in the same expectation", () => {
     const held = d({ action: "REJECT", checksFired: ["K-06"], reasons: ["PAYEE_MISMATCH"] });
@@ -292,15 +346,26 @@ describe("matrix invariants", () => {
     expect(b1.notApplicable).toBe(4);
   });
 
-  it("Symbolon's loss count is 0 on every oracle-judged release, and the report refuses to read that as evidence", () => {
+  it("Symbolon's money loss is 0 on every oracle-judged release, with n, k and a 95% upper bound, and the report says the release path is real", () => {
     const s = totals("symbolon");
     expect(s.lossTrials).toBe(0);
     expect(s.lossBaseUnits).toBe("0");
     expect(s.lossRate?.upper95Method).toBe("rule-of-three");
     expect(s.lossRate?.upper95).toBeCloseTo(3 / s.trials, 12);
     const md = renderMarkdown(matrix);
-    expect(md).toContain("Release path available in this build: **no**");
-    expect(md).toContain("not evidence about the missing checks");
+    expect(md).toContain("Release path available in this build: yes");
+    expect(md).not.toContain("says nothing about the checks that are missing");
+    expect(md).not.toContain("WP-05 is not merged");
+  });
+
+  it("an attack counts as LOSS for Symbolon only on an oracle predicate or a failed stated criterion, and every such case is listed", () => {
+    const lossy = matrix.attacks.filter((a) => a.target === "symbolon" && a.outcome === "LOSS");
+    const md = renderMarkdown(matrix);
+    for (const a of lossy) {
+      const byOracle = (a.oracle?.lossReleases ?? 0) > 0;
+      expect(byOracle || a.criteria.failed > 0).toBe(true);
+      if (a.criteria.failed > 0) expect(md).toContain(`- ${a.attackId}: ${a.criteria.passed} met, ${a.criteria.failed} not met.`);
+    }
   });
 
   it("NOT_RUN is never counted as blocked, held or escalated", () => {
@@ -320,19 +385,19 @@ describe("matrix invariants", () => {
     expect(b1.filter((a) => a.control.status !== "PASS").map((a) => a.attackId)).toEqual(["ATK-21"]);
   });
 
-  it("Symbolon's controls are all over-blocked in this build, and say why", () => {
-    const sym = matrix.attacks.filter((a) => a.target === "symbolon" && a.control.status === "OVERBLOCKED");
-    expect(sym.length).toBe(23);
-    expect(sym.every((a) => a.control.detail.includes("not implemented"))).toBe(true);
+  it("every Symbolon negative control pays the correct amount to the correct payee (no over-blocking, no loss)", () => {
+    const sym = matrix.attacks.filter((a) => a.target === "symbolon");
+    expect(sym.filter((a) => a.control.status !== "PASS").map((a) => `${a.attackId}:${a.control.status}`)).toEqual([]);
   });
 
-  it("the honest corpus: B1 overpays discounts it does not model; Symbolon holds all 12 only because checks are missing", () => {
+  it("the honest corpus: B1 overpays discounts it does not model; Symbolon pays all 12 at the correct amount", () => {
     const b1 = matrix.honest.find((h) => h.target === "b1");
     const sym = matrix.honest.find((h) => h.target === "symbolon");
     expect(b1?.n).toBe(12);
     expect(b1?.releasedLoss).toBeGreaterThan(0);
-    expect(sym?.held).toBe(12);
-    expect(sym?.heldByUnimplementedChecks).toBe(12);
+    expect(sym?.released).toBe(12);
+    expect(sym?.releasedCorrect).toBe(12);
+    expect(sym?.heldByUnimplementedChecks).toBe(0);
     expect(sym?.rejected).toBe(0);
   });
 
