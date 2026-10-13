@@ -20,6 +20,7 @@
     "kickoff": "python3 scripts/gen-kickoff.py",
     "claude:check": "node scripts/check-claude-config.mjs",
     "claims:lint": "node scripts/claims-lint.mjs",
+    "verify-receipt": "node packages/receipts/bin/verify-receipt.mjs",
     "sec:local": "pnpm --filter @symbolon/sec-suite run sec:local",
     "sec:sandbox": "node scripts/sec-sandbox.mjs"
   },
