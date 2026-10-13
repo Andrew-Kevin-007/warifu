@@ -17,9 +17,10 @@ import {
   PAYEE,
   clone,
   context,
+  engagement,
   expectCheck,
-
   intent,
+  milestone,
   phaseA,
   policy,
   single,
@@ -296,6 +297,64 @@ describe("K-04 IDEMPOTENCY_DEDUPE", () => {
     // controls: a non-RELEASE decision on the milestone, or a RELEASE on another milestone
     expectCheck(phaseA(intent(), context({ priorDecisions: [summary({ verdict: "HOLD", milestoneId: M1 })] })), "K-04", null, null);
     expectCheck(phaseA(intent(), context({ priorDecisions: [summary({ verdict: "RELEASE", milestoneId: M2, amountBaseUnits: 7n })] })), "K-04", null, null);
+  });
+
+  describe("partialAllowed milestones: a later instalment is not 'already paid' until the releases cover the whole amount", () => {
+    const WHOLE = 1_000_000_000n;
+    const partial = engagement({ milestones: [milestone(M1, "design", { partialAllowed: true }), milestone(M2, "build")] });
+    const onPartial = (...priors: Array<Parameters<typeof summary>[0]>) =>
+      phaseA(intent(), context({ engagement: partial, milestone: partial.milestones[0] ?? null, priorDecisions: priors.map((p, i) => summary({ verdict: "RELEASE", milestoneId: M1, decisionId: `0c1d2e3f-4a5b-4c6d-8e7f-8091a2b3c4d${String(i)}`, ...p })) }));
+
+    it("passes K-04 while the earlier RELEASEs cover less than the milestone", () => {
+      expectCheck(onPartial({ amountBaseUnits: 400_000_000n }), "K-04", null, null);
+      expectCheck(onPartial({ amountBaseUnits: 400_000_000n }, { amountBaseUnits: 599_999_999n }), "K-04", null, null);
+      expectCheck(onPartial({ amountBaseUnits: 1n }), "K-04", null, null);
+    });
+
+    it("rejects once they cover it exactly or more (MILESTONE_ALREADY_PAID), or when an earlier amount is unknown", () => {
+      const refs = (e: ReturnType<typeof onPartial>) => e.checks[3]?.refs;
+      const exact = onPartial({ amountBaseUnits: 400_000_000n }, { amountBaseUnits: 600_000_000n });
+      expectCheck(exact, "K-04", "REJECT", "MILESTONE_ALREADY_PAID");
+      expect(refs(exact)).toHaveLength(2);
+      expectCheck(onPartial({ amountBaseUnits: WHOLE + 1n }), "K-04", "REJECT", "MILESTONE_ALREADY_PAID");
+      expectCheck(onPartial({ amountBaseUnits: null }), "K-04", "REJECT", "MILESTONE_ALREADY_PAID");
+      expectCheck(onPartial({ amountBaseUnits: 1n }, { amountBaseUnits: null }), "K-04", "REJECT", "MILESTONE_ALREADY_PAID");
+    });
+
+    it("only RELEASE decisions of this engagement's milestone count; other verdicts, milestones and engagements do not", () => {
+      expectCheck(onPartial({ amountBaseUnits: WHOLE, verdict: "HOLD" }), "K-04", null, null);
+      expectCheck(onPartial({ amountBaseUnits: WHOLE, verdict: "REJECT" }), "K-04", null, null);
+      expectCheck(onPartial({ amountBaseUnits: WHOLE, milestoneId: M2 }), "K-04", null, null);
+      expectCheck(onPartial({ amountBaseUnits: WHOLE, engagementId: `0x${"ab".repeat(32)}` }), "K-04", null, null);
+    });
+
+    it("the instalment itself must still fit (K-08 cumulative OVERPAY) and the end to end verdict follows", () => {
+      const mk = (printed: string, parsed: string) => both(intent(), (x) => { x.amount.printed = printed; x.amount.parsedBaseUnits = parsed; x.lineItems = []; });
+      const priors = [summary({ verdict: "RELEASE", milestoneId: M1, amountBaseUnits: 700_000_000n, createdAt: "2026-08-01T00:00:00Z" })];
+      const ctx = context({ engagement: partial, milestone: partial.milestones[0] ?? null, priorDecisions: priors });
+      const fits = phaseA(mk("300.00", "300000000"), ctx);
+      expectCheck(fits, "K-04", null, null);
+      expectCheck(fits, "K-08", null, null);
+      const over = phaseA(mk("300.01", "300010000"), ctx);
+      expectCheck(over, "K-04", null, null);
+      expectCheck(over, "K-08", "REJECT", "OVERPAY");
+      const settled = phaseA(mk("1.00", "1000000"), context({ engagement: partial, milestone: partial.milestones[0] ?? null, priorDecisions: [{ ...priors[0] as ReturnType<typeof summary>, amountBaseUnits: WHOLE }] }));
+      expectCheck(settled, "K-04", "REJECT", "MILESTONE_ALREADY_PAID");
+      expect(settled.verdict).toBe("REJECT");
+    });
+
+    it("replays, duplicate documents and equal-amount re-invoices still stop an instalment", () => {
+      const partCtx = (priors: Array<ReturnType<typeof summary>>) => context({ engagement: partial, milestone: partial.milestones[0] ?? null, priorDecisions: priors });
+      const id = phaseA(intent(), partCtx([])).intentId;
+      expect(phaseA(intent(), partCtx([summary({ intentId: id, verdict: "RELEASE", milestoneId: M1, amountBaseUnits: 400_000_000n })])).verdict).toBe("REPLAY");
+      expectCheck(phaseA(intent(), partCtx([summary({ verdict: "RELEASE", milestoneId: M1, amountBaseUnits: 400_000_000n, docHash: DOC_HASH })])), "K-04", "ESCALATE", "DUPLICATE_DOC");
+      expectCheck(phaseA(intent(), partCtx([summary({ verdict: "RELEASE", milestoneId: M1, amountBaseUnits: WHOLE, payee: PAYEE, createdAt: "2026-10-04T12:00:00Z", normInvoiceNo: "INV0041" })])), "K-04", "REJECT", "MILESTONE_ALREADY_PAID");
+      // an equal-amount instalment for the same payee under another invoice number inside 7 d: a human looks (NEAR_DUPLICATE)
+      const four = both(intent(), (x) => { x.invoiceNumber = "INV-0043"; x.amount.printed = "400.00"; x.amount.parsedBaseUnits = "400000000"; x.lineItems = []; });
+      const earlier = summary({ verdict: "RELEASE", milestoneId: M1, amountBaseUnits: 400_000_000n, payee: PAYEE, createdAt: "2026-10-04T12:00:00Z", normInvoiceNo: "INV0041" });
+      expectCheck(phaseA(four, partCtx([earlier])), "K-04", "ESCALATE", "NEAR_DUPLICATE");
+      expectCheck(phaseA(four, partCtx([{ ...earlier, createdAt: "2026-09-01T00:00:00Z" }])), "K-04", null, null);
+    });
   });
 
   it("same document under another intent => ESCALATE DUPLICATE_DOC", () => {
