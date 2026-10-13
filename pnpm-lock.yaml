@@ -43,9 +43,21 @@ importers:
 
   packages/attack-suite:
     dependencies:
+      '@symbolon/kernel-core':
+        specifier: workspace:*
+        version: link:../kernel-core
+      '@symbolon/oracle':
+        specifier: workspace:*
+        version: link:../oracle
+      '@symbolon/policy':
+        specifier: workspace:*
+        version: link:../policy
       '@symbolon/schemas':
         specifier: workspace:*
         version: link:../schemas
+      '@symbolon/terms':
+        specifier: workspace:*
+        version: link:../terms
       zod:
         specifier: 4.6.5
         version: 4.6.5
@@ -95,7 +107,11 @@ importers:
         specifier: workspace:*
         version: link:../terms
 
-  packages/oracle: {}
+  packages/oracle:
+    dependencies:
+      '@symbolon/schemas':
+        specifier: workspace:*
+        version: link:../schemas
 
   packages/policy:
     dependencies:

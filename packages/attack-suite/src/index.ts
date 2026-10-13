@@ -20,6 +20,8 @@ export * from "./honest";
 export * from "./applicability";
 export * from "./registry";
 export * from "./files";
+export * from "./stats";
+export * from "./harness/index";
 export { ATTACK_META } from "./attack-meta";
 export { injectionContext } from "./attacks/injection";
 export { buildSignedView } from "./attacks/human";
