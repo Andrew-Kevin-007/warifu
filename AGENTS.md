@@ -3,7 +3,7 @@
 
 **The spine (DEC-011):** *Don't trust the agent. Bound it. Prove it. Invite attack.* Every task you do should make one of those four sentences more true, or it waits.
 
-You are one of several agents building **Symbolon** under a hard deadline. Read, in order: `docs/00_START_HERE.md`, your **work package** in `docs/10_SWARM_PLAN.md`, then the specs it references (`docs/14`–`17` apply to everyone: red-team findings, challenge, certificate, **your model/effort budget**). If anything here conflicts with a spec, the **spec wins**; flag the conflict in `docs/QUESTIONS.md`.
+You are one of several agents building **Symbolon** under a hard deadline. Read, in order: **`docs/PROJECT_BRIEF.md` (what we are building, where we are, the frontend plan, how to work here)**, `docs/00_START_HERE.md`, your **work package** in `docs/10_SWARM_PLAN.md`, then the specs it references (`docs/14`–`17` apply to everyone: red-team findings, challenge, certificate, **your model/effort budget**). If anything here conflicts with a spec, the **spec wins**; flag the conflict in `docs/QUESTIONS.md`.
 
 ## 0. Prime directives
 1. **Never let LLM output become a release condition.** (INV-8). If you find yourself writing `if (llm.confidence > …)` in kernel/contract paths, stop.
