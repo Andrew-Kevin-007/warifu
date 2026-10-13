@@ -32,6 +32,12 @@ export interface KernelConfig {
    * relayer, or no relayer, is used and POST /webhooks/circle answers 501).
    */
   readonly circle: CircleConfig | null;
+  /** WP-13. Optional deny-by-default egress proxy (HTTP CONNECT) for live evidence fetches; host:port. null = direct (pinned) connections. */
+  readonly evidenceEgressProxy: { readonly host: string; readonly port: number } | null;
+  /** WP-13. GitHub token for CI_PASS (public repos work without). Sent only to api.github.com. */
+  readonly githubToken: Secret | null;
+  /** WP-13. Largest artifact the kernel hashes for ARTIFACT_HASH evidence. */
+  readonly maxArtifactBytes: number;
   /** Names + values that must never be logged. */
   readonly logSecrets: readonly Secret[];
 }
@@ -87,6 +93,15 @@ function loadCircle(env: EnvLike, relayerKey: string): CircleConfig | null {
   return Object.freeze({ apiKey: new Secret(apiKey), entitySecret: new Secret(entitySecret), blockchain, walletId, walletAddress: walletAddress.toLowerCase(), webhookKeyIds: keyIds });
 }
 
+/** "host:port" with a DNS-label-ish host or a bracketed IPv6; anything else is a ConfigError (the proxy is infrastructure, not input). */
+export function parseProxy(name: string, raw: string | undefined): { host: string; port: number } | null {
+  if (raw === undefined || raw === "") return null;
+  const m = /^([A-Za-z0-9.-]{1,253}):([0-9]{1,5})$/.exec(raw);
+  const port = m === null ? 0 : Number.parseInt(m[2] as string, 10);
+  if (m === null || port < 1 || port > 65535) throw new ConfigError(name, "expected host:port");
+  return { host: m[1] as string, port };
+}
+
 export function loadConfig(env: EnvLike): KernelConfig {
   assertBootGuards(env);
   const profile = parseProfile(env);
@@ -121,6 +136,9 @@ export function loadConfig(env: EnvLike): KernelConfig {
     },
     relayerKey: relayerKey === "" ? null : new Secret(relayerKey),
     circle: loadCircle(env, relayerKey),
+    evidenceEgressProxy: parseProxy("EVIDENCE_EGRESS_PROXY", env["EVIDENCE_EGRESS_PROXY"]),
+    githubToken: env["GITHUB_TOKEN"] === undefined || env["GITHUB_TOKEN"] === "" ? null : new Secret(env["GITHUB_TOKEN"]),
+    maxArtifactBytes: intOf(env, "MAX_ARTIFACT_BYTES", 5 * 1024 * 1024, 1, 64 * 1024 * 1024),
     logSecrets: redactionList(env).map((s) => new Secret(s)),
   });
 }
