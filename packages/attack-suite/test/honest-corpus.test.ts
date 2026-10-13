@@ -86,7 +86,7 @@ describe("every honest fixture is honest", () => {
     for (const h of corpus) {
       const text = inspectUntrusted(h.step.doc.text);
       expect(bytes(text), h.id).toBeLessThanOrEqual(MAX_DOC_BYTES_SANDBOX);
-      expect(/[​-‏‪-‮⁠﻿]/.test(text), `${h.id} hidden chars`).toBe(false);
+      expect(/[\u200b-\u200f\u202a-\u202e\u2060\ufeff]/.test(text), `${h.id} hidden chars`).toBe(false);
       expect(/ignore (all|any|previous)|system:|assistant:|approved by the owner/i.test(text), `${h.id} reads like an injection`).toBe(false);
     }
   });
