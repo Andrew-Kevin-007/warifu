@@ -53,7 +53,8 @@ export function renderMarkdown(m: AttackMatrix): string {
   p();
   p("## Headline");
   p();
-  p(`- **Symbolon (unit mode, real kernel-core pipeline):** loss on ${lossLine(sym)}. ${rateLine(sym)}.`);
+  const byCriterionOnly = m.attacks.filter((a) => a.target === "symbolon" && a.outcome === "LOSS" && (a.oracle?.lossReleases ?? 0) === 0).length;
+  p(`- **Symbolon (unit mode, real kernel-core pipeline):** loss on ${lossLine(sym)}. ${rateLine(sym)}. ${byCriterionOnly} of the attacks counted as loss are counted on a failed stated criterion or ledger signal with no oracle-judged loss.`);
   const unimpl = symT?.unimplementedChecks ?? [];
   if (symT?.releasePathAvailable === true) {
     const symReleases = m.attacks.filter((a) => a.target === "symbolon").reduce((n, a) => n + (a.oracle?.releases ?? 0), 0);
