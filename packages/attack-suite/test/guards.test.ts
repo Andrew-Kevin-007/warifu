@@ -67,12 +67,13 @@ describe("source guards", () => {
     }
   });
 
-  it("the harness imports only schemas, zod, the oracle, and (symbolon-unit.ts alone) kernel-core and policy", () => {
+  it("the harness imports only schemas, zod, the oracle, and kernel-core and policy (symbolon-unit.ts alone) or the extractor (honest-parser.ts alone)", () => {
     const harness = src.filter((x) => isHarness(x.path));
     expect(harness.length).toBeGreaterThan(5);
     for (const f of harness) {
       const allowed = ["@symbolon/schemas", "zod", "@symbolon/oracle"];
       if (f.path.endsWith("symbolon-unit.ts")) allowed.push("@symbolon/kernel-core", "@symbolon/policy");
+      if (f.path.endsWith("honest-parser.ts")) allowed.push("@symbolon/extractor"); // WP-24: the zero-LLM readers, checked against the honest corpus
       for (const i of externalImports(f.text)) expect(allowed, `${f.path}: ${i}`).toContain(i);
     }
   });

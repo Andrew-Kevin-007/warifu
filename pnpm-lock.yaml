@@ -43,6 +43,9 @@ importers:
 
   packages/attack-suite:
     dependencies:
+      '@symbolon/extractor':
+        specifier: workspace:*
+        version: link:../extractor
       '@symbolon/kernel-core':
         specifier: workspace:*
         version: link:../kernel-core

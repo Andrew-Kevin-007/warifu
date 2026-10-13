@@ -9,3 +9,6 @@ export { runAttack, runHonestItem, lossMoney, matchExpectation } from "./run";
 export { renderJson, renderMarkdown, formatUsdc } from "./report";
 export { buildMatrix, HARNESS_VERSION } from "./matrix";
 export type { AttackMatrix, TargetTotals, HonestSummary, TargetSummary, ClassTotals } from "./matrix";
+export * from "./honest-eval";
+export * from "./honest-parser";
+export * from "./honest-results";

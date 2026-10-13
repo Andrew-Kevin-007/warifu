@@ -1,8 +1,8 @@
 // @symbolon/attack-suite — fixtures, generators and baselines for ATK-01..24 (owner: ATTACK).
 // WP-22 provides: seeded fixture/generator layer, the three canonical scenarios, the injection and
 // terms-injection libraries, the flood generator, the 12 spec-named honest fixtures and applicability.json.
-// The harness, B1 target, oracle wiring and report are WP-23; the wider honest corpus is WP-24; B0/B2 and the
-// hold-out runner are WP-36.
+// WP-23 adds the harness, B1 target, oracle wiring and report; WP-24 the wider honest corpus (62 invoices), its
+// evaluation and results/honest-corpus.*; B0/B2 and the hold-out runner are WP-36.
 export const PACKAGE_NAME = "@symbolon/attack-suite" as const;
 
 export * from "./types";
@@ -17,6 +17,7 @@ export * from "./injections";
 export * from "./terms-injections";
 export * from "./flood";
 export * from "./honest";
+export * from "./honest-corpus";
 export * from "./applicability";
 export * from "./registry";
 export * from "./files";
