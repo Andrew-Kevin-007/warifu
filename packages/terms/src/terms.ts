@@ -122,20 +122,30 @@ export function amountDue(input: AmountDueInput): TermsResult<AmountDue> {
   if (!received.ok) return received;
   const pay = toEpoch(input.payAt, "payAt");
   if (!pay.ok) return pay;
-  const none: AmountDue = { amountDue: g.value, discountValue: 0n, discountApplied: false, windowEnd: null };
-  if (input.terms === null) return ok(none);
+  if (input.terms === null) return ok(amountDueCore(g.value, null, received.value, pay.value));
   const parsed = PaymentTermsSchema.safeParse(input.terms);
   if (!parsed.success) return err("INVALID_TERMS", "payment terms do not satisfy PaymentTermsSchema");
   const early = parsed.data.earlyPay;
-  if (early === null) return ok(none);
-  const windowEnd = discountWindowEnd(input.invoiceReceivedAt, early.withinDays);
-  if (!windowEnd.ok) return windowEnd;
-  if (pay.value > epochSecondsFromIso(windowEnd.value)) {
-    return ok({ ...none, windowEnd: windowEnd.value });
+  if (early !== null) {
+    const windowEnd = discountWindowEnd(input.invoiceReceivedAt, early.withinDays);
+    if (!windowEnd.ok) return windowEnd;
   }
+  return ok(amountDueCore(g.value, early, received.value, pay.value));
+}
+
+/**
+ * The amountDue formula itself, on VALIDATED operands (gross in uint256, early-pay terms that passed
+ * PaymentTermsSchema, received + withinDays representable). The single implementation shared by amountDue() and
+ * feasiblePlans(), so a plan's amountDue is by construction what K-08 expects. Not exported from the package.
+ */
+export function amountDueCore(gross: bigint, early: { readonly discountBps: number; readonly withinDays: number } | null, receivedSec: bigint, payAtSec: bigint): AmountDue {
+  if (early === null) return { amountDue: gross, discountValue: 0n, discountApplied: false, windowEnd: null };
+  const windowEndSec = receivedSec + BigInt(early.withinDays) * SECONDS_PER_DAY;
+  const windowEnd = isoFromEpochSeconds(windowEndSec);
+  if (payAtSec > windowEndSec) return { amountDue: gross, discountValue: 0n, discountApplied: false, windowEnd };
   // PaymentTermsSchema bounds discountBps to an integer in [1, 2000], so the floor needs no re-validation.
-  const discount = floorBps(g.value, BigInt(early.discountBps));
-  return ok({ amountDue: g.value - discount, discountValue: discount, discountApplied: true, windowEnd: windowEnd.value });
+  const discount = floorBps(gross, BigInt(early.discountBps));
+  return { amountDue: gross - discount, discountValue: discount, discountApplied: true, windowEnd };
 }
 
 export interface ImpliedAprInput {
@@ -157,9 +167,14 @@ export function impliedAprBps(input: ImpliedAprInput): TermsResult<bigint> {
   const within = checkDays(input.withinDays, "withinDays");
   if (!within.ok) return within;
   if (net.value <= within.value) return err("INVALID_DAYS", "netDays must be greater than withinDays");
-  const numerator = b.value * DAYS_PER_YEAR * BPS_DENOMINATOR;
-  const denominator = (BPS_DENOMINATOR - b.value) * (net.value - within.value);
-  return ok(numerator / denominator);
+  return ok(impliedAprCore(b.value, net.value, within.value));
+}
+
+/** The APR formula on VALIDATED operands (0 <= bps < 10000, withinDays < netDays). Not exported from the package. */
+export function impliedAprCore(bps: bigint, netDays: bigint, withinDays: bigint): bigint {
+  const numerator = bps * DAYS_PER_YEAR * BPS_DENOMINATOR;
+  const denominator = (BPS_DENOMINATOR - bps) * (netDays - withinDays);
+  return numerator / denominator;
 }
 
 /** impliedAprBps of signed terms; null when the terms (or their absence) carry no early-pay discount. */

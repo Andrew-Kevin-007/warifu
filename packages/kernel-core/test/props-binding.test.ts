@@ -8,7 +8,7 @@ import { evaluate, normalizeInvoiceNumber, summarizeEvaluation } from "../src/in
 import type { KernelContext } from "../src/index";
 import { ATTACKER, GROSS, M2, PAYEE, TENANT, TWO_TEN_NET_30, context, engagement, intent, phaseA } from "./helpers";
 import { META, PROPERTY_TIMEOUT_MS, RUNS, eachExtraction } from "./props-common";
-import { proseArb, scenarioArb } from "./scenario";
+import { proseArb, scenarioArbV4 as scenarioArb } from "./scenario";
 import type { Scenario } from "./scenario";
 
 vi.setConfig({ testTimeout: PROPERTY_TIMEOUT_MS });

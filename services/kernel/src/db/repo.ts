@@ -309,6 +309,8 @@ export interface ReleasedTotalsRow {
   readonly tenantWeek: bigint;
   readonly payeeDay: bigint;
   readonly payeeCountDay: number;
+  /** WP-05 K-12: tenant-wide RELEASE count in the same 24 h window (velocity.maxReleasesPerDay). */
+  readonly tenantCountDay: number;
   readonly categoryMonth: Record<string, bigint>;
   readonly pendingReleases: bigint;
 }
@@ -333,12 +335,13 @@ export async function loadReleasedTotals(
       and ($2::uuid is null or d.decision_id <> $2)`;
   const amt = "coalesce(d.release_amount_base_units, d.amount_base_units, 0)";
   const eff = "coalesce(d.pay_at, d.created_at)";
-  const r = await q.query<{ engagement_total: string; tenant_day: string; tenant_week: string; payee_day: string; payee_count_day: string; pending: string }>(
+  const r = await q.query<{ engagement_total: string; tenant_day: string; tenant_week: string; payee_day: string; payee_count_day: string; tenant_count_day: string; pending: string }>(
     `select coalesce(sum(${amt}) filter (where $3::text is not null and d.engagement_id = $3), 0)::text as engagement_total,
             coalesce(sum(${amt}) filter (where ${eff} > $5::timestamptz - interval '24 hours'), 0)::text as tenant_day,
             coalesce(sum(${amt}) filter (where ${eff} > $5::timestamptz - interval '7 days'), 0)::text as tenant_week,
             coalesce(sum(${amt}) filter (where $4::text is not null and d.payee = $4 and ${eff} > $5::timestamptz - interval '24 hours'), 0)::text as payee_day,
             count(*) filter (where $4::text is not null and d.payee = $4 and ${eff} > $5::timestamptz - interval '24 hours')::text as payee_count_day,
+            count(*) filter (where ${eff} > $5::timestamptz - interval '24 hours')::text as tenant_count_day,
             coalesce(sum(${amt}) filter (where not exists (select 1 from releases r where r.decision_id = d.decision_id and r.status = 'CONFIRMED')), 0)::text as pending
        ${base}`,
     [tenantId, excludeDecisionId, engagementId, payee, now],
@@ -362,6 +365,7 @@ export async function loadReleasedTotals(
     tenantWeek: big(row?.tenant_week),
     payeeDay: big(row?.payee_day),
     payeeCountDay: Number.parseInt(row?.payee_count_day ?? "0", 10),
+    tenantCountDay: Number.parseInt(row?.tenant_count_day ?? "0", 10),
     categoryMonth,
     pendingReleases: big(row?.pending),
   };

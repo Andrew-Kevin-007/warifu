@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // WP-10 acceptance: POST /v1/intents returns a decision + signed receipt for fixtures, tenant isolation, replay, fail-closed
 // behaviour, document ingestion (INV-23, INV-19) and per-profile route mounting. Real Postgres (V-15: "local"); only the
-// chain edge is faked. evaluate() cannot RELEASE until WP-05, so the happy-path fixture yields HOLD with K-01..K-08 passing.
+// chain edge is faked. Since WP-05 every check is real; the happy-path fixture passes K-01..K-08 and K-12 rejects it under the
+// world's pilot-scale policy (no evidence is stored either), so nothing here can RELEASE.
 import { randomBytes } from "node:crypto";
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -147,14 +148,17 @@ describe.skipIf(!enabled)("local: kernel service over real Postgres", () => {
   });
 
   describe("POST /v1/intents", () => {
-    it("returns a decision and a signed receipt for a clean fixture (HOLD until WP-05; K-01..K-08 pass)", async () => {
+    it("returns a decision and a signed receipt for a fixture that passes K-01..K-08 (WP-05: K-12 rejects it under the world's pilot-scale policy)", async () => {
       const app = w.app();
       const doc = await postDoc(w, app, `${DOC_TEXT}clean ${randomBytes(4).toString("hex")}`);
       const r = await call(app, "POST", "/v1/intents", w.token(), intentFor(doc));
       expect(r.status).toBe(201);
       const { decision, receipt, receiptHash, signature, signer } = r.json as { decision: any; receipt: Receipt; receiptHash: string; signature: string; signer: string };
-      expect(decision.verdict).toBe("HOLD");
-      expect(decision.reasons).toContain("KERNEL_ERROR");
+      // WP-05 merge: K-09..K-16 are real now. 1,000 USDC is over the default per-payee daily amount (150 USDC), so K-12
+      // rejects (VELOCITY); the world has no evidence for the milestone, so K-09/K-14 hold. No placeholder KERNEL_ERROR.
+      expect(decision.verdict).toBe("REJECT");
+      expect(decision.reasons).toEqual(expect.arrayContaining(["VELOCITY", "EVIDENCE_MISSING"]));
+      expect(decision.reasons).not.toContain("KERNEL_ERROR");
       for (const id of ["K-01", "K-02", "K-03", "K-04", "K-05", "K-06", "K-07", "K-08"]) expect(decision.checks.find((c: any) => c.id === id).status, id).toBe("PASS");
       expect(decision.tenantId).toBe(TENANT);
       expect(decision.amountBaseUnits).toBe("1000000000");
@@ -164,7 +168,7 @@ describe.skipIf(!enabled)("local: kernel service over real Postgres", () => {
       const td = toTypedDataJson("Receipt", symbolonDomain(31337, VAULT), {
         receiptHash: receiptHash as `0x${string}`,
         intentId: decision.intentId,
-        verdict: String(VERDICT_CODE[decision.verdict as "HOLD"]),
+        verdict: String(VERDICT_CODE[decision.verdict as "REJECT"]),
         policyHash: decision.policyHash,
         issuedAt: epochSecondsFromIso(receipt.issuedAt).toString(),
       });
@@ -172,7 +176,7 @@ describe.skipIf(!enabled)("local: kernel service over real Postgres", () => {
       expect(signer).toBe(privateKeyToAccount(w.signerKey as `0x${string}`).address);
       // persisted and readable only by its tenant
       const got = await call(app, "GET", `/v1/decisions/${String(decision.decisionId)}`, w.token());
-      expect(got.json.decision.verdict).toBe("HOLD");
+      expect(got.json.decision.verdict).toBe("REJECT");
       expect(got.json.receiptHash).toBe(receiptHash);
       expect((await call(app, "GET", `/v1/receipts/${receiptHash}`, w.token())).json.signature).toBe(signature);
       expect((await call(app, "GET", `/v1/intents/${String(decision.intentId)}`, w.token())).json.decision.decisionId).toBe(decision.decisionId);
