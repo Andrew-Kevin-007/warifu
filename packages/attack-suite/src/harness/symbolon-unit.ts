@@ -92,6 +92,7 @@ function releasedTotals(state: SimState, now: ISODateTime): KernelContext["relea
   return {
     engagementTotal: rs.reduce((s, r) => s + r.amount, 0n),
     tenantDay: rs.filter((r) => inWindow(r.time, DAY)).reduce((s, r) => s + r.amount, 0n),
+    tenantCountDay: rs.filter((r) => inWindow(r.time, DAY)).length,
     tenantWeek: rs.filter((r) => inWindow(r.time, WEEK)).reduce((s, r) => s + r.amount, 0n),
     payeeDay: payeeDay.reduce((s, r) => s + r.amount, 0n),
     payeeCountDay: payeeDay.length,
@@ -141,6 +142,8 @@ export function buildContext(input: DecideInput): KernelContext {
     released: releasedTotals(state, now),
     evidence: evidenceFor(state, now),
     ownerApproval: null,
+    approvedEscalation: null,
+    planningAsOf: null,
     screening: state.screening === null ? null : { status: state.screening, checkedAt: now, provider: "fixture" },
     balances: { vaultAvailable: 1_000_000_000_000n, pendingReleases: 0n, obligations14d: 0n },
     payeeHistory: { priorPayments: 0, onTime: 0, disputes: 0 },
