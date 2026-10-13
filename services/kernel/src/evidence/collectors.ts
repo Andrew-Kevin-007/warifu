@@ -80,11 +80,14 @@ export async function collectUrlHealth(r: Extract<EvidenceRequirement, { type: "
   const statusOk = res.status === r.expectStatus;
   const hashMismatch = wantsHash && bodySha256 !== r.contentSha256;
   const pass = statusOk && !hashMismatch;
-  const final = `url:${res.finalUrl}`;
+  // Contract with kernel-core (src/evidence.ts header, WP-05): a URL_HEALTH record's source IS the spec url and payload.url
+  // repeats it; the kernel accepts nothing else. (A url over 512 characters cannot be stored as a source: it is then recorded
+  // under a hashed source, which the kernel reports as EVIDENCE_SOURCE_DENIED, i.e. it fails closed.)
   return {
-    source: final.length <= 512 ? final : `url:sha256:${hashJcs(res.finalUrl)}`,
+    source: r.url.length <= 512 ? r.url : `url:sha256:${hashJcs(r.url)}`,
     payload: {
       requirementHash: requirementHash(r),
+      url: r.url,
       finalHost: res.finalHost,
       status: res.status,
       expectStatus: r.expectStatus,
@@ -205,7 +208,7 @@ export function collectArtifactHash(r: Extract<EvidenceRequirement, { type: "ART
   const sha256 = sha256Bytes(bytes);
   const match = sha256 === r.sha256;
   return {
-    source: "kernel:artifact-upload",
+    source: "kernel:artifact", // the source kernel-core accepts for ARTIFACT_HASH (WP-05 contract)
     payload: { requirementHash: requirementHash(r), sha256, expectedSha256: r.sha256, size: bytes.byteLength, hashMismatch: !match },
     result: match ? "PASS" : "FAIL",
     details: match ? "ARTIFACT_HASH ok: uploaded bytes match the signed hash" : "ARTIFACT_HASH mismatch: uploaded bytes differ from the signed hash",

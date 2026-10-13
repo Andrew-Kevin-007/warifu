@@ -291,9 +291,10 @@ export async function submitOwnerAck(d: EvidenceServiceDeps, tenantId: string, r
       throw new ApiError("BAD_SIGNATURE", "the signature does not verify for the engagement owner over this ack");
     }
     const collected: Collected = {
-      source: "owner:eip712:MilestoneAck",
+      source: "eip712:MilestoneAck", // the source kernel-core accepts for OWNER_ACK (WP-05 contract); payload carries milestoneId + signer
       payload: {
         requirementHash: hashJcs(ACK_REQUIREMENT),
+        milestoneId: milestone.milestoneId,
         signer: engagement.owner,
         artifactHash: a.artifactHash,
         override: a.override,

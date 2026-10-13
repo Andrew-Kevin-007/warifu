@@ -168,7 +168,7 @@ describe("URL_HEALTH", () => {
 
   it("expected status: PASS, and the evidence names the exact spec entry", async () => {
     const c = await collectUrlHealth(spec(), hosts, { guard: net(dns, () => reply()) });
-    expect(c).toMatchObject({ result: "PASS", source: "url:https://site.example.com/health" });
+    expect(c).toMatchObject({ result: "PASS", source: "https://site.example.com/health" });
     expect(c.payload).toMatchObject({ requirementHash: requirementHash(spec()), finalHost: "site.example.com", status: 200, expectStatus: 200, redirects: 0, hashMismatch: false, bodyBytes: 10 });
   });
 
@@ -240,7 +240,7 @@ describe("ARTIFACT_HASH", () => {
   it("hashes the bytes itself; equal to the signed hash is PASS, anything else FAIL with hashMismatch", () => {
     const want = sha256Bytes(bytes);
     const r: Extract<EvidenceRequirement, { type: "ARTIFACT_HASH" }> = { type: "ARTIFACT_HASH", sha256: want };
-    expect(collectArtifactHash(r, bytes)).toMatchObject({ result: "PASS", source: "kernel:artifact-upload", payload: { sha256: want, expectedSha256: want, size: 7, hashMismatch: false } });
+    expect(collectArtifactHash(r, bytes)).toMatchObject({ result: "PASS", source: "kernel:artifact", payload: { sha256: want, expectedSha256: want, size: 7, hashMismatch: false } });
     const other = collectArtifactHash({ type: "ARTIFACT_HASH", sha256: sha256Bytes(Uint8Array.from([9])) }, bytes);
     expect(other).toMatchObject({ result: "FAIL", payload: { hashMismatch: true, sha256: want } });
   });
