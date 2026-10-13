@@ -36,7 +36,7 @@ export type { Facts, ReleaseFacts } from "./facts";
 export { SANDBOX_MAX_DOC_BYTES, maxIntentChars } from "./checks/k01-schema";
 export { NEAR_DUPLICATE_WINDOW_SECONDS } from "./checks/k04-idempotency";
 export { SCALE_ABSURD_WHOLE_UNITS_EXPONENT } from "./checks/k07-currency";
-export { SOURCE_ARTIFACT, SOURCE_GITHUB, SOURCE_OWNER_ACK, assessEvidence, evidenceCollectionPlan, urlSourceDecision } from "./evidence";
+export { EVIDENCE_SOURCE_MAX, SOURCE_ARTIFACT, SOURCE_GITHUB, SOURCE_OWNER_ACK, assessEvidence, evidenceCollectionPlan, productionEvidenceSource, urlEvidenceSource, urlSourceDecision } from "./evidence";
 export type { CollectorRequest, EvidenceAssessment, RequirementState, RequirementStatus, UrlDecision, UrlDenial } from "./evidence";
 export { BASE64_RUN_LIMIT, HIDDEN_CHAR_LIMIT, PATTERNS_VERSION, TEXT_PATTERNS, foldForScan, isHidden, scanDocument } from "./patterns";
 export type { PatternGroup, PatternMatch, TextPattern } from "./patterns";

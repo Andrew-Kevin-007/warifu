@@ -50,6 +50,6 @@ describe("fixture store", () => {
   it("turns a fixture into kernel evidence with source fixture:<id> and the requirement hash", () => {
     const c = fixtureToCollected(fx(), url);
     expect(c).toMatchObject({ source: "fixture:fx-1", result: "PASS", details: "scenario says healthy" });
-    expect(c.payload).toEqual({ requirementHash: hashJcs(url), fixtureId: "fx-1", fixture: { status: 200 } });
+    expect(c.payload).toEqual({ requirement: url, requirementHash: hashJcs(url), fixtureId: "fx-1", fixture: { status: 200 } });
   });
 });

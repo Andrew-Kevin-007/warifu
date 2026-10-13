@@ -8,6 +8,7 @@
 //               cannot upload a file or sign as the owner; the scenario's own acks are fixtures).
 // The factory refuses the wrong pairing, so a mis-wired sandbox cannot grow a socket and a mis-wired production cannot accept invented
 // evidence. Every URL fetched comes from the SIGNED engagement's spec entry (its row is re-hashed against termsHash first).
+import { SOURCE_OWNER_ACK } from "@symbolon/kernel-core";
 import { eip712Digest, eip712DomainSeparator, EvidenceSchema, Hex32Schema, HexBytesSchema, Uint64StringSchema, hashJcs, symbolonDomain, toTypedDataJson, untrusted } from "@symbolon/schemas";
 import type { Evidence, EvidenceRequirement, Hex32 } from "@symbolon/schemas";
 import { randomUUID } from "node:crypto";
@@ -291,9 +292,10 @@ export async function submitOwnerAck(d: EvidenceServiceDeps, tenantId: string, r
       throw new ApiError("BAD_SIGNATURE", "the signature does not verify for the engagement owner over this ack");
     }
     const collected: Collected = {
-      source: "owner:eip712:MilestoneAck",
+      source: SOURCE_OWNER_ACK,
       payload: {
         requirementHash: hashJcs(ACK_REQUIREMENT),
+        milestoneId: milestone.milestoneId,
         signer: engagement.owner,
         artifactHash: a.artifactHash,
         override: a.override,

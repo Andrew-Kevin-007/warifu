@@ -6,6 +6,7 @@
 //    templated from validated fields only, never copied from a response;
 //  - a refused source is `result: ERROR` with `payload.reasonCode = "EVIDENCE_SOURCE_DENIED"` (K-09 turns that into
 //    HOLD EVIDENCE_SOURCE_DENIED); an unreachable one is `ERROR` with `payload.error`; a mismatch is `FAIL`.
+import { SOURCE_ARTIFACT, productionEvidenceSource, urlEvidenceSource } from "@symbolon/kernel-core";
 import { hashJcs, sha256Bytes } from "@symbolon/schemas";
 import type { EvidenceRequirement, Hex32, JsonObject } from "@symbolon/schemas";
 import * as z from "zod";
@@ -15,7 +16,7 @@ import type { GuardDeps, GuardLimits } from "./ssrf/guard";
 export type EvidenceOutcome = "PASS" | "FAIL" | "ERROR";
 
 export interface Collected {
-  /** e.g. "github:actions", "url:https://…", "kernel:artifact-upload", "fixture:<id>". */
+  /** The sources kernel-core K-09 accepts: "github:actions", the spec url (urlEvidenceSource), "kernel:artifact", "eip712:MilestoneAck", "fixture:<id>"; refusals use "denied:egress". */
   readonly source: string;
   readonly payload: JsonObject;
   readonly result: EvidenceOutcome;
@@ -42,9 +43,11 @@ export function denial(r: EvidenceRequirement, guardCode: string, urlHash: Hex32
   };
 }
 
+// A collector that could not DECIDE (unreachable, bad response) reports from the requirement's own source, so K-09 reads it as
+// MISSING ("no kernel-collected evidence"), not as a refused source: a site that is down is not EVIDENCE_SOURCE_DENIED.
 function failure(r: EvidenceRequirement, error: string, urlHash: Hex32 | null): Collected {
   return {
-    source: "denied:egress",
+    source: productionEvidenceSource(r),
     payload: { requirementHash: requirementHash(r), denied: false, error, urlHash },
     result: "ERROR",
     details: `collector error: ${error}`,
@@ -80,13 +83,13 @@ export async function collectUrlHealth(r: Extract<EvidenceRequirement, { type: "
   const statusOk = res.status === r.expectStatus;
   const hashMismatch = wantsHash && bodySha256 !== r.contentSha256;
   const pass = statusOk && !hashMismatch;
-  const final = `url:${res.finalUrl}`;
   return {
-    source: final.length <= 512 ? final : `url:sha256:${hashJcs(res.finalUrl)}`,
+    source: urlEvidenceSource(r.url), // K-09 matches the SIGNED spec url, not wherever a redirect ended
     payload: {
       requirementHash: requirementHash(r),
-      finalHost: res.finalHost,
+      url: r.url,
       status: res.status,
+      finalHost: res.finalHost,
       expectStatus: r.expectStatus,
       redirects: res.redirects,
       bodySha256,
@@ -205,7 +208,7 @@ export function collectArtifactHash(r: Extract<EvidenceRequirement, { type: "ART
   const sha256 = sha256Bytes(bytes);
   const match = sha256 === r.sha256;
   return {
-    source: "kernel:artifact-upload",
+    source: SOURCE_ARTIFACT,
     payload: { requirementHash: requirementHash(r), sha256, expectedSha256: r.sha256, size: bytes.byteLength, hashMismatch: !match },
     result: match ? "PASS" : "FAIL",
     details: match ? "ARTIFACT_HASH ok: uploaded bytes match the signed hash" : "ARTIFACT_HASH mismatch: uploaded bytes differ from the signed hash",
