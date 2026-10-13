@@ -31,6 +31,8 @@
     "attacks/ATK-24.json": "0x6a229a8bdecd4307c3e2151b759188de09f4b4d83c180d0d6ada9d44beda9f6a",
     "honest/benign-controls.json": "0x832ed0b049b6e8601c0d9e14d050e24133ab37cab9eba9529f007d30f541d1b7",
     "honest/discount-honest.json": "0x494c55e1795f36c7c600336dc7d013a906a26272e4871244246869e83760dd25",
+    "honest/general.json": "0x9704177fd7fd24e10f141756edd175cfe8b412e0ae5a79f50707c43d42e785c5",
+    "honest/ugly.json": "0x11c2fd5c62d0309c63cd7e7fdf60d17debb880ab4e56899c71d715a32789c94e",
     "libraries/injections.json": "0xc65d691294d7633dce0576d513a55760960864930d552d8f8a2d75a9c6344e17",
     "libraries/terms-injections.json": "0x988cc2ce6a57708bf1bfdbdb7797cccfef90bc56729882ccdbde6b448a696e47",
     "world.json": "0x8c10f80f9d87e2709410f47950485c52c1fac0e0737360f26c85be409f408bb4"

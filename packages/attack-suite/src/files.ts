@@ -4,7 +4,7 @@
 // controls and tag characters therefore show up as visible escapes instead of hiding in a diff.
 import { sha256Utf8 } from "@symbolon/schemas";
 import { buildApplicability } from "./applicability";
-import { buildHonest } from "./honest";
+import { buildHonestCorpus } from "./honest-corpus";
 import { INJECTION_LIBRARY } from "./injections";
 import { injectionContext } from "./attacks/injection";
 import { buildAllAttacks, BASE_SEED } from "./registry";
@@ -75,9 +75,11 @@ export function buildFixtureFiles(): Map<string, string> {
   const files = new Map<string, string>();
   files.set("world.json", asciiJson(worldFile()));
   for (const a of buildAllAttacks(BASE_SEED)) files.set(`attacks/${a.attackId}.json`, asciiJson(a));
-  const honest = buildHonest(BASE_SEED);
+  const honest = buildHonestCorpus(BASE_SEED);
   files.set("honest/benign-controls.json", asciiJson({ schema: "honest-set/1", items: honest.filter((h) => h.group === "benign-control") }));
   files.set("honest/discount-honest.json", asciiJson({ schema: "honest-set/1", items: honest.filter((h) => h.group === "discount-honest") }));
+  files.set("honest/general.json", asciiJson({ schema: "honest-set/1", items: honest.filter((h) => h.group === "general") }));
+  files.set("honest/ugly.json", asciiJson({ schema: "honest-set/1", items: honest.filter((h) => h.group === "ugly") }));
   const libs = librariesFiles();
   files.set("libraries/injections.json", asciiJson(libs.injections));
   files.set("libraries/terms-injections.json", asciiJson(libs.terms));
