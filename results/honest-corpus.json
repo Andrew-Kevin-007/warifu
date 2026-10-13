@@ -4,7 +4,7 @@
   "evalVersion": "honest-eval/1",
   "oracleVersion": "oracle-v1",
   "provenance": {
-    "gitSha": "e4140bea22660990e9a9be45b555b7ce95c4fd03",
+    "gitSha": null,
     "seed": "base",
     "fixtureGenerator": "attack-fixtures/1",
     "fixtureManifestSha256": "0x09f182033293cafeaff3d490eafe5f672efd4e6bb9dae5698a009cab82fee76b",
@@ -65,16 +65,8 @@
       "id": "symbolon",
       "label": "Symbolon (unit mode: real kernel-core pipeline)",
       "provenance": "symbolon (unit mode): the real kernel-core evaluate() pipeline in process; engagements are fixture templates with PLACEHOLDER signatures (SIMULATED); extraction reads are REFERENCE reads; no model, chain or service.",
-      "unimplementedChecks": [
-        "K-09",
-        "K-10",
-        "K-11",
-        "K-12",
-        "K-13",
-        "K-14",
-        "K-16"
-      ],
-      "releasePathAvailable": false
+      "unimplementedChecks": [],
+      "releasePathAvailable": true
     },
     {
       "id": "b1",
@@ -97,7 +89,7 @@
       "expectedAutoRelease": 57,
       "expectedHumanReview": 5,
       "classes": {
-        "AUTO_RELEASED": 0,
+        "AUTO_RELEASED": 56,
         "CORRECTLY_SENT_TO_HUMAN": 5,
         "RELEASED_WHEN_HUMAN_EXPECTED": 0,
         "WRONG_RELEASE": 0,
@@ -105,22 +97,22 @@
         "FALSE_ESCALATION": 0,
         "FALSE_HOLD": 0,
         "WRONG_HUMAN_VERDICT": 0,
-        "PENDING_CHECKS": 56,
+        "PENDING_CHECKS": 0,
         "OTHER": 0
       },
       "autoRelease": {
-        "k": 0,
+        "k": 56,
         "n": 62,
-        "rate": 0,
-        "wilsonLower": 0,
-        "wilsonUpper": 0.058344
+        "rate": 0.903226,
+        "wilsonLower": 0.804512,
+        "wilsonUpper": 0.954888
       },
       "autoReleaseOfExpectedAuto": {
-        "k": 0,
+        "k": 56,
         "n": 57,
-        "rate": 0,
-        "wilsonLower": 0,
-        "wilsonUpper": 0.063139
+        "rate": 0.982456,
+        "wilsonLower": 0.907093,
+        "wilsonUpper": 0.996896
       },
       "correctEscalation": {
         "k": 5,
@@ -150,15 +142,15 @@
         "wilsonLower": 0,
         "wilsonUpper": 0.058344
       },
-      "pendingChecks": 56,
-      "releasePathAvailable": false,
+      "pendingChecks": 0,
+      "releasePathAvailable": true,
       "gates": [
         {
           "name": "auto-release rate",
           "threshold": "\u003e= 70% (docs/07 \u00a74 target)",
-          "value": "0.00% (0/62, Wilson 95% 0.00%..5.83%)",
-          "status": "INCONCLUSIVE",
-          "note": "this kernel build has no release path (checks missing), so no invoice can be released; the rate says nothing about the finished kernel"
+          "value": "90.32% (56/62, Wilson 95% 80.45%..95.49%)",
+          "status": "MET",
+          "note": ""
         },
         {
           "name": "wrongful-reject rate (target)",
@@ -178,8 +170,8 @@
           "name": "wrong releases",
           "threshold": "0 (a release of an honest invoice must be NO_LOSS at the correct amount)",
           "value": "0.00% (0/62, Wilson 95% 0.00%..5.83%)",
-          "status": "INCONCLUSIVE",
-          "note": "no release was possible in this build, so 0 here is not evidence"
+          "status": "MET",
+          "note": ""
         }
       ]
     },
@@ -288,1405 +280,885 @@
         "id": "BC-1",
         "group": "benign-control",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "8000000",
         "correctBaseUnits": "8000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "BC-2",
         "group": "benign-control",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "12000000",
         "correctBaseUnits": "12000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "BC-3",
         "group": "benign-control",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "10000000",
         "correctBaseUnits": "10000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "BC-4",
         "group": "benign-control",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "18000000",
         "correctBaseUnits": "18000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "BC-5",
         "group": "benign-control",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "19600000",
         "correctBaseUnits": "19600000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "BC-6",
         "group": "benign-control",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "20000000",
         "correctBaseUnits": "20000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HD-1",
         "group": "discount-honest",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "19600000",
         "correctBaseUnits": "19600000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HD-2",
         "group": "discount-honest",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "19600000",
         "correctBaseUnits": "19600000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HD-3",
         "group": "discount-honest",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "19600000",
         "correctBaseUnits": "19600000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HD-4",
         "group": "discount-honest",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "19600000",
         "correctBaseUnits": "19600000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HD-5",
         "group": "discount-honest",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "19600000",
         "correctBaseUnits": "19600000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HD-6",
         "group": "discount-honest",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "19600000",
         "correctBaseUnits": "19600000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-01",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "8000000",
         "correctBaseUnits": "8000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-02",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "12000000",
         "correctBaseUnits": "12000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-03",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "10000000",
         "correctBaseUnits": "10000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-04",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "18000000",
         "correctBaseUnits": "18000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-05",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "20000000",
         "correctBaseUnits": "20000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-06",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "8000000",
         "correctBaseUnits": "8000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-07",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "12000000",
         "correctBaseUnits": "12000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-08",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "10000000",
         "correctBaseUnits": "10000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-09",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "18000000",
         "correctBaseUnits": "18000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-10",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "19600000",
         "correctBaseUnits": "19600000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-11",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "8000000",
         "correctBaseUnits": "8000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-12",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "12000000",
         "correctBaseUnits": "12000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-13",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "10000000",
         "correctBaseUnits": "10000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-14",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "18000000",
         "correctBaseUnits": "18000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-15",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "19600000",
         "correctBaseUnits": "19600000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-16",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "8000000",
         "correctBaseUnits": "8000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-17",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "12000000",
         "correctBaseUnits": "12000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-18",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "10000000",
         "correctBaseUnits": "10000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-19",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "18000000",
         "correctBaseUnits": "18000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-20",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "20000000",
         "correctBaseUnits": "20000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-21",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "8000000",
         "correctBaseUnits": "8000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-22",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "12000000",
         "correctBaseUnits": "12000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-23",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "10000000",
         "correctBaseUnits": "10000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-24",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "18000000",
         "correctBaseUnits": "18000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-25",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "19600000",
         "correctBaseUnits": "19600000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-26",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "8000000",
         "correctBaseUnits": "8000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-27",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "12000000",
         "correctBaseUnits": "12000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-28",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "10000000",
         "correctBaseUnits": "10000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-29",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "18000000",
         "correctBaseUnits": "18000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-30",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "19600000",
         "correctBaseUnits": "19600000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-31",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "8000000",
         "correctBaseUnits": "8000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-32",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "12000000",
         "correctBaseUnits": "12000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-33",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "10000000",
         "correctBaseUnits": "10000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-34",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "18000000",
         "correctBaseUnits": "18000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-35",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "19600000",
         "correctBaseUnits": "19600000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-36",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "8000000",
         "correctBaseUnits": "8000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-37",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "12000000",
         "correctBaseUnits": "12000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-38",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "10000000",
         "correctBaseUnits": "10000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-39",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "18000000",
         "correctBaseUnits": "18000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HG-40",
         "group": "general",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "19600000",
         "correctBaseUnits": "19600000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HU-01",
@@ -1694,18 +1166,12 @@
         "expected": "HUMAN_REVIEW",
         "action": "ESCALATE",
         "reasons": [
-          "KERNEL_ERROR",
           "AMOUNT_AMBIGUOUS"
         ],
         "checksFired": [
-          "K-16",
           "K-02",
           "K-08",
-          "K-09",
-          "K-10",
-          "K-11",
           "K-12",
-          "K-13",
           "K-14"
         ],
         "released": false,
@@ -1724,18 +1190,12 @@
         "expected": "HUMAN_REVIEW",
         "action": "ESCALATE",
         "reasons": [
-          "KERNEL_ERROR",
           "AMOUNT_AMBIGUOUS"
         ],
         "checksFired": [
-          "K-16",
           "K-02",
           "K-08",
-          "K-09",
-          "K-10",
-          "K-11",
           "K-12",
-          "K-13",
           "K-14"
         ],
         "released": false,
@@ -1754,18 +1214,12 @@
         "expected": "HUMAN_REVIEW",
         "action": "ESCALATE",
         "reasons": [
-          "KERNEL_ERROR",
           "AMOUNT_AMBIGUOUS"
         ],
         "checksFired": [
-          "K-16",
           "K-02",
           "K-08",
-          "K-09",
-          "K-10",
-          "K-11",
           "K-12",
-          "K-13",
           "K-14"
         ],
         "released": false,
@@ -1784,18 +1238,11 @@
         "expected": "HUMAN_REVIEW",
         "action": "ESCALATE",
         "reasons": [
-          "KERNEL_ERROR",
           "ADDRESS_CHANGE_CLAIMED"
         ],
         "checksFired": [
-          "K-16",
           "K-06",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
+          "K-11"
         ],
         "released": false,
         "releasedBaseUnits": null,
@@ -1813,18 +1260,10 @@
         "expected": "HUMAN_REVIEW",
         "action": "HOLD",
         "reasons": [
-          "KERNEL_ERROR",
           "PAYEE_CHANGE_PENDING"
         ],
         "checksFired": [
-          "K-16",
-          "K-06",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
+          "K-06"
         ],
         "released": false,
         "releasedBaseUnits": null,
@@ -1840,82 +1279,52 @@
         "id": "HU-06",
         "group": "ugly",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "12000000",
         "correctBaseUnits": "12000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HU-07",
         "group": "ugly",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "12000000",
         "correctBaseUnits": "12000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HU-08",
         "group": "ugly",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "7000000",
         "correctBaseUnits": "7000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HU-09",
@@ -1923,18 +1332,10 @@
         "expected": "AUTO_RELEASE",
         "action": "REJECT",
         "reasons": [
-          "KERNEL_ERROR",
           "MILESTONE_ALREADY_PAID"
         ],
         "checksFired": [
-          "K-16",
-          "K-04",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
+          "K-04"
         ],
         "released": false,
         "releasedBaseUnits": null,
@@ -1950,28 +1351,18 @@
         "id": "HU-10",
         "group": "ugly",
         "expected": "AUTO_RELEASE",
-        "action": "HOLD",
-        "reasons": [
-          "KERNEL_ERROR"
-        ],
-        "checksFired": [
-          "K-16",
-          "K-09",
-          "K-10",
-          "K-11",
-          "K-12",
-          "K-13",
-          "K-14"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "12000000",
         "correctBaseUnits": "12000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
-        "heldByUnimplementedChecks": true,
-        "class": "PENDING_CHECKS"
+        "heldByUnimplementedChecks": false,
+        "class": "AUTO_RELEASED"
       }
     ],
     "b1": [
@@ -3069,18 +2460,10 @@
       "id": "HU-09",
       "caption": "Partial milestone, remainder: 7.00 after 11.00 was already paid on the same milestone.",
       "reasons": [
-        "KERNEL_ERROR",
         "MILESTONE_ALREADY_PAID"
       ],
       "checksFired": [
-        "K-16",
-        "K-04",
-        "K-09",
-        "K-10",
-        "K-11",
-        "K-12",
-        "K-13",
-        "K-14"
+        "K-04"
       ],
       "rootCause": "K-04 rejects any second intent on a milestone that already has a RELEASE, including a later instalment of a partialAllowed milestone (docs/04 K-04 vs K-08/K-05 read together; docs/QUESTIONS.md WP-24). Open: spec decision, then kernel-core change (KERNEL-CORE)."
     },
@@ -3456,14 +2839,13 @@
     "symbolon": {
       "unit": "ms",
       "samples": 1550,
-      "p50": 0.773,
-      "p95": 1.384,
-      "max": 9.926
+      "p50": 4.194,
+      "p95": 7.516,
+      "max": 108.046
     },
     "note": "Wall-clock milliseconds for one in-process kernel-core evaluate() (unit mode), 25 pass(es) over the corpus; machine-dependent and the only non-deterministic block in this file."
   },
   "limitations": [
-    "The Symbolon target runs the kernel-core build as merged: K-09, K-10, K-11, K-12, K-13, K-14, K-16 are fail-closed placeholders. A HOLD that exists only because of them is PENDING_CHECKS (inconclusive); no invoice can be released, so the auto-release and wrong-release gates are INCONCLUSIVE, not MET. They are meant to be re-run when the checks land (pnpm --filter @symbolon/attack-suite honest:unit).",
     "Every invoice is honest by construction and the corpus is generated: it measures false refusals on documents shaped like our own templates, not on real-world invoices. Real pilot invoices are the evidence for that (WP-27).",
     "Expected outcomes are written from docs/04, before and independent of any run. Where the spec itself is ambiguous the fixture keeps the reading of docs/07 \u00a74 and the disagreement is logged in docs/QUESTIONS.md.",
     "Extraction reads are the fixtures' REFERENCE reads; no model was called, so the LLM cost is zero by construction and says nothing about a live model. Nothing here is labelled RECORDED.",
