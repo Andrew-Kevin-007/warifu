@@ -146,6 +146,20 @@ export async function queueRelease(
   return map(row);
 }
 
+/**
+ * Take the send lease of a QUEUED row: true for exactly one caller until `until`. Two schedulers (or a retry racing a slow send)
+ * cannot both relay the same attestation. A crashed sender's lease simply runs out, and the SAME signed attestation is re-sent
+ * (the vault's used[intentId] and Circle's call-derived idempotency key are the backstops).
+ */
+export async function leaseQueued(q: Queryable, releaseId: string, now: ISODateTime, until: ISODateTime): Promise<boolean> {
+  const r = await q.query(
+    `update releases set next_attempt_at = $3::timestamptz, updated_at = now()
+      where release_id = $1 and status = 'QUEUED' and (next_attempt_at is null or next_attempt_at <= $2::timestamptz) returning release_id`,
+    [releaseId, now, until],
+  );
+  return r.rows.length === 1;
+}
+
 export async function markSubmitted(q: Queryable, releaseId: string, txHash: Hex32, at: ISODateTime): Promise<void> {
   await q.query(
     "update releases set status = 'SUBMITTED', tx_hash = $2, submitted_at = $3::timestamptz, error = null, updated_at = now() where release_id = $1 and status in ('QUEUED','SUBMITTED')",

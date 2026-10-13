@@ -51,6 +51,8 @@ export interface ReleaseDeps {
 
 /** Do not send an attestation that has less than this left: it could expire in the mempool (the vault would refuse it anyway). */
 export const DEADLINE_SAFETY_SECONDS = 30;
+/** How long one sender owns a QUEUED row before another may re-send the same attestation (crash recovery). */
+export const SEND_LEASE_SECONDS = 60;
 /** Back-off after a vault refusal that a rolling window may lift (DailyCap, HourlyCap, TooManyReleases). */
 export const WINDOW_BACKOFF_SECONDS = 15 * 60;
 /** Back-off after any other refusal. */
@@ -188,6 +190,8 @@ export async function sendQueued(d: ReleaseDeps, tenantId: string, row: ReleaseR
     await repo.noteQueued(d.db, row.releaseId, "NO_RELAYER");
     return "NO_RELAYER";
   }
+  // One sender at a time: a second scheduler (or an overlapping tick) finds the lease taken and leaves the row alone.
+  if (!(await repo.leaseQueued(d.db, row.releaseId, now, plusSeconds(now, SEND_LEASE_SECONDS)))) return "HELD";
   const m = row.attestation.message;
   const oa = row.attestation.ownerApproval;
   try {
