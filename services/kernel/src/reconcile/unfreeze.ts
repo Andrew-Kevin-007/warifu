@@ -21,7 +21,6 @@ import type { Db } from "../db/pool";
 import * as base from "../db/repo";
 import { ApiError } from "../errors";
 import type { Logger } from "../log";
-import { nowIso } from "../time";
 import type { Clock } from "../time";
 import * as repo from "./repo";
 
@@ -71,7 +70,7 @@ export async function unfreeze(d: UnfreezeDeps, tenantId: string, rawBody: unkno
   const parsed = BodySchema.safeParse(rawBody);
   if (!parsed.success) throw new ApiError("BAD_REQUEST", "not a valid unfreeze request");
   const b = parsed.data;
-  if (b.reason.trim() === "" || /[\u0000-\u001f\u007f]/.test(b.reason)) throw new ApiError("BAD_REQUEST", "a plain-text reason is required");
+  if (b.reason.trim() === "" || [...b.reason].some((ch) => ch.charCodeAt(0) < 0x20 || ch.charCodeAt(0) === 0x7f)) throw new ApiError("BAD_REQUEST", "a plain-text reason is required");
   const tenant = await base.getTenant(d.db, tenantId);
   if (tenant === null || tenant.vaultAddress === null) throw new ApiError("NOT_FOUND", "not found");
   const owner = await d.db.query<{ owner_address: string }>("select owner_address from tenants where id = $1", [tenantId]);
@@ -87,12 +86,7 @@ export async function unfreeze(d: UnfreezeDeps, tenantId: string, rawBody: unkno
   if (deadline > nowSec + BigInt(UNFREEZE_TTL_SECONDS)) throw new ApiError("BAD_REQUEST", "the unfreeze deadline is later than it may be");
 
   const digest = breakerUnfreezeDigest({ chainId: tenant.chainId, vault: tenant.vaultAddress as Address, reasonHash: keccak256Utf8(b.reason), haltedSince: breaker.since, deadline });
-  let ok = false;
-  try {
-    ok = await d.engagementChain.isValidSignature(ownerAddress as Address, digest, b.signature as `0x${string}`);
-  } catch {
-    ok = false; // an unreadable ERC-1271 wallet is a refusal, never a pass
-  }
+  const ok = await d.engagementChain.isValidSignature(ownerAddress as Address, digest, b.signature as `0x${string}`).catch(() => false); // an unreadable ERC-1271 wallet is a refusal, never a pass
   if (!ok) throw new ApiError("BAD_SIGNATURE", "the signature is not the owner's unfreeze for this halt");
 
   const resolved = await d.db.tx(async (q) => {
@@ -104,12 +98,8 @@ export async function unfreeze(d: UnfreezeDeps, tenantId: string, rawBody: unkno
     await base.writeAudit(q, `owner:${ownerAddress.toLowerCase()}`, "breaker.unfrozen", { tenantId, haltedSince: b.haltedSince, reasonHash: keccak256Utf8(b.reason), reason: b.reason, findingsResolved: n });
     return n;
   });
-  let paused = false;
-  try {
-    paused = (await d.chain.snapshot(tenant.vaultAddress as Address)).paused;
-  } catch {
-    paused = true; // unknown: tell the owner to check rather than claim the vault is live
-  }
+  // unknown (read failed) is reported as still paused: tell the owner to check rather than claim the vault is live
+  const paused = await d.chain.snapshot(tenant.vaultAddress as Address).then((x) => x.paused, () => true);
   d.logger.info("breaker.unfrozen", { tenantId });
   return { halted: false, vaultStillPaused: paused, findingsResolved: resolved };
 }
