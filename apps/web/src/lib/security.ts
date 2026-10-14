@@ -23,9 +23,31 @@ const CHALLENGE_ALLOWED = [
   /^\/_next\//,
 ];
 
+/** Exact public assets (the real apps/web/public tree). Anchored: an extension alone never admits a path. */
+const STATIC_ASSET =
+  /^\/(?:favicon\.ico|icon\.svg|icon-512\.png|logo\.svg|matcap\.png|top-eye\.png|research-x-grid\.svg|tetrapod_v1\.glb|robots\.txt|sitemap\.xml|site\.webmanifest|apple-touch-icon\.png|(?:media|icons|fonts|assets|videos)\/[A-Za-z0-9._-]+\.(?:png|jpe?g|svg|webp|ico|woff2?|glb|webm))$/;
+
+/**
+ * Canonical form of a request path, or null when it must be refused: encoded slashes/dots/backslashes/NUL,
+ * dot segments, double slashes, trailing dots. The raw (still percent-encoded) pathname is what Next gives us.
+ */
+export function normalizePath(pathname: string): string | null {
+  if (!pathname.startsWith("/")) return null;
+  if (/%(?:2e|2f|5c|00)/i.test(pathname) || /[\\\0]/.test(pathname)) return null;
+  if (pathname.includes("//")) return null;
+  const segments = pathname.split("/").slice(1);
+  for (const s of segments) {
+    if (s === "." || s === ".." ) return null;
+    if (s.length > 1 && s.endsWith(".") ) return null;
+  }
+  return pathname;
+}
+
 export function isRouteAllowed(profile: Profile, pathname: string): boolean {
+  const p = normalizePath(pathname);
+  if (p === null) return false;
   if (profile === "app") return true;
-  return CHALLENGE_ALLOWED.some((re) => re.test(pathname)) || /\.[a-z0-9]{2,5}$/i.test(pathname);
+  return CHALLENGE_ALLOWED.some((re) => re.test(p)) || STATIC_ASSET.test(p);
 }
 
 export interface CspOptions {

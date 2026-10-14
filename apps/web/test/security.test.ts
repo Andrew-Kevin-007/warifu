@@ -39,7 +39,18 @@ describe("build profiles (INV-16)", () => {
       expect(isRouteAllowed("challenge", p)).toBe(false);
     }
   });
-  it("the app profile serves everything", () => {
+  it("an extension never admits a non-public path on the challenge profile", () => {
+    for (const p of ["/api/owner/x.json", "/sign/tok.abc", "/dashboard.json", "/%2e%2e/sign/x", "/challenge/../sign/x", "/challenge/%2e%2e/sign/x", "/api/public/../owner/x", "/challenge//x", "/judge.", "/media/..%2fx.png", "/engagements/new.png", "/media/sub/dir/a.png"]) {
+      expect(isRouteAllowed("challenge", p), p).toBe(false);
+    }
+  });
+  it("real public assets still pass on the challenge profile", () => {
+    for (const p of ["/favicon.ico", "/icon.svg", "/apple-touch-icon.png", "/site.webmanifest", "/fonts/inter.woff2", "/media/hero.png", "/videos/a.webm", "/_next/static/chunks/a.js"]) {
+      expect(isRouteAllowed("challenge", p), p).toBe(true);
+    }
+  });
+  it("the app profile serves routes but refuses traversal tricks", () => {
     expect(isRouteAllowed("app", "/dashboard")).toBe(true);
+    for (const p of ["/a/../dashboard", "/%2e%2e/x", "/a//b"]) expect(isRouteAllowed("app", p), p).toBe(false);
   });
 });
