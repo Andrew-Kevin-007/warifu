@@ -2,6 +2,7 @@
 pragma solidity 0.8.30;
 
 import {Test} from "forge-std/Test.sol";
+import {console2} from "forge-std/console2.sol";
 import {SymbolonVault} from "../src/SymbolonVault.sol";
 import {MockUSDC} from "./utils/Mocks.sol";
 import {VaultHandler, HandlerConfig} from "./utils/VaultHandler.sol";
@@ -247,6 +248,15 @@ abstract contract InvariantsBase is Test {
     }
 
     // ---- non-vacuity -------------------------------------------------------------------------------------------
+
+    /// Printed with -vv at the end of every run: how many calls of each kind actually succeeded.
+    function afterInvariant() public view {
+        console2.log("reach releases/registrations/payeeProposals/payeeChanges", h.okReleases(), h.okRegistrations(), h.okPayeeProposals());
+        console2.log("reach payeeChanges/pauses/unpauses/withdrawals", h.okPayeeChanges(), h.okPauses(), h.okUnpauses());
+        console2.log("reach withdrawals/signerProposals/signerRotations/guardianChanges", h.okWithdrawals(), h.okSignerProposals(), h.okSignerRotations());
+        console2.log("reach guardianChanges/closes/blockedReleases/maxRingCount", h.okGuardianChanges(), h.okCloses(), h.blockedReleases());
+        console2.log("reach maxRingCount", h.maxRingCount());
+    }
 
     function _honestMode() internal pure returns (uint256 m) {
         m = 1; // registered engagement
