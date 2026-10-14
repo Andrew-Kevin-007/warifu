@@ -34,3 +34,13 @@ export function windowed(p: number, a: number, b: number): number {
   if (b <= a) return p >= b ? 1 : 0;
   return clamp01((p - a) / (b - a));
 }
+
+/** UTF-8 byte length of a string (the challenge caps input in bytes, not characters). */
+export function utf8Length(s: string): number {
+  let n = 0;
+  for (const ch of s) {
+    const c = ch.codePointAt(0) ?? 0;
+    n += c < 0x80 ? 1 : c < 0x800 ? 2 : c < 0x10000 ? 3 : 4;
+  }
+  return n;
+}
