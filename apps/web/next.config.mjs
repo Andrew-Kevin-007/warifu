@@ -1,4 +1,5 @@
-const CHALLENGE = process.env.NEXT_PUBLIC_PROFILE === 'challenge';
+/* global process */
+const CHALLENGE =process.env.NEXT_PUBLIC_PROFILE === 'challenge';
 
 // INV-16: the `challenge` build contains no wallet or signing code. The only importers of src/wallet are server pages
 // (owner routes, 404 in this profile); aliasing the three components to inert stubs keeps the wallet module graph out of the bundle.
