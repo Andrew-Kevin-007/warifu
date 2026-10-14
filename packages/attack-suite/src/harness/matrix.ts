@@ -11,7 +11,10 @@ import { summarizeRate, wilson } from "../stats";
 import type { RateSummary } from "../stats";
 import { TARGET_IDS } from "../types";
 import type { AttackFixture, TargetId } from "../types";
+import "./b0-prepared"; // runs the vendored arc-escrow route once per fixture read (top-level await)
+import { b0Target } from "./b0";
 import { b1Target, REFERENCE_VALIDATOR_RULES } from "./b1";
+import { b2Target, B2_CONTROLS } from "./b2";
 import { agreement } from "./oracle-agreement";
 import type { AgreementRow } from "./oracle-agreement";
 import { runAttack, runHonestItem } from "./run";
@@ -20,6 +23,9 @@ import { makeSymbolonUnitTarget } from "./symbolon-unit";
 import type { Target } from "./target";
 
 export const HARNESS_VERSION = "attack-harness/1" as const;
+
+/** vendor/arc-escrow/COMMIT (a test keeps this equal to the file). */
+export const B0_REVISION = "d5006bc44518db7ee85ad9bc645646c04bf4c090";
 
 export interface TargetSummary {
   readonly id: TargetId;
@@ -85,6 +91,9 @@ export interface AttackMatrix {
     readonly recordedOutputs: false;
     readonly anvilForkBlock: null;
     readonly b1ValidatorRules: readonly string[];
+    readonly b2Controls: readonly string[];
+    /** The pinned upstream revision of the vendored B0 path (vendor/arc-escrow/COMMIT). */
+    readonly b0Revision: string;
   };
   readonly targets: readonly TargetSummary[];
   readonly applicability: readonly ApplicabilityRow[];
@@ -191,6 +200,8 @@ function limitationsFor(unimplemented: readonly string[]): string[] {
   l.push("ATK-17 (contract calls) and the fault steps (reconciler, K-15) need e2e-local; the Symbolon target reports them NOT_RUN with the reason. ATK-22 (digest), ATK-23 (WYSIWYS comparator) and ATK-24 (explainer) run against kernel-core and packages/receipts; whether the web screen really disables Sign is WP-19/SEC-13, not measured here.");
   l.push("Trials are extraction runs of the committed fixtures. Runs of one fixture share a payee, an amount and a document and are not independent, so the upper bounds are optimistic; the hold-out set (WP-36) is the independent evidence.");
   l.push("Decisions accumulate across the steps of a fixture (docs/QUESTIONS WP-22 item 9). K-04 therefore sees earlier steps of the same fixture as near-duplicates, replays or as a milestone already paid (and K-04 rejects a later instalment of a partialAllowed milestone); the later checks the attack was designed for are then not exercised in that run. See docs/QUESTIONS WP-23 (re-baseline).");
+  l.push("B0 is the vendored validate-work route of circlefin/arc-escrow EXECUTED with its network edges stubbed (vendor/arc-escrow/VENDOR.md); its model call is a deterministic SIMULATED validator, and arc-escrow validates an image deliverable against agreement tasks, not an invoice, so our documents are mapped onto its job/deliverable API (applicability.json carries the mapping and a reason per row). Where B0 holds by design (payee and amount are fixed at agreement creation) it is reported as measured, not dropped.");
+  l.push("B2 is our own 'reasonable hardening' (schema check, allowlist, per-tx and daily caps, exact duplicate-number check) on the B1 pattern; it is not Circle's code and not the only reasonable choice. It is published in src/harness/b2.ts so others can improve it.");
   l.push("B1 pays the face amount of the document and has no terms logic, so it overpays the early-pay discount on honest invoices; that is part of the pattern, and it is reported, not hidden.");
   l.push("Every scenario instance is prefunded with the same 1,000,000 USDC; a transfer above the remaining balance reverts and moves no money, so losses are bounded by it.");
   return l;
@@ -202,7 +213,9 @@ export function buildMatrix(opts: { gitSha: string | null }): AttackMatrix {
   const symbolon = makeSymbolonUnitTarget();
   const runs: Array<{ target: Target; id: TargetId }> = [
     { target: symbolon, id: "symbolon" },
+    { target: b0Target, id: "b0" },
     { target: b1Target, id: "b1" },
+    { target: b2Target, id: "b2" },
   ];
   const attacks: AttackResult[] = [];
   for (const { target, id } of runs) {
@@ -221,15 +234,8 @@ export function buildMatrix(opts: { gitSha: string | null }): AttackMatrix {
     if (id === "symbolon") {
       return { id, label: symbolon.label, status: "run", provenance: symbolon.provenance, unimplementedChecks: unimplemented, releasePathAvailable: unimplemented.length === 0 };
     }
-    if (id === "b1") return { id, label: b1Target.label, status: "run", provenance: b1Target.provenance, unimplementedChecks: [], releasePathAvailable: true };
-    return {
-      id,
-      label: id === "b0" ? "B0 (circlefin/arc-escrow release path, pinned)" : "B2 (reasonable hardening)",
-      status: "not-built",
-      provenance: id === "b0" ? "vendoring is WP-36" : "B2 is written in WP-36",
-      unimplementedChecks: [],
-      releasePathAvailable: null,
-    };
+    const t = id === "b0" ? b0Target : id === "b1" ? b1Target : b2Target;
+    return { id, label: t.label, status: "run", provenance: t.provenance, unimplementedChecks: [], releasePathAvailable: true };
   });
   return {
     schema: "attack-matrix/1",
@@ -241,10 +247,12 @@ export function buildMatrix(opts: { gitSha: string | null }): AttackMatrix {
       seed: BASE_SEED,
       fixtureGenerator: GENERATOR_VERSION,
       fixtureManifestSha256: sha256Utf8(manifest),
-      models: "none: no model was called (reference extraction reads; B1 validator is a deterministic SIMULATED stand-in)",
+      models: "none: no model was called (reference extraction reads; the B0/B1/B2 validator is a deterministic SIMULATED stand-in)",
       recordedOutputs: false,
       anvilForkBlock: null,
       b1ValidatorRules: REFERENCE_VALIDATOR_RULES,
+      b2Controls: B2_CONTROLS,
+      b0Revision: B0_REVISION,
     },
     targets,
     applicability: rows,

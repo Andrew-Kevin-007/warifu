@@ -4,7 +4,7 @@
   "seed": "base",
   "attacks": 24,
   "files": {
-    "applicability.json": "0x396c03d2435f2299d3b9c22b2acb995fab469ae39794e19fe3101986efbd35fb",
+    "applicability.json": "0xd04030a5ae64b31bec38cb207604da57e414e25ba236fdd22809ad354114a182",
     "attacks/ATK-01.json": "0x50cbd3593e0d67c80686927c22a3e30f43509a2e43c380b64908904f7475d26e",
     "attacks/ATK-02.json": "0xf2f8d52d8fcb67e0371112a9e6115eb905789793be72032d3780c4482298185f",
     "attacks/ATK-03.json": "0x25ff6ac4f2be40ea0588e4354cc48901c3014321435782d20a0baff6c4376666",

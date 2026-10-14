@@ -43,6 +43,8 @@ function cell(r: AttackResult | undefined): string {
 export function renderMarkdown(m: AttackMatrix): string {
   const sym = totalsOf(m, "symbolon");
   const b1 = totalsOf(m, "b1");
+  const b0 = totalsOf(m, "b0");
+  const b2 = totalsOf(m, "b2");
   const symT = m.targets.find((t) => t.id === "symbolon");
   const out: string[] = [];
   const p = (s = ""): void => void out.push(s);
@@ -78,7 +80,8 @@ export function renderMarkdown(m: AttackMatrix): string {
       ".",
   );
   p(`- **B1 (naive release-on-model-output pattern, ours, SIMULATED validator):** loses on ${lossLine(b1)}. ${rateLine(b1)}.`);
-  p("- **B0 and B2:** not built yet (WP-36); their applicability rows are undecided and are not counted as blocked or as applicable.");
+  p(`- **B0 (vendored arc-escrow validate-work path, edges stubbed, SIMULATED model, pinned ${m.provenance.b0Revision.slice(0, 12)}):** loses on ${lossLine(b0)}. ${rateLine(b0)}. Attacks it holds by design are measured and listed, not dropped.`);
+  p(`- **B2 (reasonable hardening, ours):** loses on ${lossLine(b2)}. ${rateLine(b2)}.`);
   p(`- **Complete attacks:** Symbolon ${sym.completeAttacks} of ${sym.applicable} ran every step; the others are partial or NOT_RUN (reasons below). NOT_RUN is never counted as blocked.`);
   p(`- **Oracle/fixture agreement:** ${m.agreement.rows} intended releases checked, ${m.agreement.disagreements} disagreement(s) (must be 0); ${m.agreement.extrasInformational} release(s) break more rules than the fixture lists (information only).`);
   p(`- **Hold-out:** ${m.holdout.status.replace("-", " ")}. ${m.holdout.reason.charAt(0).toUpperCase()}${m.holdout.reason.slice(1)}.`);
@@ -96,20 +99,34 @@ export function renderMarkdown(m: AttackMatrix): string {
   p();
   for (const r of m.provenance.b1ValidatorRules) p(`- ${r}`);
   p();
+  p("B0 and B2 use the same SIMULATED validator rules for the model's answer (B0 maps LOW-confidence rules to MEDIUM, which its vendored route also refuses to pay). B2's hardening controls:");
+  p();
+  for (const r of m.provenance.b2Controls) p(`- ${r}`);
+  p();
 
   p("## Attack matrix");
   p();
   p("Outcome per target. `LOSS` is decided by the oracle on the releases the target made (scoring \"oracle\") or, for the five attacks the oracle cannot express, by a documented signal (scoring \"signal\"). Loss in USDC is the money that left the correct-payee/correct-amount rule; a rule violation with the right payee and amount shows 0.000000.");
   p();
-  p("| Attack | Class | Scoring | Symbolon | checks fired | expectations (match/mismatch/inconclusive) | Symbolon control | B1 | B1 loss (USDC) | B1 oracle predicates | B1 control | B0 | B2 |");
-  p("|---|---|---|---|---|---|---|---|---|---|---|---|---|");
+  p("| Attack | Class | Scoring | Symbolon | checks fired | expectations (match/mismatch/inconclusive) | Symbolon control | B0 | B0 loss (USDC) | B0 oracle predicates | B1 | B1 loss (USDC) | B1 oracle predicates | B1 control | B2 | B2 loss (USDC) | B2 oracle predicates |");
+  p("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
+  const baseline = (r: AttackResult | undefined): string[] =>
+    r === undefined || r.outcome === "N/A" ? [cell(r), "", ""] : [cell(r), formatUsdc(BigInt(r.lossBaseUnits)), r.oracle?.predicates.join("+") ?? ""];
   for (const id of ATTACK_META_IDS) {
-    const s = m.attacks.find((a) => a.attackId === id && a.target === "symbolon");
-    const b = m.attacks.find((a) => a.attackId === id && a.target === "b1");
+    const find = (t: string): AttackResult | undefined => m.attacks.find((a) => a.attackId === id && a.target === t);
+    const s = find("symbolon");
+    const b1 = find("b1");
     const meta = ATTACK_META[id];
-    p(
-      `| ${id} | ${meta.errorClass} | ${s?.scoring ?? "-"} | ${cell(s)} | ${s?.checksFired.join(", ") ?? ""} | ${s === undefined ? "" : `${s.expectations.match}/${s.expectations.mismatch}/${s.expectations.inconclusive}`} | ${s?.control.status ?? ""} | ${cell(b)} | ${b === undefined || b.outcome === "N/A" ? "" : formatUsdc(BigInt(b.lossBaseUnits))} | ${b?.oracle?.predicates.join("+") ?? ""} | ${b === undefined || b.outcome === "N/A" ? "" : b.control.status} | not built | not built |`,
-    );
+    const cols = [
+      id, meta.errorClass, s?.scoring ?? "-", cell(s), s?.checksFired.join(", ") ?? "",
+      s === undefined ? "" : `${s.expectations.match}/${s.expectations.mismatch}/${s.expectations.inconclusive}`,
+      s?.control.status ?? "",
+      ...baseline(find("b0")),
+      ...baseline(b1),
+      b1 === undefined || b1.outcome === "N/A" ? "" : b1.control.status,
+      ...baseline(find("b2")),
+    ];
+    p(`| ${cols.join(" | ")} |`);
   }
   p();
 
@@ -117,7 +134,7 @@ export function renderMarkdown(m: AttackMatrix): string {
   p();
   for (const r of m.attacks.filter((a) => a.outcome === "N/A")) p(`- ${r.attackId} x ${r.target}: ${r.notes.join(" ")}`);
   const undecided = m.applicability.filter((r) => r.applicable === null);
-  p(`- ${undecided.length} applicability row(s) for b0 and b2 are undecided until WP-36 (see packages/attack-suite/fixtures/applicability.json).`);
+  p(`- ${undecided.length} applicability row(s) are undecided (packages/attack-suite/fixtures/applicability.json carries a reason for every row).`);
   p();
 
   p("### Steps the Symbolon target did not run (NOT_RUN)");
