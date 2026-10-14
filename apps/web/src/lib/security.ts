@@ -62,13 +62,16 @@ export function buildCsp(o: CspOptions): string {
   const dev = o.dev === true;
   const profile = o.profile ?? PROFILE;
   const connect = ["'self'", ...(o.connectOrigins ?? []), ...(dev ? ["ws:", "http://localhost:*"] : [])];
-  void profile;
+  // The app origin runs the 3D scenes (rapier WebAssembly, runtime <style> from motion libraries). The challenge origin has no 3D and stays strict (INV-16).
+  const app = profile !== "challenge";
   const d: Record<string, string[]> = {
     "default-src": ["'self'"],
-    "script-src": ["'self'", `'nonce-${o.nonce}'`, "'strict-dynamic'", ...(dev ? ["'unsafe-eval'"] : [])],
+    "script-src": ["'self'", `'nonce-${o.nonce}'`, "'strict-dynamic'", ...(dev ? ["'unsafe-eval'"] : []), ...(app ? ["'wasm-unsafe-eval'"] : [])],
     "style-src": ["'self'", `'nonce-${o.nonce}'`, ...(dev ? ["'unsafe-inline'"] : [])],
     // framer-motion / gsap write inline style attributes at runtime; style ELEMENTS still need the nonce.
     "style-src-attr": ["'unsafe-inline'"],
+    // No nonce here on purpose: a nonce makes browsers ignore 'unsafe-inline', and libraries create <style> elements without one.
+    ...(app ? { "style-src-elem": ["'self'", "'unsafe-inline'"] } : {}),
     "img-src": ["'self'", "data:", "blob:"],
     "font-src": ["'self'"],
     "connect-src": connect,
