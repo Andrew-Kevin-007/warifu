@@ -147,6 +147,20 @@ export function combine(id: CheckId, issues: readonly Issue[], passDetail: strin
   return result;
 }
 
+/**
+ * Every finding of the FAILing checks (WP-36): `aggregate().reasons` keeps one code per check, its most severe, so a wrong
+ * wallet (REJECT PAYEE_MISMATCH) hides the claimed address change (ESCALATE ADDRESS_CHANGE_CLAIMED) of the same K-06
+ * result. This lists all of them, in check order, without duplicates; it is read-only and changes no verdict or receipt.
+ */
+export function issueCodes(checks: readonly CheckResult[]): ReasonCode[] {
+  const out: ReasonCode[] = [];
+  for (const c of checks) {
+    if (c.status !== "FAIL") continue;
+    for (const i of issuesOf(c)) if (!out.includes(i.code)) out.push(i.code);
+  }
+  return out;
+}
+
 export interface Aggregate {
   readonly verdict: FinalVerdict;
   readonly reasons: readonly ReasonCode[];

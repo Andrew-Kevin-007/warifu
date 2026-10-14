@@ -329,7 +329,8 @@
           }
         }
       ],
-      "note": "a PayeeChange is in its delay: nothing is paid until it executes or is cancelled"
+      "note": "a PayeeChange is in its delay: nothing is paid until it executes or is cancelled",
+      "freshInstance": true
     }
   ],
   "intendedLoss": {

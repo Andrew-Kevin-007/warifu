@@ -150,6 +150,8 @@ export interface SubmitArgs {
   readonly runs: readonly ExtractionRun[];
   readonly context?: ContextPatch;
   readonly note?: string;
+  /** Start a fresh scenario instance before this step (an independent attempt). */
+  readonly freshInstance?: boolean;
 }
 
 export function submitStep(a: SubmitArgs): SubmitStep {
@@ -161,6 +163,7 @@ export function submitStep(a: SubmitArgs): SubmitStep {
     context: a.context ?? {},
     runs: [...a.runs],
     ...(a.note === undefined ? {} : { note: a.note }),
+    ...(a.freshInstance === true ? { freshInstance: true as const } : {}),
   };
 }
 

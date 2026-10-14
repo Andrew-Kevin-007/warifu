@@ -7,7 +7,7 @@
     "gitSha": null,
     "seed": "base",
     "fixtureGenerator": "attack-fixtures/1",
-    "fixtureManifestSha256": "0x09f182033293cafeaff3d490eafe5f672efd4e6bb9dae5698a009cab82fee76b",
+    "fixtureManifestSha256": "0x5aec23eaf7720883844463b9f965b84fd1a11399e6117a3008ce3840ed5faf5b",
     "models": "none: no model was called (reference extraction reads; B1 validator is a deterministic SIMULATED stand-in)",
     "recordedOutputs": false,
     "label": "SIMULATED",
@@ -2823,9 +2823,9 @@
     "symbolon": {
       "unit": "ms",
       "samples": 1550,
-      "p50": 1.322,
-      "p95": 6.011,
-      "max": 24.749
+      "p50": 4.555,
+      "p95": 6.921,
+      "max": 28.656
     },
     "note": "Wall-clock milliseconds for one in-process kernel-core evaluate() (unit mode), 25 pass(es) over the corpus; machine-dependent and the only non-deterministic block in this file."
   },

@@ -26,6 +26,7 @@ export function atk02({ rng, seed }: BuildCtx): AttackFixture {
   const r2 = renderDoc("ATK-02/s2", spec2, T0);
   const s2 = submitStep({
     stepId: "ATK-02/s2",
+    freshInstance: true,
     milestoneSlug: slug,
     doc: r2.doc,
     runs: [agreeingRun("name-only-collision", spec2, r2.rendered, { verdictIn: ["RELEASE"], amountDueBaseUnits: amount.toString() })],
@@ -86,6 +87,7 @@ export function atk04({ rng, seed }: BuildCtx): AttackFixture {
   const a = mk("a", "final", "12,000");
   const stepA = submitStep({
     stepId: a.id,
+    freshInstance: true,
     milestoneSlug: a.slug,
     doc: a.r.doc,
     runs: [
@@ -97,6 +99,7 @@ export function atk04({ rng, seed }: BuildCtx): AttackFixture {
   const b = mk("b", "concept", "1.000,00");
   const stepB = submitStep({
     stepId: b.id,
+    freshInstance: true,
     milestoneSlug: b.slug,
     doc: b.r.doc,
     runs: [
@@ -108,6 +111,7 @@ export function atk04({ rng, seed }: BuildCtx): AttackFixture {
   const c = mk("c", "concept", "8.000");
   const stepC = submitStep({
     stepId: c.id,
+    freshInstance: true,
     milestoneSlug: c.slug,
     doc: c.r.doc,
     runs: [
@@ -144,6 +148,7 @@ export function atk05({ rng, seed }: BuildCtx): AttackFixture {
   const a = mk("a", "8.0000005");
   const stepA = submitStep({
     stepId: a.id,
+    freshInstance: true,
     milestoneSlug: slug,
     doc: a.r.doc,
     runs: [
@@ -157,6 +162,7 @@ export function atk05({ rng, seed }: BuildCtx): AttackFixture {
   const b = mk("b", native.toString());
   const stepB = submitStep({
     stepId: b.id,
+    freshInstance: true,
     milestoneSlug: slug,
     doc: b.r.doc,
     runs: [
@@ -168,6 +174,7 @@ export function atk05({ rng, seed }: BuildCtx): AttackFixture {
   const c = mk("c", "8.000000");
   const stepC = submitStep({
     stepId: c.id,
+    freshInstance: true,
     milestoneSlug: slug,
     doc: c.r.doc,
     runs: [agreeingRun("full-precision", c.spec, c.r.rendered, { verdictIn: ["RELEASE"], amountDueBaseUnits: (8n * ONE_USDC).toString() }, { parsedBaseUnits: 8n * ONE_USDC })],
@@ -224,13 +231,31 @@ export function atk07({ rng, seed }: BuildCtx): AttackFixture {
   });
   const r = renderDoc("ATK-07/s1", spec, T0);
   const prior = [{ milestoneSlug: slug, invoiceNumber: "INV-2026-0099", amountBaseUnits: amount.toString(), payee: w.payee, at: addDays(T0, -5) }];
+  // s0: K-03 on its own (docs/04 K-03: CREDIT_NOTE => ESCALATE, never an outbound payment). No money is at stake on
+  // an unpaid milestone, so this step has no intended loss; it pins the exact spec'd verdict of the check.
+  const spec0 = baseSpec(rng.child("s0"), w, slug, T0, {
+    docType: "CREDIT_NOTE",
+    bodyExtra: ["Refund due to you for the concept milestone; no payment is requested from you."],
+  });
+  const r0 = renderDoc("ATK-07/s0", spec0, T0);
+  const s0 = submitStep({
+    stepId: "ATK-07/s0",
+    freshInstance: true,
+    milestoneSlug: slug,
+    doc: r0.doc,
+    runs: [agreeingRun("careful-unpaid-milestone", spec0, r0.rendered, { verdictIn: ["ESCALATE"], reasonsAnyOf: ["CREDIT_NOTE"], checksAnyOf: ["K-03"] })],
+    note: "K-03 alone: a credit note is escalated, never paid",
+  });
   const s1 = submitStep({
     stepId: "ATK-07/s1",
+    freshInstance: true,
     milestoneSlug: slug,
     doc: r.doc,
     context: { milestoneStatus: { [slug]: "PAID" }, priorReleases: prior },
     runs: [
-      agreeingRun("careful", spec, r.rendered, { verdictIn: ["ESCALATE"], reasonsAnyOf: ["CREDIT_NOTE"], checksAnyOf: ["K-03"] }),
+      // The step's own context marks the milestone PAID, so K-04/K-05 REJECT outranks K-03's ESCALATE in the verdict
+      // algebra (docs/04 §1: REJECT > ESCALATE). Either way nothing is paid; CREDIT_NOTE must still be reported by K-03.
+      agreeingRun("careful", spec, r.rendered, { verdictIn: ["ESCALATE", "REJECT"], reasonsAnyOf: ["CREDIT_NOTE"], checksAnyOf: ["K-03"] }),
       agreeingRun("sign-flipped", spec, r.rendered, { verdictIn: ["REJECT", "ESCALATE"], reasonsAnyOf: ["MILESTONE_ALREADY_PAID", "DUPLICATE_DOC", "NEAR_DUPLICATE"] }, { docType: "INVOICE", printed: "8.00", parsedBaseUnits: amount }),
     ],
     note: "the milestone is already paid, so a flipped credit note would be a second payment (O3)",
@@ -239,7 +264,7 @@ export function atk07({ rng, seed }: BuildCtx): AttackFixture {
     attackId: "ATK-07",
     seed,
     scenarioId: "S-A",
-    steps: [s1],
+    steps: [s1, s0],
     intendedLoss: { mode: "each", releases: [intendedRelease("ATK-07/s1", w, slug, w.payee, amount, T0, T0, ["O3"])] },
     control: honestControl(rng, w, "final", T0, "ATK-07/control"),
     tags: ["credit-note", "sign", "K-03"],

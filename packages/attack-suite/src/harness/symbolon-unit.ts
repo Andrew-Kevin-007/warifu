@@ -15,7 +15,7 @@
 //   - Faults (reconciler, K-15) and contract calls (ATK-17) are not part of the pure kernel; those steps are reported
 //     NOT_RUN with the reason. The human-loop attacks (ATK-22 digest, ATK-23 approval rendering, ATK-24 explainer) run
 //     in symbolon-human.ts against kernel-core and packages/receipts.
-import { digestItem, evaluate, summarizeEvaluation } from "@symbolon/kernel-core";
+import { digestItem, evaluate, issueCodes, summarizeEvaluation } from "@symbolon/kernel-core";
 import type { DecisionSummary, Evaluation, KernelContext } from "@symbolon/kernel-core";
 import { applyPolicyOverrides, normalizePolicy } from "@symbolon/policy";
 import type { LoadedPolicy } from "@symbolon/policy";
@@ -92,17 +92,18 @@ function evidenceFor(state: SimState, now: ISODateTime): Evidence[] {
 const DAY = 86_400n;
 const WEEK = 7n * DAY;
 
+// Totals as the service computes them (services/kernel/src/db/repo.ts loadReleasedTotals): a RELEASE decision is dated by
+// its payAt with NO upper bound, so "a payment scheduled for tomorrow still counts today" (docs/04 s2 race guard). An
+// earlier version of this file also required payAt <= now, which let a split attack (ATK-14 adaptive) sail under the
+// velocity limit because every slice is scheduled in the future; oracle O5 caught it (docs/QUESTIONS WP-36).
 function releasedTotals(state: SimState, now: ISODateTime): KernelContext["released"] {
   const at = epochSecondsFromIso(now);
-  const inWindow = (time: string, window: bigint): boolean => {
-    const t = epochSecondsFromIso(time);
-    return t <= at && t > at - window;
-  };
+  const inWindow = (time: string, window: bigint): boolean => epochSecondsFromIso(time) > at - window;
   const rs = state.releases;
   const category: Record<string, bigint> = Object.fromEntries(state.categoryBaseline);
   for (const r of rs) {
     const m = state.world.template.milestones.find((x) => x.milestoneId === r.milestoneId);
-    if (m !== undefined && r.time.slice(0, 7) === now.slice(0, 7)) category[m.category] = (category[m.category] ?? 0n) + r.amount;
+    if (m !== undefined && r.time.slice(0, 7) >= now.slice(0, 7)) category[m.category] = (category[m.category] ?? 0n) + r.amount;
   }
   const payeeDay = rs.filter((r) => r.payee.toLowerCase() === state.world.payee.toLowerCase() && inWindow(r.time, DAY));
   return {
@@ -238,6 +239,7 @@ export function toDecision(e: Evaluation, ctx: KernelContext): TargetDecision {
   const base = {
     checksFired: failed.map((c) => c.id),
     reasons: e.reasons,
+    issues: issueCodes(e.checks),
     heldByUnimplementedChecks: onlyPending,
   };
   if (e.verdict !== "RELEASE") {

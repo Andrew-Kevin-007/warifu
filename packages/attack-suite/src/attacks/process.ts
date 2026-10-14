@@ -162,6 +162,7 @@ export function atk19(ctx: BuildCtx): AttackFixture {
   const hit = honestStep(ctx, "ATK-19/s1", { screening: "HIT" as const });
   const hitStep = submitStep({
     stepId: "ATK-19/s1",
+    freshInstance: true,
     milestoneSlug: SLUG,
     doc: hit.r.doc,
     context: { screening: "HIT" },
@@ -170,6 +171,7 @@ export function atk19(ctx: BuildCtx): AttackFixture {
   const ok = honestStep(ctx, "ATK-19/s2");
   const okStep = submitStep({
     stepId: "ATK-19/s2",
+    freshInstance: true,
     milestoneSlug: SLUG,
     doc: ok.r.doc,
     context: { screening: "CLEAR" },

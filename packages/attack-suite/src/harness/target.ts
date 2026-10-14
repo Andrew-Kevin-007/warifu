@@ -18,6 +18,8 @@ export interface TargetDigestItem {
   readonly passingChecks: number;
   readonly amountBaseUnits: bigint | null;
   readonly payeePriorPayments: number;
+  /** A payee-redirect finding (address change claim, wallet mismatch, pending change): ranked first (RT-14). */
+  readonly payeeRedirect: boolean;
 }
 
 /** One stated criterion of a human-loop attack (ATK-22/23/24) and whether the target met it. */
@@ -35,6 +37,8 @@ export interface TargetDecision {
   /** Checks that FAILED (K-xx). Empty for targets without checks. */
   readonly checksFired: readonly CheckId[];
   readonly reasons: readonly ReasonCode[] | readonly string[];
+  /** Every finding of the failing checks (kernel issueCodes): reasons keeps one code per check, so a secondary finding such as ADDRESS_CHANGE_CLAIMED behind PAYEE_MISMATCH is only here. */
+  readonly issues?: readonly string[];
   /** Plain-language trace for the report; never document text. */
   readonly note: string;
   /** True when the only thing standing between this decision and a release is a check the target does not implement yet. */

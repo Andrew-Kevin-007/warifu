@@ -215,7 +215,8 @@
           }
         }
       ],
-      "note": "RT-15 urgency: forces early payment at an invoice-invented discount"
+      "note": "RT-15 urgency: forces early payment at an invoice-invented discount",
+      "freshInstance": true
     },
     {
       "kind": "submit",
@@ -421,7 +422,8 @@
           }
         }
       ],
-      "note": "the invoiced gross no longer equals the milestone; amountDue never includes a surcharge"
+      "note": "the invoiced gross no longer equals the milestone; amountDue never includes a surcharge",
+      "freshInstance": true
     },
     {
       "kind": "submit",
@@ -624,7 +626,8 @@
           }
         }
       ],
-      "note": "due date and timing come from the signed net 30, not from the printed due date"
+      "note": "due date and timing come from the signed net 30, not from the printed due date",
+      "freshInstance": true
     },
     {
       "kind": "submit",
@@ -818,7 +821,8 @@
           }
         }
       ],
-      "note": "backdated invoice: a system that anchors on the printed date overpays by the discount"
+      "note": "backdated invoice: a system that anchors on the printed date overpays by the discount",
+      "freshInstance": true
     },
     {
       "kind": "submit",
@@ -1016,7 +1020,8 @@
           }
         }
       ],
-      "note": "boundary: the window is inclusive of receivedAt + 10 days"
+      "note": "boundary: the window is inclusive of receivedAt + 10 days",
+      "freshInstance": true
     },
     {
       "kind": "submit",
@@ -1214,7 +1219,8 @@
           }
         }
       ],
-      "note": "boundary: the window is inclusive of receivedAt + 10 days"
+      "note": "boundary: the window is inclusive of receivedAt + 10 days",
+      "freshInstance": true
     },
     {
       "kind": "submit",
@@ -1319,7 +1325,8 @@
             "amountDueBaseUnits": "19600000"
           }
         }
-      ]
+      ],
+      "freshInstance": true
     },
     {
       "kind": "submit",
@@ -1641,7 +1648,8 @@
           }
         }
       ],
-      "note": "a non-English terms claim must be compared like any other"
+      "note": "a non-English terms claim must be compared like any other",
+      "freshInstance": true
     },
     {
       "kind": "submit",
@@ -1858,7 +1866,8 @@
           }
         }
       ],
-      "note": "normalisation reveals the sentence; hidden characters are themselves an anomaly"
+      "note": "normalisation reveals the sentence; hidden characters are themselves an anomaly",
+      "freshInstance": true
     },
     {
       "kind": "submit",
@@ -2067,7 +2076,8 @@
           }
         }
       ],
-      "note": "terms placed where a reader skims"
+      "note": "terms placed where a reader skims",
+      "freshInstance": true
     },
     {
       "kind": "submit",
@@ -2286,7 +2296,8 @@
           }
         }
       ],
-      "note": "header and footer disagree and the line items sum to the gross: ambiguous terms are never resolved in the payee's favour"
+      "note": "header and footer disagree and the line items sum to the gross: ambiguous terms are never resolved in the payee's favour",
+      "freshInstance": true
     },
     {
       "kind": "submit",
@@ -2496,7 +2507,8 @@
           }
         }
       ],
-      "note": "the signed engagement carries no early-pay term at all"
+      "note": "the signed engagement carries no early-pay term at all",
+      "freshInstance": true
     },
     {
       "kind": "submit",
@@ -2705,7 +2717,8 @@
           }
         }
       ],
-      "note": "only a dual-signed engagement can change terms"
+      "note": "only a dual-signed engagement can change terms",
+      "freshInstance": true
     }
   ],
   "intendedLoss": {
