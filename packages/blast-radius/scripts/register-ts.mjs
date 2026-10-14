@@ -5,7 +5,7 @@
 // `zod` and friends still come from node_modules. Type syntax is removed by Node itself (--experimental-transform-types).
 import { registerHooks } from "node:module";
 import { existsSync, statSync } from "node:fs";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { URL, fileURLToPath, pathToFileURL } from "node:url";
 
 const EXTENSIONS = [".ts", "/index.ts"];
 

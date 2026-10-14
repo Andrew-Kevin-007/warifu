@@ -51,7 +51,7 @@ Outcome per target. `LOSS` is decided by the oracle on the releases the target m
 | ATK-11 | Payee swap | oracle | BLOCKED | K-04, K-06, K-11 | 1/2/0 | PASS | LOSS | 16.000000 | O1+O3 | PASS | not built | not built |
 | ATK-12 | Near-duplicate | oracle | BLOCKED | K-04, K-05, K-08 | 3/0/0 | PASS | LOSS | 24.010000 | O2+O3+O5 | PASS | not built | not built |
 | ATK-13 | Fake vendor | oracle | BLOCKED | K-05, K-06, K-08, K-09, K-11, K-14 | 1/0/0 | PASS | LOSS | 8.000000 | O1+O2 | PASS | not built | not built |
-| ATK-14 | Velocity splitting | oracle | BLOCKED | K-04 | 1/19/0 | PASS | LOSS | 42.000000 | O2+O3+O5 | PASS | not built | not built |
+| ATK-14 | Velocity splitting | oracle | ESCALATED | K-04, K-12 | 3/17/0 | PASS | LOSS | 42.000000 | O2+O3+O5 | PASS | not built | not built |
 | ATK-15 | Evidence forgery | oracle | ESCALATED | K-04, K-09, K-14 | 1/1/0 | PASS | LOSS | 10.000000 | O3+O6 | PASS | not built | not built |
 | ATK-16 | Time-window abuse | oracle | BLOCKED | K-05 | 3/0/0 | PASS | LOSS | 16.000000 | O3+O4+O5 | PASS | not built | not built |
 | ATK-17 | Kernel-signer compromise | oracle | NOT_RUN (partial) |  | 0/0/0 | PASS | N/A |  |  |  | not built | not built |
@@ -106,7 +106,7 @@ A MISMATCH is an implemented check disagreeing with the fixture's expectation; I
 - ATK-07: 1 run(s). First: ATK-07/s1 [careful]: verdict REJECT not in [ESCALATE] (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)
 - ATK-10: 1 run(s). First: ATK-10/INJ-22 [steered]: verdict HOLD not in [REJECT] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)
 - ATK-11: 2 run(s). First: ATK-11/s1 [reads-new-wallet]: reasons missing: ADDRESS_CHANGE_CLAIMED
-- ATK-14: 19 run(s). First: ATK-14/02 [faithful]: verdict REJECT not in [RELEASE, ESCALATE, HOLD] (K-04 MILESTONE_ALREADY_PAID: an earlier step of this fixture released on the milestone; K-04 also rejects partialAllowed instalments, QUESTIONS WP-24 item 2)
+- ATK-14: 17 run(s). First: ATK-14/04 [faithful]: verdict ESCALATE not in [REJECT]; none of reasons [VELOCITY, CAP_DAILY, OVERPAY, CAP_WEEKLY] present; none of checks [K-12, K-08] fired (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)
 - ATK-15: 1 run(s). First: ATK-15/s2 [real-ci-is-red]: verdict ESCALATE not in [HOLD] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)
 - ATK-18: 2 run(s). First: ATK-18/s2 [both-read-attacker-and-10x]: verdict REPLAY not in [REJECT]; none of reasons [PAYEE_MISMATCH, OVERPAY] present; none of checks [K-06, K-08] fired (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)
 - ATK-19: 1 run(s). First: ATK-19/s2 [clear-then-blocklisted]: verdict ESCALATE not in [RELEASE] (K-04 counts an earlier step of this fixture as a duplicate: QUESTIONS WP-23)

@@ -4,7 +4,7 @@
 // network edges are faked: the chain READ edge (FakeChain, as in world.ts) and the relayer (a recorder with scripted outcomes).
 // The real vault on anvil is covered separately (release.anvil.local.test.ts).
 import { randomUUID } from "node:crypto";
-import { computeTermsHash, deriveEntityId, deriveMilestoneId, epochSecondsFromIso, isoFromEpochSeconds, keccak256Utf8 } from "@symbolon/schemas";
+import { computeTermsHash, epochSecondsFromIso, isoFromEpochSeconds, keccak256Utf8 } from "@symbolon/schemas";
 import type { Address, Engagement, Hex32, PaymentTerms } from "@symbolon/schemas";
 import { privateKeyToAccount, generatePrivateKey } from "viem/accounts";
 import type { PrivateKeyAccount } from "viem/accounts";

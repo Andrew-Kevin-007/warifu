@@ -89,11 +89,11 @@
       "expectedAutoRelease": 57,
       "expectedHumanReview": 5,
       "classes": {
-        "AUTO_RELEASED": 56,
+        "AUTO_RELEASED": 57,
         "CORRECTLY_SENT_TO_HUMAN": 5,
         "RELEASED_WHEN_HUMAN_EXPECTED": 0,
         "WRONG_RELEASE": 0,
-        "WRONGFUL_REJECT": 1,
+        "WRONGFUL_REJECT": 0,
         "FALSE_ESCALATION": 0,
         "FALSE_HOLD": 0,
         "WRONG_HUMAN_VERDICT": 0,
@@ -101,18 +101,18 @@
         "OTHER": 0
       },
       "autoRelease": {
-        "k": 56,
+        "k": 57,
         "n": 62,
-        "rate": 0.903226,
-        "wilsonLower": 0.804512,
-        "wilsonUpper": 0.954888
+        "rate": 0.919355,
+        "wilsonLower": 0.824714,
+        "wilsonUpper": 0.965062
       },
       "autoReleaseOfExpectedAuto": {
-        "k": 56,
+        "k": 57,
         "n": 57,
-        "rate": 0.982456,
-        "wilsonLower": 0.907093,
-        "wilsonUpper": 0.996896
+        "rate": 1,
+        "wilsonLower": 0.936861,
+        "wilsonUpper": 1
       },
       "correctEscalation": {
         "k": 5,
@@ -129,11 +129,11 @@
         "wilsonUpper": 1
       },
       "wrongfulReject": {
-        "k": 1,
+        "k": 0,
         "n": 62,
-        "rate": 0.016129,
-        "wilsonLower": 0.002853,
-        "wilsonUpper": 0.085867
+        "rate": 0,
+        "wilsonLower": 0,
+        "wilsonUpper": 0.058344
       },
       "wrongRelease": {
         "k": 0,
@@ -148,21 +148,21 @@
         {
           "name": "auto-release rate",
           "threshold": "\u003e= 70% (docs/07 \u00a74 target)",
-          "value": "90.32% (56/62, Wilson 95% 80.45%..95.49%)",
+          "value": "91.94% (57/62, Wilson 95% 82.47%..96.51%)",
           "status": "MET",
           "note": ""
         },
         {
           "name": "wrongful-reject rate (target)",
           "threshold": "\u003c= 2% (docs/07 \u00a74 target)",
-          "value": "1.61% (1/62, Wilson 95% 0.29%..8.59%)",
+          "value": "0.00% (0/62, Wilson 95% 0.00%..5.83%)",
           "status": "MET",
           "note": ""
         },
         {
           "name": "wrongful-reject rate (G4 floor)",
           "threshold": "\u003c= 5% (docs/07 \u00a74 floor, \u00a77 acceptance)",
-          "value": "1.61% (1/62, Wilson 95% 0.29%..8.59%)",
+          "value": "0.00% (0/62, Wilson 95% 0.00%..5.83%)",
           "status": "MET",
           "note": "The point estimate is gated, as the spec words it; the Wilson upper bound is printed beside it."
         },
@@ -1330,22 +1330,18 @@
         "id": "HU-09",
         "group": "ugly",
         "expected": "AUTO_RELEASE",
-        "action": "REJECT",
-        "reasons": [
-          "MILESTONE_ALREADY_PAID"
-        ],
-        "checksFired": [
-          "K-04"
-        ],
-        "released": false,
-        "releasedBaseUnits": null,
+        "action": "RELEASE",
+        "reasons": [],
+        "checksFired": [],
+        "released": true,
+        "releasedBaseUnits": "7000000",
         "correctBaseUnits": "7000000",
-        "oracle": null,
+        "oracle": "NO_LOSS",
         "oraclePredicates": [],
-        "amountMatches": null,
+        "amountMatches": true,
         "reasonMatches": null,
         "heldByUnimplementedChecks": false,
-        "class": "WRONGFUL_REJECT"
+        "class": "AUTO_RELEASED"
       },
       {
         "id": "HU-10",
@@ -2456,18 +2452,6 @@
   },
   "wrongfulRejects": [
     {
-      "target": "symbolon",
-      "id": "HU-09",
-      "caption": "Partial milestone, remainder: 7.00 after 11.00 was already paid on the same milestone.",
-      "reasons": [
-        "MILESTONE_ALREADY_PAID"
-      ],
-      "checksFired": [
-        "K-04"
-      ],
-      "rootCause": "K-04 rejects any second intent on a milestone that already has a RELEASE, including a later instalment of a partialAllowed milestone (docs/04 K-04 vs K-08/K-05 read together; docs/QUESTIONS.md WP-24). Open: spec decision, then kernel-core change (KERNEL-CORE)."
-    },
-    {
       "target": "b1",
       "id": "HU-01",
       "caption": "Concept invoice printed as 8.000: a decimal point or a thousands separator?",
@@ -2839,9 +2823,9 @@
     "symbolon": {
       "unit": "ms",
       "samples": 1550,
-      "p50": 4.194,
-      "p95": 7.516,
-      "max": 108.046
+      "p50": 1.322,
+      "p95": 6.011,
+      "max": 24.749
     },
     "note": "Wall-clock milliseconds for one in-process kernel-core evaluate() (unit mode), 25 pass(es) over the corpus; machine-dependent and the only non-deterministic block in this file."
   },

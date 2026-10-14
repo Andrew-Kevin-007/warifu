@@ -444,7 +444,7 @@ export function createApp(d: AppDeps): Hono<AppEnv> {
   const certs = d.certificates;
   const certDeps = (): CertificateDeps => {
     if (certs === undefined) throw new ApiError("NOT_IMPLEMENTED", "certificates are not available in this build");
-    return { ...certs, db: d.db, clock: d.clock, profile: d.profile, logger: d.logger };
+    return { ...certs, db: d.db, clock: certs.clock ?? d.clock, profile: d.profile, logger: d.logger };
   };
   v1.get("/certificates/:vault", async (c) => {
     const { tenantId } = c.get("auth");

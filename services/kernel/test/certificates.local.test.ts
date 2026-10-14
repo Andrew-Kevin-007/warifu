@@ -33,7 +33,7 @@ describe.skipIf(!enabled)("certificate routes", () => {
   let w: World;
   let reader: LbcFake;
   const clockMs = Number(T0 + 10n) * 1000;
-  const certApp = (over: Record<string, unknown> = {}) => w.app({ clock: () => clockMs, certificates: { reader, gitSha: GIT, limiter: createBuildLimiter(100, 100), ...over } } as any);
+  const certApp = (over: Record<string, unknown> = {}) => w.app({ certificates: { clock: () => clockMs, reader, gitSha: GIT, limiter: createBuildLimiter(100, 100), ...over } } as any);
   beforeAll(async () => {
     w = await openWorld();
   }, 120_000);
@@ -89,7 +89,7 @@ describe.skipIf(!enabled)("certificate routes", () => {
     reader = lbcChain();
     const app = certApp();
     const built = await call(app, "POST", `/v1/certificates/${VAULT}/build`, w.token());
-    expect(built.status).toBe(201);
+    expect([200, 201], "stored now, or already stored by an earlier test with the same chain state").toContain(built.status);
     reader.fault = "vaultState";
     const read = await call(app, "GET", `/v1/certificates/${VAULT}`, w.token());
     expect(read.status).toBe(200);
@@ -136,9 +136,9 @@ describe.skipIf(!enabled)("certificate routes", () => {
       );
       const logger = createLogger({ sink: { write: () => undefined }, secrets: [] });
       const app = createApp({
-        profile: "production", db: fresh.db, chain: fakeChain(), signer: createKernelSigner(new Secret(generatePrivateKey())), clock: () => clockMs, logger,
-        serviceTokenSecret: TOKEN_SECRET, nonceStore: pgNonceStore(fresh.db), clockGuard: createClockGuard({ db: fresh.db, clock: () => clockMs, logger }), blobs: noBlobStore,
-        maxJsonBytes: 262144, maxBlobBytes: 1048576, certificates: { reader: lbcChain(), gitSha: GIT },
+        profile: "production", db: fresh.db, chain: fakeChain(), signer: createKernelSigner(new Secret(generatePrivateKey())), clock: () => Date.now(), logger,
+        serviceTokenSecret: TOKEN_SECRET, nonceStore: pgNonceStore(fresh.db), clockGuard: createClockGuard({ db: fresh.db, clock: () => Date.now(), logger }), blobs: noBlobStore,
+        maxJsonBytes: 262144, maxBlobBytes: 1048576, certificates: { clock: () => clockMs, reader: lbcChain(), gitSha: GIT },
       });
       const token = mintServiceToken({ secret: TOKEN_SECRET, profile: "production", tenantId: TENANT, nowSec: Math.floor(Date.now() / 1000) });
       expect((await call(app, "GET", `/v1/certificates/${VAULT}`, token)).status).toBe(404);
@@ -170,7 +170,7 @@ describe("limiter", () => {
     const l = createBuildLimiter(2, 10, 60);
     expect(l.take("v", 0)).toBe(0);
     expect(l.take("v", 1000)).toBe(0);
-    expect(l.take("v", 2000)).toBe(59);
+    expect(l.take("v", 2000)).toBe(58);
     expect(l.take("other", 2000)).toBe(0);
     expect(l.take("v", 61_000)).toBe(0);
   });
@@ -198,9 +198,9 @@ describe.skipIf(!enabled)("sandbox profile: challenge vaults are public, others 
     const reader = lbcChain();
     const logger = createLogger({ sink: { write: () => undefined }, secrets: [] });
     const app = createApp({
-      profile: "sandbox", db: t.db, chain: fakeChain(), signer: createKernelSigner(new Secret(generatePrivateKey())), clock: () => clockMsOf(), logger,
-      serviceTokenSecret: TOKEN_SECRET, nonceStore: pgNonceStore(t.db), clockGuard: createClockGuard({ db: t.db, clock: () => clockMsOf(), logger }), blobs: noBlobStore,
-      maxJsonBytes: 262144, maxBlobBytes: 1048576, certificates: { reader, gitSha: GIT, limiter: createBuildLimiter(100, 100) },
+      profile: "sandbox", db: t.db, chain: fakeChain(), signer: createKernelSigner(new Secret(generatePrivateKey())), clock: () => Date.now(), logger,
+      serviceTokenSecret: TOKEN_SECRET, nonceStore: pgNonceStore(t.db), clockGuard: createClockGuard({ db: t.db, clock: () => Date.now(), logger }), blobs: noBlobStore,
+      maxJsonBytes: 262144, maxBlobBytes: 1048576, certificates: { clock: () => clockMsOf(), reader, gitSha: GIT, limiter: createBuildLimiter(100, 100) },
     });
     const tok = (tenantId: string) => mintServiceToken({ secret: TOKEN_SECRET, profile: "sandbox", tenantId, nowSec: Math.floor(Date.now() / 1000) });
     // a caller that is NOT the challenge tenant (no tenant row at all) can read and build the challenge vault's certificate

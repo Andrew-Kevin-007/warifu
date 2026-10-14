@@ -291,7 +291,7 @@ export async function verifyCertificate(input: unknown, reader: ChainReader, o: 
 
   // --- 2. recompute at the stated block ---------------------------------------------------------------------------
   const detection = doc.algorithm.detectionLatencySeconds;
-  let stateN: VaultState | null = null;
+  let stateN: VaultState | null;
   if (latestHeader.number === N) {
     stateN = stateL;
   } else {
@@ -308,7 +308,7 @@ export async function verifyCertificate(input: unknown, reader: ChainReader, o: 
   }
 
   const bodyOpts = { vault, chainId: BigInt(doc.subject.chainId), detectionLatencySeconds: detection, terms: o.terms } as const;
-  let bodyL: Body | null = null;
+  let bodyL: Body;
   try {
     bodyL = computeBody(stateL, latestHeader, bodyOpts);
   } catch (e) {
@@ -365,7 +365,7 @@ export async function verifyCertificate(input: unknown, reader: ChainReader, o: 
   }
   const docB = BigInt(doc.inputs.balanceBaseUnits);
   if (stateL.balance > docB) {
-    let balanceBinds = false;
+    let balanceBinds: boolean;
     try {
       const inputs = docBoundInputs(doc);
       const alarmedBinding: readonly Term[] = boundAlarmed(inputs, BigInt(detection)).binding;

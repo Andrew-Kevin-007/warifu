@@ -81,11 +81,10 @@ export function assembleCertificate(state: VaultState, header: BlockHeader, o: A
     // The build-time code check: MATCH only if the on-chain code equals the artifact AND the artifact is the code the
     // results were produced against; anything else with an artifact is a MISMATCH, no artifact is NOT_CHECKED.
     const results = o.validationResults;
-    let status: "MATCH" | "NOT_CHECKED" | "MISMATCH" = "NOT_CHECKED";
     let built = buildValidation(results, BigInt(h24.value), "NOT_CHECKED");
     if (o.artifact !== undefined && built.validation !== null) {
       const m = o.onchainCode === undefined ? ({ status: "MISMATCH" } as const) : matchArtifact(o.onchainCode, o.artifact);
-      status = m.status === "MATCH" && built.validation.codeMatch.validatedCodeHash.toLowerCase() === o.artifact.codeHash.toLowerCase() ? "MATCH" : "MISMATCH";
+      const status: "MATCH" | "MISMATCH" = m.status === "MATCH" && built.validation.codeMatch.validatedCodeHash.toLowerCase() === o.artifact.codeHash.toLowerCase() ? "MATCH" : "MISMATCH";
       built = buildValidation(results, BigInt(h24.value), status);
     }
     validation = built.validation;

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // End-to-end-ish evidence contract (docs/QUESTIONS.md "WP-05 kernel fixes", finding 1): the REAL service evidence routes over a
 // real Postgres write the rows, the context assembler's own reader (`loadEvidence`) loads them, and the REAL kernel-core
 // `assessEvidence` reads them. Before the fix every sandbox record came out DENIED here (payload.requirement missing) and

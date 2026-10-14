@@ -1,7 +1,7 @@
 // Generated wording and optional inputs: headline sentence, view contract and claims lint (docs/16 §4.3, §10 test 7),
 // T1 weak-evidence exposure and TERMS_UNVERIFIED (§2.3), validation block (§8), policy flag (docs/08 §4).
 import { computeTermsHash, hashJcs } from "@symbolon/schemas";
-import type { Engagement, EvidenceRequirement, Hex32 } from "@symbolon/schemas";
+import type { Engagement, EvidenceRequirement } from "@symbolon/schemas";
 import { loadPolicy } from "@symbolon/policy";
 import { describe, expect, it } from "vitest";
 // The linter is a plain ESM script shared with CI (SEC/DOCS own it); we only call its exported functions.

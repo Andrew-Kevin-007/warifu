@@ -36,6 +36,8 @@ export interface CertificateServiceConfig {
   readonly detectionLatencySeconds?: number;
   readonly freshnessSeconds?: number;
   readonly limiter?: BuildLimiter;
+  /** Time source for certificate freshness and rate limits only (never auth). Absent = the app clock. Tests pin it to the fake chain's time. */
+  readonly clock?: Clock;
 }
 
 export interface CertificateDeps extends CertificateServiceConfig {
