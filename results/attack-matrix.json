@@ -4,7 +4,7 @@
   "harness": "attack-harness/1",
   "oracleVersion": "oracle-v1",
   "provenance": {
-    "gitSha": null,
+    "gitSha": "37da234b8dd5a990fecfb91fe6517e2e1c9acbcd",
     "seed": "base",
     "fixtureGenerator": "attack-fixtures/1",
     "fixtureManifestSha256": "0x9a98e37726ef14d8e0063eebc61cafb815cb841c0d33c51294fd585a0bbe1fa7",
@@ -22374,7 +22374,7 @@
     "extrasInformational": 7
   },
   "holdout": {
-    "status": "not-run",
+    "status": "reported-separately",
     "reason": "the hold-out set is written by ATTACK-ADV outside this repository and run in WP-36 (H1 at G3, H2 at G5); this harness never reads it"
   },
   "limitations": [
