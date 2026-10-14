@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/brand';
 import Link from 'next/link';
 
 export default function SectionMarket() {
@@ -11,7 +12,7 @@ export default function SectionMarket() {
                 One altered address can redirect a payment.
               </h3>
               <p className="body-text-l section-market__text max-w-[392px] text-gray-1000">
-                An invoice can look routine while naming a different payout wallet. Symbolon checks the payee against signed terms and evidence before the vault can release USDC.
+                An invoice can look routine while naming a different payout wallet. {BRAND.name} checks the payee against signed terms and evidence before the vault can release USDC.
               </p>
             </div>
             <div className="min-w-[156px]">

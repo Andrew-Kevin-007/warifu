@@ -1,5 +1,6 @@
 'use client';
 
+import { BRAND } from '@/lib/brand';
 import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -225,7 +226,7 @@ export default function Footer() {
                 </Link>
               </div>
               <p className="body-text-xxs hidden text-gray-900 lg:block">
-                {"Symbolon AI © "}
+                {`${BRAND.name} © `}
                 2026
                 . All rights reserved.
               </p>
@@ -238,7 +239,7 @@ export default function Footer() {
                 <div className="footer__menu-links flex flex-col items-start gap-xs">
                   <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta" href="/about">
                     <p className="body-text-s">
-                      About Symbolon
+                      About {BRAND.name}
                     </p>
                   </Link>
                   <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta" href="/docs">
@@ -322,7 +323,7 @@ export default function Footer() {
               </Link>
             </div>
             <p className="body-text-xxs text-gray-900">
-              {"Symbolon AI © "}
+              {`${BRAND.name} © `}
               2026
               . All rights reserved.
             </p>

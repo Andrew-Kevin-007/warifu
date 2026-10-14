@@ -1,4 +1,6 @@
-# Symbolon
+# Warifu (割符)
+
+_Formerly Symbolon. Workspace package names (`@symbolon/*`), env vars and spec ids are unchanged._
 
 **An evidence-gated treasury kernel for agent-run payments on Arc — plus Blast Radius, which computes (and empirically attacks) the maximum loss if the agent is compromised.**
 

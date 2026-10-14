@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/brand';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { PageFrame } from '@/components/product/PageFrame';
@@ -5,7 +6,7 @@ import { EngagementStatus } from '@/components/product/EngagementStatus';
 import type { EngagementViewData } from '@/components/product/EngagementStatus';
 import { kernelCall } from '@/server/kernel-client';
 
-export const metadata: Metadata = { title: 'Sign engagement | Symbolon', robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: `Sign engagement | ${BRAND.name}`, robots: { index: false, follow: false } };
 export const dynamic = 'force-dynamic';
 
 // The link token is the engagement id. The kernel verifies the EIP-712 signature against the engagement's payee address,

@@ -19,3 +19,6 @@ The root `vercel.json` forces `framework: nextjs` with `pnpm --filter @symbolon/
 
 ## Challenge origin (INV-16)
 The public challenge is a separate Vercel project with its own domain, the `challenge` build profile and no production secrets. Do not reuse the production project.
+
+## Brand
+The public name comes from `apps/web/src/lib/brand.ts` (currently Warifu). Package names, env vars and the vault domain keep their original identifiers; do not rename the Vercel env vars when the product name changes.

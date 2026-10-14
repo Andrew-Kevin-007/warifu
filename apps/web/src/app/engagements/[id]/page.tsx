@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/brand';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { PageFrame } from '@/components/product/PageFrame';
@@ -5,7 +6,7 @@ import { EngagementStatus } from '@/components/product/EngagementStatus';
 import type { EngagementViewData } from '@/components/product/EngagementStatus';
 import { kernelCall } from '@/server/kernel-client';
 
-export const metadata: Metadata = { title: 'Engagement | Symbolon' };
+export const metadata: Metadata = { title: `Engagement | ${BRAND.name}` };
 export const dynamic = 'force-dynamic';
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {

@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/brand';
 import Link from 'next/link';
 
 export default function SectionAgentFrameworks() {
@@ -9,7 +10,7 @@ export default function SectionAgentFrameworks() {
             One payment gate for every agent stack.
           </h4>
           <p className="subtitle-s section-agent-frameworks__text mx-auto max-w-[510px]">
-            The framework marks are ecosystem examples, not integration claims. Every payment intent is untrusted; Symbolon checks evidence, signed terms, policy, balances and history before a vault release.
+            The framework marks are ecosystem examples, not integration claims. Every payment intent is untrusted; {BRAND.name} checks evidence, signed terms, policy, balances and history before a vault release.
           </p>
         </div>
         <div className="section-agent-frameworks__wrapper mx-auto flex max-w-[1024px] flex-col gap-sm lg:flex-row lg:items-center lg:gap-[106px]">

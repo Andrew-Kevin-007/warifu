@@ -1,10 +1,11 @@
+import { BRAND } from '@/lib/brand';
 import type { Metadata } from 'next';
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import type { ReactNode } from 'react';
 import { PageFrame } from '@/components/product/PageFrame';
 
-export const metadata: Metadata = { title: 'Security | Symbolon', description: 'Good-faith testing terms, scope and how to report a flaw.' };
+export const metadata: Metadata = { title: `Security | ${BRAND.name}`, description: 'Good-faith testing terms, scope and how to report a flaw.' };
 
 // SECURITY.md is rendered line by line as text nodes: headings and list items by prefix, everything else a paragraph.
 // No markdown-to-HTML conversion is used, so no file content can become markup (INV-15).

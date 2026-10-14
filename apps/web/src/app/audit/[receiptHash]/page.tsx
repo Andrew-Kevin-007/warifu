@@ -1,9 +1,10 @@
+import { BRAND } from '@/lib/brand';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { PageFrame, Section } from '@/components/product/PageFrame';
 import { ReceiptVerifier } from '@/components/audit/ReceiptVerifier';
 
-export const metadata: Metadata = { title: 'Verify a receipt | Symbolon', description: 'Recompute a receipt hash, recover its signer and check the on-chain release in your own browser.' };
+export const metadata: Metadata = { title: `Verify a receipt | ${BRAND.name}`, description: 'Recompute a receipt hash, recover its signer and check the on-chain release in your own browser.' };
 
 export default async function Page({ params }: { params: Promise<{ receiptHash: string }> }) {
   const { receiptHash } = await params;

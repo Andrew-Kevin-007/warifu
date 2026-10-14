@@ -1,8 +1,9 @@
+import { BRAND } from '@/lib/brand';
 import type { Metadata } from 'next';
 import { PageFrame, Section } from '@/components/product/PageFrame';
 import { AuditLookup } from '@/components/audit/AuditLookup';
 
-export const metadata: Metadata = { title: 'Receipt verifier | Symbolon' };
+export const metadata: Metadata = { title: `Receipt verifier | ${BRAND.name}` };
 
 export default function Page() {
   return (

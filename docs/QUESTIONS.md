@@ -487,3 +487,7 @@ Branch `wp-05/kernel-fixes-rebaseline`. Where the spec was ambiguous the stricte
 7. **Replay bundle is thin** (no receipts, attempts, certificate yet); pages say so rather than showing fixtures as real.
 8. Wallet access is plain EIP-1193 (no wagmi) to avoid new dependencies; revisit if Kevin wants a connector UI.
 9. Deviation: `proxy.ts` (Next 16 rename of middleware) is used; `apps/web` stays on Next 16.4.0, not 15.
+
+## 2026-10-15 · WP-17 brand · WEB -> SCHEMAS/ORCH
+- Public name is now Warifu (`apps/web/src/lib/brand.ts`). The EIP-712 domain `name` still carries the old string. Changing its display name changes every signature digest and test vector, so it is a schemas RFC, not a find/replace. Wallets show the domain name when signing; if that matters for the demo, SCHEMAS should decide.
+- `/api/public/seal/*` and `/api/public/share/*` are app-origin only (denied on the challenge profile) because the challenge origin has no certificate service and INV-16 keeps it minimal.

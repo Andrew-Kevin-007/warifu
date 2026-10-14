@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/brand';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ApprovalViewSchema, DecisionSchema, symbolonDomain } from '@symbolon/schemas';
@@ -8,7 +9,7 @@ import { UntrustedText } from '@/components/safety/UntrustedText';
 import { ApprovalPanel } from '@/wallet/ApprovalPanel';
 import { kernelCall } from '@/server/kernel-client';
 
-export const metadata: Metadata = { title: 'Decision | Symbolon' };
+export const metadata: Metadata = { title: `Decision | ${BRAND.name}` };
 export const dynamic = 'force-dynamic';
 
 const VERDICT_TONE: Record<string, ChipTone> = { RELEASE: 'pass', REJECT: 'fail', HOLD: 'warn', ESCALATE: 'warn', REPLAY: 'muted' };

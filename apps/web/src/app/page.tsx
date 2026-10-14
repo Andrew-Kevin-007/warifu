@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/brand';
 import type { Metadata } from 'next';
 import SiteShell from '@/components/SiteShell';
 import Hero from '@/components/home/Hero';
@@ -11,8 +12,8 @@ import SectionFeaturesGrid from '@/components/home/SectionFeaturesGrid';
 import PageGrid from '@/components/home/PageGrid';
 
 export const metadata: Metadata = {
-  title: "Symbolon | Evidence-Gated Agent Treasury on Arc",
-  description: "Symbolon checks evidence, signed payment terms, policy and history before an Arc vault can release USDC. Agent proposals stay advisory; releases leave verifiable receipts.",
+  title: `${BRAND.name} | Evidence-Gated Agent Treasury on Arc`,
+  description: `${BRAND.name} checks evidence, signed payment terms, policy and history before an Arc vault can release USDC. Agent proposals stay advisory; releases leave verifiable receipts.`,
 };
 
 export default function Page() {

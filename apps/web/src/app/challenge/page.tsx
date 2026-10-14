@@ -1,9 +1,10 @@
+import { BRAND } from '@/lib/brand';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Chip, PageFrame, Section, SourceBanner } from '@/components/product/PageFrame';
 import { loadAttackMatrix, loadAttackMeta } from '@/server/recorded';
 
-export const metadata: Metadata = { title: 'Break the Treasurer | Symbolon', description: 'Attack a testnet sandbox treasurer. No funds, no prize.' };
+export const metadata: Metadata = { title: `Break the Treasurer | ${BRAND.name}`, description: 'Attack a testnet sandbox treasurer. No funds, no prize.' };
 export const dynamic = 'force-dynamic';
 
 // Live attempts need the sandbox kernel (GET/POST /v1/challenge/*, WP-32), which is not reachable from this build; until it

@@ -1,10 +1,11 @@
+import { BRAND } from '@/lib/brand';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Chip, PageFrame, Section, SourceBanner } from '@/components/product/PageFrame';
 import { loadBundle } from '@/server/recorded';
 
-export const metadata: Metadata = { title: 'Recorded run | Symbolon' };
+export const metadata: Metadata = { title: `Recorded run | ${BRAND.name}` };
 export const dynamic = 'force-dynamic';
 
 export default async function Page({ params }: { params: Promise<{ bundle: string }> }) {
