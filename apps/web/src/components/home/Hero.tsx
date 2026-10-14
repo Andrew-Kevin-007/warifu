@@ -13,7 +13,7 @@ const slides = [
   {
     title: 'Poison the invoice',
     text: 'Hide a changed payout address inside a supplier invoice.',
-    button: { text: 'More details ->', link: '/ai-market' },
+    button: { text: 'More details ->', link: '/judge' },
     main: { src: '/media/figure-main-ai-console.c850f2f4.png', width: 660, height: 660 },
     gray: { src: '/media/figure-main-ai-console-gray.7e22a8bf.png', width: 734, height: 750 },
     video: '/videos/ai_console.webm',
@@ -21,7 +21,7 @@ const slides = [
   {
     title: 'The agent says PAY',
     text: 'Extraction creates a payment proposal. Its output cannot authorize a release.',
-    button: { text: 'More details ->', link: '/search' },
+    button: { text: 'More details ->', link: '/attack-lab' },
     main: { src: '/media/figure-main-ai-hub.a0ef6773.png', width: 660, height: 660 },
     gray: { src: '/media/figure-main-ai-hub-gray.ccf64da7.png', width: 734, height: 750 },
     video: '/videos/ai_hub.webm',
@@ -29,7 +29,7 @@ const slides = [
   {
     title: 'The kernel decides',
     text: 'Checks compare evidence, signed terms, policy, and payment history.',
-    button: { text: 'More details ->', link: '/search' },
+    button: { text: 'More details ->', link: '/blast-radius' },
     main: { src: '/media/figure-main-search.590a6d8f.png', width: 660, height: 660 },
     gray: { src: '/media/figure-main-search-gray.35201136.png', width: 734, height: 750 },
     video: '/videos/search_engine.webm',
@@ -37,7 +37,7 @@ const slides = [
   {
     title: 'Measure the blast radius',
     text: 'Recompute the maximum loss from public vault state and stated assumptions.',
-    button: { text: 'More details ->', link: '/staking' },
+    button: { text: 'More details ->', link: '/certificate' },
     main: { src: '/media/figure-main-staking.39cb3742.png', width: 660, height: 660 },
     gray: { src: '/media/figure-main-staking-gray.c33a1041.png', width: 734, height: 750 },
     video: '/videos/staking.webm',

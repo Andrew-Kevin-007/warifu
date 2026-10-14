@@ -35,7 +35,7 @@ export default function SectionGateway() {
           </Reveal>
           <div className="flex flex-col gap-xs">
             <Reveal className="group h-full rounded-[16px] p-[0.5px] card-light">
-              <Link className="card-stack__item translate-z-0 relative block h-full overflow-hidden rounded-16" href="/ai-market">
+              <Link className="card-stack__item translate-z-0 relative block h-full overflow-hidden rounded-16" href="/judge">
                 <div className="card-stack__figure pointer-events-none select-none">
                   <div className="figure absolute right-[-15%] top-[-25%] w-[390px] transition-all duration-500 ease-[cubic-bezier(0,0.35,0.15,1)] lg:group-hover:scale-110 lg:group-hover:duration-[1400ms]">
                     <span className="block h-full">
@@ -56,7 +56,7 @@ export default function SectionGateway() {
               </Link>
             </Reveal>
             <Reveal className="group h-full rounded-[16px] p-[0.5px] card-light">
-              <Link className="card-stack__item translate-z-0 relative block h-full overflow-hidden rounded-16" href="/search">
+              <Link className="card-stack__item translate-z-0 relative block h-full overflow-hidden rounded-16" href="/attack-lab">
                 <div className="card-stack__figure pointer-events-none select-none">
                   <div className="figure absolute right-[-17%] top-[-38%] w-[400px] transition-all duration-500 ease-[cubic-bezier(0,0.35,0.15,1)] lg:group-hover:scale-110 lg:group-hover:duration-[1400ms]">
                     <span className="block h-full">

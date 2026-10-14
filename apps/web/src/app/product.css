@@ -1,0 +1,29 @@
+/* Product pages (WP-17..21): minimal, scoped (.sy-*). Reuses the site's tokens and type classes; does not restyle it. */
+.sy-page { padding-top: 120px; padding-bottom: 96px; }
+.sy-wrap { max-width: 1024px; margin: 0 auto; padding: 0 16px; }
+.sy-eyebrow { color: #666; margin-bottom: 8px; }
+.sy-lede { max-width: 720px; margin-top: 12px; color: #333; }
+.sy-section { margin-top: 48px; }
+.sy-section > h2 { margin-bottom: 12px; }
+.sy-card { border: 0.5px solid #ccc; border-radius: 12px; padding: 20px; background: #fff; }
+.sy-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.sy-table-wrap { overflow-x: auto; border: 0.5px solid #ccc; border-radius: 12px; }
+.sy-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.sy-table th, .sy-table td { text-align: left; padding: 10px 12px; border-bottom: 0.5px solid #e5e5e5; vertical-align: top; }
+.sy-table th { background: #f6f6f6; font-weight: 600; }
+.sy-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; word-break: break-all; }
+.sy-chip { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; border: 1px solid #000; background: #fff; color: #000; }
+.sy-chip--pass { background: #e8f5e9; border-color: #1b5e20; color: #1b5e20; }
+.sy-chip--fail { background: #fdecea; border-color: #b71c1c; color: #b71c1c; }
+.sy-chip--warn { background: #fff8e1; border-color: #8a6d00; color: #5d4a00; }
+.sy-chip--muted { background: #f2f2f2; border-color: #888; color: #444; }
+.sy-banner { border: 1px dashed #8a6d00; background: #fffbea; border-radius: 12px; padding: 12px 16px; margin-bottom: 24px; font-size: 14px; }
+.sy-btn { display: inline-block; padding: 10px 16px; border-radius: 9px; background: #000; color: #fff; font-weight: 600; font-size: 14px; border: 0; cursor: pointer; }
+.sy-btn:disabled { background: #999; cursor: not-allowed; }
+.sy-btn--secondary { background: #fff; color: #000; border: 1px solid #000; }
+.sy-input { width: 100%; padding: 8px 10px; border: 1px solid #999; border-radius: 8px; font: inherit; }
+.sy-label { display: block; font-size: 13px; font-weight: 600; margin: 12px 0 4px; }
+.sy-list { padding-left: 20px; list-style: disc; display: grid; gap: 6px; }
+.sy-pre { background: #f6f6f6; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: 13px; }
+.sy-details > summary { cursor: pointer; font-weight: 600; }
+.sy-sep { height: 0.5px; background: #ccc; margin: 24px 0; }

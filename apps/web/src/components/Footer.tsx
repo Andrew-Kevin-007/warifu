@@ -208,31 +208,18 @@ export default function Footer() {
               </span>
             </div>
             <div className="footer__left flex flex-col gap-xxl lg:basis-[35%]">
-              <div className="footer__top flex items-center justify-between gap-sm">
-                <div className="social-icons flex flex-wrap gap-xs">
-                  <a href="https://discord.gg/symbolon" target="_blank" rel="nofollow noreferrer" className="social-icons__link">
-                    <span className="block h-md w-md bg-white transition-all hover:bg-cta" style={{mask: "url(/media/discord.083d6f3a.svg) no-repeat 50% 50%", WebkitMask: "url(/media/discord.083d6f3a.svg) no-repeat 50% 50%", WebkitMaskSize: "cover", maskSize: "cover"}} />
-                  </a>
-                  <a href="https://x.com/symbolonprotocol?s=21" target="_blank" rel="nofollow noreferrer" className="social-icons__link">
-                    <span className="block h-md w-md bg-white transition-all hover:bg-cta" style={{mask: "url(/media/twitter.b0b5a2d0.svg) no-repeat 50% 50%", WebkitMask: "url(/media/twitter.b0b5a2d0.svg) no-repeat 50% 50%", WebkitMaskSize: "cover", maskSize: "cover"}} />
-                  </a>
-                  <a href="https://t.me/symbolon_pro" target="_blank" rel="nofollow noreferrer" className="social-icons__link">
-                    <span className="block h-md w-md bg-white transition-all hover:bg-cta" style={{mask: "url(/media/telegram.5fe92727.svg) no-repeat 50% 50%", WebkitMask: "url(/media/telegram.5fe92727.svg) no-repeat 50% 50%", WebkitMaskSize: "cover", maskSize: "cover"}} />
-                  </a>
-                </div>
-              </div>
               <div className="footer__docs hidden flex-col items-start gap-xs lg:flex">
-                <Link className="footer__bottom-link text-gray-900 hover:text-cta" href="/#">
+                <Link className="footer__bottom-link text-gray-900 hover:text-cta" href="/security">
                   <p className="body-text-xs">
                     <span>
-                      Terms & Conditions↘
+                      Security and disclosure↘
                     </span>
                   </p>
                 </Link>
-                <Link className="footer__bottom-link text-gray-900 hover:text-cta" href="/privacy-policy">
+                <Link className="footer__bottom-link text-gray-900 hover:text-cta" href="/docs">
                   <p className="body-text-xs">
                     <span>
-                      Privacy Policy↘
+                      Docs↘
                     </span>
                   </p>
                 </Link>
@@ -249,83 +236,68 @@ export default function Footer() {
                   About
                 </p>
                 <div className="footer__menu-links flex flex-col items-start gap-xs">
-                  <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta" href="/manifesto">
+                  <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta" href="/about">
                     <p className="body-text-s">
-                      Manifesto
+                      About Symbolon
                     </p>
                   </Link>
-                  <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta" href="/acceleration-program">
+                  <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta" href="/docs">
                     <p className="body-text-s">
-                      Acceleration Program
+                      Docs
                     </p>
                   </Link>
-                  <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta" href="/ecosystem">
+                  <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta" href="/security">
                     <p className="body-text-s">
-                      Ecosystem
+                      Security
                     </p>
                   </Link>
-                  <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta" href="/partners">
+                  <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta" href="/pilot">
                     <p className="body-text-s">
-                      Partners
-                    </p>
-                  </Link>
-                  <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta" href="/careers">
-                    <p className="body-text-s">
-                      Careers
-                    </p>
-                  </Link>
-                  <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta" href="/brand">
-                    <p className="body-text-s">
-                      Brand Guidelines
-                    </p>
-                  </Link>
-                  <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta" href="/tokenomics">
-                    <p className="body-text-s">
-                      Tokenomics
+                      Pilot
                     </p>
                   </Link>
                 </div>
               </div>
               <div className="footer__menu-group flex flex-col gap-sm lg:gap-[59px]">
                 <p className="body-text-m text-gray-900">
-                  Products
+                  Evidence
                 </p>
                 <div className="footer__menu-links flex flex-col items-start gap-xs">
-                  <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta" href="/ai-market">
+                  <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta" href="/judge">
                     <p className="body-text-s">
-                      AI Market
+                      Judge path
                     </p>
                   </Link>
-                  <Link href="https://symbolon.pro/staking" target="_blank" rel="nofollow noreferrer" className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta">
+                  <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta" href="/attack-lab">
                     <p className="body-text-s">
-                      Staking
+                      Attack lab
                     </p>
                   </Link>
-                  <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta" href="/sona">
+                  <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta" href="/blast-radius">
                     <p className="body-text-s">
-                      Sona
+                      Blast radius
                     </p>
                   </Link>
-                  <Link href="https://symbolon.pro/search" target="_blank" rel="nofollow noreferrer" className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta">
+                  <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta" href="/certificate">
                     <p className="body-text-s">
-                      Symbolon Search Engine
+                      Loss bound certificate
                     </p>
                   </Link>
                 </div>
               </div>
               <div className="footer__menu-group flex flex-col gap-sm lg:gap-[59px]">
-                <p className="body-text-m gradient-text-soon">
-                  Coming soon
+                <p className="body-text-m text-gray-900">
+                  Verify
                 </p>
                 <div className="footer__menu-links flex flex-col items-start gap-xs">
-                  <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta pointer-events-none" href="/#">
+                  <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta" href="/audit">
                     <p className="body-text-s">
-                      Docs
+                      Verify a receipt
                     </p>
                   </Link>
-                  <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta pointer-events-none" href="/#">
+                  <Link className="footer__menu-link group flex items-center gap-xs text-white hover:text-cta" href="/replay/main">
                     <p className="body-text-s">
-                      AI Agent Market
+                      Recorded run
                     </p>
                   </Link>
                 </div>
@@ -334,17 +306,17 @@ export default function Footer() {
           </div>
           <div className="footer__bottom--mobile relative z-5 mt-xxl flex flex-col gap-md lg:hidden">
             <div className="footer__docs flex gap-sm">
-              <Link className="footer__bottom-link text-gray-900 hover:text-cta" href="/#">
+              <Link className="footer__bottom-link text-gray-900 hover:text-cta" href="/security">
                 <p className="body-text-xs">
                   <span>
-                    Terms & Conditions↘
+                    Security and disclosure↘
                   </span>
                 </p>
               </Link>
-              <Link className="footer__bottom-link text-gray-900 hover:text-cta" href="/privacy-policy">
+              <Link className="footer__bottom-link text-gray-900 hover:text-cta" href="/docs">
                 <p className="body-text-xs">
                   <span>
-                    Privacy Policy↘
+                    Docs↘
                   </span>
                 </p>
               </Link>
