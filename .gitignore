@@ -15,3 +15,6 @@ recovery_file*
 .claude/settings.local.json
 # nested agent worktrees (Claude Code isolation) are separate checkouts
 .claude/worktrees/
+apps/web/.next/
+apps/web/next-env.d.ts
+apps/web/tsconfig.tsbuildinfo
