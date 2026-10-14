@@ -6,6 +6,7 @@
 //                    second signal decides (a phantom ledger entry, a revert, ...), plus the oracle if money moved.
 import type { CheckId, OraclePredicate } from "@symbolon/schemas";
 import type { AttackId, TargetId } from "../types";
+import type { Criterion } from "./target";
 
 export const OUTCOMES = ["LOSS", "BLOCKED", "ESCALATED", "HELD", "NOOP", "N/A", "NOT_RUN"] as const;
 export type Outcome = (typeof OUTCOMES)[number];
@@ -39,6 +40,8 @@ export interface StepRecord {
   readonly reason: string;
   readonly runs: readonly RunRecord[];
   readonly signals: readonly string[];
+  /** Stated criteria of a human-loop step (ATK-22 flood, ATK-23 render, ATK-24 explainer); empty for other steps. */
+  readonly criteria: readonly Criterion[];
 }
 
 export type ControlResult =
@@ -65,6 +68,8 @@ export interface AttackResult {
   readonly trials: number;
   readonly expectations: { readonly match: number; readonly mismatch: number; readonly inconclusive: number };
   readonly steps: readonly StepRecord[];
+  /** Human-loop criteria over all steps: how many were met (a failed one is also a signal and makes the outcome LOSS). */
+  readonly criteria: { readonly passed: number; readonly failed: number };
   readonly control: ControlResult;
   /** Plain reasons: applicability reason for N/A, the NOT_RUN reasons, the signals. */
   readonly notes: readonly string[];

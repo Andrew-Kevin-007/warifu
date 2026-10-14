@@ -136,6 +136,7 @@ export const ExplainerChecksSchema = z.strictObject({
   ngram: z.number().int().min(2).max(8),
   maxSharedNgrams: z.number().int().min(0).max(100),
 });
+export type ExplainerChecks = z.infer<typeof ExplainerChecksSchema>;
 
 export const SubmitStepSchema = z.strictObject({
   kind: z.literal("submit"),

@@ -73,6 +73,7 @@ describe("source guards", () => {
     for (const f of harness) {
       const allowed = ["@symbolon/schemas", "zod", "@symbolon/oracle"];
       if (f.path.endsWith("symbolon-unit.ts")) allowed.push("@symbolon/kernel-core", "@symbolon/policy");
+      if (f.path.endsWith("symbolon-human.ts")) allowed.push("@symbolon/kernel-core", "@symbolon/receipts"); // WP-23 follow-up: digest ranking, WYSIWYS comparator
       if (f.path.endsWith("honest-parser.ts")) allowed.push("@symbolon/extractor"); // WP-24: the zero-LLM readers, checked against the honest corpus
       for (const i of externalImports(f.text)) expect(allowed, `${f.path}: ${i}`).toContain(i);
     }
