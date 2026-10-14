@@ -9,7 +9,7 @@ const ROOT = resolve(import.meta.dirname, "../../..");
 
 describe("SEC-11 (static part): swarm hygiene", () => {
   it("claude config matches docs/17 routing and denies secret reads", () => {
-    const r = spawnSync("node", [join(ROOT, "scripts/check-claude-config.mjs")], { encoding: "utf8" });
+    const r = spawnSync("node", [join(ROOT, "scripts/check-claude-config.mjs")], { encoding: "utf8", cwd: ROOT });
     expect(r.stderr).toBe("");
     expect(r.status).toBe(0);
   });
