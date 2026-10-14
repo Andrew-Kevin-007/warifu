@@ -24,7 +24,7 @@ const balanceOfAbi = [{ type: "function", name: "balanceOf", stateMutability: "v
 export function viemLedgerChain(client: PublicClient): LedgerChain {
   return {
     async latestBlock() {
-      return client.getBlockNumber();
+      return client.getBlockNumber({ cacheTime: 0 }); // no cached head: the identity is checked at a block that exists now
     },
     async balanceAt(token, account, at) {
       const r = await client.readContract({ address: token, abi: balanceOfAbi, functionName: "balanceOf", args: [account], blockNumber: at });
