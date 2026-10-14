@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@symbolon/blast-radius": "workspace:*",
+    "@symbolon/chain": "workspace:*",
     "@symbolon/receipts": "workspace:*",
     "@symbolon/schemas": "workspace:*",
     "viem": "2.56.9",

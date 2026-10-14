@@ -1,21 +1,11 @@
 // Typed loader for the committed RECORDED data: results/*.json and replay-data/bundle.json (DEC-016). Server-only.
 // Numbers shown on public pages are derived from these files; nothing is typed by hand (INV-18).
-import { readFileSync } from "node:fs";
-import { join, resolve } from "node:path";
-
-function repoRoot(): string {
-  // next runs with cwd = apps/web in dev/build/start; fall back to cwd when the layout differs.
-  const up = resolve(process.cwd(), "..", "..");
-  return up;
-}
-
-function readJson<T>(rel: string): T | null {
-  try {
-    return JSON.parse(readFileSync(join(repoRoot(), rel), "utf8")) as T;
-  } catch {
-    return null;
-  }
-}
+// Static JSON imports: resolved at build time, so the deployment carries the data and no runtime file tracing is needed.
+import bundleJson from "../../../../replay-data/bundle.json";
+import attackMetaJson from "../../../../replay-data/attack-meta.json";
+import attackMatrixJson from "../../../../results/attack-matrix.json";
+import honestJson from "../../../../results/honest-corpus.json";
+import blastJson from "../../../../packages/blast-radius/results/blast-closed-form.json";
 
 export interface TargetTotals {
   target: string;
@@ -83,17 +73,27 @@ export interface Bundle {
 }
 
 export function loadBundle(): Bundle | null {
-  return readJson<Bundle>("replay-data/bundle.json");
+  return bundleJson as unknown as Bundle;
 }
 
 export function loadAttackMatrix(): AttackMatrix | null {
-  return loadBundle()?.attackMatrix ?? readJson<AttackMatrix>("results/attack-matrix.json");
+  return loadBundle()?.attackMatrix ?? (attackMatrixJson as unknown as AttackMatrix);
 }
 
 export function loadAttackMeta(): Record<string, AttackMetaEntry> {
-  return readJson<Record<string, AttackMetaEntry>>("replay-data/attack-meta.json") ?? {};
+  return attackMetaJson as unknown as Record<string, AttackMetaEntry>;
 }
 
 export function loadHonestCorpus(): { summaries?: unknown; targets?: unknown; corpus?: unknown } | null {
-  return readJson("results/honest-corpus.json");
+  return honestJson as unknown as { summaries?: unknown; targets?: unknown; corpus?: unknown };
+}
+
+export interface BlastClosedForm {
+  wording: string;
+  limits: string[];
+  campaign: { runs: number; executedCases: number; violations: number; tightnessCases: number; tightnessMismatches: number };
+}
+
+export function loadBlastClosedForm(): BlastClosedForm {
+  return blastJson as unknown as BlastClosedForm;
 }

@@ -53,6 +53,9 @@ importers:
       '@symbolon/blast-radius':
         specifier: workspace:*
         version: link:../../packages/blast-radius
+      '@symbolon/chain':
+        specifier: workspace:*
+        version: link:../../packages/chain
       '@symbolon/receipts':
         specifier: workspace:*
         version: link:../../packages/receipts
