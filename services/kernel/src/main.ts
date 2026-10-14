@@ -4,7 +4,12 @@
 //   3. RPC chain id (@symbolon/chain verifyRpcChainId)
 //   4. only then: listen
 // Run:  node --import tsx services/kernel/src/main.ts   (tsx is not a dependency of this repo; build tooling is WP-00's call)
+import { readFileSync } from "node:fs";
 import { serve } from "@hono/node-server";
+import { parseArtifact } from "@symbolon/blast-radius/lbc";
+import { viemChainReader as viemLbcReader } from "@symbolon/blast-radius/lbc/viem-reader";
+import type { PublicClient } from "viem";
+import type { CertificateServiceConfig } from "./certificates/service";
 import { arcConfigFromEnv, createArcPublicClient, verifyRpcChainId } from "@symbolon/chain";
 import { createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
@@ -34,6 +39,17 @@ import type { ReleaseDeps } from "./release/service";
 import { pgPlanProvider } from "./service/plans";
 import { systemClock } from "./time";
 import type { Clock } from "./time";
+
+function certificateConfig(client: PublicClient): CertificateServiceConfig | null {
+  const gitSha = process.env["GIT_SHA"];
+  if (gitSha === undefined || !/^[0-9a-f]{7,40}$/.test(gitSha)) return null;
+  const artifactPath = process.env["LBC_ARTIFACT"];
+  return {
+    reader: viemLbcReader(client),
+    gitSha,
+    ...(artifactPath === undefined ? {} : { artifact: parseArtifact(JSON.parse(readFileSync(artifactPath, "utf8"))) }),
+  };
+}
 
 async function main(): Promise<void> {
   const config = loadConfig(process.env); // throws BootError / ConfigError: names and rules only
@@ -107,6 +123,7 @@ async function main(): Promise<void> {
   const scheduler = config.scheduler.enabled ? startSchedulerLoop(releaseDeps, { chainId: arc.chainId, intervalMs: config.scheduler.pollMs }) : null;
   const reevalDeps = { db, chain, signer, clock, profile: config.profile, logger };
 
+  const certificates = certificateConfig(client);
   const app = createApp({
     ...(circleWebhook === undefined ? {} : { circleWebhook }),
     profile: config.profile,
@@ -126,6 +143,8 @@ async function main(): Promise<void> {
     maxBlobBytes: config.maxBlobBytes,
     engagements: { chain: engagementChain, relayer },
     evidence: evidenceDeps,
+    // Certificates (WP-34) are enabled by naming the running build's git revision; the optional Foundry artifact enables the code match.
+    ...(certificates === null ? {} : { certificates }),
   });
   const port = Number.parseInt(process.env["PORT"] ?? "8787", 10);
   serve({ fetch: app.fetch, port, hostname: process.env["HOST"] ?? "127.0.0.1" });
