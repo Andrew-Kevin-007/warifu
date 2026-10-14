@@ -2,7 +2,7 @@
   "name": "@symbolon/blast-radius",
   "version": "0.0.0",
   "private": true,
-  "description": "Closed-form bounds, Lite audit, T3 simulator, certificate (owner: BLAST)",
+  "description": "Closed-form bounds, Lite audit, T3 simulator, Loss Bound Certificate (owner: BLAST)",
   "license": "Apache-2.0",
   "type": "module",
   "exports": {
@@ -11,12 +11,16 @@
     "./windowed": "./src/windowed.ts",
     "./vault-inputs": "./src/vault-inputs.ts",
     "./lite": "./src/lite.ts",
-    "./provenance": "./src/provenance.ts"
+    "./provenance": "./src/provenance.ts",
+    "./lbc": "./src/lbc/index.ts",
+    "./lbc/viem-reader": "./src/lbc/viem-reader.ts"
   },
   "scripts": { "typecheck": "tsc --noEmit -p ." },
   "dependencies": {
     "@symbolon/chain": "workspace:*",
     "@symbolon/policy": "workspace:*",
+    "@symbolon/schemas": "workspace:*",
+    "viem": "2.56.9",
     "zod": "4.6.5"
   }
 }

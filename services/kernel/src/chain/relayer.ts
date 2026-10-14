@@ -36,10 +36,43 @@ export class RelayError extends Error {
   }
 }
 
+/** The vault's `Attestation` struct at the ABI edge (WP-14). */
+export interface AttestationArgs {
+  readonly intentId: Hex32;
+  readonly engagementId: Hex32;
+  readonly milestoneId: Hex32;
+  readonly payee: Address;
+  readonly amount: bigint;
+  readonly receiptHash: Hex32;
+  readonly deadline: bigint;
+}
+
+/** `OwnerApprovalRef {receiptHash, deadline}`; zero ref + empty signature at or below humanThreshold (docs/06 A.4). */
+export interface OwnerApprovalRefArgs {
+  readonly receiptHash: Hex32;
+  readonly deadline: bigint;
+}
+
+export const ZERO_APPROVAL_REF: OwnerApprovalRefArgs = { receiptHash: `0x${"0".repeat(64)}`, deadline: 0n };
+
+export interface ReleaseArgs {
+  readonly vault: Address;
+  readonly attestation: AttestationArgs;
+  readonly kernelSig: Hex;
+  readonly ref: OwnerApprovalRefArgs;
+  readonly ownerApprovalSig: Hex;
+}
+
 export interface VaultRelayer {
   registerEngagement(i: { vault: Address; terms: EngagementTermsArgs; ownerSig: Hex; payeeSig: Hex }): Promise<{ txHash: Hex32 }>;
   proposePayeeChange(i: { vault: Address; change: PayeeChangeArgs; ownerSig: Hex; oldSig: Hex; newSig: Hex }): Promise<{ txHash: Hex32 }>;
   executePayeeChange(i: { vault: Address; engagementId: Hex32 }): Promise<{ txHash: Hex32 }>;
+  /** WP-14: simulate, then submit `release(a, kernelSig, ref, ownerApprovalSig)` exactly as signed. */
+  release(i: ReleaseArgs): Promise<{ txHash: Hex32 }>;
+}
+
+export function releaseCallArgs(i: ReleaseArgs): readonly unknown[] {
+  return [i.attestation, i.kernelSig, i.ref, i.ownerApprovalSig];
 }
 
 export interface ViemRelayerOptions {
@@ -64,5 +97,6 @@ export function viemVaultRelayer(o: ViemRelayerOptions): VaultRelayer {
     registerEngagement: (i) => send(i.vault, "registerEngagement", [i.terms, i.ownerSig, i.payeeSig]),
     proposePayeeChange: (i) => send(i.vault, "proposePayeeChange", [i.change, i.ownerSig, i.oldSig, i.newSig]),
     executePayeeChange: (i) => send(i.vault, "executePayeeChange", [i.engagementId]),
+    release: (i) => send(i.vault, "release", releaseCallArgs(i)),
   };
 }

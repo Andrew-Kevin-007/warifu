@@ -10,6 +10,7 @@ import type { Engagement } from "@symbolon/schemas";
 import type { VaultEvent } from "@symbolon/chain";
 import type { Queryable } from "../db/pool";
 import * as base from "../db/repo";
+import { confirmReleased, unconfirmReleased } from "../release/confirm";
 import * as repo from "./repo";
 import type { StoredChainEvent } from "./repo";
 
@@ -136,8 +137,10 @@ export async function applyEvent(q: Queryable, tenantId: string, ev: VaultEvent,
       // A pause cancels every pending payee change on chain (WP-07 item 6); mirror it so no stale PROPOSED row lingers.
       await repo.cancelProposedChanges(q, tenantId);
       return;
-    case "ConfigChanged":
     case "Released":
+      await confirmReleased(q, tenantId, d, at); // CONFIRMED only when the event matches the signed attestation
+      return;
+    case "ConfigChanged":
     case "VaultUnpaused":
     case "KernelSignerProposed":
     case "KernelSignerRotated":
@@ -174,6 +177,9 @@ export async function undoEvent(q: Queryable, tenantId: string, ev: StoredChainE
       if (c !== null) await repo.setPayeeChangeStatus(q, c.id, "PROPOSED", { executedTx: null });
       return;
     }
+    case "Released":
+      await unconfirmReleased(q, tenantId, ev.txHash);
+      return;
     default:
       return; // other events have no row effects to reverse
   }

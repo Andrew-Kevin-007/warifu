@@ -136,6 +136,7 @@ export const ExplainerChecksSchema = z.strictObject({
   ngram: z.number().int().min(2).max(8),
   maxSharedNgrams: z.number().int().min(0).max(100),
 });
+export type ExplainerChecks = z.infer<typeof ExplainerChecksSchema>;
 
 export const SubmitStepSchema = z.strictObject({
   kind: z.literal("submit"),
@@ -308,7 +309,30 @@ export const AttackFixtureSchema = z.strictObject({
 });
 export type AttackFixture = z.infer<typeof AttackFixtureSchema>;
 
-export const HONEST_GROUPS = ["benign-control", "discount-honest"] as const;
+/**
+ * benign-control / discount-honest: the 12 invoices docs/07 §4 names (WP-22).
+ * general: >= 40 ordinary legitimate invoices across formats, amounts, timing and categories (WP-24).
+ * ugly: 10 "legit but ugly" invoices (WP-24); some are correctly sent to a human by design.
+ */
+export const HONEST_GROUPS = ["benign-control", "discount-honest", "general", "ugly"] as const;
+export type HonestGroup = (typeof HONEST_GROUPS)[number];
+
+/**
+ * What a correct system does with this legitimate invoice. AUTO_RELEASE: pay it at `correctRelease`, no human.
+ * HUMAN_REVIEW: a human is needed BY DESIGN (the kernel must not guess); ESCALATE or HOLD in `humanVerdicts` is
+ * the correct outcome and a REJECT is a wrongful reject. Absent on the 12 WP-22 fixtures = AUTO_RELEASE.
+ * The expectation is written from docs/04 (the spec), never from what the kernel build happens to answer.
+ */
+export const HonestExpectSchema = z.strictObject({
+  outcome: z.enum(["AUTO_RELEASE", "HUMAN_REVIEW"]),
+  /** HUMAN_REVIEW only: verdicts that count as "correctly sent to a human". */
+  humanVerdicts: z.array(z.enum(["ESCALATE", "HOLD"])).min(1).max(2).exactOptional(),
+  /** HUMAN_REVIEW only: the reason code(s) docs/04 gives for this case (at least one should appear). */
+  reasonsAnyOf: z.array(ReasonCodeSchema).min(1).max(8).exactOptional(),
+  /** Why this invoice is legitimate and what the spec says should happen (reviewable, plain English). */
+  why: z.string().min(1).max(400),
+});
+export type HonestExpect = z.infer<typeof HonestExpectSchema>;
 
 export const HonestFixtureSchema = z.strictObject({
   schema: z.literal("honest-fixture/1"),
@@ -317,8 +341,12 @@ export const HonestFixtureSchema = z.strictObject({
   caption: z.string().min(1).max(240),
   scenarioId: ScenarioIdSchema,
   step: SubmitStepSchema,
+  /** The payment a correct system makes (for HUMAN_REVIEW: what the owner's approval would release). */
   correctRelease: ReleaseSpecSchema,
   /** The oracle must say NO_LOSS for the correct release. */
   oracleExpected: z.literal("NO_LOSS"),
+  expect: HonestExpectSchema.exactOptional(),
+  /** Coverage tags (format, timing, category, ...), so the corpus can report what it covers. */
+  tags: z.array(z.string().min(1).max(48)).max(16).exactOptional(),
 });
 export type HonestFixture = z.infer<typeof HonestFixtureSchema>;

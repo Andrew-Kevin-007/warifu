@@ -1,7 +1,9 @@
 // Shared bits for the property-test files (not a test file). The properties are split over three files so that
 // vitest runs them in parallel; each property still runs 1,000 times (docs/13 §1).
 import { jcs } from "@symbolon/schemas";
+import type { CheckResult } from "@symbolon/schemas";
 import { severity, toJsonSafe } from "../src/index";
+import { issuesOf } from "../src/verdict";
 import type { Evaluation } from "../src/index";
 import { clone } from "./helpers";
 import type { RawExtraction, RawIntent } from "./helpers";
@@ -23,3 +25,6 @@ export function eachExtraction(i: RawIntent, f: (x: RawExtraction) => void): Raw
 export const canon = (e: Evaluation): string => jcs(toJsonSafe(e));
 
 export const sev = (e: Evaluation): number => (e.verdict === "REPLAY" ? -1 : severity(e.verdict));
+
+/** "onFail:code" of every issue behind a check result (the worst code alone hides the others). */
+export const issueKeys = (c: CheckResult): string[] => issuesOf(c).map((i) => `${i.onFail}:${i.code}`);

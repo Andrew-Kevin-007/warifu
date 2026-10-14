@@ -20,6 +20,8 @@ export const UNKNOWN_INTENT_ID: Hex32 = `0x${"0".repeat(64)}`;
 export interface ReleaseFacts {
   /** max(ctx.now, scheduled payAt): the earliest instant the payment can actually happen. */
   readonly payAt: ISODateTime;
+  /** The scheduled payAt (ctx.reevaluation.payAt). */
+  readonly scheduledPayAt: ISODateTime;
   readonly scheduledAmount: bigint;
   /** amountDue(payAt) from the SIGNED terms and the kernel-recorded invoiceReceivedAt. */
   readonly expected: Result<AmountDue>;
@@ -67,6 +69,7 @@ function releaseFacts(ctx: KernelContext, engagement: Engagement | null, gross: 
   const due = amountDue({ grossBaseUnits: gross, terms: engagement.paymentTerms, invoiceReceivedAt: ctx.invoiceReceivedAt, payAt });
   return {
     payAt,
+    scheduledPayAt: re.payAt,
     scheduledAmount: re.releaseAmountBaseUnits,
     expected: due.ok ? ok(due.value) : err("TERMS", `${due.error.code}: ${due.error.message}`),
   };

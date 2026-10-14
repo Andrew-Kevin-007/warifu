@@ -1,0 +1,1518 @@
+{
+  "schema": "honest-set/1",
+  "items": [
+    {
+      "schema": "honest-fixture/1",
+      "id": "HU-01",
+      "group": "ugly",
+      "caption": "Concept invoice printed as 8.000: a decimal point or a thousands separator?",
+      "scenarioId": "S-A",
+      "step": {
+        "kind": "submit",
+        "stepId": "HU-01",
+        "milestoneSlug": "concept",
+        "doc": {
+          "docLabel": "HU-01",
+          "origin": "plain",
+          "mime": "text/plain",
+          "text": "INVOICE\nInvoice no.: INV-2026-0963\nDate: 2026-10-31\nDue: 2026-11-30\nFrom: Acme Design\nWallet: 0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997\nTo: Sandbox Owner\nReference: ENG-71c71895 / concept\nDescription: Brand concept: three logo directions\nTotal due: 8.000 USD",
+          "receivedAt": "2026-11-02T09:00:00Z"
+        },
+        "context": {
+          "now": "2026-11-02T09:00:00Z"
+        },
+        "runs": [
+          {
+            "label": "honest",
+            "a": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0963",
+              "issueDate": "2026-10-31",
+              "dueDate": "2026-11-30",
+              "payee": {
+                "legalName": "Acme Design",
+                "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "8.000",
+                "currencyPrinted": "USD",
+                "decimalSeparatorGuess": "ambiguous",
+                "parsedBaseUnits": null,
+                "decimals": null
+              },
+              "references": {
+                "engagementId": "ENG-71c71895",
+                "milestoneId": "concept",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Brand concept: three logo directions",
+                  "amountPrinted": "8.000"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "b": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0963",
+              "issueDate": "2026-10-31",
+              "dueDate": "2026-11-30",
+              "payee": {
+                "legalName": "Acme Design",
+                "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "8.000",
+                "currencyPrinted": "USD",
+                "decimalSeparatorGuess": "ambiguous",
+                "parsedBaseUnits": null,
+                "decimals": null
+              },
+              "references": {
+                "engagementId": "ENG-71c71895",
+                "milestoneId": "concept",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Brand concept: three logo directions",
+                  "amountPrinted": "8.000"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "agentRecommendation": null,
+            "expect": {
+              "verdictIn": [
+                "ESCALATE"
+              ],
+              "reasonsAnyOf": [
+                "AMOUNT_AMBIGUOUS"
+              ],
+              "checksAnyOf": [
+                "K-02"
+              ]
+            }
+          }
+        ]
+      },
+      "correctRelease": {
+        "stepId": "HU-01",
+        "scenarioId": "S-A",
+        "milestoneSlug": "concept",
+        "payee": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+        "amountBaseUnits": "8000000",
+        "time": "2026-11-02T09:00:00Z"
+      },
+      "oracleExpected": "NO_LOSS",
+      "expect": {
+        "outcome": "HUMAN_REVIEW",
+        "humanVerdicts": [
+          "ESCALATE"
+        ],
+        "reasonsAnyOf": [
+          "AMOUNT_AMBIGUOUS"
+        ],
+        "why": "The total is printed with one separator followed by exactly three digits; docs/04 K-02 never guesses, so a human confirms the amount, which matches the milestone."
+      },
+      "tags": [
+        "style:plain",
+        "category:design",
+        "milestone:S-A/concept",
+        "ambiguous-separator",
+        "matches-milestone"
+      ]
+    },
+    {
+      "schema": "honest-fixture/1",
+      "id": "HU-02",
+      "group": "ugly",
+      "caption": "Final design invoice printed as 12,000 on a German-style template.",
+      "scenarioId": "S-A",
+      "step": {
+        "kind": "submit",
+        "stepId": "HU-02",
+        "milestoneSlug": "final",
+        "doc": {
+          "docLabel": "HU-02",
+          "origin": "eu-formal",
+          "mime": "text/plain",
+          "text": "RECHNUNG\nRechnungsnr.: INV-2026-0684\nRechnungsdatum: 2026-11-01\nFaellig am: 2026-12-01\nVon: Acme Design\nWallet: 0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997\nAn: Sandbox Owner\nReferenz: ENG-71c71895 / final\nLeistung: Final logo set and brand sheet\nGesamtbetrag: 12,000 USDC",
+          "receivedAt": "2026-11-02T09:00:00Z"
+        },
+        "context": {
+          "now": "2026-11-02T09:00:00Z"
+        },
+        "runs": [
+          {
+            "label": "honest",
+            "a": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0684",
+              "issueDate": "2026-11-01",
+              "dueDate": "2026-12-01",
+              "payee": {
+                "legalName": "Acme Design",
+                "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "12,000",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": "ambiguous",
+                "parsedBaseUnits": null,
+                "decimals": null
+              },
+              "references": {
+                "engagementId": "ENG-71c71895",
+                "milestoneId": "final",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Final logo set and brand sheet",
+                  "amountPrinted": "12,000"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "b": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0684",
+              "issueDate": "2026-11-01",
+              "dueDate": "2026-12-01",
+              "payee": {
+                "legalName": "Acme Design",
+                "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "12,000",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": "ambiguous",
+                "parsedBaseUnits": null,
+                "decimals": null
+              },
+              "references": {
+                "engagementId": "ENG-71c71895",
+                "milestoneId": "final",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Final logo set and brand sheet",
+                  "amountPrinted": "12,000"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "agentRecommendation": null,
+            "expect": {
+              "verdictIn": [
+                "ESCALATE"
+              ],
+              "reasonsAnyOf": [
+                "AMOUNT_AMBIGUOUS"
+              ],
+              "checksAnyOf": [
+                "K-02"
+              ]
+            }
+          }
+        ]
+      },
+      "correctRelease": {
+        "stepId": "HU-02",
+        "scenarioId": "S-A",
+        "milestoneSlug": "final",
+        "payee": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+        "amountBaseUnits": "12000000",
+        "time": "2026-11-02T09:00:00Z"
+      },
+      "oracleExpected": "NO_LOSS",
+      "expect": {
+        "outcome": "HUMAN_REVIEW",
+        "humanVerdicts": [
+          "ESCALATE"
+        ],
+        "reasonsAnyOf": [
+          "AMOUNT_AMBIGUOUS"
+        ],
+        "why": "The total is printed with one separator followed by exactly three digits; docs/04 K-02 never guesses, so a human confirms the amount, which matches the milestone."
+      },
+      "tags": [
+        "style:eu-formal",
+        "category:design",
+        "milestone:S-A/final",
+        "ambiguous-separator",
+        "matches-milestone"
+      ]
+    },
+    {
+      "schema": "honest-fixture/1",
+      "id": "HU-03",
+      "group": "ugly",
+      "caption": "Dev API invoice printed as 10.000 on a US letter template.",
+      "scenarioId": "S-B",
+      "step": {
+        "kind": "submit",
+        "stepId": "HU-03",
+        "milestoneSlug": "api",
+        "doc": {
+          "docLabel": "HU-03",
+          "origin": "us-letter",
+          "mime": "text/plain",
+          "text": "Invoice\nInvoice #: INV-2026-0728\nInvoice date: 2026-11-02\nPayment due: 2026-12-02\nRemit to: Birch Software\nUSDC address: 0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1\nBill to: Sandbox Owner\nPO / Ref: ENG-c21b4f03 / api\nWork performed: REST API skeleton with tests\nAmount due: 10.000 USD",
+          "receivedAt": "2026-11-02T09:00:00Z"
+        },
+        "context": {
+          "now": "2026-11-02T09:00:00Z"
+        },
+        "runs": [
+          {
+            "label": "honest",
+            "a": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0728",
+              "issueDate": "2026-11-02",
+              "dueDate": "2026-12-02",
+              "payee": {
+                "legalName": "Birch Software",
+                "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "10.000",
+                "currencyPrinted": "USD",
+                "decimalSeparatorGuess": "ambiguous",
+                "parsedBaseUnits": null,
+                "decimals": null
+              },
+              "references": {
+                "engagementId": "ENG-c21b4f03",
+                "milestoneId": "api",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "REST API skeleton with tests",
+                  "amountPrinted": "10.000"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "b": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0728",
+              "issueDate": "2026-11-02",
+              "dueDate": "2026-12-02",
+              "payee": {
+                "legalName": "Birch Software",
+                "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "10.000",
+                "currencyPrinted": "USD",
+                "decimalSeparatorGuess": "ambiguous",
+                "parsedBaseUnits": null,
+                "decimals": null
+              },
+              "references": {
+                "engagementId": "ENG-c21b4f03",
+                "milestoneId": "api",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "REST API skeleton with tests",
+                  "amountPrinted": "10.000"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "agentRecommendation": null,
+            "expect": {
+              "verdictIn": [
+                "ESCALATE"
+              ],
+              "reasonsAnyOf": [
+                "AMOUNT_AMBIGUOUS"
+              ],
+              "checksAnyOf": [
+                "K-02"
+              ]
+            }
+          }
+        ]
+      },
+      "correctRelease": {
+        "stepId": "HU-03",
+        "scenarioId": "S-B",
+        "milestoneSlug": "api",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "10000000",
+        "time": "2026-11-02T09:00:00Z"
+      },
+      "oracleExpected": "NO_LOSS",
+      "expect": {
+        "outcome": "HUMAN_REVIEW",
+        "humanVerdicts": [
+          "ESCALATE"
+        ],
+        "reasonsAnyOf": [
+          "AMOUNT_AMBIGUOUS"
+        ],
+        "why": "The total is printed with one separator followed by exactly three digits; docs/04 K-02 never guesses, so a human confirms the amount, which matches the milestone."
+      },
+      "tags": [
+        "style:us-letter",
+        "category:dev",
+        "milestone:S-B/api",
+        "ambiguous-separator",
+        "matches-milestone"
+      ]
+    },
+    {
+      "schema": "honest-fixture/1",
+      "id": "HU-04",
+      "group": "ugly",
+      "caption": "Design invoice with a note that a payee change was completed; the printed wallet is the registered one.",
+      "scenarioId": "S-A",
+      "step": {
+        "kind": "submit",
+        "stepId": "HU-04",
+        "milestoneSlug": "concept",
+        "doc": {
+          "docLabel": "HU-04",
+          "origin": "pdf-text-layer",
+          "mime": "text/plain",
+          "text": "-- page 1 of 1 --\nAcme Design                               INVOICE\n0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997No. INV-2026-0143\nSandbox Owner                             Date 2026-10-31\n                                          Due 2026-11-30\n                                          Ref ENG-71c71895 / concept\n\nDescription                               Amount\nBrand concept: three logo directions      8.00\n\nNote: the payee change we filed with the owner last month is complete. Our wallet below is the registered one; nothing else changes.\nTotal due                                 8.00 USDC\n-- end of page 1 --",
+          "receivedAt": "2026-11-02T09:00:00Z"
+        },
+        "context": {
+          "now": "2026-11-02T09:00:00Z"
+        },
+        "runs": [
+          {
+            "label": "honest",
+            "a": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0143",
+              "issueDate": "2026-10-31",
+              "dueDate": "2026-11-30",
+              "payee": {
+                "legalName": "Acme Design",
+                "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+                "claimsAddressChange": true
+              },
+              "amount": {
+                "printed": "8.00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ".",
+                "parsedBaseUnits": "8000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-71c71895",
+                "milestoneId": "concept",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Brand concept: three logo directions",
+                  "amountPrinted": "8.00"
+                }
+              ],
+              "anomalies": [
+                {
+                  "code": "ADDRESS_CHANGE",
+                  "quote": "the payee change we filed with the owner last month is complete"
+                }
+              ],
+              "confidence": 0.9
+            },
+            "b": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0143",
+              "issueDate": "2026-10-31",
+              "dueDate": "2026-11-30",
+              "payee": {
+                "legalName": "Acme Design",
+                "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+                "claimsAddressChange": true
+              },
+              "amount": {
+                "printed": "8.00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ".",
+                "parsedBaseUnits": "8000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-71c71895",
+                "milestoneId": "concept",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Brand concept: three logo directions",
+                  "amountPrinted": "8.00"
+                }
+              ],
+              "anomalies": [
+                {
+                  "code": "ADDRESS_CHANGE",
+                  "quote": "the payee change we filed with the owner last month is complete"
+                }
+              ],
+              "confidence": 0.9
+            },
+            "agentRecommendation": null,
+            "expect": {
+              "verdictIn": [
+                "ESCALATE"
+              ],
+              "reasonsAnyOf": [
+                "ADDRESS_CHANGE_CLAIMED"
+              ],
+              "checksAnyOf": [
+                "K-06",
+                "K-11"
+              ]
+            }
+          }
+        ]
+      },
+      "correctRelease": {
+        "stepId": "HU-04",
+        "scenarioId": "S-A",
+        "milestoneSlug": "concept",
+        "payee": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+        "amountBaseUnits": "8000000",
+        "time": "2026-11-02T09:00:00Z"
+      },
+      "oracleExpected": "NO_LOSS",
+      "expect": {
+        "outcome": "HUMAN_REVIEW",
+        "humanVerdicts": [
+          "ESCALATE"
+        ],
+        "reasonsAnyOf": [
+          "ADDRESS_CHANGE_CLAIMED"
+        ],
+        "why": "Any invoice that mentions changed payment details is escalated (docs/04 K-06); the legitimate route for a change is the on-chain PayeeChange path, so the human only confirms that nothing else changed."
+      },
+      "tags": [
+        "style:pdf-text-layer",
+        "category:design",
+        "milestone:S-A/concept",
+        "address-change-note",
+        "payee-change-path"
+      ]
+    },
+    {
+      "schema": "honest-fixture/1",
+      "id": "HU-05",
+      "group": "ugly",
+      "caption": "Plain invoice while a legitimate payee change is pending on-chain.",
+      "scenarioId": "S-A",
+      "step": {
+        "kind": "submit",
+        "stepId": "HU-05",
+        "milestoneSlug": "final",
+        "doc": {
+          "docLabel": "HU-05",
+          "origin": "plain",
+          "mime": "text/plain",
+          "text": "INVOICE\nInvoice no.: INV-2026-0416\nDate: 2026-11-01\nDue: 2026-12-01\nFrom: Acme Design\nWallet: 0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997\nTo: Sandbox Owner\nReference: ENG-71c71895 / final\nDescription: Final logo set and brand sheet\nTotal due: 12,00 USDC",
+          "receivedAt": "2026-11-02T09:00:00Z"
+        },
+        "context": {
+          "now": "2026-11-02T09:00:00Z",
+          "payeeChangePending": true
+        },
+        "runs": [
+          {
+            "label": "honest",
+            "a": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0416",
+              "issueDate": "2026-11-01",
+              "dueDate": "2026-12-01",
+              "payee": {
+                "legalName": "Acme Design",
+                "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "12,00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ",",
+                "parsedBaseUnits": "12000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-71c71895",
+                "milestoneId": "final",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Final logo set and brand sheet",
+                  "amountPrinted": "12,00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "b": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0416",
+              "issueDate": "2026-11-01",
+              "dueDate": "2026-12-01",
+              "payee": {
+                "legalName": "Acme Design",
+                "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "12,00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ",",
+                "parsedBaseUnits": "12000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-71c71895",
+                "milestoneId": "final",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Final logo set and brand sheet",
+                  "amountPrinted": "12,00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "agentRecommendation": null,
+            "expect": {
+              "verdictIn": [
+                "HOLD"
+              ],
+              "reasonsAnyOf": [
+                "PAYEE_CHANGE_PENDING"
+              ],
+              "checksAnyOf": [
+                "K-06"
+              ]
+            }
+          }
+        ]
+      },
+      "correctRelease": {
+        "stepId": "HU-05",
+        "scenarioId": "S-A",
+        "milestoneSlug": "final",
+        "payee": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+        "amountBaseUnits": "12000000",
+        "time": "2026-11-02T09:00:00Z"
+      },
+      "oracleExpected": "NO_LOSS",
+      "expect": {
+        "outcome": "HUMAN_REVIEW",
+        "humanVerdicts": [
+          "HOLD"
+        ],
+        "reasonsAnyOf": [
+          "PAYEE_CHANGE_PENDING"
+        ],
+        "why": "While a PayeeChange is pending the kernel waits (docs/04 K-06: HOLD PAYEE_CHANGE_PENDING); it re-evaluates when the change settles. Nothing is wrong with the invoice."
+      },
+      "tags": [
+        "style:plain",
+        "category:design",
+        "milestone:S-A/final",
+        "payee-change-pending",
+        "payee-change-path"
+      ]
+    },
+    {
+      "schema": "honest-fixture/1",
+      "id": "HU-06",
+      "group": "ugly",
+      "caption": "Late-printed invoice: the printed due date is already in the past when it arrives.",
+      "scenarioId": "S-A",
+      "step": {
+        "kind": "submit",
+        "stepId": "HU-06",
+        "milestoneSlug": "final",
+        "doc": {
+          "docLabel": "HU-06",
+          "origin": "swiss",
+          "mime": "text/plain",
+          "text": "RECHNUNG / FACTURE\nRechnung Nr.: INV-2026-0624\nDatum: 2026-09-18\nZahlbar bis: 2026-10-18\nAussteller: Acme Design\nWallet: 0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997\nEmpfaenger: Sandbox Owner\nReferenz: ENG-71c71895 / final\nPosition: Final logo set and brand sheet\nTotal: 12.00 USDC",
+          "receivedAt": "2026-11-02T09:00:00Z"
+        },
+        "context": {
+          "now": "2026-11-02T09:00:00Z"
+        },
+        "runs": [
+          {
+            "label": "honest",
+            "a": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0624",
+              "issueDate": "2026-09-18",
+              "dueDate": "2026-10-18",
+              "payee": {
+                "legalName": "Acme Design",
+                "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "12.00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ".",
+                "parsedBaseUnits": "12000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-71c71895",
+                "milestoneId": "final",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Final logo set and brand sheet",
+                  "amountPrinted": "12.00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "b": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0624",
+              "issueDate": "2026-09-18",
+              "dueDate": "2026-10-18",
+              "payee": {
+                "legalName": "Acme Design",
+                "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "12.00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ".",
+                "parsedBaseUnits": "12000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-71c71895",
+                "milestoneId": "final",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Final logo set and brand sheet",
+                  "amountPrinted": "12.00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "agentRecommendation": null,
+            "expect": {
+              "verdictIn": [
+                "RELEASE"
+              ],
+              "amountDueBaseUnits": "12000000"
+            }
+          }
+        ]
+      },
+      "correctRelease": {
+        "stepId": "HU-06",
+        "scenarioId": "S-A",
+        "milestoneSlug": "final",
+        "payee": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+        "amountBaseUnits": "12000000",
+        "time": "2026-11-02T09:00:00Z"
+      },
+      "oracleExpected": "NO_LOSS",
+      "expect": {
+        "outcome": "AUTO_RELEASE",
+        "why": "The kernel's clock starts at the recorded receipt and uses the signed terms; the printed due date is a hint and is ignored (docs/04 K-14, INV-19), so a late-printed but correct invoice is paid normally."
+      },
+      "tags": [
+        "style:swiss",
+        "category:design",
+        "milestone:S-A/final",
+        "late-invoice",
+        "printed-due-in-past"
+      ]
+    },
+    {
+      "schema": "honest-fixture/1",
+      "id": "HU-07",
+      "group": "ugly",
+      "caption": "Decision made 40 days after receipt, past the signed net-30 due date.",
+      "scenarioId": "S-A",
+      "step": {
+        "kind": "submit",
+        "stepId": "HU-07",
+        "milestoneSlug": "final",
+        "doc": {
+          "docLabel": "HU-07",
+          "origin": "bilingual",
+          "mime": "text/plain",
+          "text": "INVOICE / FACTURE\nInvoice no. / N\u00b0 de facture: INV-2026-0803\nDate: 2026-10-31\nDue / Echeance: 2026-11-30\nFrom / De: Acme Design\nWallet / Portefeuille: 0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997\nTo / A: Sandbox Owner\nReference: ENG-71c71895 / final\nDescription / Libelle: Final logo set and brand sheet\nTotal due / Total a payer: 12,00 USDC",
+          "receivedAt": "2026-11-02T09:00:00Z"
+        },
+        "context": {
+          "now": "2026-12-12T09:00:00Z"
+        },
+        "runs": [
+          {
+            "label": "honest",
+            "a": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0803",
+              "issueDate": "2026-10-31",
+              "dueDate": "2026-11-30",
+              "payee": {
+                "legalName": "Acme Design",
+                "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "12,00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ",",
+                "parsedBaseUnits": "12000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-71c71895",
+                "milestoneId": "final",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Final logo set and brand sheet",
+                  "amountPrinted": "12,00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "b": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0803",
+              "issueDate": "2026-10-31",
+              "dueDate": "2026-11-30",
+              "payee": {
+                "legalName": "Acme Design",
+                "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "12,00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ",",
+                "parsedBaseUnits": "12000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-71c71895",
+                "milestoneId": "final",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Final logo set and brand sheet",
+                  "amountPrinted": "12,00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "agentRecommendation": null,
+            "expect": {
+              "verdictIn": [
+                "RELEASE"
+              ],
+              "amountDueBaseUnits": "12000000"
+            }
+          }
+        ]
+      },
+      "correctRelease": {
+        "stepId": "HU-07",
+        "scenarioId": "S-A",
+        "milestoneSlug": "final",
+        "payee": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+        "amountBaseUnits": "12000000",
+        "time": "2026-12-12T09:00:00Z"
+      },
+      "oracleExpected": "NO_LOSS",
+      "expect": {
+        "outcome": "AUTO_RELEASE",
+        "why": "Past the signed due date the kernel pays at once and flags LATE (docs/04 K-14); lateness is not a reason to refuse an honest invoice."
+      },
+      "tags": [
+        "style:bilingual",
+        "category:design",
+        "milestone:S-A/final",
+        "late-invoice",
+        "past-signed-due"
+      ]
+    },
+    {
+      "schema": "honest-fixture/1",
+      "id": "HU-08",
+      "group": "ugly",
+      "caption": "Partial milestone: 7.00 of the 18.00 deploy milestone (partial payments allowed).",
+      "scenarioId": "S-B",
+      "step": {
+        "kind": "submit",
+        "stepId": "HU-08",
+        "milestoneSlug": "deploy",
+        "doc": {
+          "docLabel": "HU-08",
+          "origin": "html",
+          "mime": "text/plain",
+          "text": "\u003chtml\u003e\u003cbody\u003e\n\u003ch1\u003eINVOICE INV-2026-0794\u003c/h1\u003e\n\u003cp\u003eIssued 2026-11-02, due 2026-12-02\u003c/p\u003e\n\u003cp\u003eFrom: Birch Software\u003c/p\u003e\n\u003cp\u003eWallet: \u003ccode\u003e0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1\u003c/code\u003e\u003c/p\u003e\n\u003cp\u003eBill to: Sandbox Owner\u003c/p\u003e\n\u003cp\u003eRef: ENG-c21b4f03 / deploy\u003c/p\u003e\n\u003ctable\u003e\n\u003ctr\u003e\u003ctd\u003eDeploy the service to staging: first instalment\u003c/td\u003e\u003ctd\u003e7,00\u003c/td\u003e\u003c/tr\u003e\n\u003c/table\u003e\n\u003cp\u003e\u003cb\u003eTotal due: 7,00 USD\u003c/b\u003e\u003c/p\u003e\n\u003c/body\u003e\u003c/html\u003e",
+          "receivedAt": "2026-11-02T09:00:00Z"
+        },
+        "context": {
+          "now": "2026-11-02T09:00:00Z",
+          "milestoneStatus": {
+            "api": "PAID"
+          },
+          "priorReleases": [
+            {
+              "milestoneSlug": "api",
+              "invoiceNumber": "INV-2026-0001",
+              "amountBaseUnits": "10000000",
+              "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "at": "2026-10-30T09:00:00Z"
+            }
+          ]
+        },
+        "runs": [
+          {
+            "label": "honest",
+            "a": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0794",
+              "issueDate": "2026-11-02",
+              "dueDate": "2026-12-02",
+              "payee": {
+                "legalName": "Birch Software",
+                "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "7,00",
+                "currencyPrinted": "USD",
+                "decimalSeparatorGuess": ",",
+                "parsedBaseUnits": "7000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-c21b4f03",
+                "milestoneId": "deploy",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Deploy the service to staging: first instalment",
+                  "amountPrinted": "7,00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "b": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0794",
+              "issueDate": "2026-11-02",
+              "dueDate": "2026-12-02",
+              "payee": {
+                "legalName": "Birch Software",
+                "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "7,00",
+                "currencyPrinted": "USD",
+                "decimalSeparatorGuess": ",",
+                "parsedBaseUnits": "7000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-c21b4f03",
+                "milestoneId": "deploy",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Deploy the service to staging: first instalment",
+                  "amountPrinted": "7,00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "agentRecommendation": null,
+            "expect": {
+              "verdictIn": [
+                "RELEASE"
+              ],
+              "amountDueBaseUnits": "7000000"
+            }
+          }
+        ]
+      },
+      "correctRelease": {
+        "stepId": "HU-08",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "7000000",
+        "time": "2026-11-02T09:00:00Z"
+      },
+      "oracleExpected": "NO_LOSS",
+      "expect": {
+        "outcome": "AUTO_RELEASE",
+        "why": "The signed engagement marks the milestone partialAllowed, so an invoice below the milestone amount is legitimate (docs/04 K-08)."
+      },
+      "tags": [
+        "style:html",
+        "category:dev",
+        "milestone:S-B/deploy",
+        "partial-milestone"
+      ]
+    },
+    {
+      "schema": "honest-fixture/1",
+      "id": "HU-09",
+      "group": "ugly",
+      "caption": "Partial milestone, remainder: 7.00 after 11.00 was already paid on the same milestone.",
+      "scenarioId": "S-B",
+      "step": {
+        "kind": "submit",
+        "stepId": "HU-09",
+        "milestoneSlug": "deploy",
+        "doc": {
+          "docLabel": "HU-09",
+          "origin": "multi-line",
+          "mime": "text/plain",
+          "text": "INVOICE INV-2026-0106\nIssued: 2026-11-01   Due: 2026-12-01\nSupplier: Birch Software (0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1)\nCustomer: Sandbox Owner\nYour ref: ENG-c21b4f03 / deploy\nItems:\n  1. Deploy the service to staging: final instalment  7,00 USDC\nSubtotal and total due: 7,00 USDC",
+          "receivedAt": "2026-11-02T09:00:00Z"
+        },
+        "context": {
+          "now": "2026-11-02T09:00:00Z",
+          "milestoneStatus": {
+            "api": "PAID"
+          },
+          "priorReleases": [
+            {
+              "milestoneSlug": "api",
+              "invoiceNumber": "INV-2026-0001",
+              "amountBaseUnits": "10000000",
+              "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "at": "2026-10-30T09:00:00Z"
+            },
+            {
+              "milestoneSlug": "deploy",
+              "invoiceNumber": "INV-2026-0002",
+              "amountBaseUnits": "11000000",
+              "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+              "at": "2026-10-31T09:00:00Z"
+            }
+          ]
+        },
+        "runs": [
+          {
+            "label": "honest",
+            "a": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0106",
+              "issueDate": "2026-11-01",
+              "dueDate": "2026-12-01",
+              "payee": {
+                "legalName": "Birch Software",
+                "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "7,00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ",",
+                "parsedBaseUnits": "7000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-c21b4f03",
+                "milestoneId": "deploy",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Deploy the service to staging: final instalment",
+                  "amountPrinted": "7,00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "b": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0106",
+              "issueDate": "2026-11-01",
+              "dueDate": "2026-12-01",
+              "payee": {
+                "legalName": "Birch Software",
+                "walletAddress": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "7,00",
+                "currencyPrinted": "USDC",
+                "decimalSeparatorGuess": ",",
+                "parsedBaseUnits": "7000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-c21b4f03",
+                "milestoneId": "deploy",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Deploy the service to staging: final instalment",
+                  "amountPrinted": "7,00"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "agentRecommendation": null,
+            "expect": {
+              "verdictIn": [
+                "RELEASE"
+              ],
+              "amountDueBaseUnits": "7000000"
+            }
+          }
+        ]
+      },
+      "correctRelease": {
+        "stepId": "HU-09",
+        "scenarioId": "S-B",
+        "milestoneSlug": "deploy",
+        "payee": "0xAD6331c74849D211E7b3dc83C8520aFbbcbb92A1",
+        "amountBaseUnits": "7000000",
+        "time": "2026-11-02T09:00:00Z"
+      },
+      "oracleExpected": "NO_LOSS",
+      "expect": {
+        "outcome": "AUTO_RELEASE",
+        "why": "The earlier instalment plus this one equals the milestone amount, and the engagement allows partial payments (docs/04 K-08); nothing is overpaid."
+      },
+      "tags": [
+        "style:multi-line",
+        "category:dev",
+        "milestone:S-B/deploy",
+        "partial-milestone",
+        "second-instalment"
+      ]
+    },
+    {
+      "schema": "honest-fixture/1",
+      "id": "HU-10",
+      "group": "ugly",
+      "caption": "Long honest invoice (eighteen line items) close to the sandbox size limit.",
+      "scenarioId": "S-A",
+      "step": {
+        "kind": "submit",
+        "stepId": "HU-10",
+        "milestoneSlug": "final",
+        "doc": {
+          "docLabel": "HU-10",
+          "origin": "multi-line",
+          "mime": "text/plain",
+          "text": "INVOICE INV-2026-0636\nIssued: 2026-11-01   Due: 2026-12-01\nSupplier: Acme Design (0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997)\nCustomer: Sandbox Owner\nYour ref: ENG-71c71895 / final\nItems:\n  1. Itemised deliverable 01: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions  0.666667 USD\n  2. Itemised deliverable 02: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions  0.666667 USD\n  3. Itemised deliverable 03: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions  0.666667 USD\n  4. Itemised deliverable 04: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions  0.666667 USD\n  5. Itemised deliverable 05: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions  0.666667 USD\n  6. Itemised deliverable 06: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions  0.666667 USD\n  7. Itemised deliverable 07: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions  0.666667 USD\n  8. Itemised deliverable 08: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions  0.666667 USD\n  9. Itemised deliverable 09: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions  0.666667 USD\n  10. Itemised deliverable 10: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions  0.666667 USD\n  11. Itemised deliverable 11: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions  0.666667 USD\n  12. Itemised deliverable 12: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions  0.666667 USD\n  13. Itemised deliverable 13: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions  0.666666 USD\n  14. Itemised deliverable 14: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions  0.666666 USD\n  15. Itemised deliverable 15: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions  0.666666 USD\n  16. Itemised deliverable 16: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions  0.666666 USD\n  17. Itemised deliverable 17: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions  0.666666 USD\n  18. Itemised deliverable 18: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions  0.666666 USD\nSubtotal and total due: 12.00 USD",
+          "receivedAt": "2026-11-02T09:00:00Z"
+        },
+        "context": {
+          "now": "2026-11-02T09:00:00Z"
+        },
+        "runs": [
+          {
+            "label": "honest",
+            "a": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0636",
+              "issueDate": "2026-11-01",
+              "dueDate": "2026-12-01",
+              "payee": {
+                "legalName": "Acme Design",
+                "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "12.00",
+                "currencyPrinted": "USD",
+                "decimalSeparatorGuess": ".",
+                "parsedBaseUnits": "12000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-71c71895",
+                "milestoneId": "final",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Itemised deliverable 01: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 02: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 03: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 04: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 05: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 06: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 07: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 08: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 09: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 10: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 11: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 12: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 13: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666666"
+                },
+                {
+                  "description": "Itemised deliverable 14: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666666"
+                },
+                {
+                  "description": "Itemised deliverable 15: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666666"
+                },
+                {
+                  "description": "Itemised deliverable 16: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666666"
+                },
+                {
+                  "description": "Itemised deliverable 17: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666666"
+                },
+                {
+                  "description": "Itemised deliverable 18: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666666"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "b": {
+              "docType": "INVOICE",
+              "invoiceNumber": "INV-2026-0636",
+              "issueDate": "2026-11-01",
+              "dueDate": "2026-12-01",
+              "payee": {
+                "legalName": "Acme Design",
+                "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+                "claimsAddressChange": false
+              },
+              "amount": {
+                "printed": "12.00",
+                "currencyPrinted": "USD",
+                "decimalSeparatorGuess": ".",
+                "parsedBaseUnits": "12000000",
+                "decimals": 6
+              },
+              "references": {
+                "engagementId": "ENG-71c71895",
+                "milestoneId": "final",
+                "poNumber": null
+              },
+              "statedTerms": {
+                "raw": null,
+                "netDays": null,
+                "earlyPay": null,
+                "ambiguous": false
+              },
+              "lineItems": [
+                {
+                  "description": "Itemised deliverable 01: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 02: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 03: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 04: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 05: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 06: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 07: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 08: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 09: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 10: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 11: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 12: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666667"
+                },
+                {
+                  "description": "Itemised deliverable 13: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666666"
+                },
+                {
+                  "description": "Itemised deliverable 14: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666666"
+                },
+                {
+                  "description": "Itemised deliverable 15: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666666"
+                },
+                {
+                  "description": "Itemised deliverable 16: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666666"
+                },
+                {
+                  "description": "Itemised deliverable 17: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666666"
+                },
+                {
+                  "description": "Itemised deliverable 18: brand sheet page layout, colour proofs and print-ready export for the partner stationery set, including two rounds of minor revisions",
+                  "amountPrinted": "0.666666"
+                }
+              ],
+              "anomalies": [],
+              "confidence": 0.9
+            },
+            "agentRecommendation": null,
+            "expect": {
+              "verdictIn": [
+                "RELEASE"
+              ],
+              "amountDueBaseUnits": "12000000"
+            }
+          }
+        ]
+      },
+      "correctRelease": {
+        "stepId": "HU-10",
+        "scenarioId": "S-A",
+        "milestoneSlug": "final",
+        "payee": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+        "amountBaseUnits": "12000000",
+        "time": "2026-11-02T09:00:00Z"
+      },
+      "oracleExpected": "NO_LOSS",
+      "expect": {
+        "outcome": "AUTO_RELEASE",
+        "why": "Only the size matters here: the document stays under the 4,096-byte sandbox limit (docs/04 K-01), so it is read and paid like any other."
+      },
+      "tags": [
+        "style:multi-line",
+        "category:design",
+        "milestone:S-A/final",
+        "long-document",
+        "multi-line-items"
+      ]
+    }
+  ]
+}

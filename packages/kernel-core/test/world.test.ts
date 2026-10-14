@@ -27,12 +27,20 @@ describe("base world", () => {
     for (const c of e.checks) expect(CheckResultSchema.safeParse(c).success).toBe(true);
   });
 
-  it("evaluate() in the WP-04 build returns every required check and HOLDs on the WP-05 placeholders", () => {
+  it("evaluate() runs every required check and RELEASEs the base world (K-13 SKIP: screening off by policy)", () => {
     const e = evaluate(intent(), context(), policy());
-    expect(e.checks.map((c) => c.id)).toEqual(["K-16", "K-01", "K-02", "K-03", "K-04", "K-05", "K-06", "K-07", "K-08", "K-09", "K-10", "K-11", "K-12", "K-13", "K-14"]);
-    expect(e.verdict).toBe("HOLD");
-    expect(e.reasons).toEqual(["KERNEL_ERROR"]);
+    expect(e.checks.map((c) => [c.id, c.status])).toEqual([
+      ["K-16", "PASS"], ["K-01", "PASS"], ["K-02", "PASS"], ["K-03", "PASS"], ["K-04", "PASS"], ["K-05", "PASS"], ["K-06", "PASS"],
+      ["K-07", "PASS"], ["K-08", "PASS"], ["K-09", "PASS"], ["K-10", "PASS"], ["K-11", "PASS"], ["K-12", "PASS"], ["K-13", "SKIP"], ["K-14", "PASS"],
+    ]);
+    expect(e.verdict).toBe("RELEASE");
+    expect(e.reasons).toEqual([]);
     expect(e.kernelVersion).toBe(KERNEL_VERSION);
-    expect(e.checks.filter((c) => c.status === "PASS").map((c) => c.id)).toEqual(["K-01", "K-02", "K-03", "K-04", "K-05", "K-06", "K-07", "K-08"]);
+    // no signed terms: net 30 from receipt (10-05T10:00), minus the 24 h buffer; the evaluator prefers the later plan
+    expect([e.payAt, e.releaseAmountBaseUnits, e.timingSource, e.plannerFallback]).toEqual(["2026-11-03T10:00:00Z", "1000000000", "DEFAULT", true]);
+    expect(e.plans.map((p) => p.mode)).toEqual(["DUE_MINUS_BUFFER", "IMMEDIATE"]);
+    expect(e.planId).toBe(e.plans[0]?.planId);
+    expect(e.humanExplanation.startsWith("Release scheduled: every check passed.")).toBe(true);
+    for (const c of e.checks) expect(CheckResultSchema.safeParse(c).success).toBe(true);
   });
 });

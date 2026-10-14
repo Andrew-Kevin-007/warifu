@@ -1,7 +1,8 @@
 // K-04 IDEMPOTENCY_DEDUPE — REPLAY / REJECT / ESCALATE — P0 (docs/04 K-04).
 // intentId = keccak256(JCS({engagementId, milestoneId, normInvoiceNo, amountBaseUnits(GROSS), payee})) (facts.ts).
 //   exact intentId seen                                  => REPLAY, returning the prior decision (short-circuit)
-//   same (engagementId, milestoneId) already RELEASE      => REJECT MILESTONE_ALREADY_PAID
+//   same (engagementId, milestoneId) already RELEASE      => REJECT MILESTONE_ALREADY_PAID (a partialAllowed milestone: only
+//                                                            once its releases cover the whole amount; see milestoneSettled)
 //   same doc.hash under another intent                    => ESCALATE DUPLICATE_DOC
 //   same payee + same gross within 7 days, other intent   => ESCALATE NEAR_DUPLICATE
 // Fail-closed readings (docs/QUESTIONS.md "WP-04"): MILESTONE_ALREADY_PAID fires for ANY other intent on that
@@ -9,7 +10,7 @@
 // intent too); DUPLICATE_DOC fires for any other intent on the same document. During a TOCTOU re-evaluation
 // (ctx.reevaluation) the intent's own decisions are its supersedes chain, so they never trigger REPLAY.
 import { epochSecondsFromIso } from "@symbolon/schemas";
-import type { CheckResult, PaymentIntent } from "@symbolon/schemas";
+import type { CheckResult, Milestone, PaymentIntent } from "@symbolon/schemas";
 import type { DecisionSummary, KernelContext } from "../context";
 import type { Facts } from "../facts";
 import { combine, fail, kernelError, replayResult } from "../verdict";
@@ -32,6 +33,19 @@ function latest(decisions: readonly DecisionSummary[]): DecisionSummary {
 
 const ids = (ds: readonly DecisionSummary[]) => ds.map((d) => d.decisionId);
 
+/**
+ * Do the releases already scheduled on this milestone settle it? A milestone that does not allow partial payment is settled
+ * by ANY release (docs/04 K-04). A partialAllowed milestone (read from the SIGNED terms) is settled only once the releases
+ * cover its whole amount, so a legitimate later instalment is not rejected here; whether this instalment still fits is K-08's
+ * cumulative OVERPAY check. A release with an unknown amount counts as the whole milestone (fail closed, as in K-08), and
+ * unknown milestone terms are treated as not partial.
+ */
+function milestoneSettled(released: readonly DecisionSummary[], terms: Milestone | null): boolean {
+  if (terms === null || !terms.partialAllowed) return true;
+  const whole = BigInt(terms.amountBaseUnits);
+  return released.reduce((sum, p) => sum + (p.amountBaseUnits ?? whole), 0n) >= whole;
+}
+
 export function checkK04(intent: PaymentIntent, ctx: KernelContext, facts: Facts): K04Outcome {
   if (facts.normInvoiceNo === null) {
     return result(fail("K-04", "REJECT", "SCHEMA_INVALID", "invoice number normalizes to more than 128 characters"));
@@ -50,7 +64,7 @@ export function checkK04(intent: PaymentIntent, ctx: KernelContext, facts: Facts
   const issues: Issue[] = [];
   if (intent.engagementId !== null && intent.milestoneId !== null) {
     const paid = others.filter((p) => p.verdict === "RELEASE" && p.engagementId === intent.engagementId && p.milestoneId === intent.milestoneId);
-    if (paid.length > 0) {
+    if (paid.length > 0 && milestoneSettled(paid, facts.milestoneTerms)) {
       issues.push({ onFail: "REJECT", code: "MILESTONE_ALREADY_PAID", detail: "milestone already released or pending under another intent", refs: ids(paid) });
     }
   }

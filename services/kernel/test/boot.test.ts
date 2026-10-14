@@ -163,11 +163,13 @@ describe("G10 and the secret inventory (SEC-07 review findings)", () => {
       SUPABASE_SERVICE_ROLE_KEY: "service-role-key-0123456789",
       ANTHROPIC_API_KEY: "anthropic-key-0123456789",
       CIRCLE_API_KEY: "circle-api-key-0123456789",
-      CIRCLE_ENTITY_SECRET: "circle-entity-0123456789",
+      CIRCLE_ENTITY_SECRET: "ab".repeat(32), // a complete, valid Circle configuration (WP-11 rejects half of one)
+      RELAYER_WALLET_ID: "wallet-0001",
+      RELAYER_WALLET_ADDRESS: "0x00000000000000000000000000000000000000aa",
       GITHUB_TOKEN: "github-token-0123456789",
     };
     const list = loadConfig(env).logSecrets.map((s) => s.reveal());
-    for (const must of [pw, encodeURIComponent(pw), `kernel_user:${pw}`, `kernel_user:${encodeURIComponent(pw)}`, "kernel_user", ...Object.values(env).filter((v) => v.length >= 16)]) {
+    for (const must of [pw, encodeURIComponent(pw), `kernel_user:${pw}`, `kernel_user:${encodeURIComponent(pw)}`, "kernel_user", ...Object.entries(env).filter(([k, v]) => v.length >= 16 && k !== "RELAYER_WALLET_ADDRESS").map(([, v]) => v)]) {
       expect(list, must).toContain(must);
     }
   });

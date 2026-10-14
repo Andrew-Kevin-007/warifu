@@ -6,9 +6,13 @@
 // token; a body or URL naming another tenant is refused.
 import { randomUUID } from "node:crypto";
 import { Hono } from "hono";
+import type { Context } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { secureHeaders } from "hono/secure-headers";
 import { Hex32Schema, PlanSelectionSchema, UUIDSchema } from "@symbolon/schemas";
+import type { Hex32 } from "@symbolon/schemas";
+import { releaseForIntent } from "./release/repo";
+import type { ReleaseRow } from "./release/repo";
 import { ApiError, INTERNAL_ERROR_BODY, errorBody } from "./errors";
 import { authMiddleware } from "./auth/middleware";
 import type { AppEnv } from "./auth/middleware";
@@ -27,10 +31,18 @@ import { ingestDocument } from "./service/documents";
 import { contextFailure, submitIntent } from "./service/intents";
 import type { EngagementChain } from "./chain/engagement-chain";
 import type { VaultRelayer } from "./chain/relayer";
+import { buildCertificate, getCertificateByHash, getLatestCertificate } from "./certificates/service";
+import type { CertificateDeps, CertificateServiceConfig } from "./certificates/service";
 import { createEngagement, getEngagementView, payeeChangeFlow, signEngagement } from "./engagement/service";
 import type { EngagementServiceDeps } from "./engagement/service";
+import { assertEvidencePairing, collectEvidence, submitOwnerAck, uploadArtifact } from "./evidence/service";
+import type { EvidenceServiceDeps } from "./evidence/service";
+import { submitApproval } from "./service/approvals";
+import type { ApprovalsDeps } from "./service/approvals";
 import { unavailablePlanProvider } from "./service/plans";
 import type { PlanProvider } from "./service/plans";
+import { WEBHOOK_MAX_BYTES } from "./circle/webhook";
+import type { WebhookOutcome, WebhookRequest } from "./circle/webhook";
 import { nowIso } from "./time";
 import type { Clock } from "./time";
 import type { Profile } from "./boot";
@@ -51,7 +63,17 @@ export interface AppDeps {
   readonly plans?: PlanProvider;
   readonly newId?: () => string;
   /** WP-12. Absent = the engagement routes answer 501 (a build without an indexer/relayer edge never half-works). */
+  /** WP-11. Absent = POST /webhooks/circle answers 501 (no Circle edge configured). Verified by the handler, not by a service token. */
+  readonly circleWebhook?: (r: WebhookRequest) => Promise<WebhookOutcome>;
   readonly engagements?: { readonly chain: EngagementChain; readonly relayer: VaultRelayer | null; readonly newUuid?: () => string };
+  /** WP-13. Absent = the evidence routes answer 501. Present = the source must match the profile (live in production, fixtures in the sandbox). */
+  readonly evidence?: EvidenceServiceDeps;
+  /** WP-14. Absent = POST /approvals answers 501. */
+  readonly approvals?: ApprovalsDeps;
+  /** WP-14. Called after evidence for a milestone changed (collect, ack, artifact): HOLD decisions of that milestone are re-evaluated. Errors never reach the caller. */
+  readonly afterEvidence?: (tenantId: string, milestoneId: Hex32) => Promise<unknown>;
+  /** WP-34. Absent = the certificate routes answer 501. */
+  readonly certificates?: CertificateServiceConfig;
 }
 
 const IDEMPOTENCY_KEY = /^[A-Za-z0-9_:.-]{1,128}$/;
@@ -67,13 +89,22 @@ function uuidParam(v: string | undefined): string {
   return p.data.toLowerCase();
 }
 
-const notImplemented = (what: string) => (): never => {
+/** What an API client may see of a release row: its lifecycle and the transaction pointer, never the signed attestation. */
+function releaseSummary(r: ReleaseRow | null): { status: string; txHash: string | null; attempts: number; deadline: string | null } | null {
+  return r === null ? null : { status: r.status, txHash: r.txHash, attempts: r.attempts, deadline: r.deadline };
+}
+
+const notImplemented =(what: string) => (): never => {
   throw new ApiError("NOT_IMPLEMENTED", `${what} is not available in this build`);
 };
 
 export function createApp(d: AppDeps): Hono<AppEnv> {
   const app = new Hono<AppEnv>();
   const plans = d.plans ?? unavailablePlanProvider;
+  if (d.evidence !== undefined) {
+    if (d.evidence.profile !== d.profile) throw new Error("evidence service built for another profile");
+    assertEvidencePairing(d.profile, d.evidence.source);
+  }
 
   // --- request id, access log, headers -------------------------------------------------------------------------------
   app.use("*", async (c, next) => {
@@ -99,6 +130,20 @@ export function createApp(d: AppDeps): Hono<AppEnv> {
     return c.json(INTERNAL_ERROR_BODY, 500);
   });
   app.notFound((c) => c.json(errorBody(new ApiError("NOT_FOUND", "not found")), 404));
+
+  // --- Circle webhook (WP-11): called by Circle, so NOT behind the service-token middleware; authenticated by its signature ---
+  const webhookLimit = bodyLimit({
+    maxSize: WEBHOOK_MAX_BYTES,
+    onError: (c) => c.json(errorBody(new ApiError("PAYLOAD_TOO_LARGE", "request body is too large")), 413),
+  });
+  const webhook = async (c: Context): Promise<Response> => {
+    if (d.circleWebhook === undefined) throw new ApiError("NOT_IMPLEMENTED", "the Circle webhook is not configured in this build");
+    const rawBody = await c.req.text();
+    const outcome = await d.circleWebhook({ rawBody, signature: c.req.header("x-circle-signature"), keyId: c.req.header("x-circle-key-id") });
+    return c.json({ status: outcome.toLowerCase() }, 200);
+  };
+  app.post("/webhooks/circle", webhookLimit, webhook);
+  app.post("/v1/webhooks/circle", webhookLimit, webhook);
 
   const v1 = new Hono<AppEnv>();
 
@@ -221,7 +266,15 @@ export function createApp(d: AppDeps): Hono<AppEnv> {
     const row = await repo.getIntentRow(d.db, tenantId, intentId);
     if (row === null) throw new ApiError("NOT_FOUND", "not found");
     const latest = await repo.getLatestStoredDecisionForIntent(d.db, tenantId, intentId);
-    return c.json({ intentId, documentId: row.documentId, createdAt: row.createdAt, intent: row.payload, decision: latest?.decision ?? null, receiptHash: latest?.receiptHash ?? null });
+    const rel = await releaseForIntent(d.db, tenantId, intentId);
+    return c.json({ intentId, documentId: row.documentId, createdAt: row.createdAt, intent: row.payload, decision: latest?.decision ?? null, receiptHash: latest?.receiptHash ?? null, release: releaseSummary(rel) });
+  });
+
+  // --- owner approval (docs/05 s4, INV-20): verifies the owner's signature on exactly what the ApprovalView showed, then re-evaluates ---
+  v1.post("/approvals", tooLarge, async (c) => {
+    const { tenantId } = c.get("auth");
+    if (d.approvals === undefined) throw new ApiError("NOT_IMPLEMENTED", "owner approvals are not available in this build");
+    return c.json(await submitApproval(d.approvals, tenantId, await jsonBody(c)));
   });
 
   v1.get("/intents/:id/plans", async (c) => {
@@ -255,7 +308,10 @@ export function createApp(d: AppDeps): Hono<AppEnv> {
       const engagement = await repo.loadEngagement(d.db, tenantId, latest.decision.engagementId);
       const tv = await resolveTenantVault(d.db, tenantId, d.chain);
       if (engagement === null) throw new ApiError("NOT_FOUND", "not found");
-      return c.json(buildApprovalView({ decision: latest.decision, receiptHash: latest.receiptHash, engagement, chainId: tv.chainId, vault: tv.vault, now: nowIso(d.clock) }));
+      const extras = await repo.getDecisionExtras(d.db, tenantId, latest.decision.decisionId);
+      return c.json(
+        buildApprovalView({ decision: latest.decision, receiptHash: latest.receiptHash, engagement, chainId: tv.chainId, vault: tv.vault, now: nowIso(d.clock), planSummary: extras?.planSummary ?? null }),
+      );
     } catch (e) {
       throw contextFailure(e, d.logger);
     }
@@ -273,7 +329,9 @@ export function createApp(d: AppDeps): Hono<AppEnv> {
     const { tenantId } = c.get("auth");
     const s = await repo.getStoredReceipt(d.db, tenantId, hex32Param(c.req.param("hash")));
     if (s === null) throw new ApiError("NOT_FOUND", "not found");
-    return c.json({ receipt: s.receipt, receiptHash: s.receiptHash, signature: s.signature, signer: s.signer });
+    const rel = await releaseForIntent(d.db, tenantId, s.decision.intentId);
+    const tx = rel !== null && rel.decisionId === s.decision.decisionId ? releaseSummary(rel) : null; // the release made under THIS receipt only
+    return c.json({ receipt: s.receipt, receiptHash: s.receiptHash, signature: s.signature, signer: s.signer, tx });
   });
 
   v1.get("/state", async (c) => {
@@ -335,10 +393,72 @@ export function createApp(d: AppDeps): Hono<AppEnv> {
     return c.json(r.change, r.created ? 201 : 200);
   });
 
+  // --- evidence (WP-13): collection, artifact hashing, owner acks -------------------------------------------------------------
+  const evd = (): EvidenceServiceDeps => {
+    if (d.evidence === undefined) throw new ApiError("NOT_IMPLEMENTED", "evidence collection is not available in this build");
+    return d.evidence;
+  };
+  // New evidence may lift a HOLD ("auto re-evaluated when the missing thing changes", docs/04 s1): fire the re-check, never fail the call.
+  const evidenceChanged = async (tenantId: string, milestoneId: unknown): Promise<void> => {
+    const m = Hex32Schema.safeParse(milestoneId);
+    if (!m.success || d.afterEvidence === undefined) return;
+    try {
+      await d.afterEvidence(tenantId, m.data);
+    } catch (e) {
+      d.logger.warn("evidence.recheck_failed", { tenantId, ...errorFields(e) });
+    }
+  };
+  v1.post("/evidence/collect", tooLarge, async (c) => {
+    const { tenantId } = c.get("auth");
+    const body = await jsonBody(c);
+    const out = await collectEvidence(evd(), tenantId, body);
+    await evidenceChanged(tenantId, (body as { milestoneId?: unknown }).milestoneId);
+    return c.json(out);
+  });
+  v1.post("/evidence/ack", tooLarge, async (c) => {
+    const { tenantId } = c.get("auth");
+    const body = await jsonBody(c);
+    const out = await submitOwnerAck(evd(), tenantId, body);
+    await evidenceChanged(tenantId, (body as { milestoneId?: unknown }).milestoneId);
+    return c.json(out, 201);
+  });
+  v1.post("/evidence/artifact", uploadLimit, async (c) => {
+    const { tenantId } = c.get("auth");
+    const service = evd();
+    if (!(c.req.header("content-type") ?? "").toLowerCase().startsWith("multipart/form-data")) throw new ApiError("UNSUPPORTED_MEDIA_TYPE", "use multipart/form-data with milestoneId and file");
+    let form: Record<string, string | File | (string | File)[]>;
+    try {
+      form = await c.req.parseBody();
+    } catch {
+      throw new ApiError("BAD_REQUEST", "malformed multipart body");
+    }
+    const f = form["file"];
+    if (!(f instanceof File)) throw new ApiError("BAD_REQUEST", "file must be a file part");
+    const stored = await uploadArtifact(service, tenantId, form["milestoneId"], new Uint8Array(await f.arrayBuffer())); // bytes only: never decoded or parsed (INV-23)
+    await evidenceChanged(tenantId, form["milestoneId"]);
+    return c.json(stored, 201);
+  });
+
   // --- stubs mounted per profile --------------------------------------------------------------------------------------
-  v1.get("/certificates/:vault", notImplemented("certificates"));
-  v1.get("/certificates/:vault/:certHash", notImplemented("certificates"));
-  v1.post("/certificates/:vault/build", notImplemented("certificate builds"));
+  // --- Loss Bound Certificates (WP-34): reads always carry a fresh server-side re-check against the configured RPC ------------
+  const certs = d.certificates;
+  const certDeps = (): CertificateDeps => {
+    if (certs === undefined) throw new ApiError("NOT_IMPLEMENTED", "certificates are not available in this build");
+    return { ...certs, db: d.db, clock: certs.clock ?? d.clock, profile: d.profile, logger: d.logger };
+  };
+  v1.get("/certificates/:vault", async (c) => {
+    const { tenantId } = c.get("auth");
+    return c.json(await getLatestCertificate(certDeps(), tenantId, c.req.param("vault")));
+  });
+  v1.get("/certificates/:vault/:certHash", async (c) => {
+    const { tenantId } = c.get("auth");
+    return c.json(await getCertificateByHash(certDeps(), tenantId, c.req.param("vault"), c.req.param("certHash")));
+  });
+  v1.post("/certificates/:vault/build", tooLarge, async (c) => {
+    const { tenantId } = c.get("auth");
+    const r = await buildCertificate(certDeps(), tenantId, c.req.param("vault"));
+    return c.json(r.response, r.created ? 201 : 200);
+  });
   if (d.profile === "sandbox") {
     v1.get("/challenge/scenarios", notImplemented("the challenge (WP-32)"));
     v1.post("/challenge/attempts", notImplemented("the challenge (WP-32)"));

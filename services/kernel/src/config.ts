@@ -27,8 +27,31 @@ export interface KernelConfig {
   readonly indexer: { readonly enabled: boolean; readonly confirmations: number; readonly pollMs: number; readonly startBlock: number };
   /** Throwaway-key relayer for local/testnet (the Circle relayer is WP-11). null = signatures are collected, nothing is submitted. */
   readonly relayerKey: Secret | null;
+  /**
+   * WP-11 Circle developer-controlled wallets: the relayer and the webhook receiver. null = not configured (the throwaway-key
+   * relayer, or no relayer, is used and POST /webhooks/circle answers 501).
+   */
+  readonly circle: CircleConfig | null;
+  /** WP-13. Optional deny-by-default egress proxy (HTTP CONNECT) for live evidence fetches; host:port. null = direct (pinned) connections. */
+  readonly evidenceEgressProxy: { readonly host: string; readonly port: number } | null;
+  /** WP-13. GitHub token for CI_PASS (public repos work without). Sent only to api.github.com. */
+  readonly githubToken: Secret | null;
+  /** WP-13. Largest artifact the kernel hashes for ARTIFACT_HASH evidence. */
+  readonly maxArtifactBytes: number;
+  /** WP-14 payAt scheduler. `testClockOffsetSeconds` shifts ONLY the scheduler's clock (never token or clock-guard time); refused in production (boot guard G11). */
+  readonly scheduler: { readonly enabled: boolean; readonly pollMs: number; readonly testClockOffsetSeconds: number | null };
   /** Names + values that must never be logged. */
   readonly logSecrets: readonly Secret[];
+}
+
+export interface CircleConfig {
+  readonly apiKey: Secret;
+  readonly entitySecret: Secret;
+  readonly blockchain: string;
+  readonly walletId: string;
+  readonly walletAddress: string;
+  /** CIRCLE_WEBHOOK_PUBLIC_KEY_ID, comma separated; empty = the webhook receiver refuses everything. */
+  readonly webhookKeyIds: readonly string[];
 }
 
 export class ConfigError extends Error {
@@ -52,6 +75,34 @@ function intOf(env: EnvLike, name: string, fallback: number, min: number, max: n
 export const DEFAULT_MAX_JSON_BYTES = 256 * 1024;
 export const DEFAULT_MAX_BLOB_BYTES = 10 * 1024 * 1024;
 export const TOKEN_TTL_CEILING_SECONDS = 60;
+
+function loadCircle(env: EnvLike, relayerKey: string): CircleConfig | null {
+  const apiKey = env["CIRCLE_API_KEY"] ?? "";
+  const entitySecret = env["CIRCLE_ENTITY_SECRET"] ?? "";
+  const walletId = env["RELAYER_WALLET_ID"] ?? "";
+  const walletAddress = env["RELAYER_WALLET_ADDRESS"] ?? "";
+  const keyIds = (env["CIRCLE_WEBHOOK_PUBLIC_KEY_ID"] ?? "").split(",").map((x) => x.trim()).filter((x) => x !== "");
+  if (apiKey === "" && entitySecret === "" && walletId === "" && walletAddress === "") return null;
+  // Half a configuration is an error, not a silent downgrade: a relayer that quietly is not Circle would hide a misconfiguration.
+  if (apiKey === "") throw new ConfigError("CIRCLE_API_KEY", "required when any Circle relayer variable is set");
+  if (!/^[0-9a-f]{64}$/.test(entitySecret)) throw new ConfigError("CIRCLE_ENTITY_SECRET", "must be 64 lowercase hex characters");
+  if (!/^[A-Za-z0-9_-]{1,64}$/.test(walletId)) throw new ConfigError("RELAYER_WALLET_ID", "required (Circle wallet id)");
+  if (!/^0x[0-9a-fA-F]{40}$/.test(walletAddress)) throw new ConfigError("RELAYER_WALLET_ADDRESS", "required (0x address of the relayer wallet)");
+  if (relayerKey !== "") throw new ConfigError("RELAYER_PRIVATE_KEY", "must be unset when the Circle relayer is configured (one relayer, one custody model)");
+  for (const id of keyIds) if (!/^[A-Za-z0-9_-]{8,64}$/.test(id)) throw new ConfigError("CIRCLE_WEBHOOK_PUBLIC_KEY_ID", "malformed key id");
+  const blockchain = env["CIRCLE_BLOCKCHAIN"] ?? "ARC-TESTNET";
+  if (blockchain !== "ARC-TESTNET") throw new ConfigError("CIRCLE_BLOCKCHAIN", "only ARC-TESTNET is supported (mainnet identifier unverified, V-03)");
+  return Object.freeze({ apiKey: new Secret(apiKey), entitySecret: new Secret(entitySecret), blockchain, walletId, walletAddress: walletAddress.toLowerCase(), webhookKeyIds: keyIds });
+}
+
+/** "host:port" with a DNS-label-ish host or a bracketed IPv6; anything else is a ConfigError (the proxy is infrastructure, not input). */
+export function parseProxy(name: string, raw: string | undefined): { host: string; port: number } | null {
+  if (raw === undefined || raw === "") return null;
+  const m = /^([A-Za-z0-9.-]{1,253}):([0-9]{1,5})$/.exec(raw);
+  const port = m === null ? 0 : Number.parseInt(m[2] as string, 10);
+  if (m === null || port < 1 || port > 65535) throw new ConfigError(name, "expected host:port");
+  return { host: m[1] as string, port };
+}
 
 export function loadConfig(env: EnvLike): KernelConfig {
   assertBootGuards(env);
@@ -86,6 +137,15 @@ export function loadConfig(env: EnvLike): KernelConfig {
       startBlock: intOf(env, "INDEXER_START_BLOCK", 0, 0, Number.MAX_SAFE_INTEGER),
     },
     relayerKey: relayerKey === "" ? null : new Secret(relayerKey),
+    circle: loadCircle(env, relayerKey),
+    evidenceEgressProxy: parseProxy("EVIDENCE_EGRESS_PROXY", env["EVIDENCE_EGRESS_PROXY"]),
+    githubToken: env["GITHUB_TOKEN"] === undefined || env["GITHUB_TOKEN"] === "" ? null : new Secret(env["GITHUB_TOKEN"]),
+    maxArtifactBytes: intOf(env, "MAX_ARTIFACT_BYTES", 5 * 1024 * 1024, 1, 64 * 1024 * 1024),
+    scheduler: {
+      enabled: env["SCHEDULER_ENABLED"] !== "false",
+      pollMs: intOf(env, "SCHEDULER_POLL_MS", 5000, 250, 3_600_000),
+      testClockOffsetSeconds: env["TEST_CLOCK_OFFSET_SECONDS"] === undefined || env["TEST_CLOCK_OFFSET_SECONDS"].trim() === "" ? null : intOf(env, "TEST_CLOCK_OFFSET_SECONDS", 0, 0, 10 * 365 * 86_400),
+    },
     logSecrets: redactionList(env).map((s) => new Secret(s)),
   });
 }

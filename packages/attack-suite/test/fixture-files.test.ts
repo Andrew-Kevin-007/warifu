@@ -63,7 +63,7 @@ describe("committed fixture files", () => {
 
   it("contains one file per attack, the honest sets, both libraries, applicability and a manifest", () => {
     for (const id of ATTACK_IDS) expect(generated.has(`attacks/${id}.json`)).toBe(true);
-    for (const p of ["world.json", "honest/benign-controls.json", "honest/discount-honest.json", "libraries/injections.json", "libraries/terms-injections.json", "applicability.json", "MANIFEST.json"]) {
+    for (const p of ["world.json", "honest/benign-controls.json", "honest/discount-honest.json", "honest/general.json", "honest/ugly.json", "libraries/injections.json", "libraries/terms-injections.json", "applicability.json", "MANIFEST.json"]) {
       expect(generated.has(p), p).toBe(true);
     }
   });

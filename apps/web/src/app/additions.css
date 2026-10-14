@@ -1,0 +1,4 @@
+/* Classes the original bundle did not compile. The wordmark is wider (SYMBOLON vs TARS),
+   so the logo images get wider boxes to keep the dotted mark at its original size. */
+.w-\[168px\]{width:168px}
+.w-\[189px\]{width:189px}

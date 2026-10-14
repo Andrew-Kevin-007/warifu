@@ -196,6 +196,7 @@ export async function assembleContext(a: AssembleInput): Promise<KernelContext> 
       tenantWeek: released.tenantWeek,
       payeeDay: released.payeeDay,
       payeeCountDay: released.payeeCountDay,
+      tenantCountDay: released.tenantCountDay,
       categoryMonth: released.categoryMonth,
     },
     evidence,
@@ -216,6 +217,10 @@ export async function assembleContext(a: AssembleInput): Promise<KernelContext> 
     breaker: snap.paused ? { halted: true, reason: "VAULT_PAUSED" } : { halted: breakerRow.halted, reason: breakerRow.reason },
     payeeChangePending: a.chain.payeeChangePending,
     reevaluation: null,
+    // WP-05 inputs, filled by later service work (QUESTIONS "WP-05 merge"): null = the plan set at now, and no owner
+    // approval can resolve anything (ownerApproval is null above as well). Both are the fail-closed values.
+    planningAsOf: null,
+    approvedEscalation: null,
   };
 }
 

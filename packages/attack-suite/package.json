@@ -11,10 +11,18 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p .",
-    "fixtures:write": "node scripts/write-fixtures.mjs"
+    "fixtures:write": "node scripts/write-fixtures.mjs",
+    "attack:unit": "node scripts/run-attack-suite.mjs",
+    "honest:unit": "node scripts/run-honest-corpus.mjs"
   },
   "dependencies": {
+    "@symbolon/extractor": "workspace:*",
+    "@symbolon/kernel-core": "workspace:*",
+    "@symbolon/oracle": "workspace:*",
+    "@symbolon/policy": "workspace:*",
+    "@symbolon/receipts": "workspace:*",
     "@symbolon/schemas": "workspace:*",
+    "@symbolon/terms": "workspace:*",
     "zod": "4.6.5"
   }
 }
