@@ -12,22 +12,22 @@
     "typecheck": "tsc --noEmit -p ."
   },
   "dependencies": {
-    "@react-three/drei": "9.114.3",
-    "@react-three/fiber": "8.17.10",
-    "@react-three/rapier": "1.4.0",
-    "framer-motion": "11.11.17",
+    "@react-three/drei": "10.7.9",
+    "@react-three/fiber": "9.8.1",
+    "@react-three/rapier": "2.2.0",
+    "framer-motion": "14.2.0",
     "gsap": "3.12.5",
     "keen-slider": "6.8.6",
-    "next": "14.2.35",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
+    "next": "16.4.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
     "react-responsive": "10.0.0",
     "three": "0.170.0"
   },
   "devDependencies": {
     "@types/node": "20.16.11",
-    "@types/react": "18.3.11",
-    "@types/react-dom": "18.3.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
     "@types/three": "0.170.0"
   }
 }
