@@ -50,6 +50,18 @@ importers:
       '@react-three/rapier':
         specifier: 2.2.0
         version: 2.2.0(@react-three/fiber@9.8.1(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(three@0.170.0))(react@19.3.0)(three@0.170.0)
+      '@symbolon/blast-radius':
+        specifier: workspace:*
+        version: link:../../packages/blast-radius
+      '@symbolon/chain':
+        specifier: workspace:*
+        version: link:../../packages/chain
+      '@symbolon/receipts':
+        specifier: workspace:*
+        version: link:../../packages/receipts
+      '@symbolon/schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
       framer-motion:
         specifier: 14.2.0
         version: 14.2.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -74,6 +86,9 @@ importers:
       three:
         specifier: 0.170.0
         version: 0.170.0
+      viem:
+        specifier: 2.56.9
+        version: 2.56.9(typescript@5.9.3)(zod@4.6.5)
     devDependencies:
       '@types/node':
         specifier: 20.16.11

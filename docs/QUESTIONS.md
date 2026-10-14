@@ -477,3 +477,13 @@ Branch `wp-05/kernel-fixes-rebaseline`. Where the spec was ambiguous the stricte
 - **Fonts**: Kevin 2026-10-14: Roobert is acceptable. The files were removed from the repo because they are a trial licence; do not commit them to the public repo without the paid licence (self-host from `D:\web\main` at deploy, or keep the Inter mapping).
 - **Security contact**: the page plan suggested Kevin's personal address on `/security`; not done. Per 2026-10-10 decision 6, GitHub private vulnerability reporting is primary and the plus-addressed contact in SECURITY.md is secondary.
 - **Page plan**: `docs/WEB_PAGES_PLAN.md`.
+## 2026-10-14 · WP-17 web product lane · WEB → ORCH/KERNEL-SVC/Kevin
+1. **Footer social links removed** (discord/x/telegram were template handles, not ours). TODO Kevin: supply real handles, then re-add.
+2. **Web env names.** `test:web-env` forbids `SERVICE_TOKEN_SECRET`/`KERNEL_*` in apps/web, so the web tier reads `WEB_SVC_URL`, `WEB_SVC_SECRET` (same value as the kernel's per-profile service secret), `WEB_SVC_TENANT_ID`, `WEB_SVC_PROFILE` (production|sandbox). Public, non-secret: `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_ARC_RPC_URL`, `NEXT_PUBLIC_SANDBOX_VAULT`, `NEXT_PUBLIC_CHAIN_ID`, `NEXT_PUBLIC_CHALLENGE_URL`, `NEXT_PUBLIC_PROFILE`.
+3. **Kernel gaps the UI needs:** no `/v1/pilot-stats`, no decisions/intents list route (dashboard feed and ranked escalation digest are therefore not built), no public receipt route scoped without a tenant token. `/sign/[token]` uses the engagement id as the token (signature-verified by the kernel).
+4. **Owner mutations** go through `/api/owner/*` with an Origin check only; no owner session or rate limit exists (actions carry EIP-712 signatures). Needs a decision before a public deploy.
+5. **Document upload/extraction** (`/intents/new`, `/api/extract`) is not wired: it needs the budget-ledger-wrapped extractor service (INV-21). `/intents/new` takes a pasted intent.
+6. **/challenge** renders the recorded attack set only; live attempts need WP-32 routes.
+7. **Replay bundle is thin** (no receipts, attempts, certificate yet); pages say so rather than showing fixtures as real.
+8. Wallet access is plain EIP-1193 (no wagmi) to avoid new dependencies; revisit if Kevin wants a connector UI.
+9. Deviation: `proxy.ts` (Next 16 rename of middleware) is used; `apps/web` stays on Next 16.4.0, not 15.

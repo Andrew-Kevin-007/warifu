@@ -20,7 +20,7 @@ export default function SectionAgentFrameworks() {
           </div>
           <div className="frameworks w-full lg:basis-[320px]">
             <div className="frameworks__wrapper flex flex-col">
-              <Link className="frameworks__item group border-b-[0.5px] border-dashed border-[#CCCCCC] py-[20px] last:border-b-0 pointer-events-none" href="/#">
+              <Link className="frameworks__item group border-b-[0.5px] border-dashed border-[#CCCCCC] py-[20px] last:border-b-0 pointer-events-none" href="/docs">
                 <div className="frameworks__item-heading flex items-center justify-between gap-sm">
                   <div className="flex flex-1 items-center gap-xs transition-all duration-300 lg:group-hover:translate-x-xs">
                     <span className="block h-full">
@@ -35,7 +35,7 @@ export default function SectionAgentFrameworks() {
                   Invoice extraction may suggest a payee; it cannot release funds.
                 </p>
               </Link>
-              <Link className="frameworks__item group border-b-[0.5px] border-dashed border-[#CCCCCC] py-[20px] last:border-b-0 pointer-events-none" href="/#">
+              <Link className="frameworks__item group border-b-[0.5px] border-dashed border-[#CCCCCC] py-[20px] last:border-b-0 pointer-events-none" href="/docs">
                 <div className="frameworks__item-heading flex items-center justify-between gap-sm">
                   <div className="flex flex-1 items-center gap-xs transition-all duration-300 lg:group-hover:translate-x-xs">
                     <span className="block h-full">
@@ -50,7 +50,7 @@ export default function SectionAgentFrameworks() {
                   Signed terms bind the payee, budget cap and milestones.
                 </p>
               </Link>
-              <Link className="frameworks__item group border-b-[0.5px] border-dashed border-[#CCCCCC] py-[20px] last:border-b-0 pointer-events-none" href="/#">
+              <Link className="frameworks__item group border-b-[0.5px] border-dashed border-[#CCCCCC] py-[20px] last:border-b-0 pointer-events-none" href="/docs">
                 <div className="frameworks__item-heading flex items-center justify-between gap-sm">
                   <div className="flex flex-1 items-center gap-xs transition-all duration-300 lg:group-hover:translate-x-xs">
                     <span className="block h-full">
@@ -65,7 +65,7 @@ export default function SectionAgentFrameworks() {
                   The kernel checks evidence, policy, balances and history.
                 </p>
               </Link>
-              <Link className="frameworks__item group border-b-[0.5px] border-dashed border-[#CCCCCC] py-[20px] last:border-b-0 pointer-events-none" href="/#">
+              <Link className="frameworks__item group border-b-[0.5px] border-dashed border-[#CCCCCC] py-[20px] last:border-b-0 pointer-events-none" href="/docs">
                 <div className="frameworks__item-heading flex items-center justify-between gap-sm">
                   <div className="flex flex-1 items-center gap-xs transition-all duration-300 lg:group-hover:translate-x-xs">
                     <span className="block h-full">
@@ -80,7 +80,7 @@ export default function SectionAgentFrameworks() {
                   Fresh state is checked again at release time.
                 </p>
               </Link>
-              <Link className="frameworks__item group border-b-[0.5px] border-dashed border-[#CCCCCC] py-[20px] last:border-b-0 pointer-events-none" href="/#">
+              <Link className="frameworks__item group border-b-[0.5px] border-dashed border-[#CCCCCC] py-[20px] last:border-b-0 pointer-events-none" href="/docs">
                 <div className="frameworks__item-heading flex items-center justify-between gap-sm">
                   <div className="flex flex-1 items-center gap-xs transition-all duration-300 lg:group-hover:translate-x-xs">
                     <span className="block h-full">
