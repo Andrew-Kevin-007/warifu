@@ -1,0 +1,352 @@
+{
+  "schema": "claims/1",
+  "provenance": {
+    "gitSha": "4190029cac0ca3c598ebbf751fbb43c73e09697d",
+    "inputs": {
+      "attackMatrix": "results/attack-matrix.json",
+      "honestCorpus": "results/honest-corpus.json",
+      "blast": "packages/blast-radius/results/blast-closed-form.json",
+      "tracker": "docs/pilots/pilot_tracker.csv"
+    },
+    "fixtureManifestSha256": "0x09f182033293cafeaff3d490eafe5f672efd4e6bb9dae5698a009cab82fee76b"
+  },
+  "claims": {
+    "atk.attacks": {
+      "id": "atk.attacks",
+      "label": "SIMULATED",
+      "display": "24",
+      "numbers": [
+        "24"
+      ],
+      "source": "results/attack-matrix.json",
+      "assumptions": [
+        "unit mode: the real kernel-core pipeline in process; engagements are fixture templates with placeholder signatures",
+        "no model was called; extraction reads are the fixtures' reference reads"
+      ],
+      "exclusions": [
+        "no chain, service, or contract call is exercised; hold-out set not run; baselines B0 and B2 not built",
+        "trials of one fixture are not independent"
+      ]
+    },
+    "atk.symbolon.loss_trials": {
+      "id": "atk.symbolon.loss_trials",
+      "label": "SIMULATED",
+      "display": "0 losses in 192 trials",
+      "numbers": [
+        "0",
+        "192"
+      ],
+      "source": "results/attack-matrix.json",
+      "n": 192,
+      "k": 0,
+      "rule": "oracle-v1",
+      "assumptions": [
+        "unit mode: the real kernel-core pipeline in process; engagements are fixture templates with placeholder signatures",
+        "no model was called; extraction reads are the fixtures' reference reads"
+      ],
+      "exclusions": [
+        "no chain, service, or contract call is exercised; hold-out set not run; baselines B0 and B2 not built",
+        "trials of one fixture are not independent"
+      ]
+    },
+    "atk.symbolon.upper95": {
+      "id": "atk.symbolon.upper95",
+      "label": "SIMULATED",
+      "display": "1.56% (95% upper bound, rule-of-three)",
+      "numbers": [
+        "1.56",
+        "1.56%"
+      ],
+      "source": "results/attack-matrix.json",
+      "n": 192,
+      "k": 0,
+      "rule": "rule-of-three",
+      "assumptions": [
+        "unit mode: the real kernel-core pipeline in process; engagements are fixture templates with placeholder signatures",
+        "no model was called; extraction reads are the fixtures' reference reads"
+      ],
+      "exclusions": [
+        "no chain, service, or contract call is exercised; hold-out set not run; baselines B0 and B2 not built",
+        "trials of one fixture are not independent"
+      ]
+    },
+    "atk.symbolon.loss_attacks": {
+      "id": "atk.symbolon.loss_attacks",
+      "label": "SIMULATED",
+      "display": "loss on 1 of 24 applicable attacks",
+      "numbers": [
+        "1",
+        "24"
+      ],
+      "source": "results/attack-matrix.json",
+      "n": 24,
+      "k": 1,
+      "assumptions": [
+        "unit mode: the real kernel-core pipeline in process; engagements are fixture templates with placeholder signatures",
+        "no model was called; extraction reads are the fixtures' reference reads"
+      ],
+      "exclusions": [
+        "no chain, service, or contract call is exercised; hold-out set not run; baselines B0 and B2 not built",
+        "trials of one fixture are not independent",
+        "attacks counted as loss on a failed stated criterion are included"
+      ]
+    },
+    "atk.b1.loss_attacks": {
+      "id": "atk.b1.loss_attacks",
+      "label": "SIMULATED",
+      "display": "loss on 20 of 20 applicable attacks",
+      "numbers": [
+        "20",
+        "20"
+      ],
+      "source": "results/attack-matrix.json",
+      "n": 20,
+      "k": 20,
+      "assumptions": [
+        "B1 is a pattern reimplementation (ours), not Circle's code",
+        "its validator is a deterministic SIMULATED stand-in for an LLM validator"
+      ],
+      "exclusions": [
+        "no chain, service, or contract call is exercised; hold-out set not run; baselines B0 and B2 not built",
+        "trials of one fixture are not independent"
+      ]
+    },
+    "atk.b1.loss_trials": {
+      "id": "atk.b1.loss_trials",
+      "label": "SIMULATED",
+      "display": "104 losses in 147 trials (95% upper bound 76.90%, clopper-pearson)",
+      "numbers": [
+        "104",
+        "147",
+        "76.90",
+        "76.90%"
+      ],
+      "source": "results/attack-matrix.json",
+      "n": 147,
+      "k": 104,
+      "rule": "clopper-pearson",
+      "assumptions": [
+        "B1 is a pattern reimplementation (ours), not Circle's code"
+      ],
+      "exclusions": [
+        "no chain, service, or contract call is exercised; hold-out set not run; baselines B0 and B2 not built",
+        "trials of one fixture are not independent"
+      ]
+    },
+    "honest.n": {
+      "id": "honest.n",
+      "label": "SIMULATED",
+      "display": "62",
+      "numbers": [
+        "62"
+      ],
+      "source": "results/honest-corpus.json",
+      "assumptions": [
+        "generated corpus of honest invoices written from our own templates (not real-world invoices)",
+        "unit mode: the real kernel-core pipeline in process; engagements are fixture templates with placeholder signatures",
+        "no model was called; extraction reads are the fixtures' reference reads"
+      ],
+      "exclusions": [
+        "says nothing about real pilot invoices"
+      ]
+    },
+    "honest.symbolon.auto_release": {
+      "id": "honest.symbolon.auto_release",
+      "label": "SIMULATED",
+      "display": "57 of 62 auto-released",
+      "numbers": [
+        "57",
+        "62"
+      ],
+      "source": "results/honest-corpus.json",
+      "n": 62,
+      "k": 57,
+      "assumptions": [
+        "generated corpus of honest invoices written from our own templates (not real-world invoices)",
+        "unit mode: the real kernel-core pipeline in process; engagements are fixture templates with placeholder signatures",
+        "no model was called; extraction reads are the fixtures' reference reads"
+      ],
+      "exclusions": [
+        "5 invoices are expected to need a human by design"
+      ]
+    },
+    "honest.symbolon.escalation": {
+      "id": "honest.symbolon.escalation",
+      "label": "SIMULATED",
+      "display": "5 of 5 human-needed invoices correctly escalated",
+      "numbers": [
+        "5",
+        "5"
+      ],
+      "source": "results/honest-corpus.json",
+      "n": 5,
+      "k": 5,
+      "assumptions": [
+        "generated corpus of honest invoices written from our own templates (not real-world invoices)",
+        "unit mode: the real kernel-core pipeline in process; engagements are fixture templates with placeholder signatures",
+        "no model was called; extraction reads are the fixtures' reference reads"
+      ],
+      "exclusions": [
+        "small n; the Wilson interval is wide"
+      ]
+    },
+    "honest.symbolon.wrongful_reject": {
+      "id": "honest.symbolon.wrongful_reject",
+      "label": "SIMULATED",
+      "display": "0 of 62 wrongly rejected (95% Wilson upper bound 5.83%)",
+      "numbers": [
+        "0",
+        "62",
+        "5.83",
+        "5.83%"
+      ],
+      "source": "results/honest-corpus.json",
+      "n": 62,
+      "k": 0,
+      "rule": "wilson",
+      "assumptions": [
+        "generated corpus of honest invoices written from our own templates (not real-world invoices)",
+        "unit mode: the real kernel-core pipeline in process; engagements are fixture templates with placeholder signatures",
+        "no model was called; extraction reads are the fixtures' reference reads"
+      ],
+      "exclusions": [
+        "the cost of safety on real invoices is not measured here"
+      ]
+    },
+    "honest.b1.wrong_release": {
+      "id": "honest.b1.wrong_release",
+      "label": "SIMULATED",
+      "display": "13 of 62 wrong releases, 3 wrongful rejects",
+      "numbers": [
+        "13",
+        "62",
+        "3"
+      ],
+      "source": "results/honest-corpus.json",
+      "n": 62,
+      "k": 13,
+      "assumptions": [
+        "B1 is a pattern reimplementation (ours)",
+        "generated corpus of honest invoices written from our own templates (not real-world invoices)",
+        "unit mode: the real kernel-core pipeline in process; engagements are fixture templates with placeholder signatures",
+        "no model was called; extraction reads are the fixtures' reference reads"
+      ],
+      "exclusions": []
+    },
+    "llm.calls": {
+      "id": "llm.calls",
+      "label": "SIMULATED",
+      "display": "0 model calls",
+      "numbers": [
+        "0"
+      ],
+      "source": "results/honest-corpus.json",
+      "assumptions": [
+        "no paid LLM run happened for any figure in this file"
+      ],
+      "exclusions": [
+        "live model cost per invoice is NOT MEASURED"
+      ]
+    },
+    "blast.campaign": {
+      "id": "blast.campaign",
+      "label": "SIMULATED",
+      "display": "closed form matched exhaustive enumeration: 0 violations in 3830 executed cases (seed 20261112)",
+      "numbers": [
+        "0",
+        "3830",
+        "20261112",
+        "5000",
+        "1908",
+        "0"
+      ],
+      "source": "packages/blast-radius/results/blast-closed-form.json",
+      "n": 3830,
+      "k": 0,
+      "assumptions": [
+        "enumeration model: pooled engagement capacity; tiny windows and amounts; one interval start",
+        "no vault bytecode executed: vaultRuntimeCodeHash is null, so this is not validated for any deployment",
+        "no LLM involved: modelIds and promptHashes are empty"
+      ],
+      "exclusions": [
+        "does not execute the contract; validation against the real vault is the T3 simulator"
+      ]
+    },
+    "holdout": {
+      "id": "holdout",
+      "label": "NOT_COMPUTED",
+      "display": "hold-out not run",
+      "numbers": [],
+      "source": "results/attack-matrix.json",
+      "assumptions": [],
+      "exclusions": [
+        "the hold-out set is written by ATTACK-ADV outside this repository and run in WP-36 (H1 at G3, H2 at G5); this harness never reads it"
+      ]
+    },
+    "certificate": {
+      "id": "certificate",
+      "label": "NOT_COMPUTED",
+      "display": "certificate not computed (no chain read in this build)",
+      "numbers": [],
+      "source": "none: needs an RPC and a deployed vault (pnpm lbc build)",
+      "assumptions": [],
+      "exclusions": [
+        "no vault deployed from this repository state is certified"
+      ]
+    },
+    "challenge": {
+      "id": "challenge",
+      "label": "NOT_COMPUTED",
+      "display": "no challenge attempts recorded",
+      "numbers": [],
+      "source": "none: public_challenge_stats needs the deployed sandbox",
+      "assumptions": [],
+      "exclusions": [
+        "challenge traffic is never traction (INV-17)"
+      ]
+    },
+    "traction.pilot": {
+      "id": "traction.pilot",
+      "label": "LIVE",
+      "display": "0 pilot rows, 0 real payments, 0 base units moved",
+      "numbers": [
+        "0",
+        "0",
+        "0"
+      ],
+      "source": "docs/pilots/pilot_tracker.csv",
+      "assumptions": [
+        "tracker rows are Kevin-entered facts; demo and internal wallets are excluded by rule"
+      ],
+      "exclusions": [
+        "attack and challenge traffic is not traction",
+        "a zero is a zero: the project started at a spec and no users"
+      ]
+    }
+  },
+  "allowedNumbers": [
+    "0",
+    "1",
+    "1.56",
+    "1.56%",
+    "104",
+    "13",
+    "147",
+    "1908",
+    "192",
+    "20",
+    "20261112",
+    "24",
+    "3",
+    "3830",
+    "5",
+    "5.83",
+    "5.83%",
+    "5000",
+    "57",
+    "62",
+    "76.90",
+    "76.90%",
+    "95"
+  ]
+}

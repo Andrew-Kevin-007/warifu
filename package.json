@@ -19,6 +19,7 @@
     "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:web-env && pnpm claude:check && pnpm claims:lint",
     "kickoff": "python3 scripts/gen-kickoff.py",
     "claude:check": "node scripts/check-claude-config.mjs",
+    "claims": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./packages/blast-radius/scripts/register-ts.mjs scripts/claims.ts",
     "claims:lint": "node scripts/claims-lint.mjs",
     "verify-receipt": "node packages/receipts/bin/verify-receipt.mjs",
     "lbc": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./packages/blast-radius/scripts/register-ts.mjs ./packages/blast-radius/src/cli/lbc.ts",
