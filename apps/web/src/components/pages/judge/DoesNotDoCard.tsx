@@ -30,13 +30,13 @@ const ROWS: { id: string; title: string; text: string }[] = [
   },
 ];
 
-export default function DoesNotDoCard() {
+export default function DoesNotDoCard({ brandName }: { brandName: string }) {
   return (
     <section className="sy-dnd container" aria-labelledby="sy-dnd-h">
       <div className="sy-card-black sy-on-black sy-dnd__card">
         <div className="sy-dnd__head">
           <p className="sy-mono sy-dnd__eyebrow">Scope</p>
-          <h2 id="sy-dnd-h" className="heading-h2 sy-dnd__title">What this does not do.</h2>
+          <h2 id="sy-dnd-h" className="heading-h2 sy-dnd__title">What {brandName} does not do.</h2>
         </div>
         <PositionsList
           tone="black"

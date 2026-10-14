@@ -14,6 +14,8 @@ export interface JudgeOutcomeRow {
 }
 
 export interface JudgeProps {
+  /** public product name (single source of truth is the lane's brand module); never hard-coded in the kit */
+  brandName: string;
   /** LIVE / RECORDED / SIMULATED; the page frame and card tags follow it */
   mode: Mode;
   /** Decorative hero token. Defaults to unknown (hollow): it must not assert a fit nobody checked. */

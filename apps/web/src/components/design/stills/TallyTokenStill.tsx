@@ -16,12 +16,15 @@ export default function TallyTokenStill({
   className = '',
   showSeam = true,
   scanLine = false,
+  scrub = false,
 }: {
   pose: TokenPose;
   label?: string;
   className?: string;
   showSeam?: boolean;
   scanLine?: boolean;
+  /** halves are driven by --sy-gap set on an ancestor (scroll-linked assembly); no transitions */
+  scrub?: boolean;
 }) {
   const uid = useId().replace(/:/g, '');
   const mismatch = pose === 'mismatch';
@@ -34,6 +37,7 @@ export default function TallyTokenStill({
     <svg
       className={`sy-token ${className}`.trim()}
       data-pose={pose}
+      data-scrub={scrub ? "" : undefined}
       viewBox="0 0 360 320"
       width="100%"
       focusable="false"

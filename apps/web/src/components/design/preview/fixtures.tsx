@@ -28,15 +28,18 @@ function fixtureBanner(text: string): ReactNode {
 }
 
 // -------------------------------------------------------------------- judge
+export const FIXTURE_BRAND = 'Warifu'; // preview only: the lane passes BRAND.name
+
 export function judgeFixture(mode: 'live' | 'recorded' | 'simulated' | 'fixture' = 'fixture'): JudgeProps {
   return {
+    brandName: FIXTURE_BRAND,
     mode,
     heroFit: 'unknown',
     card1: {
       fit: 'mismatch',
       checkIds: ['K-04', 'K-07', 'K-12'],
       outcomes: [
-        { target: 'Symbolon', outcome: 'BLOCKED' },
+        { target: FIXTURE_BRAND, outcome: 'BLOCKED' },
         { target: 'B1, release on model output', outcome: 'LOSS', loss: moneyDash },
         { target: 'B0, escrow baseline', outcome: 'NOT_RUN' },
       ],
@@ -142,7 +145,7 @@ export function attackLabFixture(): AttackLabModel {
     oracleVersion: 'oracle (fixture)',
     matrixMode: 'unit',
     targets: [
-      { id: 'symbolon', label: 'Symbolon', status: 'run' },
+      { id: 'symbolon', label: FIXTURE_BRAND, status: 'run' },
       { id: 'b0', label: 'B0 escrow', status: 'not-built', provenance: 'vendoring pending' },
       { id: 'b1', label: 'B1 naive', status: 'run' },
       { id: 'b2', label: 'B2 hardened', status: 'not-built', provenance: 'not yet written' },
@@ -237,6 +240,7 @@ export function challengeFixture(variant: 'zero' | 'loss' | 'normal' = 'zero'): 
         : { distinctHuman: 12, lossEvents: 0, byPredicate: [], upperBound: <span className="sy-mono">fixture bound</span> };
   return {
     mode: 'fixture',
+    brandName: FIXTURE_BRAND,
     scoreboard: sb,
     oneClick: ONE_CLICK,
     benign: [1, 2, 3, 4, 5, 6].map((n) => ({ id: `BC-${n}`, caption: `Fixture control ${n}` })),

@@ -47,10 +47,10 @@ export default function JudgeBody(p: JudgeProps) {
               pose={heroPose}
               label={
                 heroPose === 'hollow'
-                  ? 'Tally token, halves apart, no fit checked yet'
+                  ? `${p.brandName} tally token, halves apart, no fit checked yet`
                   : heroPose === 'seated'
-                    ? 'Tally token, halves seated'
-                    : 'Tally token, halves that do not fit'
+                    ? `${p.brandName} tally token, halves seated`
+                    : `${p.brandName} tally token, halves that do not fit`
               }
             />
           </div>
@@ -225,7 +225,7 @@ export default function JudgeBody(p: JudgeProps) {
           <FractureRule />
         </div>
 
-        <DoesNotDoCard />
+        <DoesNotDoCard brandName={p.brandName} />
       </div>
     </DesignRoot>
   );

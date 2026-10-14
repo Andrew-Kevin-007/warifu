@@ -1,5 +1,6 @@
 // View model for /challenge. No wallet, no storage, no network: the lane owns every behaviour.
 import type { Mode, Slot } from '../../design/types';
+import type { DojoRank } from './DojoScoreboard';
 
 export interface ChallengeTile {
   /** ATK-nn / BC-n identifier (validated, from the catalogue) */
@@ -25,6 +26,10 @@ export interface ScoreboardModel {
 
 export interface ChallengeModel {
   mode: Mode;
+  /** public product name; never hard-coded in the kit (single source of truth is lib/brand.ts in the lane) */
+  brandName: string;
+  /** optional Dojo ranks by oracle-scored attempts */
+  ranks?: DojoRank[];
   scoreboard: ScoreboardModel;
   oneClick: ChallengeTile[];
   benign: ChallengeTile[];

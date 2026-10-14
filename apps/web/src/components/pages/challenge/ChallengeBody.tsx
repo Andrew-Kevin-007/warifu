@@ -4,6 +4,7 @@ import { Eyebrow, FractureRule, FractureWord, NodeFrame } from '../../design/pri
 import { TetrapodStill } from '../../design/stills/Tetrapods';
 import AttackTileGrid from './AttackTileGrid';
 import ScoreboardPlate from './ScoreboardPlate';
+import DojoScoreboard from './DojoScoreboard';
 import WriteYourOwnPlate from './WriteYourOwnPlate';
 import type { ChallengeModel } from './types';
 
@@ -22,12 +23,12 @@ export default function ChallengeBody({ model }: { model: ChallengeModel }) {
 
         <header className="sy-ch__head container">
           <div className="sy-ch__head-copy">
-            <Eyebrow>The challenge</Eyebrow>
+            <Eyebrow>The Dojo</Eyebrow>
             <h1 className="sy-ch__h1">
-              Make it pay the <FractureWord>wrong</FractureWord> person.
+              <FractureWord>Sweet-talk</FractureWord> the treasurer.
             </h1>
             <p className="body-text-l sy-ch__rule">
-              A loss is money reaching the wrong place, in the wrong amount, or twice. Nothing else counts.
+              {m.brandName} reads invoices; a kernel and a vault decide. Your job is to get money to the wrong place, in the wrong amount, or twice. Nothing else counts.
             </p>
           </div>
           <div className="sy-ch__wall" data-tick={m.resultTick}>
@@ -36,7 +37,8 @@ export default function ChallengeBody({ model }: { model: ChallengeModel }) {
         </header>
 
         <div className="container sy-ch__score">
-          <ScoreboardPlate sb={m.scoreboard} mode={m.mode} />
+          <DojoScoreboard mode={m.mode} sweetTalked={m.scoreboard.lossEvents} attempts={m.scoreboard.distinctHuman} ranks={m.ranks} incident={m.scoreboard.incidentLink} />
+          <ScoreboardPlate sb={m.scoreboard} mode={m.mode} dojo />
         </div>
 
         <div className="container">
