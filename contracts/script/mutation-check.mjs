@@ -7,7 +7,7 @@
 //
 // Usage (from contracts/ or the repo root):
 //   node contracts/script/mutation-check.mjs                      # all mutants, 4 workers
-//   node contracts/script/mutation-check.mjs rel- --jobs 8        # only ids starting with "rel-"
+//   node contracts/script/mutation-check.mjs rel-,pc- --jobs 8   # only ids starting with "rel-" or "pc-"
 //   node contracts/script/mutation-check.mjs --dry                # check that every `find` matches exactly once
 //   node contracts/script/mutation-check.mjs --fuzz-runs 256 --invariant-runs 32   # quicker, weaker
 // Exit 0 iff every selected mutant was killed (a full, unfiltered run also writes reports/mutation.json).
@@ -59,7 +59,8 @@ const filter = argv[0] ?? "";
 
 const original = readFileSync(join(contractsDir, VAULT), "utf8").replace(/\r\n/g, "\n");
 const vaultSha256 = createHash("sha256").update(original).digest("hex");
-const selected = MUTANTS.filter(([id]) => id.startsWith(filter));
+const prefixes = filter.split(",").filter((x) => x !== "");
+const selected = MUTANTS.filter(([id]) => prefixes.length === 0 || prefixes.some((pf) => id.startsWith(pf)));
 if (selected.length === 0) {
   console.error(`no mutant id starts with "${filter}"`);
   process.exit(2);
