@@ -18,6 +18,7 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
+  readdirSync,
   rmSync,
   symlinkSync,
   writeFileSync,
@@ -55,6 +56,9 @@ const fuzzRuns = flag("--fuzz-runs");
 const invariantRuns = flag("--invariant-runs");
 const invariantDepth = flag("--invariant-depth");
 const timeoutMs = Number(flag("--timeout-min") ?? 25) * 60_000;
+// --state <file>: results are saved after every mutant and reloaded when the vault source, the test suite and the
+// run settings are byte-identical, so an interrupted run resumes instead of starting over. Only KILLED is reused.
+const statePath = flag("--state");
 const filter = argv[0] ?? "";
 
 const original = readFileSync(join(contractsDir, VAULT), "utf8").replace(/\r\n/g, "\n");
@@ -88,6 +92,53 @@ console.log(`${selected.length} mutants selected, ${applicable.length} applicabl
 if (dry) {
   for (const [id, r] of results) console.log(`${id.padEnd(40)} ${r.status} ${r.detail}`);
   process.exit(results.size === 0 ? 0 : 1);
+}
+
+// ---- resumable state ---------------------------------------------------------------------------------------------
+function listFiles(dir) {
+  const out = [];
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    const p = join(dir, e.name);
+    if (e.isDirectory()) out.push(...listFiles(p));
+    else out.push(p);
+  }
+  return out.sort();
+}
+const suiteSha256 = (() => {
+  const h = createHash("sha256");
+  for (const d of ["test", "script"]) {
+    for (const f of listFiles(join(contractsDir, d))) {
+      if (f.endsWith("mutation-check.mjs") || f.endsWith("mutants.mjs")) continue;
+      h.update(f.slice(contractsDir.length));
+      h.update(readFileSync(f).toString("utf8").replace(/\r\n/g, "\n"));
+    }
+  }
+  h.update(readFileSync(join(contractsDir, "foundry.toml")).toString("utf8").replace(/\r\n/g, "\n"));
+  return h.digest("hex");
+})();
+const settingsKey = JSON.stringify({ fuzzRuns: fuzzRuns ?? null, invariantRuns: invariantRuns ?? null, invariantDepth: invariantDepth ?? null });
+const saved = {};
+if (statePath && existsSync(statePath)) {
+  const st = JSON.parse(readFileSync(statePath, "utf8"));
+  if (st.vaultSha256 === vaultSha256 && st.suiteSha256 === suiteSha256 && st.settingsKey === settingsKey) {
+    for (const [id, r] of Object.entries(st.results ?? {})) if (r.status === "KILLED") saved[id] = r;
+  } else {
+    console.log("state file does not match this vault/suite/settings: starting from scratch");
+  }
+}
+for (let i = applicable.length - 1; i >= 0; --i) {
+  const prev = saved[applicable[i][0]];
+  if (prev) {
+    results.set(applicable[i][0], { ...prev, resumed: true });
+    applicable.splice(i, 1);
+  }
+}
+if (Object.keys(saved).length) console.log(`resumed ${[...results.values()].filter((r) => r.resumed).length} killed mutants from ${statePath}`);
+function saveState() {
+  if (!statePath) return;
+  const obj = {};
+  for (const [id, r] of results) if (r.status === "KILLED") obj[id] = { status: r.status, killedBy: r.killedBy };
+  writeFileSync(statePath, JSON.stringify({ vaultSha256, suiteSha256, settingsKey, results: obj }, null, 1));
 }
 
 // ---- scratch workspaces ------------------------------------------------------------------------------------------
@@ -150,16 +201,28 @@ function classify({ code, signal, out }) {
 
 const queue = [...applicable];
 const started = Date.now();
+// One unmodified run (in workspace 0) proves the scratch copy and the suite are green before any mutant counts as
+// killed; the other workers wait for it instead of repeating a full run each.
+let baselinePromise = null;
+function baseline(proj) {
+  if (!baselinePromise) {
+    baselinePromise = (async () => {
+      if (noBaseline) return;
+      const base = classify(await runForge(proj));
+      if (base.status !== "SURVIVED") {
+        console.error(`unmodified suite does not pass in the scratch copy (${base.status} ${base.detail ?? base.killedBy ?? ""})`);
+        process.exit(3);
+      }
+      console.log("baseline: unmodified suite passes in the scratch copy");
+    })();
+  }
+  return baselinePromise;
+}
+
 async function worker(j) {
   const proj = prepareWorkspace(j);
   const vaultPath = join(proj, VAULT);
-  if (!noBaseline) {
-    const base = classify(await runForge(proj));
-    if (base.status !== "SURVIVED") {
-      console.error(`workspace ${j}: unmodified suite does not pass (${base.status} ${base.detail ?? base.killedBy ?? ""})`);
-      process.exit(3);
-    }
-  }
+  await baseline(proj);
   for (;;) {
     const next = queue.shift();
     if (!next) return;
@@ -172,7 +235,8 @@ async function worker(j) {
       writeFileSync(vaultPath, original);
     }
     results.set(id, r);
-    const done = [...results.values()].filter((x) => x.status !== "NOT_APPLIED").length;
+    saveState();
+    const done =[...results.values()].filter((x) => x.status !== "NOT_APPLIED").length;
     console.log(`[${done}/${applicable.length}] ${id.padEnd(40)} ${r.status}${r.killedBy ? ` by ${r.killedBy}` : ""}${r.detail ? ` (${r.detail})` : ""}`);
   }
 }
