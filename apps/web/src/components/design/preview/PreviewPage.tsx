@@ -130,7 +130,7 @@ export default async function PreviewPage({ params }: { params?: Promise<{ page?
   const { page } = (await params) ?? {};
   if (!page || !(PREVIEW_PAGES as readonly string[]).includes(page)) {
     return (
-      <main className="container" style={undefined}>
+      <main className="container">
         <h1>Design preview</h1>
         <ul>
           {PREVIEW_PAGES.map((p) => (

@@ -3,6 +3,7 @@ import type { Mode, Profile } from './types';
 import '../../styles/design.css';
 import '../../styles/design-motion.css';
 import '../../styles/design-pages.css';
+import '../../styles/design-pages-b.css';
 import '../../styles/lane-skin.css';
 
 /**
