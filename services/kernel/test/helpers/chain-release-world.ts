@@ -14,6 +14,9 @@ import { viemChainReader } from "../../src/chain/reader";
 import type { ChainReader } from "../../src/chain/reader";
 import { submitOwnerAck } from "../../src/evidence/service";
 import type { EvidenceServiceDeps } from "../../src/evidence/service";
+import { viemGuardianPauser } from "../../src/chain/guardian";
+import { viemLedgerChain } from "../../src/reconcile/ledger";
+import type { ReconcilerDeps } from "../../src/reconcile/service";
 import { createKernelSigner } from "../../src/receipt/build";
 import type { KernelSigner } from "../../src/receipt/build";
 import { recheckHolds } from "../../src/release/scheduler";
@@ -54,6 +57,8 @@ export interface ChainReleaseWorld {
   advanceTo(epochSeconds: bigint): Promise<void>;
   reevalDeps(): ReevalDeps;
   releaseDeps(over?: Partial<ReleaseDeps>): ReleaseDeps;
+  /** WP-15: the reconciler wired to the real chain; the guardian is the vault's guardian party (pause-only). */
+  reconcilerDeps(over?: Partial<ReconcilerDeps>): ReconcilerDeps;
   app(over?: Record<string, unknown>): ReturnType<EngagementWorld["app"]>;
   token(): string;
   /** POST a document and an intent for the milestone (real time); returns the response. */
@@ -86,8 +91,9 @@ export async function openChainReleaseWorld(o: ChainReleaseOptions = {}): Promis
   });
   await ew.t.db.query("update tenants set policy = $2::jsonb, policy_hash = $3 where id = $1", [TENANT_A, JSON.stringify(loaded.policy), loaded.policyHash]);
 
-  // Fund the vault.
+  // Fund the vault. The guardian pays its own gas (a pause-only key; it holds nothing else).
   const { v } = ew;
+  await v.dev.setBalance({ address: v.guardian.address, value: 10n ** 20n });
   const mintTx = await v.wallet.writeContract({ address: v.token, abi: MOCK_USDC_ABI, functionName: "mint", args: [v.vault, 500n * USDC], account: v.relayerAccount, chain: null } as never);
   await v.pub.waitForTransactionReceipt({ hash: mintTx });
 
@@ -132,6 +138,15 @@ export async function openChainReleaseWorld(o: ChainReleaseOptions = {}): Promis
     },
     reevalDeps: rd,
     releaseDeps: rel,
+    reconcilerDeps: (over = {}) => ({
+      db: ew.t.db,
+      chain,
+      ledger: viemLedgerChain(v.pub),
+      guardian: viemGuardianPauser({ publicClient: v.pub, walletClient: v.wallet, account: v.guardian.account }),
+      clock: nowMs,
+      logger: ew.logger,
+      ...over,
+    }),
     app: (over = {}) =>
       ew.app({
         signer,

@@ -40,6 +40,10 @@ export interface KernelConfig {
   readonly maxArtifactBytes: number;
   /** WP-14 payAt scheduler. `testClockOffsetSeconds` shifts ONLY the scheduler's clock (never token or clock-guard time); refused in production (boot guard G11). */
   readonly scheduler: { readonly enabled: boolean; readonly pollMs: number; readonly testClockOffsetSeconds: number | null };
+  /** WP-15 guardian (pause-only role of the vault, K-16). null = no automatic pause; the breaker still halts the kernel. */
+  readonly guardianKey: Secret | null;
+  /** WP-15 K-15 reconciler loop. */
+  readonly reconciler: { readonly enabled: boolean; readonly pollMs: number };
   /** Names + values that must never be logged. */
   readonly logSecrets: readonly Secret[];
 }
@@ -116,6 +120,8 @@ export function loadConfig(env: EnvLike): KernelConfig {
   const kernelSignerKey = env["KERNEL_SIGNER_PRIVATE_KEY"] ?? "";
   const relayerKey = env["RELAYER_PRIVATE_KEY"] ?? "";
   if (relayerKey !== "" && relayerKey === kernelSignerKey) throw new ConfigError("RELAYER_PRIVATE_KEY", "must not be the kernel signer key (separate roles)");
+  const guardianKey = env["GUARDIAN_PRIVATE_KEY"] ?? "";
+  if (guardianKey !== "" && (guardianKey === kernelSignerKey || guardianKey === relayerKey)) throw new ConfigError("GUARDIAN_PRIVATE_KEY", "must be its own key (the guardian can only pause; it is not the kernel signer or the relayer)");
   const blobDir = env["BLOB_DIR"] !== undefined && env["BLOB_DIR"] !== "" ? env["BLOB_DIR"] : null;
   return Object.freeze({
     profile,
@@ -146,6 +152,8 @@ export function loadConfig(env: EnvLike): KernelConfig {
       pollMs: intOf(env, "SCHEDULER_POLL_MS", 5000, 250, 3_600_000),
       testClockOffsetSeconds: env["TEST_CLOCK_OFFSET_SECONDS"] === undefined || env["TEST_CLOCK_OFFSET_SECONDS"].trim() === "" ? null : intOf(env, "TEST_CLOCK_OFFSET_SECONDS", 0, 0, 10 * 365 * 86_400),
     },
+    guardianKey: guardianKey === "" ? null : new Secret(guardianKey),
+    reconciler: { enabled: env["RECONCILER_ENABLED"] !== "false", pollMs: intOf(env, "RECONCILER_POLL_MS", 60_000, 250, 3_600_000) },
     logSecrets: redactionList(env).map((s) => new Secret(s)),
   });
 }
