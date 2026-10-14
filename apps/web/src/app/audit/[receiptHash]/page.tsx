@@ -19,6 +19,9 @@ export default async function Page({ params }: { params: Promise<{ receiptHash: 
     >
       <Section title="Receipt hash">
         <p className="sy-mono">{hash}</p>
+        <p className="body-text-s">
+          <a href={`/share/${hash}`}>Share card for this receipt</a>
+        </p>
       </Section>
       <Section title="Verification">
         <ReceiptVerifier hash={hash} rpcUrl={rpc} />

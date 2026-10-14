@@ -194,3 +194,9 @@ Format: `## WP-xx <title> · ROLE · <merge time IST>` — **What changed** · *
 - **Dependencies**: `@symbolon/chain` workspace link added to apps/web (ABI and decoders for the browser verifier). None external.
 - **How to verify**: `pnpm exec vitest run apps/web`; `pnpm --filter @symbolon/web build` and `NEXT_PUBLIC_PROFILE=challenge pnpm --filter @symbolon/web build` then `grep -rl eth_signTypedData_v4 apps/web/.next/static` (hits only in the app build); `pnpm lint && pnpm test:web-env && pnpm claims:lint`.
 - **Known gaps**: see QUESTIONS 2026-10-14 WP-17 web. Lighthouse and Playwright e2e not run.
+
+## WP-17 brand, Seal, Nice-try cards · WEB lane (Sonnet) · 2026-10-15 (branch `wp-17/brand-seal-nicetry`, pending review)
+- **What changed**: public name is Warifu via `apps/web/src/lib/brand.ts` (metadata, copy, README title, /about name section with the kanji and a "formerly" footnote, DEPLOY_VERCEL note). Internal names unchanged; the EIP-712 domain display name is flagged as a schemas RFC in QUESTIONS. Seal: `lib/seal.ts`, `/api/public/seal/[vault]` (SVG, `public, max-age=60`, CORP cross-origin), `/seal/[vault]` embed page. Nice-try: `lib/nice-try.ts` (three phrasings per reason code, chosen from the receipt hash), `lib/share-card.ts`, `/share/[receiptHash]`, `/api/public/share/[receiptHash]/card.svg`. Seal and share routes are denied on the challenge profile (APP_ONLY in `lib/security.ts`, INV-16).
+- **Dependencies**: none.
+- **How to verify**: `pnpm exec vitest run apps/web` (brand, seal, nice-try, security tests); `pnpm lint`; build both profiles.
+- **Known gaps**: no live certificate exists yet, so the seal renders blank "not computed" until one is built; design lane bodies (components/design, components/pages) not touched; Dojo wiring waits for WP-32.

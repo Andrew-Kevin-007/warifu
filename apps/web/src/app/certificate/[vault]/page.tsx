@@ -22,6 +22,9 @@ export default async function Page({ params }: { params: Promise<{ vault: string
       lede="Exclusions come first, then the bound, then the assumptions it rests on. The number is calculated from on-chain state and empirically tested; it says nothing about anything outside the stated model."
     >
       <p className="sy-mono">{vault}</p>
+      <p className="body-text-s">
+        <a href={`/seal/${vault}`}>Embed this certificate&apos;s seal</a>
+      </p>
       {r.source === 'UNAVAILABLE' ? (
         <Section title="No certificate available">
           <div className="sy-card">
