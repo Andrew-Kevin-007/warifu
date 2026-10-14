@@ -9,7 +9,8 @@
 //     OWNER_ACK      source 'eip712:MilestoneAck'  payload {milestoneId, artifactHash, override, deadline, signer}
 //                    (the verified MilestoneAck message plus the recovered signer; signer must be engagement.owner)
 //     CI_PASS        source 'github:actions'       payload {repo, ref, headSha, conclusion, workflow?}
-//     URL_HEALTH     source = the spec url         payload {url, status, bodySha256 (0x.. or null)}
+//     URL_HEALTH     source urlEvidenceSource(spec url: the url itself, or url:sha256:<hash> past 512 chars)
+//                                                  payload {url (== the spec url), status, bodySha256 (0x.. or null)}
 //     ARTIFACT_HASH  source 'kernel:artifact'      payload {sha256}
 //   sandbox (profile 'sandbox', EVIDENCE_MODE=fixtures): source 'fixture:<fixtureId>' and payload.requirement equal
 //   (JCS) to the spec entry it satisfies; the fixture's `result` is authoritative and nothing else is read.
@@ -20,7 +21,7 @@
 // LATEST matching observation decides; an owner override (OWNER_ACK with override=true, production only, when
 // policy.evidence.allowOwnerOverride) satisfies MISSING/FAILED/DENIED requirements but never a TAMPERED one; an empty
 // evidenceSpec (all_of over nothing, signed by both parties) is satisfied at invoiceReceivedAt.
-import { EvidenceSchema, epochSecondsFromIso, jcs } from "@symbolon/schemas";
+import { EvidenceSchema, epochSecondsFromIso, hashJcs, jcs } from "@symbolon/schemas";
 import type { Address, Evidence, EvidenceRequirement, ISODateTime, Milestone, UUID } from "@symbolon/schemas";
 import type { LoadedPolicy } from "@symbolon/policy";
 import type { KernelContext } from "./context";
@@ -132,6 +133,19 @@ function resultState(e: Evidence, passCondition: () => Observation["state"]): Ob
 }
 
 /**
+ * For hash-bearing evidence (URL content hash, artifact hash) the PAYLOAD'S facts decide, not the collector's verdict:
+ * ERROR (the collector could not decide) => MISSING; a pinned hash that differs => TAMPERED even when the collector
+ * itself reported FAIL for that mismatch (docs/04 K-09: hash mismatch => REJECT EVIDENCE_HASH_MISMATCH; the service's
+ * collectors report a mismatch as FAIL, so reading only `result` would make that REJECT unreachable); wrong status =>
+ * FAILED; otherwise the collector must also have said PASS.
+ */
+function factState(e: Evidence, byFacts: () => Observation["state"]): Observation["state"] {
+  if (e.result === "ERROR") return "MISSING";
+  const s = byFacts();
+  return s === "SATISFIED" && e.result !== "PASS" ? "FAILED" : s;
+}
+
+/**
  * Production: does `e` observe requirement `req`? Returns the implied outcome, or null when `e` is about something
  * else (another repo, another url, another hash). Source acceptance is checked by the caller.
  */
@@ -152,7 +166,7 @@ function observeProduction(req: EvidenceRequirement, e: Evidence, milestoneId: s
   }
   if (req.type === "URL_HEALTH") {
     if (str(p, "url") !== req.url) return null;
-    const state = resultState(e, () => {
+    const state = factState(e, () => {
       if (p.status !== req.expectStatus) return "FAILED";
       if (req.contentSha256 !== undefined && p.bodySha256 !== req.contentSha256) return "TAMPERED";
       return "SATISFIED";
@@ -161,12 +175,23 @@ function observeProduction(req: EvidenceRequirement, e: Evidence, milestoneId: s
   }
   // ARTIFACT_HASH: the kernel-computed hash of the uploaded artifact must equal the signed spec hash.
   if (typeof p.sha256 !== "string") return null;
-  return { evidence: e, state: resultState(e, () => (p.sha256 === req.sha256 ? "SATISFIED" : "TAMPERED")), detail: "artifact hash" };
+  return { evidence: e, state: factState(e, () => (p.sha256 === req.sha256 ? "SATISFIED" : "TAMPERED")), detail: "artifact hash" };
 }
 
-/** The only source a production collector may report for this requirement. */
-function productionSource(req: EvidenceRequirement): string {
-  if (req.type === "URL_HEALTH") return req.url;
+/** Evidence.source is bounded at 512 characters (schemas); a longer signed URL is identified by its hash instead. */
+export const EVIDENCE_SOURCE_MAX = 512;
+
+/** The source a URL_HEALTH collector reports for the signed spec url: the url itself, or `url:sha256:<hashJcs(url)>` when it is too long. */
+export function urlEvidenceSource(url: string): string {
+  return url.length <= EVIDENCE_SOURCE_MAX ? url : `url:sha256:${hashJcs(url)}`;
+}
+
+/**
+ * The only source a production collector may report for this requirement. Exported so the service's collectors and K-09
+ * cannot drift apart (docs/QUESTIONS.md "WP-05 kernel fixes", finding 1).
+ */
+export function productionEvidenceSource(req: EvidenceRequirement): string {
+  if (req.type === "URL_HEALTH") return urlEvidenceSource(req.url);
   return req.type === "OWNER_ACK" ? SOURCE_OWNER_ACK : req.type === "CI_PASS" ? SOURCE_GITHUB : SOURCE_ARTIFACT;
 }
 
@@ -193,7 +218,7 @@ function assessRequirement(index: number, req: EvidenceRequirement, pool: readon
     }
     observations = [];
     for (const e of sameType) {
-      if (e.source !== productionSource(req)) {
+      if (e.source !== productionEvidenceSource(req)) {
         deniedSources++;
         continue;
       }

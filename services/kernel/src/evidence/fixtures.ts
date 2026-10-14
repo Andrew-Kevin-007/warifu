@@ -42,7 +42,8 @@ export const emptyFixtureStore: FixtureStore = { find: () => null };
 export function fixtureToCollected(f: EvidenceFixture, requirement: EvidenceRequirement): Collected {
   return {
     source: `fixture:${f.fixtureId}`,
-    payload: { requirementHash: requirementHash(requirement), fixtureId: f.fixtureId, fixture: f.payload },
+    // `requirement` is the K-09 sandbox contract (kernel-core evidence.ts): the signed spec entry this record satisfies, JCS-compared by the kernel.
+    payload: { requirement, requirementHash: requirementHash(requirement), fixtureId: f.fixtureId, fixture: f.payload },
     result: f.result,
     details: f.details,
   };

@@ -2,8 +2,8 @@
 // evidence, hash mismatch, SSRF source policy (pure side), sandbox fixtures mode).
 import { describe, expect, it } from "vitest";
 import type { Evidence, EvidenceRequirement } from "@symbolon/schemas";
-import { untrusted } from "@symbolon/schemas";
-import { assessEvidence, evaluate, evidenceCollectionPlan, urlSourceDecision } from "../src/index";
+import { hashJcs, untrusted } from "@symbolon/schemas";
+import { SOURCE_ARTIFACT, SOURCE_GITHUB, SOURCE_OWNER_ACK, assessEvidence, evaluate, evidenceCollectionPlan, productionEvidenceSource, urlEvidenceSource, urlSourceDecision } from "../src/index";
 import type { KernelContext } from "../src/index";
 import { ATTACKER, H, M1, M2, OWNER, context, engagement, expectCheck, intent, milestone, ownerAck, policy } from "./helpers";
 
@@ -135,6 +135,37 @@ describe("K-09 source policy (production)", () => {
     expectCheck(k09(ctxWithSpec(spec, [art(PIN)])), "K-09", null, null);
     expectCheck(k09(ctxWithSpec(spec, [art(H("x"))])), "K-09", "REJECT", "EVIDENCE_HASH_MISMATCH");
     expectCheck(k09(ctxWithSpec(spec, [art(42)])), "K-09", "HOLD", "EVIDENCE_MISSING");
+  });
+
+  it("hash-bearing evidence: the payload's facts decide, so a collector that reports its own mismatch as FAIL still yields the spec'd REJECT", () => {
+    // services/kernel collectors record a hash mismatch as result FAIL (collectors.ts); docs/04 K-09 says REJECT EVIDENCE_HASH_MISMATCH.
+    const pinned: EvidenceRequirement[] = [{ type: "URL_HEALTH", url: URL, expectStatus: 200, contentSha256: PIN }];
+    expectCheck(k09(ctxWithSpec(pinned, [url({ bodySha256: H("changed") }, { result: "FAIL" })])), "K-09", "REJECT", "EVIDENCE_HASH_MISMATCH");
+    expectCheck(k09(ctxWithSpec(pinned, [url({ status: 500, bodySha256: H("error page") }, { result: "FAIL" })])), "K-09", "HOLD", "EVIDENCE_FAILED"); // a 500 is a failure, not tampering
+    expectCheck(k09(ctxWithSpec(pinned, [url({}, { result: "FAIL" })])), "K-09", "HOLD", "EVIDENCE_FAILED"); // facts fine but the collector says FAIL: fail closed
+    expectCheck(k09(ctxWithSpec(pinned, [url({ bodySha256: H("changed") }, { result: "ERROR" })])), "K-09", "HOLD", "EVIDENCE_MISSING"); // the collector could not decide
+    const art1: EvidenceRequirement[] = [{ type: "ARTIFACT_HASH", sha256: PIN }];
+    expectCheck(k09(ctxWithSpec(art1, [art(H("other file"), { result: "FAIL" })])), "K-09", "REJECT", "EVIDENCE_HASH_MISMATCH");
+    expectCheck(k09(ctxWithSpec(art1, [art(PIN, { result: "FAIL" })])), "K-09", "HOLD", "EVIDENCE_FAILED");
+    expectCheck(k09(ctxWithSpec(art1, [art(H("other file"), { result: "ERROR" })])), "K-09", "HOLD", "EVIDENCE_MISSING");
+  });
+
+  it("a signed URL longer than the 512-character source field is identified by url:sha256:<hash>; the raw url cannot be a source", () => {
+    const long = `https://acme.vercel.app/${"a".repeat(600)}`;
+    const spec: EvidenceRequirement[] = [{ type: "URL_HEALTH", url: long, expectStatus: 200 }];
+    expect(urlEvidenceSource(URL)).toBe(URL);
+    expect(urlEvidenceSource(long)).toBe(`url:sha256:${hashJcs(long)}`);
+    expect(productionEvidenceSource(spec[0] as EvidenceRequirement)).toBe(urlEvidenceSource(long));
+    const good = ev("URL_HEALTH", urlEvidenceSource(long), { url: long, status: 200, bodySha256: null });
+    expectCheck(k09(ctxWithSpec(spec, [good])), "K-09", null, null);
+    expectCheck(k09(ctxWithSpec(spec, [{ ...good, source: "url:sha256:" + H("another") }])), "K-09", "HOLD", "EVIDENCE_SOURCE_DENIED");
+    expectCheck(k09(ctxWithSpec(spec, [{ ...good, source: long.slice(0, 512) }])), "K-09", "HOLD", "EVIDENCE_SOURCE_DENIED");
+  });
+
+  it("productionEvidenceSource is the fixed source of each non-url type", () => {
+    expect(productionEvidenceSource({ type: "OWNER_ACK" })).toBe(SOURCE_OWNER_ACK);
+    expect(productionEvidenceSource({ type: "CI_PASS", repo: "acme/site", ref: SHA })).toBe(SOURCE_GITHUB);
+    expect(productionEvidenceSource({ type: "ARTIFACT_HASH", sha256: PIN })).toBe(SOURCE_ARTIFACT);
   });
 
   it("all_of: the most actionable reason is reported (TAMPERED > DENIED > FAILED > MISSING) and every requirement is listed", () => {

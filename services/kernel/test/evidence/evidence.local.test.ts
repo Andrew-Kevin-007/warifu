@@ -95,7 +95,7 @@ describe.skipIf(!enabled)("local: evidence service over real Postgres", () => {
       const r = await call(app, "POST", "/v1/evidence/collect", w.token(t.tenantId), { milestoneId: m });
       expect(r.status).toBe(200);
       expect(r.json.evidence).toHaveLength(1);
-      expect(r.json.evidence[0]).toMatchObject({ type: "URL_HEALTH", result: "PASS", source: "url:https://site.example.com/health" });
+      expect(r.json.evidence[0]).toMatchObject({ type: "URL_HEALTH", result: "PASS", source: "https://site.example.com/health" });
       expect(r.json.awaiting).toEqual([
         { index: 1, type: "OWNER_ACK", via: "POST /v1/evidence/ack" },
         { index: 2, type: "ARTIFACT_HASH", via: "POST /v1/evidence/artifact" },
@@ -217,7 +217,7 @@ describe.skipIf(!enabled)("local: evidence service over real Postgres", () => {
       const app = w.app({ evidence: evidenceDeps(w, liveSource(netStub({})), { blobs: fileBlobStore(blobDir) }) });
       const r = await upload(app, w.token(t.tenantId), t.milestones[0]);
       expect(r.status).toBe(201);
-      expect(r.json).toMatchObject({ sha256: want, size: bytes.byteLength, evidence: { type: "ARTIFACT_HASH", result: "PASS", source: "kernel:artifact-upload", collectedBy: "kernel" } });
+      expect(r.json).toMatchObject({ sha256: want, size: bytes.byteLength, evidence: { type: "ARTIFACT_HASH", result: "PASS", source: "kernel:artifact", collectedBy: "kernel" } });
       expect(readdirSync(blobDir)).toContain(want.slice(2));
       expect((await rowsOf(w, t.tenantId, t.milestones[0] as Hex32))[0]?.payload).toMatchObject({ hashMismatch: false, size: bytes.byteLength });
     });
@@ -268,8 +268,8 @@ describe.skipIf(!enabled)("local: evidence service over real Postgres", () => {
       const b = await body(t.owner, m);
       const r = await call(app, "POST", "/v1/evidence/ack", tok(), b);
       expect(r.status).toBe(201);
-      expect(r.json).toMatchObject({ type: "OWNER_ACK", result: "PASS", collectedBy: "kernel", source: "owner:eip712:MilestoneAck" });
-      expect(r.json.payload).toMatchObject({ signer: t.owner.address, override: false, artifactHash: ZERO, signature: b.signature, requirementHash: hashJcs({ type: "OWNER_ACK" }) });
+      expect(r.json).toMatchObject({ type: "OWNER_ACK", result: "PASS", collectedBy: "kernel", source: "eip712:MilestoneAck" });
+      expect(r.json.payload).toMatchObject({ milestoneId: m, signer: t.owner.address, override: false, artifactHash: ZERO, signature: b.signature, requirementHash: hashJcs({ type: "OWNER_ACK" }) });
       const again = await call(app, "POST", "/v1/evidence/ack", tok(), b);
       expect(again.status).toBe(201);
       expect(again.json.evidenceId).toBe(r.json.evidenceId);
