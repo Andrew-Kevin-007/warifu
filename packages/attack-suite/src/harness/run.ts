@@ -96,7 +96,7 @@ export function matchExpectation(expect: StepExpect, d: TargetDecision, unimplem
   };
 }
 
-interface Holder {
+export interface Holder {
   readonly states: Map<ScenarioId, SimState>;
 }
 
@@ -109,7 +109,7 @@ function stateFor(h: Holder, scenarioId: ScenarioId): SimState {
   return s;
 }
 
-interface SubmitOutcome {
+export interface SubmitOutcome {
   readonly record: StepRecord;
   /** The target's decision for each extraction run, in run order. */
   readonly decisions: readonly TargetDecision[];
@@ -121,7 +121,7 @@ interface SubmitOutcome {
   readonly lossMoney: bigint;
 }
 
-function runSubmit(h: Holder, fixtureScenario: ScenarioId, step: SubmitStep, target: Target, attackId: string): SubmitOutcome {
+export function runSubmit(h: Holder, fixtureScenario: ScenarioId, step: SubmitStep, target: Target, attackId: string): SubmitOutcome {
   const scenarioId = step.scenarioId ?? fixtureScenario;
   // An independent attempt starts on a fresh scenario instance (docs/15 §2; WP-23 C.2 option b).
   if (step.freshInstance === true) h.states.delete(scenarioId);

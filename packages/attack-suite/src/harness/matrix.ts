@@ -106,7 +106,7 @@ export interface AttackMatrix {
     readonly details: readonly AgreementRow[];
     readonly extrasInformational: number;
   };
-  readonly holdout: { readonly status: "not-run"; readonly reason: string };
+  readonly holdout: { readonly status: "reported-separately"; readonly reason: string };
   readonly limitations: readonly string[];
 }
 
@@ -266,7 +266,7 @@ export function buildMatrix(opts: { gitSha: string | null }): AttackMatrix {
       extrasInformational: agreeRows.filter((r) => r.extra.length > 0).length,
     },
     holdout: {
-      status: "not-run",
+      status: "reported-separately",
       reason: "the hold-out set is written by ATTACK-ADV outside this repository and run in WP-36 (H1 at G3, H2 at G5); this harness never reads it",
     },
     limitations: limitationsFor(unimplemented),

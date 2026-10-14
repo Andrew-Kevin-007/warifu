@@ -21,6 +21,7 @@
     "claude:check": "node scripts/check-claude-config.mjs",
     "claims:lint": "node scripts/claims-lint.mjs",
     "verify-receipt": "node packages/receipts/bin/verify-receipt.mjs",
+    "holdout": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./packages/blast-radius/scripts/register-ts.mjs ./holdout/cli.ts",
     "lbc": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./packages/blast-radius/scripts/register-ts.mjs ./packages/blast-radius/src/cli/lbc.ts",
     "sec:local": "pnpm --filter @symbolon/sec-suite run sec:local",
     "sec:sandbox": "node scripts/sec-sandbox.mjs"
