@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity 0.8.30;
 
+import {VmSafe} from "forge-std/Vm.sol";
 import {SymbolonVault} from "../src/SymbolonVault.sol";
 import {VaultTestBase} from "./utils/VaultTestBase.sol";
 
@@ -46,6 +47,8 @@ contract FuzzModelTest is VaultTestBase {
     /// Non-vacuity: over a fixed sweep of seeds every reachable outcome (each revert precedence step, and success)
     /// occurs at least once, so the fuzz test above is not passing through one corner of the state space.
     function test_oracleSweep_reachesEveryOutcome() public {
+        // instrumented (`forge coverage`) code is too gas-hungry for 240 full scenarios in one call
+        vm.skip(vm.isContext(VmSafe.ForgeContext.Coverage));
         for (uint256 seed = 1; seed <= 240; ++seed) {
             delete w.histT;
             delete w.histAmt;

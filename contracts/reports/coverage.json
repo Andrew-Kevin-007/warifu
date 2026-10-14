@@ -1,0 +1,37 @@
+{
+  "schema": "symbolon-vault-coverage/1",
+  "file": "src/SymbolonVault.sol",
+  "vaultSourceSha256": "3f09c31e10aef5188d070f04cd0006545ff1b94c0dfbf917beeaa0a2eea9c3a3",
+  "forge": "forge Version: 1.5.1-stable",
+  "settings": {
+    "fuzzRuns": "200",
+    "invariantRuns": "24",
+    "invariantDepth": "48",
+    "note": "forge coverage disables the optimizer; Build/Surface tests skip themselves in the Coverage context"
+  },
+  "result": {
+    "lines": {
+      "percent": 100,
+      "hit": 158,
+      "total": 158
+    },
+    "statements": {
+      "percent": 100,
+      "hit": 213,
+      "total": 213
+    },
+    "branches": {
+      "percent": 100,
+      "hit": 48,
+      "total": 48
+    },
+    "functions": {
+      "percent": 100,
+      "hit": 24,
+      "total": 24
+    }
+  },
+  "uncoveredLines": [],
+  "uncoveredBranchLines": [],
+  "complete": true
+}

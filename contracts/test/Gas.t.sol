@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity 0.8.30;
 
+import {VmSafe} from "forge-std/Vm.sol";
 import {SymbolonVault} from "../src/SymbolonVault.sol";
 import {VaultTestBase} from "./utils/VaultTestBase.sol";
 import {MockSafe} from "./utils/Mocks.sol";
@@ -13,6 +14,12 @@ import {MockSafe} from "./utils/Mocks.sol";
 /// 1.5.1 (solc 0.8.30, optimizer 200 runs, prague); they are indicative for Arc, whose gas schedule has not been
 /// verified (V-19).
 contract GasTest is VaultTestBase {
+    function setUp() public override {
+        super.setUp();
+        // `forge coverage` runs unoptimized, instrumented code: gas numbers are meaningless there.
+        vm.skip(vm.isContext(VmSafe.ForgeContext.Coverage));
+    }
+
     uint256 internal constant CEIL_RELEASE_PLAIN = 350_000;
     uint256 internal constant CEIL_RELEASE_APPROVED = 360_000;
     uint256 internal constant CEIL_RELEASE_FULL_RING = 305_000;

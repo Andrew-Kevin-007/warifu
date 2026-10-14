@@ -277,6 +277,26 @@ export const MUTANTS = [
     "abi.encode(PAYEE_CHANGE_TYPEHASH, pc.engagementId, pc.oldPayee, pc.newPayee, pc.nonce)",
     "abi.encode(PAYEE_CHANGE_TYPEHASH, pc.engagementId, pc.oldPayee, pc.newPayee, uint256(0))",
   ],
+  [
+    "digest-approval-drops-deadline",
+    "abi.encode(OWNER_APPROVAL_TYPEHASH, intentId, receiptHash, amount, deadline)",
+    "abi.encode(OWNER_APPROVAL_TYPEHASH, intentId, receiptHash, amount, uint64(0))",
+  ],
+  [
+    "digest-approval-drops-receipt",
+    "abi.encode(OWNER_APPROVAL_TYPEHASH, intentId, receiptHash, amount, deadline)",
+    "abi.encode(OWNER_APPROVAL_TYPEHASH, intentId, bytes32(0), amount, deadline)",
+  ],
+  [
+    "digest-terms-drops-nonce",
+    "t.end,\n                    t.termsHash,\n                    t.nonce",
+    "t.end,\n                    t.termsHash,\n                    uint256(0)",
+  ],
+  [
+    "digest-payee-change-drops-new-payee",
+    "abi.encode(PAYEE_CHANGE_TYPEHASH, pc.engagementId, pc.oldPayee, pc.newPayee, pc.nonce)",
+    "abi.encode(PAYEE_CHANGE_TYPEHASH, pc.engagementId, pc.oldPayee, pc.oldPayee, pc.nonce)",
+  ],
   ["const-ring-size", "uint8 public constant RING_SIZE = 64;", "uint8 public constant RING_SIZE = 32;"],
 
   // ---- configHash --------------------------------------------------------------------------------------------------

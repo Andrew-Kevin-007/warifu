@@ -195,14 +195,14 @@ const ok = summary.killed === rows.length;
 for (const r of rows.filter((x) => x.status !== "KILLED")) console.log(`${r.id.padEnd(40)} ${r.status} ${r.detail ?? ""}`);
 console.log(ok ? `all ${rows.length} mutants killed` : `NOT ALL KILLED: ${JSON.stringify(summary)}`);
 
-if (filter === "" && !fuzzRuns && !invariantRuns && !invariantDepth) {
+if (prefixes.length === 0) {
   const fv = spawnSync(forgeBin, ["--version"], { encoding: "utf8" });
   const report = {
     schema: "symbolon-vault-mutation/1",
     vaultSource: VAULT,
     vaultSourceSha256: vaultSha256,
     forge: (fv.stdout || "").split("\n")[0],
-    profile: "default (foundry.toml: fuzz 1000 runs, invariant 256 x 64)",
+    profile: `fuzz runs ${fuzzRuns ?? "foundry.toml default (1000)"}, invariant runs ${invariantRuns ?? "foundry.toml default (256)"}, invariant depth ${invariantDepth ?? "foundry.toml default (64)"}, forge --fail-fast`,
     durationSeconds: Math.round((Date.now() - started) / 1000),
     summary,
     mutants: rows,
