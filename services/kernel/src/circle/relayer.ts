@@ -19,7 +19,7 @@ import { symbolonVaultAbi, vaultRevertName } from "@symbolon/chain";
 import type { Address, Hex32 } from "@symbolon/schemas";
 import { encodeFunctionData } from "viem";
 import type { Hex, PublicClient } from "viem";
-import { RelayError } from "../chain/relayer";
+import { RelayError, releaseCallArgs } from "../chain/relayer";
 import type { VaultRelayer } from "../chain/relayer";
 import type { Secret } from "../secret";
 import { CircleApiError, txPhase } from "./client";
@@ -112,5 +112,10 @@ export function circleVaultRelayer(o: CircleRelayerOptions): VaultRelayer {
     registerEngagement: (i) => send(i.vault, "registerEngagement", [i.terms, i.ownerSig, i.payeeSig]),
     proposePayeeChange: (i) => send(i.vault, "proposePayeeChange", [i.change, i.ownerSig, i.oldSig, i.newSig]),
     executePayeeChange: (i) => send(i.vault, "executePayeeChange", [i.engagementId]),
+    // WP-14. The idempotency key derives from the exact calldata, which contains the intentId and the signed attestation
+    // (docs/06 B.2 "derive it from intentId"): a retry of the same stored attestation is the same Circle request; a fresh
+    // attestation after expiry is a new one, and the vault's used[intentId] stops any second release.
+    // VERIFY(V-30): Circle's contract-execution fee parameters honour Arc's 20 gwei maxFeePerGas floor (feeLevel HIGH is sent).
+    release: (i) => send(i.vault, "release", releaseCallArgs(i)),
   };
 }

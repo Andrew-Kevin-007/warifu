@@ -12,6 +12,7 @@
     "@symbolon/chain": "workspace:*",
     "@symbolon/kernel-core": "workspace:*",
     "@symbolon/policy": "workspace:*",
+    "@symbolon/receipts": "workspace:*",
     "@symbolon/schemas": "workspace:*",
     "hono": "4.13.13",
     "pg": "8.23.1",

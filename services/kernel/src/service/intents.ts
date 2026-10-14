@@ -5,7 +5,6 @@
 // earlier decision, no matter how requests interleave) assembles the ledger side of the context, calls evaluate(), and
 // writes intent + decision + receipt + audit row atomically. Any failure before the write leaves nothing behind and the
 // caller gets a 4xx/5xx: there is no path from an error to a RELEASE.
-import { randomUUID } from "node:crypto";
 import { evaluate } from "@symbolon/kernel-core";
 import type { Evaluation, KernelContext } from "@symbolon/kernel-core";
 import type { Decision, Hex32, Receipt } from "@symbolon/schemas";
@@ -16,8 +15,9 @@ import type { Db } from "../db/pool";
 import * as repo from "../db/repo";
 import { errorFields } from "../log";
 import type { Logger } from "../log";
-import { buildDecisionAndReceipt, receiptDigest } from "../receipt/build";
+import { ReceiptError } from "../receipt/build";
 import type { KernelSigner } from "../receipt/build";
+import { recordDecision } from "./record";
 import { nowIso } from "../time";
 import type { Clock } from "../time";
 import type { Profile } from "../boot";
@@ -52,6 +52,11 @@ export function contextFailure(e: unknown, logger: Logger): ApiError {
     if (e.code === "NO_TENANT") return new ApiError("FORBIDDEN", "unknown tenant");
     return new ApiError("UNAVAILABLE", "the decision context is unavailable; nothing was decided", { code: e.code }, { "Retry-After": "5" });
   }
+  if (e instanceof ReceiptError) {
+    // packages/receipts refused to build or sign (inconsistent decision, signer fault): nothing was stored.
+    logger.error("receipt.refused", { reasonCode: e.code });
+    return new ApiError("INTERNAL", "internal error; the request was not processed");
+  }
   logger.error("intent.failed", { ...errorFields(e) });
   return new ApiError("INTERNAL", "internal error; the request was not processed");
 }
@@ -83,42 +88,28 @@ export async function submitIntent(d: IntentsDeps, tenantId: string, rawIntent: 
         return respond(prior.decision, prior.receipt, prior.receiptHash, prior.signature, prior.signer, true);
       }
 
-      const built = buildDecisionAndReceipt({
-        evaluation,
-        ctx,
-        rawIntent,
-        decisionId: (d.newId ?? randomUUID)(),
-        supersedes: null,
-        now,
-        policyHash: policy.policyHash,
-      });
-      const signature = await d.signer.signDigest(receiptDigest(built, ctx));
-
       if (peek.documentId === null) throw new ApiError("UNPROCESSABLE", "the proposal does not reference a stored document"); // unreachable: assembleContext threw
       const stored = await repo.insertIntentOnce(q, {
-        intentId: built.decision.intentId,
+        intentId: evaluation.intentId,
         tenantId,
         documentId: peek.documentId,
         payloadJson: JSON.stringify(rawIntent),
       });
       if (stored.ownerTenantId !== tenantId) throw new ApiError("CONFLICT", "intent id is already in use"); // never reveal whose
-      await repo.insertDecision(q, built.decision);
-      await repo.insertReceipt(q, { receiptHash: built.receiptHash, decisionId: built.decision.decisionId, receipt: built.receipt, signature, signer: d.signer.address });
-      await repo.writeAudit(q, `tenant:${tenantId}`, "intent.decided", {
-        intentId: built.decision.intentId,
-        decisionId: built.decision.decisionId,
-        verdict: built.decision.verdict,
-        receiptHash: built.receiptHash,
+      const rec = await recordDecision({
+        q,
+        signer: d.signer,
+        logger: d.logger,
+        evaluation,
+        ctx,
+        rawIntent,
+        supersedes: null,
+        policyHash: policy.policyHash,
+        action: "intent.decided",
+        actor: `tenant:${tenantId}`,
+        ...(d.newId === undefined ? {} : { newId: d.newId }),
       });
-      d.logger.info("intent.decided", {
-        intentId: built.decision.intentId,
-        decisionId: built.decision.decisionId,
-        receiptHash: built.receiptHash,
-        tenantId,
-        verdict: built.decision.verdict,
-        count: built.decision.checks.length,
-      });
-      return respond(built.decision, built.receipt, built.receiptHash, signature, d.signer.address, false);
+      return respond(rec.decision, rec.receipt, rec.receiptHash, rec.signature, rec.signer, false);
     });
   } catch (e) {
     throw contextFailure(e, d.logger);

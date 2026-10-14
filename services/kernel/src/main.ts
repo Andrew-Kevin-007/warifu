@@ -22,13 +22,18 @@ import { circleVaultRelayer } from "./circle/relayer";
 import { createCircleWebhookHandler } from "./circle/webhook";
 import { loadConfig } from "./config";
 import { emptyFixtureStore } from "./evidence/fixtures";
-import type { EvidenceSource } from "./evidence/service";
+import { collectEvidence } from "./evidence/service";
+import type { EvidenceServiceDeps, EvidenceSource } from "./evidence/service";
 import { createPgDb } from "./db/pool";
 import { indexAll, startIndexerLoop } from "./engagement/indexer";
 import { createLogger, errorFields } from "./log";
 import { createKernelSigner } from "./receipt/build";
 import { StartupError, runStartupChecks } from "./startup";
+import { startSchedulerLoop, recheckHolds } from "./release/scheduler";
+import type { ReleaseDeps } from "./release/service";
+import { pgPlanProvider } from "./service/plans";
 import { systemClock } from "./time";
+import type { Clock } from "./time";
 
 async function main(): Promise<void> {
   const config = loadConfig(process.env); // throws BootError / ConfigError: names and rules only
@@ -88,27 +93,44 @@ async function main(): Promise<void> {
           return { kind: "live", guard: { resolver: systemResolver, transport: createPinnedHttpsTransport({ proxy: config.evidenceEgressProxy }) }, githubToken: config.githubToken?.reveal() ?? null };
         })();
 
+  const signer = createKernelSigner(config.kernelSignerKey);
+  const blobs = config.blobDir === null ? noBlobStore : fileBlobStore(config.blobDir);
+  const evidenceDeps: EvidenceServiceDeps = { db, clock, profile: config.profile, logger, source: evidenceSource, chain, engagementChain, blobs, maxArtifactBytes: config.maxArtifactBytes };
+  // WP-14. The test clock (TEST_CLOCK_OFFSET_SECONDS, refused in production by boot guard G11) shifts the scheduler's time only.
+  const offsetMs = (config.scheduler.testClockOffsetSeconds ?? 0) * 1000;
+  const schedulerClock: Clock = offsetMs === 0 ? clock : () => clock() + offsetMs;
+  const releaseDeps: ReleaseDeps = {
+    db, chain, signer, relayer, clock: schedulerClock, profile: config.profile, logger,
+    txStatus: (h) => engagementChain.txStatus(h),
+    recollect: async (tenantId, milestoneId) => void (await collectEvidence(evidenceDeps, tenantId, { milestoneId })),
+  };
+  const scheduler = config.scheduler.enabled ? startSchedulerLoop(releaseDeps, { chainId: arc.chainId, intervalMs: config.scheduler.pollMs }) : null;
+  const reevalDeps = { db, chain, signer, clock, profile: config.profile, logger };
+
   const app = createApp({
     ...(circleWebhook === undefined ? {} : { circleWebhook }),
     profile: config.profile,
     db,
     chain,
-    signer: createKernelSigner(config.kernelSignerKey),
+    signer,
+    plans: pgPlanProvider(reevalDeps),
+    approvals: { ...reevalDeps, engagementChain },
+    afterEvidence: (tenantId, milestoneId) => recheckHolds(releaseDeps, tenantId, { milestoneId }),
     clock,
     logger,
     serviceTokenSecret: config.serviceTokenSecret.reveal(),
     nonceStore: pgNonceStore(db),
     clockGuard: createClockGuard({ db, clock, logger }),
-    blobs: config.blobDir === null ? noBlobStore : fileBlobStore(config.blobDir),
+    blobs,
     maxJsonBytes: config.maxJsonBytes,
     maxBlobBytes: config.maxBlobBytes,
     engagements: { chain: engagementChain, relayer },
-    evidence: { db, clock, profile: config.profile, logger, source: evidenceSource, chain, engagementChain, blobs: config.blobDir === null ? noBlobStore : fileBlobStore(config.blobDir), maxArtifactBytes: config.maxArtifactBytes },
+    evidence: evidenceDeps,
   });
   const port = Number.parseInt(process.env["PORT"] ?? "8787", 10);
   serve({ fetch: app.fetch, port, hostname: process.env["HOST"] ?? "127.0.0.1" });
   logger.info("kernel.listening", { profile: config.profile, count: port });
-  process.once("SIGTERM", () => void indexer?.stop());
+  process.once("SIGTERM", () => void Promise.all([indexer?.stop(), scheduler?.stop()]));
 }
 
 main().catch((e: unknown) => {

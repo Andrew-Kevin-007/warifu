@@ -15,6 +15,7 @@
 //   G10 every configured secret (and a DATABASE_URL password) is >= 16 characters: a short secret cannot be
 //       redacted from logs reliably, so it is refused rather than silently left in the clear (SEC-07)
 //   G9  production: no challenge switches (CHALLENGE_ENABLED=true, CHALLENGE_*)
+//   G11 TEST_CLOCK_OFFSET_SECONDS is refused when KERNEL_PROFILE=production or NODE_ENV=production (WP-14)
 import { privateKeyToAccount } from "viem/accounts";
 import { MIN_SECRET_CHARS, configuredSecrets } from "./secrets";
 import { PROFILES } from "./types";
@@ -87,6 +88,11 @@ export function evaluateBootGuards(env: EnvLike): BootViolation[] {
     } catch {
       // an unparsable URL is reported by G4 (sandbox) or fails at connect time; no password to measure
     }
+  }
+
+  // G11: the test clock (WP-14) moves the scheduler's time and exists only outside production, whatever the profile says.
+  if (set(env, "TEST_CLOCK_OFFSET_SECONDS") !== undefined && (profile === "production" || env["NODE_ENV"] === "production")) {
+    add("G11", "TEST_CLOCK_OFFSET_SECONDS", "the test clock must not be set in production (profile or NODE_ENV)");
   }
 
   // G8: the web->kernel HMAC secret (RT-31, SEC-14).

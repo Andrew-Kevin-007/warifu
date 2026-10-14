@@ -1,17 +1,23 @@
 // Repositories: every SQL statement the service issues lives here, parameterised (no string-built SQL; untrusted
 // values never reach a statement text, INV-15), and every query that touches tenant data carries the tenant id.
 // Money columns are numeric(40,0): they are selected `::text` and become bigint/decimal strings, never JS numbers.
+import * as z from "zod";
 import {
   AddressSchema,
+  AmountSchema,
+  CheckIdSchema,
   DecisionSchema,
   EngagementSchema,
   EvidenceSchema,
   Hex32Schema,
+  ISODateTimeSchema,
   PaymentTermsSchema,
+  PlanModeSchema,
+  ReasonCodeSchema,
   ReceiptSchema,
 } from "@symbolon/schemas";
-import type { Decision, Engagement, Evidence, Hex32, ISODateTime, Milestone, PaymentTerms, Receipt, UUID } from "@symbolon/schemas";
-import type { DecisionSummary } from "@symbolon/kernel-core";
+import type { ApprovalView, Decision, Engagement, Evidence, Hex32, ISODateTime, Milestone, PaymentTerms, Receipt, UUID } from "@symbolon/schemas";
+import type { DecisionSummary, FindingRef } from "@symbolon/kernel-core";
 import { normalizeInvoiceNumber } from "@symbolon/kernel-core";
 import { toIsoSeconds } from "../time";
 import type { Queryable } from "./pool";
@@ -425,8 +431,13 @@ export async function loadBreaker(q: Queryable, tenantId: string): Promise<{ hal
   return row === undefined ? { halted: false, reason: null } : { halted: row.halted, reason: row.reason };
 }
 
-/** Kernel-collected evidence for one milestone of one of the tenant's engagements. Rows that do not parse are skipped (treated as missing). */
-export async function loadEvidence(q: Queryable, tenantId: string, milestoneId: string): Promise<{ evidence: Evidence[]; skipped: number }> {
+/**
+ * Kernel-collected evidence for one milestone of one of the tenant's engagements: the LATEST `limit` observations (default 64,
+ * the receipt's cap on evidence entries), oldest first. K-09 decides on the latest fresh observation per requirement, so an
+ * observation older than the newest 64 cannot decide a verdict. Rows that do not parse are skipped (treated as missing).
+ */
+export const EVIDENCE_CONTEXT_LIMIT = 64;
+export async function loadEvidence(q: Queryable, tenantId: string, milestoneId: string, limit: number = EVIDENCE_CONTEXT_LIMIT): Promise<{ evidence: Evidence[]; skipped: number }> {
   const r = await q.query<{
     evidence_id: string;
     milestone_id: string;
@@ -444,9 +455,11 @@ export async function loadEvidence(q: Queryable, tenantId: string, milestoneId: 
        join milestones m on m.milestone_id = ev.milestone_id
        join engagements e on e.engagement_id = m.engagement_id
       where e.tenant_id = $1 and ev.milestone_id = $2
-      order by ev.collected_at, ev.evidence_id`,
-    [tenantId, milestoneId],
+      order by ev.collected_at desc, ev.evidence_id desc
+      limit $3`,
+    [tenantId, milestoneId, limit],
   );
+  r.rows.reverse();
   const evidence: Evidence[] = [];
   let skipped = 0;
   for (const x of r.rows) {
@@ -503,12 +516,21 @@ export async function latestDecisionIdForIntent(q: Queryable, tenantId: string, 
   return r.rows[0]?.decision_id ?? null;
 }
 
-export async function insertDecision(q: Queryable, d: Decision): Promise<void> {
+/** Kernel outputs stored next to a decision (not part of the Decision schema): see migration 0007. */
+export interface DecisionExtras {
+  readonly approvableFindings: readonly FindingRef[];
+  readonly planSummary: PlanSummary | null;
+}
+export type PlanSummary = NonNullable<ApprovalView["planSummary"]>;
+export const NO_EXTRAS: DecisionExtras = { approvableFindings: [], planSummary: null };
+
+export async function insertDecision(q: Queryable, d: Decision, extras: DecisionExtras = NO_EXTRAS): Promise<void> {
   await q.query(
     `insert into decisions (decision_id, tenant_id, intent_id, verdict, checks, reasons, payee, amount_base_units, engagement_id, milestone_id,
                             pay_at, timing_source, policy_hash, kernel_version, context_hash, agent_recommendation, human_explanation, supersedes,
-                            created_at, release_amount_base_units, plan_id, planner_fallback, invoice_received_at)
-     values ($1, $2, $3, $4, $5::jsonb, $6::text[], $7, $8, $9, $10, $11::timestamptz, $12, $13, $14, $15, $16::jsonb, $17, $18, $19::timestamptz, $20, $21, $22, $23::timestamptz)`,
+                            created_at, release_amount_base_units, plan_id, planner_fallback, invoice_received_at, approvable_findings, plan_summary)
+     values ($1, $2, $3, $4, $5::jsonb, $6::text[], $7, $8, $9, $10, $11::timestamptz, $12, $13, $14, $15, $16::jsonb, $17, $18, $19::timestamptz, $20, $21, $22, $23::timestamptz,
+             $24::jsonb, $25::jsonb)`,
     [
       d.decisionId,
       d.tenantId,
@@ -533,8 +555,27 @@ export async function insertDecision(q: Queryable, d: Decision): Promise<void> {
       d.planId,
       d.plannerFallback,
       d.invoiceReceivedAt,
+      JSON.stringify(extras.approvableFindings.map((f) => ({ checkId: f.checkId, code: f.code }))),
+      extras.planSummary === null ? null : JSON.stringify(extras.planSummary),
     ],
   );
+}
+
+const FindingsSchema = z.array(z.strictObject({ checkId: CheckIdSchema, code: ReasonCodeSchema })).max(64);
+const PlanSummarySchema = z.strictObject({ planId: Hex32Schema, mode: PlanModeSchema, payAt: ISODateTimeSchema, discountValue: AmountSchema });
+
+/** The stored extras of a decision of this tenant (null when there is no such decision). Malformed JSON throws (fail closed). */
+export async function getDecisionExtras(q: Queryable, tenantId: string, decisionId: string): Promise<DecisionExtras | null> {
+  const r = await q.query<{ approvable_findings: unknown; plan_summary: unknown }>(
+    "select approvable_findings, plan_summary from decisions where tenant_id = $1 and decision_id = $2",
+    [tenantId, decisionId],
+  );
+  const row = r.rows[0];
+  if (row === undefined) return null;
+  return {
+    approvableFindings: FindingsSchema.parse(row.approvable_findings),
+    planSummary: row.plan_summary === null ? null : PlanSummarySchema.parse(row.plan_summary),
+  };
 }
 
 export async function insertReceipt(q: Queryable, r: { receiptHash: string; decisionId: string; receipt: Receipt; signature: string; signer: string }): Promise<void> {
