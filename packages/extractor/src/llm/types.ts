@@ -2,7 +2,7 @@
 // SDK, an HTTP call) is mocked or replayed in tests (AGENTS.md §5). No code in this package calls a provider
 // directly: all calls go through BudgetedLlm (INV-21).
 
-export type LlmRole = "extractor_a" | "extractor_b" | "advisory";
+export type LlmRole = "extractor_a" | "extractor_b" | "advisory" | "planner";
 
 export interface LlmToolSpec {
   readonly name: string;

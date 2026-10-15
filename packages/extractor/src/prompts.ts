@@ -5,7 +5,8 @@ import { ADVISORY_ID, ADVISORY_SYSTEM, ADVISORY_USER_TEMPLATE, ADVISORY_VERSION 
 import { EXTRACTOR_A_ID, EXTRACTOR_A_SYSTEM, EXTRACTOR_A_USER_TEMPLATE, EXTRACTOR_A_VERSION } from "../prompts/extractor-a.v1";
 import { EXTRACTOR_B_ID, EXTRACTOR_B_SYSTEM, EXTRACTOR_B_USER_TEMPLATE, EXTRACTOR_B_VERSION } from "../prompts/extractor-b.v1";
 import type { LlmToolSpec } from "./llm/types";
-import { advisoryTools, extractorTools } from "./tools";
+import { PLANNER_ID, PLANNER_SYSTEM, PLANNER_USER_TEMPLATE, PLANNER_VERSION } from "../prompts/planner.v1";
+import { advisoryTools, extractorTools, plannerTools } from "./tools";
 
 export interface PromptSpec {
   readonly id: string;
@@ -23,6 +24,13 @@ function spec(id: string, version: number, system: string, userTemplate: string,
 export const PROMPT_A: PromptSpec = spec(EXTRACTOR_A_ID, EXTRACTOR_A_VERSION, EXTRACTOR_A_SYSTEM, EXTRACTOR_A_USER_TEMPLATE, extractorTools());
 export const PROMPT_B: PromptSpec = spec(EXTRACTOR_B_ID, EXTRACTOR_B_VERSION, EXTRACTOR_B_SYSTEM, EXTRACTOR_B_USER_TEMPLATE, extractorTools());
 export const PROMPT_ADVISORY: PromptSpec = spec(ADVISORY_ID, ADVISORY_VERSION, ADVISORY_SYSTEM, ADVISORY_USER_TEMPLATE, advisoryTools());
+
+export const PROMPT_PLANNER: PromptSpec = spec(PLANNER_ID, PLANNER_VERSION, PLANNER_SYSTEM, PLANNER_USER_TEMPLATE, plannerTools());
+
+/** The user turn for the planner: kernel-computed facts only (never document text). */
+export function renderPlannerUserTurn(factsJson: string): string {
+  return PROMPT_PLANNER.userTemplate.replace("{{FACTS}}", () => factsJson);
+}
 
 const encoder = new TextEncoder();
 
