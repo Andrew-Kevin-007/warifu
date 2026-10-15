@@ -1,4 +1,4 @@
-import type { ElementType, ReactNode } from 'react';
+import type { ComponentType, ElementType, ReactNode } from 'react';
 import Link from 'next/link';
 import Appear from './Appear';
 
@@ -36,7 +36,7 @@ export function NodeFrame({
   as?: ElementType;
   tone?: 'light' | 'black';
 }) {
-  const Tag = (as ?? 'div') as ElementType;
+  const Tag = (as ?? 'div') as unknown as ComponentType<Record<string, unknown>>;
   return (
     <Tag className={`sy-frame sy-frame--${tone} ${className}`.trim()}>
       <span className="sy-node sy-node--tl" aria-hidden="true" />

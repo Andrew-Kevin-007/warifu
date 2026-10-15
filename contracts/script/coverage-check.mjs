@@ -1,4 +1,4 @@
-/* global process, console */
+/* global console */
 // Coverage gate for SymbolonVault (WP-08, docs/06 A.5: ">= 95 % lines, 100 % of revert paths"; this gate is stricter:
 // 100 % of lines, statements, branches and functions of src/SymbolonVault.sol).
 // Usage (from contracts/):  node script/coverage-check.mjs [--no-write]

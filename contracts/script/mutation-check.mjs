@@ -1,4 +1,4 @@
-/* global process, console */
+/* global console, setTimeout, clearTimeout */
 // Mutation run for SymbolonVault (WP-08; the Solidity twin of packages/policy/scripts/mutation-check.mjs).
 // Every mutant in script/mutants.mjs is applied to a scratch copy of the contracts project, the forge suite runs
 // with --fail-fast, and the mutant must make a test FAIL. A mutant that does not compile is INVALID, never "killed".

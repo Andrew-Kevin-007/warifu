@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, type ElementType, type ReactNode } from 'react';
+import { useEffect, useRef, type ComponentType, type ElementType, type ReactNode } from 'react';
 
 type Role = 'prose' | 'figure' | 'rows' | 'rule';
 
@@ -24,7 +24,7 @@ export default function Appear({
   threshold?: number;
 }) {
   const ref = useRef<HTMLElement | null>(null);
-  const Tag = (as ?? 'div') as ElementType;
+  const Tag = (as ?? 'div') as unknown as ComponentType<Record<string, unknown>>;
 
   useEffect(() => {
     const el = ref.current;
