@@ -29,7 +29,7 @@ function deploymentsFile(dir: string, caps = { perTxCap: "100000000", dailyCap: 
 
 describe.skipIf(!enabled)("local: ops migrate + tenant (operator setup)", () => {
   const cleanup: Array<() => void> = [];
-  afterAll(() => cleanup.forEach((f) => f()));
+  afterAll(() => cleanup.forEach((f) => f()), 120_000); // dropping throwaway databases is slow under load
 
   async function fresh(): Promise<{ c: pg.Client; name: string }> {
     const name = createDb({ bootstrap: true });
