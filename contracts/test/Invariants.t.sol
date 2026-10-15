@@ -2,345 +2,99 @@
 pragma solidity 0.8.30;
 
 import {Test} from "forge-std/Test.sol";
-import {CommonBase} from "forge-std/Base.sol";
-import {StdCheats} from "forge-std/StdCheats.sol";
-import {StdUtils} from "forge-std/StdUtils.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {console2} from "forge-std/console2.sol";
 import {SymbolonVault} from "../src/SymbolonVault.sol";
 import {MockUSDC} from "./utils/Mocks.sol";
+import {VaultHandler, HandlerConfig} from "./utils/VaultHandler.sol";
 
-/// @notice Drives the vault with random sequences of every state-changing call except the two config mutations
-/// (`setGuardian`, kernel signer rotation; covered in Admin/Config tests), including hostile variants: unregistered
-/// engagements, wrong payees, foreign signers, replayed intents, missing or forged approvals, stale nonces and
-/// premature payee changes. Ghost state records what *should* be possible; any success that should not have
-/// happened increments a violation counter that the invariants require to stay 0.
-contract VaultHandler is CommonBase, StdCheats, StdUtils {
-    uint256 internal constant USDC = 1e6;
-
-    SymbolonVault public vault;
-    MockUSDC public token;
-
-    address public owner;
-    uint256 internal ownerKey;
-    address public kernel;
-    uint256 internal kernelKey;
-    address public guardian;
-    address internal attacker;
-    uint256 internal attackerKey;
-    address[3] internal payees;
-    mapping(address => uint256) internal keyOf;
-
-    // ghost state
-    bytes32[] public ids;
-    mapping(bytes32 => address) public ghostPayee;
-    mapping(bytes32 => bool) public ghostActive;
-    mapping(address => bool) public everRegisteredPayee;
-    uint256 public sumCaps;
-    bytes32[] public releasedIntents;
-    mapping(bytes32 => uint256) public timesReleased;
-    uint256[] internal histT;
-    uint256[] internal histAmt;
-    uint256 public initialBalance;
-    uint256 public totalDeposited;
-    uint256 public totalReleased;
-    uint256 public totalWithdrawn;
-    bool public ghostPaused;
-    uint256 public ghostEpoch;
-
-    struct GhostPending {
-        address newPayee;
-        uint256 proposedAt;
-        uint256 epoch;
-        bool exists;
-    }
-
-    mapping(bytes32 => GhostPending) internal ghostPending;
-
-    // violations (must all stay 0)
-    uint256 public violUnauthorizedRelease; // INV-1
-    uint256 public violUnregisteredPayee; // INV-2
-    uint256 public violEngagementCap; // INV-3
-    uint256 public violReplay; // INV-4
-    uint256 public violPerTxOrRolling; // INV-5
-    uint256 public violApproval; // INV-6
-    uint256 public violPayeeChange; // INV-7
-    uint256 public violReleaseWhilePausedOrOutOfWindow;
-
-    // call counters (to see that the run exercised the paths)
-    uint256 public okReleases;
-    uint256 public okPayeeChanges;
-
-    uint256 internal counter;
-
-    constructor() {
-        (owner, ownerKey) = makeAddrAndKey("inv-owner");
-        (kernel, kernelKey) = makeAddrAndKey("inv-kernel");
-        guardian = makeAddr("inv-guardian");
-        (attacker, attackerKey) = makeAddrAndKey("inv-attacker");
-        for (uint256 i = 0; i < 3; ++i) {
-            (address p, uint256 k) = makeAddrAndKey(string.concat("inv-payee-", vm.toString(i)));
-            payees[i] = p;
-            keyOf[p] = k;
-        }
-        keyOf[owner] = ownerKey;
-        keyOf[attacker] = attackerKey;
-        token = new MockUSDC(6);
-        vault = new SymbolonVault(
-            IERC20(address(token)), owner, kernel, guardian, 100 * USDC, 300 * USDC, 150 * USDC, 50 * USDC, 1 days, 1 days
-        );
-        initialBalance = 5_000 * USDC;
-        token.mint(address(vault), initialBalance);
-    }
-
-    // ---- helpers ---------------------------------------------------------------------------------------------
-
-    function _sig(uint256 key, bytes32 digest) internal pure returns (bytes memory) {
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(key, digest);
-        return abi.encodePacked(r, s, v);
-    }
-
-    function _pick(uint256 seed) internal view returns (bytes32) {
-        return ids[seed % ids.length];
-    }
-
-    function _rollingOk(uint256 amount) internal view returns (bool) {
-        uint256 daySum;
-        uint256 hourSum;
-        uint256 count;
-        for (uint256 i = 0; i < histT.length; ++i) {
-            if (histT[i] + 1 days > block.timestamp) {
-                daySum += histAmt[i];
-                ++count;
-                if (histT[i] + 1 hours > block.timestamp) hourSum += histAmt[i];
-            }
-        }
-        return daySum + amount <= vault.dailyCap() && count < 64 && hourSum + amount <= vault.hourlyCap();
-    }
-
-    function historyLength() external view returns (uint256) {
-        return histT.length;
-    }
-
-    function idsLength() external view returns (uint256) {
-        return ids.length;
-    }
-
-    function releasedIntentsLength() external view returns (uint256) {
-        return releasedIntents.length;
-    }
-
-    // ---- actions ---------------------------------------------------------------------------------------------
-
-    function warp(uint256 dt) external {
-        vm.warp(block.timestamp + bound(dt, 0, 2 days));
-    }
-
-    function register(uint256 payeeSeed, uint256 capSeed, uint256 startSeed, uint256 lenSeed) external {
-        bytes32 id = keccak256(abi.encode("inv-engagement", ++counter));
-        address p = payees[payeeSeed % 3];
-        uint64 start = uint64(block.timestamp + bound(startSeed, 0, 1 days)) - uint64(bound(startSeed >> 128, 0, 1 hours));
-        SymbolonVault.EngagementTerms memory t = SymbolonVault.EngagementTerms({
-            engagementId: id,
-            owner: owner,
-            payee: p,
-            cap: bound(capSeed, 1, 1_000 * USDC),
-            start: start,
-            end: start + uint64(bound(lenSeed, 0, 10 days)),
-            termsHash: keccak256(abi.encode("terms", id)),
-            nonce: 1 + (capSeed % 3)
-        });
-        bytes32 d = vault.engagementTermsDigest(t);
-        vault.registerEngagement(t, _sig(ownerKey, d), _sig(keyOf[p], d));
-        ids.push(id);
-        ghostPayee[id] = p;
-        ghostActive[id] = true;
-        everRegisteredPayee[p] = true;
-        sumCaps += t.cap;
-    }
-
-    function close(uint256 seed) external {
-        if (ids.length == 0) return;
-        bytes32 id = _pick(seed);
-        vm.prank(owner);
-        try vault.closeEngagement(id) {
-            ghostActive[id] = false;
-        } catch {}
-    }
-
-    function pause(bool byGuardian) external {
-        vm.prank(byGuardian ? guardian : owner);
-        vault.pause();
-        ghostPaused = true;
-        ++ghostEpoch;
-    }
-
-    function unpause() external {
-        vm.prank(owner);
-        vault.unpause();
-        ghostPaused = false;
-    }
-
-    function deposit(uint256 amount) external {
-        amount = bound(amount, 0, 500 * USDC);
-        token.mint(address(vault), amount);
-        totalDeposited += amount;
-    }
-
-    function withdraw(uint256 amount) external {
-        amount = bound(amount, 0, token.balanceOf(address(vault)) / 4);
-        vm.prank(owner);
-        vault.withdraw(owner, amount);
-        totalWithdrawn += amount;
-    }
-
-    struct ReleaseCase {
-        bytes32 id;
-        bool authorized;
-        bool approvalValid;
-        SymbolonVault.Attestation a;
-        SymbolonVault.OwnerApprovalRef ref;
-        bytes kernelSig;
-        bytes approvalSig;
-    }
-
-    function release(uint256 engSeed, uint256 amtSeed, uint256 mode, uint256 dt) external {
-        if (ids.length == 0) return;
-        vm.warp(block.timestamp + bound(dt, 0, 3 hours));
-        ReleaseCase memory c;
-        c.id = mode % 8 == 0 ? keccak256(abi.encode("unregistered", engSeed)) : _pick(engSeed);
-        address p = (mode >> 3) % 8 == 0 ? attacker : (ghostPayee[c.id] == address(0) ? payees[0] : ghostPayee[c.id]);
-        bytes32 intent = (mode >> 6) % 8 == 0 && releasedIntents.length > 0
-            ? releasedIntents[engSeed % releasedIntents.length]
-            : keccak256(abi.encode("inv-intent", ++counter));
-        c.a = SymbolonVault.Attestation({
-            intentId: intent,
-            engagementId: c.id,
-            milestoneId: bytes32(mode),
-            payee: p,
-            amount: bound(amtSeed, 0, 110 * USDC),
-            receiptHash: keccak256(abi.encode("receipt", counter)),
-            deadline: uint64(block.timestamp + (mode >> 9) % 2 hours)
-        });
-        c.authorized = (mode >> 20) % 10 != 0;
-        c.kernelSig = _sig(c.authorized ? kernelKey : attackerKey, vault.attestationDigest(c.a));
-        if (c.a.amount > vault.humanThreshold()) {
-            c.ref = SymbolonVault.OwnerApprovalRef({receiptHash: keccak256("esc"), deadline: uint64(block.timestamp + 1 days)});
-            uint256 approvalMode = (mode >> 24) % 4;
-            uint256 approvedAmount = approvalMode == 1 ? c.a.amount - 1 : c.a.amount; // mode 1: approval for less
-            uint256 signerKey = approvalMode == 2 ? kernelKey : ownerKey; // mode 2: wrong signer
-            c.approvalSig =
-                _sig(signerKey, vault.ownerApprovalDigest(c.a.intentId, c.ref.receiptHash, approvedAmount, c.ref.deadline));
-            c.approvalValid = approvalMode == 0 || approvalMode == 3;
-        }
-        _doRelease(c);
-    }
-
-    function _doRelease(ReleaseCase memory c) internal {
-        bool rollingOk = _rollingOk(c.a.amount);
-        (, uint256 cap, uint256 releasedBefore, uint64 start, uint64 end,,) = vault.engagements(c.id);
-        try vault.release(c.a, c.kernelSig, c.ref, c.approvalSig) {
-            ++okReleases;
-            if (!c.authorized) ++violUnauthorizedRelease;
-            if (c.a.payee != ghostPayee[c.id] || !everRegisteredPayee[c.a.payee]) ++violUnregisteredPayee;
-            if (releasedBefore + c.a.amount > cap) ++violEngagementCap;
-            if (timesReleased[c.a.intentId] != 0) ++violReplay;
-            if (c.a.amount == 0 || c.a.amount > vault.perTxCap() || !rollingOk) ++violPerTxOrRolling;
-            if (c.a.amount > vault.humanThreshold() && !c.approvalValid) ++violApproval;
-            if (ghostPaused || !ghostActive[c.id] || block.timestamp < start || block.timestamp > end) {
-                ++violReleaseWhilePausedOrOutOfWindow;
-            }
-            ++timesReleased[c.a.intentId];
-            releasedIntents.push(c.a.intentId);
-            histT.push(block.timestamp);
-            histAmt.push(c.a.amount);
-            totalReleased += c.a.amount;
-        } catch {}
-    }
-
-    function proposePayeeChange(uint256 engSeed, uint256 newSeed, uint256 mode) external {
-        if (ids.length == 0) return;
-        bytes32 id = _pick(engSeed);
-        address oldP = ghostPayee[id];
-        address newP = payees[newSeed % 3];
-        if (newP == oldP) newP = payees[(newSeed + 1) % 3];
-        uint256 nonce = vault.engagementNonce(id) + (mode % 5 == 0 ? 0 : 1); // 1 in 5: stale nonce
-        SymbolonVault.PayeeChange memory pc =
-            SymbolonVault.PayeeChange({engagementId: id, oldPayee: oldP, newPayee: newP, nonce: nonce});
-        bytes32 d = vault.payeeChangeDigest(pc);
-        uint256 bad = (mode >> 3) % 6; // 0: owner sig forged, 1: old payee forged, 2: new payee forged, else valid
-        bytes memory os = _sig(bad == 0 ? attackerKey : ownerKey, d);
-        bytes memory olds = _sig(bad == 1 ? attackerKey : keyOf[oldP], d);
-        bytes memory news = _sig(bad == 2 ? attackerKey : keyOf[newP], d);
-        try vault.proposePayeeChange(pc, os, olds, news) {
-            if (bad < 3 || mode % 5 == 0) ++violPayeeChange; // forged signature or stale nonce accepted
-            ghostPending[id] = GhostPending({newPayee: newP, proposedAt: block.timestamp, epoch: ghostEpoch, exists: true});
-        } catch {}
-    }
-
-    function executePayeeChange(uint256 engSeed) external {
-        if (ids.length == 0) return;
-        bytes32 id = _pick(engSeed);
-        try vault.executePayeeChange(id) {
-            ++okPayeeChanges;
-            GhostPending memory gp = ghostPending[id];
-            if (
-                !gp.exists || gp.epoch != ghostEpoch || block.timestamp < gp.proposedAt + vault.payeeChangeDelay()
-                    || ghostPaused || !ghostActive[id]
-            ) ++violPayeeChange;
-            ghostPayee[id] = gp.newPayee;
-            delete ghostPending[id];
-        } catch {}
-    }
-}
-
-/// @notice docs/06 A.5 Invariants.t.sol: handler-based invariants INV-1..7 and INV-12 (docs/02 §4),
-/// Σ released ≤ Σ caps, `used` monotonic, balance accounting, append-only engagement list, stable configHash.
-contract InvariantsTest is Test {
+/// @notice docs/06 A.5 Invariants.t.sol: handler-based invariants INV-1..7 and INV-12 (docs/02 §4) plus
+/// `Σ released ≤ Σ caps`, `used` monotonic, balance accounting, append-only engagement list, exact rolling-window
+/// model, configuration immutability and `configHash` against its documented preimage.
+///
+/// The handler (`utils/VaultHandler.sol`) calls every state-changing function from honest and hostile callers and
+/// is itself a second implementation of the release rules; see its header. Four campaigns run the same invariants
+/// over different configurations: the default caps, hourlyCap disabled with a zero threshold and zero delays,
+/// ERC-1271 wallets in every signing role, and tiny base-unit caps where the hourly window binds.
+abstract contract InvariantsBase is Test {
     VaultHandler internal h;
     SymbolonVault internal vault;
     MockUSDC internal token;
+    HandlerConfig internal cfg;
     bytes32 internal configAtStart;
 
-    function setUp() public {
+    /// @dev Campaign configuration.
+    function _config() internal view virtual returns (HandlerConfig memory);
+
+    /// @dev A typical release amount for this campaign's scale (fits perTxCap).
+    function _amount() internal view virtual returns (uint256);
+
+    function setUp() public virtual {
         vm.warp(1_790_000_000);
-        h = new VaultHandler();
+        cfg = _config();
+        h = new VaultHandler(cfg);
         vault = h.vault();
         token = h.token();
         configAtStart = vault.configHash();
-        // seed two engagements so release paths are reachable from the first call
+        // two engagements so release paths are reachable from the first call
         h.register(0, 500e6, 0, 5 days);
         h.register(1, 800e6, 0, 5 days);
 
-        bytes4[] memory selectors = new bytes4[](11);
-        selectors[0] = VaultHandler.warp.selector;
-        selectors[1] = VaultHandler.register.selector;
-        selectors[2] = VaultHandler.close.selector;
-        selectors[3] = VaultHandler.pause.selector;
-        selectors[4] = VaultHandler.unpause.selector;
-        selectors[5] = VaultHandler.deposit.selector;
-        selectors[6] = VaultHandler.withdraw.selector;
-        selectors[7] = VaultHandler.release.selector;
-        selectors[8] = VaultHandler.release.selector; // weight releases double
-        selectors[9] = VaultHandler.proposePayeeChange.selector;
-        selectors[10] = VaultHandler.executePayeeChange.selector;
-        targetSelector(FuzzSelector({addr: address(h), selectors: selectors}));
+        bytes4[] memory s = new bytes4[](22);
+        s[0] = VaultHandler.warp.selector;
+        s[1] = VaultHandler.warp.selector;
+        s[2] = VaultHandler.register.selector;
+        s[3] = VaultHandler.registerBad.selector;
+        s[4] = VaultHandler.close.selector;
+        s[5] = VaultHandler.pause.selector;
+        s[6] = VaultHandler.unpause.selector;
+        s[7] = VaultHandler.unpause.selector;
+        s[8] = VaultHandler.deposit.selector;
+        s[9] = VaultHandler.withdraw.selector;
+        s[10] = VaultHandler.release.selector;
+        s[11] = VaultHandler.release.selector;
+        s[12] = VaultHandler.release.selector;
+        s[13] = VaultHandler.release.selector;
+        s[14] = VaultHandler.burst.selector;
+        s[15] = VaultHandler.proposePayeeChange.selector;
+        s[16] = VaultHandler.proposePayeeChange.selector;
+        s[17] = VaultHandler.executePayeeChange.selector;
+        s[18] = VaultHandler.proposeSigner.selector;
+        s[19] = VaultHandler.executeSigner.selector;
+        s[20] = VaultHandler.setGuardian.selector;
+        s[21] = VaultHandler.blocklist.selector;
+        targetSelector(FuzzSelector({addr: address(h), selectors: s}));
         targetContract(address(h));
     }
 
+    // ---- INV-1 .. INV-7 ----------------------------------------------------------------------------------------
+
+    /// INV-1: a release succeeds only with a valid kernel attestation of exactly the submitted fields, signed by the
+    /// signer the vault trusts at that moment (stale, pending, foreign, tampered and high-s signatures all fail).
     function invariant_INV1_onlyKernelSignedReleasesSucceed() public view {
         assertEq(h.violUnauthorizedRelease(), 0);
     }
 
+    /// INV-2: only the registered payee of an active engagement is ever paid; the on-chain payee equals the
+    /// payee produced by the dual-signed registration and three-signature changes.
     function invariant_INV2_onlyRegisteredCurrentPayeeIsPaid() public view {
         assertEq(h.violUnregisteredPayee(), 0);
+        assertEq(h.violRegistration(), 0, "an engagement was registered without both signatures");
         uint256 n = h.idsLength();
         for (uint256 i = 0; i < n; ++i) {
             bytes32 id = h.ids(i);
-            (address p,,,,,,) = vault.engagements(id);
-            assertEq(p, h.ghostPayee(id), "on-chain payee differs from the dual/tri-signed history");
+            (address p, uint256 cap, uint256 released, uint64 start, uint64 end, bytes32 termsHash, bool active) =
+                vault.engagements(id);
+            assertEq(p, h.ghostPayee(id), "payee");
+            assertEq(cap, h.ghostCap(id), "cap is fixed at registration");
+            assertEq(start, h.ghostStart(id), "start is fixed at registration");
+            assertEq(end, h.ghostEnd(id), "end is fixed at registration");
+            assertEq(termsHash, h.ghostTermsHash(id), "termsHash is fixed at registration");
+            assertEq(active, h.ghostActive(id), "active");
+            assertEq(released, h.ghostReleased(id), "released");
         }
     }
 
+    /// INV-3: Σ released(engagement) ≤ cap(engagement), and the per-engagement counters add up to what left.
     function invariant_INV3_releasedNeverExceedsCap() public view {
         assertEq(h.violEngagementCap(), 0);
         uint256 n = h.idsLength();
@@ -354,37 +108,66 @@ contract InvariantsTest is Test {
         assertEq(sumReleased, h.totalReleased(), "sum of engagement.released == sum of Released amounts");
     }
 
+    /// INV-4: an intentId is single-use and `used` is monotonic: true exactly for the intents that paid, never
+    /// burned by a failed attempt, never reset.
     function invariant_INV4_intentsSingleUse_usedMonotonic() public view {
         assertEq(h.violReplay(), 0);
-        uint256 n = h.releasedIntentsLength();
+        uint256 n = h.attemptedIntentsLength();
         for (uint256 i = 0; i < n; ++i) {
-            bytes32 intent = h.releasedIntents(i);
-            assertTrue(vault.used(intent), "used[] must never be reset");
-            assertEq(h.timesReleased(intent), 1);
+            bytes32 intent = h.attemptedIntents(i);
+            assertEq(vault.used(intent), h.timesReleased(intent) == 1, "used[] must mirror successful releases");
+            assertLe(h.timesReleased(intent), 1);
         }
     }
 
+    /// INV-5: per-tx cap and the exact rolling 24 h / 1 h / 64-release windows. The vault's own window accounting
+    /// is compared with a full-history model, not just bounded.
     function invariant_INV5_perTxAndRollingCaps() public view {
         assertEq(h.violPerTxOrRolling(), 0);
         (uint256 daySum, uint256 hourSum, uint256 count) = vault.rollingUsage();
+        (uint256 mDay, uint256 mHour, uint256 mCount) = h.modelRolling();
+        assertEq(daySum, mDay, "24h sum differs from the full-history model");
+        assertEq(hourSum, mHour, "1h sum differs from the full-history model");
+        assertEq(count, mCount, "24h release count differs from the full-history model");
         assertLe(daySum, vault.dailyCap());
-        assertLe(hourSum, vault.hourlyCap());
+        if (vault.hourlyCap() != 0) assertLe(hourSum, vault.hourlyCap());
         assertLe(count, vault.RING_SIZE());
+        assertLe(h.maxRingCount(), vault.RING_SIZE());
     }
 
+    /// INV-6: above the threshold a release needs an unexpired owner approval of exactly this intent and amount.
     function invariant_INV6_aboveThresholdNeedsOwnerApproval() public view {
         assertEq(h.violApproval(), 0);
     }
 
+    /// INV-7: a payee change needs the owner and the old and the new payee, a fresh nonce, the delay, and no pause
+    /// in between; the vault's pending record mirrors the model.
     function invariant_INV7_payeeChangeNeedsThreeSigsAndDelay() public view {
         assertEq(h.violPayeeChange(), 0);
+        uint256 n = h.idsLength();
+        for (uint256 i = 0; i < n; ++i) {
+            bytes32 id = h.ids(i);
+            assertEq(vault.engagementNonce(id), h.ghostNonce(id), "nonce");
+            (address newPayee, uint256 proposedAt, uint256 epoch, bool exists) = h.pendingOf(id);
+            (address vNew, uint64 vEta) = vault.pendingPayee(id);
+            if (exists) {
+                assertEq(vNew, newPayee, "pending payee");
+                assertEq(uint256(vEta), proposedAt + cfg.payeeChangeDelay, "eta");
+                assertEq(vault.pendingPayeeEpoch(id), epoch, "epoch");
+                assertEq(vault.payeeChangeLive(id), epoch == h.ghostEpoch(), "live");
+            } else {
+                assertEq(vNew, address(0), "no pending payee");
+                assertEq(vault.payeeChangeLive(id), false);
+            }
+        }
     }
 
-    function invariant_noReleaseWhilePausedClosedOrOutOfWindow() public view {
-        assertEq(h.violReleaseWhilePausedOrOutOfWindow(), 0);
-    }
+    // ---- INV-12 ------------------------------------------------------------------------------------------------
 
+    /// INV-12: the owner can always pause and withdraw: no reachable state blocks either call. The handler checks
+    /// every attempted owner pause/withdraw (`violLiveness`); this also exercises both from the CURRENT state.
     function invariant_INV12_ownerCanAlwaysPauseAndWithdraw() public {
+        assertEq(h.violLiveness(), 0, "a call the model says must succeed reverted");
         uint256 snap = vm.snapshotState();
         address o = h.owner();
         vm.prank(o);
@@ -395,6 +178,16 @@ contract InvariantsTest is Test {
         vault.withdraw(o, bal);
         assertEq(token.balanceOf(address(vault)), 0);
         vm.revertToState(snap);
+    }
+
+    // ---- lifecycle, access and bookkeeping -----------------------------------------------------------------------
+
+    function invariant_noReleaseWhilePausedClosedOutOfWindowOrPastDeadline() public view {
+        assertEq(h.violLifecycle(), 0);
+    }
+
+    function invariant_ownerOnlyFunctionsRejectEveryoneElse() public view {
+        assertEq(h.violAccess(), 0);
     }
 
     function invariant_balanceAccounting() public view {
@@ -412,30 +205,197 @@ contract InvariantsTest is Test {
         }
     }
 
-    function invariant_configHashUnchangedByNonConfigCalls() public view {
-        assertEq(vault.configHash(), configAtStart);
+    /// There is no limit setter and the configuration moves only through the two timelocked/owner paths: every
+    /// immutable still has its deploy value, `configHash()` equals its documented preimage computed from the
+    /// handler's own record of owner, kernel signer and guardian, and `paused`/`pendingSigner*` are outside it.
+    function invariant_configurationIsImmutableAndHashMatchesPreimage() public view {
+        assertEq(vault.perTxCap(), cfg.perTxCap);
+        assertEq(vault.dailyCap(), cfg.dailyCap);
+        assertEq(vault.hourlyCap(), cfg.hourlyCap);
+        assertEq(vault.humanThreshold(), cfg.humanThreshold);
+        assertEq(uint256(vault.payeeChangeDelay()), uint256(cfg.payeeChangeDelay));
+        assertEq(uint256(vault.signerChangeDelay()), uint256(cfg.signerChangeDelay));
+        assertEq(address(vault.token()), address(token));
+        assertEq(uint256(vault.tokenDecimals()), 6);
+        assertEq(vault.owner(), h.owner());
+        assertEq(vault.kernelSigner(), h.kernels(h.kIdx()));
+        assertEq(vault.guardian(), h.guardians(h.gIdx()));
+        assertEq(vault.pendingSigner(), h.kPending() == 0 ? address(0) : h.kernels(h.kPending() - 1));
+        assertEq(uint256(vault.pendingSignerEta()), h.kEta());
+        bytes32 expected = keccak256(
+            abi.encode(
+                address(token),
+                uint8(6),
+                h.owner(),
+                h.kernels(h.kIdx()),
+                h.guardians(h.gIdx()),
+                cfg.perTxCap,
+                cfg.dailyCap,
+                cfg.hourlyCap,
+                cfg.humanThreshold,
+                cfg.payeeChangeDelay,
+                cfg.signerChangeDelay,
+                uint8(64)
+            )
+        );
+        assertEq(vault.configHash(), expected, "configHash differs from the documented preimage");
+        if (h.kIdx() == 0 && h.gIdx() == 0) assertEq(vault.configHash(), configAtStart);
     }
 
-    function invariant_ghostPausedMatches() public view {
+    function invariant_pauseStateMatchesModel() public view {
         assertEq(vault.paused(), h.ghostPaused());
         assertEq(vault.pauseEpoch(), h.ghostEpoch());
     }
 
-    /// Non-vacuity: the handler's honest paths do succeed (a handler that only ever reverts would make every
-    /// invariant above pass trivially).
-    function test_handler_honestPathsSucceed() public {
-        uint256 releasesBefore = h.okReleases();
-        for (uint256 i = 0; i < 12; ++i) {
-            // engagement 0 or 1, amount <= humanThreshold, authorized kernel, fresh intent, registered payee
-            h.release(i % 2, 1e6 + i, 1 | (1 << 3) | (1 << 6) | (uint256(1) << 9) | (uint256(1) << 20), 60);
+    // ---- non-vacuity -------------------------------------------------------------------------------------------
+
+    /// Printed with -vv at the end of every run: how many calls of each kind actually succeeded.
+    function afterInvariant() public view {
+        console2.log("reach releases/registrations/payeeProposals/payeeChanges", h.okReleases(), h.okRegistrations(), h.okPayeeProposals());
+        console2.log("reach payeeChanges/pauses/unpauses/withdrawals", h.okPayeeChanges(), h.okPauses(), h.okUnpauses());
+        console2.log("reach withdrawals/signerProposals/signerRotations/guardianChanges", h.okWithdrawals(), h.okSignerProposals(), h.okSignerRotations());
+        console2.log("reach guardianChanges/closes/blockedReleases/maxRingCount", h.okGuardianChanges(), h.okCloses(), h.blockedReleases());
+        console2.log("reach maxRingCount", h.maxRingCount());
+    }
+
+    function _honestMode() internal pure returns (uint256 m) {
+        m = 1; // registered engagement
+        m |= uint256(2) << 4; // registered payee
+        m |= uint256(1) << 8; // fresh intent
+        m |= uint256(1) << 12; // plain bounded amount
+        m |= uint256(2) << 16; // deadline in the future
+        m |= uint256(2) << 28; // the signer the vault trusts
+        m |= uint256(2) << 36; // no tampering
+        m |= uint256(0) << 44; // a valid approval whenever one is needed
+        m |= uint256(1) << 48; // no junk ref
+    }
+
+    /// The handler's honest paths do succeed and every one of its model checks agrees with the real vault; a
+    /// handler that only ever reverted would make every invariant above pass trivially.
+    function test_handler_everyStateChangingFunctionIsReachableAndTheModelAgrees() public {
+        uint256 amt = _amount();
+        for (uint256 i = 0; i < 6; ++i) {
+            h.release(i % 2, amt, _honestMode(), 2);
         }
-        assertGt(h.okReleases(), releasesBefore, "no honest release succeeded");
-        // payee change: valid nonce and signatures, then wait out the delay
+        assertGe(h.okReleases(), 6, "honest releases must succeed");
+
+        h.burst(0, 70); // hits the 64-release window unless an hourly cap binds first
+        if (cfg.hourlyCap == 0 || cfg.hourlyCap >= 70) assertEq(h.maxRingCount(), 64, "saturation not reached");
+
+        h.pause(1); // guardian
+        assertEq(h.okPauses(), 1);
+        h.unpause(0); // owner
+        assertEq(h.okUnpauses(), 1);
+        h.withdraw(0, 1, 0);
+        assertEq(h.okWithdrawals(), 1);
+        h.deposit(10e6);
+
         h.proposePayeeChange(0, 1, 1 | (5 << 3));
-        h.warp(1 days);
-        uint256 changesBefore = h.okPayeeChanges();
-        h.executePayeeChange(0);
-        assertEq(h.okPayeeChanges(), changesBefore + 1, "honest payee change did not execute");
+        assertEq(h.okPayeeProposals(), 1, "payee change proposal");
+        h.warp(2 days);
+        h.executePayeeChange(3, 0);
+        assertEq(h.okPayeeChanges(), 1, "payee change execution");
+
+        h.proposeSigner(0, 2);
+        assertEq(h.okSignerProposals(), 1);
+        h.warp(2 days);
+        h.executeSigner(0);
+        assertEq(h.okSignerRotations(), 1);
+        h.release(0, amt, _honestMode(), 2); // signed by the rotated signer
+        assertGe(h.okReleases(), 7);
+
+        h.setGuardian(0, 2);
+        assertEq(h.okGuardianChanges(), 1);
+        h.close(0, 1);
+        assertEq(h.okCloses(), 1);
+        h.registerBad(0, 3);
+
+        assertEq(h.violUnauthorizedRelease(), 0);
+        assertEq(h.violUnregisteredPayee(), 0);
+        assertEq(h.violEngagementCap(), 0);
+        assertEq(h.violReplay(), 0);
+        assertEq(h.violPerTxOrRolling(), 0);
+        assertEq(h.violApproval(), 0);
         assertEq(h.violPayeeChange(), 0);
+        assertEq(h.violLifecycle(), 0);
+        assertEq(h.violAccess(), 0);
+        assertEq(h.violRegistration(), 0);
+        assertEq(h.violLiveness(), 0);
+    }
+}
+
+/// @notice Default caps: all four windows and the approval path reachable.
+contract InvariantsTest is InvariantsBase {
+    function _config() internal pure override returns (HandlerConfig memory) {
+        return HandlerConfig({
+            perTxCap: 100e6,
+            dailyCap: 300e6,
+            hourlyCap: 150e6,
+            humanThreshold: 50e6,
+            payeeChangeDelay: 1 days,
+            signerChangeDelay: 1 days,
+            wallets: false
+        });
+    }
+
+    function _amount() internal pure override returns (uint256) {
+        return 10e6;
+    }
+}
+
+/// @notice hourlyCap disabled, every release needs an approval, no timelocks (delay boundary = same second).
+contract InvariantsNoHourlyZeroDelayTest is InvariantsBase {
+    function _config() internal pure override returns (HandlerConfig memory) {
+        return HandlerConfig({
+            perTxCap: 100e6,
+            dailyCap: 250e6,
+            hourlyCap: 0,
+            humanThreshold: 0,
+            payeeChangeDelay: 0,
+            signerChangeDelay: 0,
+            wallets: false
+        });
+    }
+
+    function _amount() internal pure override returns (uint256) {
+        return 10e6;
+    }
+}
+
+/// @notice Owner, every kernel-signer candidate and every payee are ERC-1271 wallets (MockSafe).
+contract InvariantsWalletsTest is InvariantsBase {
+    function _config() internal pure override returns (HandlerConfig memory) {
+        return HandlerConfig({
+            perTxCap: 100e6,
+            dailyCap: 300e6,
+            hourlyCap: 150e6,
+            humanThreshold: 50e6,
+            payeeChangeDelay: 1 days,
+            signerChangeDelay: 1 days,
+            wallets: true
+        });
+    }
+
+    function _amount() internal pure override returns (uint256) {
+        return 10e6;
+    }
+}
+
+/// @notice Tiny base-unit caps: the hourly window and the 64-release window bind within a few calls.
+contract InvariantsTinyCapsTest is InvariantsBase {
+    function _config() internal pure override returns (HandlerConfig memory) {
+        return HandlerConfig({
+            perTxCap: 7,
+            dailyCap: 100,
+            hourlyCap: 30,
+            humanThreshold: 3,
+            payeeChangeDelay: 1 hours,
+            signerChangeDelay: 1 hours,
+            wallets: false
+        });
+    }
+
+    function _amount() internal pure override returns (uint256) {
+        return 2;
     }
 }
