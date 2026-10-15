@@ -1,10 +1,11 @@
+import { BRAND } from '@/lib/brand';
 import type { Metadata } from 'next';
 import { PageFrame, Section, Chip } from '@/components/product/PageFrame';
 import { LiteAudit } from '@/components/product/LiteAudit';
 import { loadBlastClosedForm } from '@/server/recorded';
 
 export const metadata: Metadata = {
-  title: 'Blast radius | Symbolon',
+  title: `Blast radius | ${BRAND.name}`,
   description: 'How much can leave an agent wallet if the agent and its key are compromised, calculated from the limits you set.',
 };
 export const dynamic = 'force-dynamic';

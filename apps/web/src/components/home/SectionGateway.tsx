@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/brand';
 import Link from 'next/link';
 import Reveal from '@/components/ui/Reveal';
 
@@ -20,7 +21,7 @@ export default function SectionGateway() {
                     The payment still needs a verdict.
                   </h3>
                   <p className="body-text-m card-stack__text text-gray-1000 lg:max-w-[304px]">
-                    On Arc, Symbolon checks invoice evidence, signed terms, policy, and payment history before the vault releases USDC.
+                    On Arc, {BRAND.name} checks invoice evidence, signed terms, policy, and payment history before the vault releases USDC.
                   </p>
                 </div>
               </div>

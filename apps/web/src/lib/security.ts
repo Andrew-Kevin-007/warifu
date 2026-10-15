@@ -23,6 +23,14 @@ const CHALLENGE_ALLOWED = [
   /^\/_next\//,
 ];
 
+/** Public routes that exist on the app origin only (Seal and share cards): the challenge origin never serves them (INV-16). */
+const APP_ONLY = [/^\/api\/public\/seal(\/|$)/, /^\/api\/public\/share(\/|$)/];
+
+/** Image endpoints meant to be embedded cross-origin (badge, share card). Everything else stays CORP same-origin. */
+export function isEmbeddablePath(pathname: string): boolean {
+  return /^\/api\/public\/seal\/0x[0-9a-fA-F]{40}$/.test(pathname) || /^\/api\/public\/share\/0x[0-9a-f]{64}\/card\.svg$/.test(pathname);
+}
+
 /** Exact public assets (the real apps/web/public tree). Anchored: an extension alone never admits a path. */
 const STATIC_ASSET =
   /^\/(?:favicon\.ico|icon\.svg|icon-512\.png|logo\.svg|matcap\.png|top-eye\.png|research-x-grid\.svg|tetrapod_v1\.glb|robots\.txt|sitemap\.xml|site\.webmanifest|apple-touch-icon\.png|(?:media|icons|fonts|assets|videos)\/[A-Za-z0-9._-]+\.(?:png|jpe?g|svg|webp|ico|woff2?|glb|webm))$/;
@@ -47,6 +55,7 @@ export function isRouteAllowed(profile: Profile, pathname: string): boolean {
   const p = normalizePath(pathname);
   if (p === null) return false;
   if (profile === "app") return true;
+  if (APP_ONLY.some((re) => re.test(p))) return false;
   return CHALLENGE_ALLOWED.some((re) => re.test(p)) || STATIC_ASSET.test(p);
 }
 

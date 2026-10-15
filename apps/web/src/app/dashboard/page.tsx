@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/brand';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { formatBaseUnits } from '@symbolon/schemas';
@@ -5,7 +6,7 @@ import { Chip, PageFrame, Section } from '@/components/product/PageFrame';
 import { WalletButton } from '@/wallet/WalletButton';
 import { kernelCall } from '@/server/kernel-client';
 
-export const metadata: Metadata = { title: 'Dashboard | Symbolon' };
+export const metadata: Metadata = { title: `Dashboard | ${BRAND.name}` };
 export const dynamic = 'force-dynamic';
 
 interface State {

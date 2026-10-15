@@ -1,10 +1,11 @@
+import { BRAND } from '@/lib/brand';
 export default function SectionManifesto() {
   return (
     <section className="section-manifesto pb-80px pt-120px lg:pb-[102px] lg:pt-[142px] overflow-hidden" id="manifesto">
       <div className="container">
         <div className="section-manifesto__heading mx-auto mb-64px flex max-w-[629px] flex-col items-center gap-[4px] text-center">
           <p className="body-text-s">
-            About Symbolon
+            About {BRAND.name}
           </p>
           <h1 className="heading-hero">
             A payment request can lie.
@@ -27,7 +28,7 @@ export default function SectionManifesto() {
                     Extraction turns the invoice into candidate fields, not verified facts. The agreement and independently gathered evidence establish whether the request is authorized.
                   </p>
                   <p className="body-text-m image-text__paragraph">
-                    Symbolon is a treasury control layer for agent-driven USDC payments on Arc. Each decision is reason-coded and can be checked afterward.
+                    {BRAND.name} is a treasury control layer for agent-driven USDC payments on Arc. Each decision is reason-coded and can be checked afterward.
                   </p>
                   <p className="body-text-m image-text__paragraph">
                     The system makes model errors visible and limits their impact under stated assumptions.

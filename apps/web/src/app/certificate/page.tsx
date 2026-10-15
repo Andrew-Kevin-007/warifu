@@ -1,9 +1,10 @@
+import { BRAND } from '@/lib/brand';
 import type { Metadata } from 'next';
 import { PageFrame, Section } from '@/components/product/PageFrame';
 import { CertificateLookup } from '@/components/product/CertificateLookup';
 import { loadBundle } from '@/server/recorded';
 
-export const metadata: Metadata = { title: 'Loss bound certificate | Symbolon' };
+export const metadata: Metadata = { title: `Loss bound certificate | ${BRAND.name}` };
 export const dynamic = 'force-dynamic';
 
 export default function Page() {

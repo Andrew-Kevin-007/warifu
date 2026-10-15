@@ -494,3 +494,7 @@ Branch `wp-05/kernel-fixes-rebaseline`. Where the spec was ambiguous the stricte
 4. **Unfreeze typed data is service-local** (`BreakerUnfreeze(bytes32 reasonHash,uint64 haltedSince,uint64 deadline)` under the vault domain, `reconcile/unfreeze.ts`), because `packages/schemas` is frozen. SCHEMAS may adopt it; the web wallet screen must sign exactly that. Clearing the kernel breaker does not unpause the vault (owner tx on chain); K-16 keeps HOLDing while the vault is paused.
 5. **Open: nothing writes `milestones.status = 'PAID'`** (also named in the WP-05 K-04 note). `sequential` engagements need the prior milestone PAID (K-05). Needs gross-amount accounting per milestone from confirmed releases; not done in WP-14/15. WP-15 findings are chain-side only; K-15 item 4 (payee `ReceiptAck`, P1) is not built.
 6. **Drift check start block**: deposits before `INDEXER_START_BLOCK` are invisible to the identity (V-60).
+
+## 2026-10-15 · WP-17 brand · WEB -> SCHEMAS/ORCH
+- Public name is now Warifu (`apps/web/src/lib/brand.ts`). The EIP-712 domain `name` still carries the old string. Changing its display name changes every signature digest and test vector, so it is a schemas RFC, not a find/replace. Wallets show the domain name when signing; if that matters for the demo, SCHEMAS should decide.
+- `/api/public/seal/*` and `/api/public/share/*` are app-origin only (denied on the challenge profile) because the challenge origin has no certificate service and INV-16 keeps it minimal.
