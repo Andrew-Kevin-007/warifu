@@ -88,6 +88,7 @@ export const POLICY_INPUT = {
 export interface FakeChain extends ChainReader {
   failWith: Error | null;
   paused: boolean;
+  payeeChangePending: boolean;
   caps: { perTxCap: bigint; dailyCap: bigint; humanThreshold: bigint };
   engagements: Map<string, OnChainEngagement>;
   reads: number;
@@ -98,6 +99,7 @@ export function fakeChain(): FakeChain {
     chainId: CHAIN_ID,
     failWith: null,
     paused: false,
+    payeeChangePending: false,
     caps: { perTxCap: 2_000_000_000n, dailyCap: 5_000_000_000n, humanThreshold: 1_500_000_000n },
     engagements: new Map(),
     reads: 0,
@@ -112,7 +114,7 @@ export function fakeChain(): FakeChain {
     },
     async payeeChangeLive() {
       if (c.failWith !== null) throw c.failWith;
-      return false;
+      return c.payeeChangePending;
     },
     async ping() {
       if (c.failWith !== null) throw c.failWith;

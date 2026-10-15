@@ -174,3 +174,13 @@ describe("G10 and the secret inventory (SEC-07 review findings)", () => {
     }
   });
 });
+
+describe("G11: the scheduler test clock exists only outside production (WP-14)", () => {
+  it("refuses TEST_CLOCK_OFFSET_SECONDS under the production profile and under NODE_ENV=production, allows it in the sandbox", () => {
+    expect(rules({ ...production(), TEST_CLOCK_OFFSET_SECONDS: "3600" })).toEqual(["G11:TEST_CLOCK_OFFSET_SECONDS"]);
+    expect(rules({ ...sandbox(), NODE_ENV: "production", TEST_CLOCK_OFFSET_SECONDS: "3600" })).toEqual(["G11:TEST_CLOCK_OFFSET_SECONDS"]);
+    expect(rules({ ...sandbox(), TEST_CLOCK_OFFSET_SECONDS: "3600" })).toEqual([]);
+    expect(() => loadConfig({ ...production(), TEST_CLOCK_OFFSET_SECONDS: "3600" })).toThrow();
+    expect(loadConfig({ ...sandbox(), TEST_CLOCK_OFFSET_SECONDS: "3600" }).scheduler.testClockOffsetSeconds).toBe(3600);
+  });
+});

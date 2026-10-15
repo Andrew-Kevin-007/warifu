@@ -5,7 +5,7 @@
 // The real vault on anvil is covered separately (release.anvil.local.test.ts).
 import { randomUUID } from "node:crypto";
 import { computeTermsHash, epochSecondsFromIso, isoFromEpochSeconds, keccak256Utf8 } from "@symbolon/schemas";
-import type { Address, Engagement, Hex32, PaymentTerms } from "@symbolon/schemas";
+import type { Address, Engagement, EvidenceRequirement, Hex32, PaymentTerms } from "@symbolon/schemas";
 import { privateKeyToAccount, generatePrivateKey } from "viem/accounts";
 import type { PrivateKeyAccount } from "viem/accounts";
 import type { VaultRelayer, ReleaseArgs } from "../../src/chain/relayer";
@@ -62,10 +62,12 @@ export interface ReleaseWorld {
   readonly engagement: Engagement;
   readonly milestone: Hex32;
   readonly relayer: FakeRelayer;
-  /** The service clock (epoch ms). Starts at the real time; tests move it with advance(). */
-  readonly clock: { ms: number };
+  /** The service clock: real time plus an offset that tests move forward with advance() / advanceTo(). */
+  nowMs(): number;
   now(): bigint;
   advance(seconds: number): void;
+  /** Move the service clock to an absolute epoch second (never backwards). */
+  advanceTo(epochSeconds: bigint): void;
   readonly signerAddress: Address;
   release(over?: Partial<ReleaseDeps>): ReleaseDeps;
   reeval(): ReevalDeps;
@@ -88,13 +90,15 @@ export interface ReleaseWorldOptions {
   readonly alwaysHuman?: boolean;
   /** Extra top-level policy sections (shallow-merged over the defaults). */
   readonly policy?: Record<string, unknown>;
+  /** The milestone evidence requirements (default: one OWNER_ACK). */
+  readonly evidenceSpec?: readonly EvidenceRequirement[];
 }
 
 export async function openReleaseWorld(o: ReleaseWorldOptions = {}): Promise<ReleaseWorld> {
   const w = await openWorld();
   const owner = privateKeyToAccount(generatePrivateKey());
   const tenantId = randomUUID();
-  const base = buildEngagement(tenantId, owner.address as Address, [[{ type: "OWNER_ACK" }]]);
+  const base = buildEngagement(tenantId, owner.address as Address, [o.evidenceSpec ?? [{ type: "OWNER_ACK" }]]);
   const gross = (o.gross ?? 1_000_000_000n).toString();
   const withTerms: Engagement = {
     ...base,
@@ -106,6 +110,7 @@ export async function openReleaseWorld(o: ReleaseWorldOptions = {}): Promise<Rel
     caps: { perTxHardCap: "2000", dailyCap: "5000", weeklyCap: "10000", humanApprovalAbove: o.humanApprovalAbove ?? "1500" },
     velocity: { maxReleasesPerDay: 10, maxReleasesPerPayeePerDay: 3, maxAmountPerPayeePerDay: "5000" },
     newPayee: { firstPaymentMax: "5000", alwaysHuman: o.alwaysHuman ?? false },
+    evidence: { freshnessHours: 24 * 30, allowOwnerOverride: true, urlAllowlist: [] },
     ...o.policy,
   };
   await seedTenant(w, tenantId, engagement, policyExtra);
@@ -120,11 +125,12 @@ export async function openReleaseWorld(o: ReleaseWorldOptions = {}): Promise<Rel
   });
   if (o.humanThresholdUnits !== undefined) w.chain.caps.humanThreshold = o.humanThresholdUnits;
 
-  const clock = { ms: Date.now() };
+  // The service clock follows real time (documents are stamped at real time) plus whatever offset a test advanced by.
+  let offsetMs = 0;
   const relayer = fakeRelayer();
   const signer = createKernelSigner(new Secret(w.signerKey));
   const milestone = engagement.milestones[0]?.milestoneId as Hex32;
-  const svcClock = (): number => clock.ms;
+  const svcClock = (): number => Date.now() + offsetMs;
   const rd = (): ReevalDeps => ({ db: w.t.db, chain: w.chain, signer, clock: svcClock, profile: "production", logger: w.logger });
 
   const world: ReleaseWorld = {
@@ -134,9 +140,10 @@ export async function openReleaseWorld(o: ReleaseWorldOptions = {}): Promise<Rel
     engagement,
     milestone,
     relayer,
-    clock,
-    now: () => BigInt(Math.floor(clock.ms / 1000)),
-    advance: (s) => void (clock.ms += s * 1000),
+    nowMs: svcClock,
+    now: () => BigInt(Math.floor(svcClock() / 1000)),
+    advance: (s) => void (offsetMs += s * 1000),
+    advanceTo: (t) => void (offsetMs = Math.max(offsetMs, Number(t) * 1000 - Date.now())),
     signerAddress: signer.address,
     release: (over = {}) => ({ ...rd(), relayer, ...over }),
     reeval: rd,
@@ -155,7 +162,7 @@ export async function openReleaseWorld(o: ReleaseWorldOptions = {}): Promise<Rel
       const body = intentFor(d.json, { tenantId, engagementId: engagement.engagementId, milestoneId: milestone, ...over });
       return call(app, "POST", "/v1/intents", w.token(tenantId), body);
     },
-    async ack(deadlineSeconds = 3600) {
+    async ack(deadlineSeconds = 30 * DAY) {
       const deps = evidenceDeps(w, { kind: "live", guard: { resolver: { resolve: async () => [] }, transport: { get: async () => { throw new Error("no network in tests"); } } }, githubToken: null }, {
         clock: svcClock,
         engagementChain: fakeEngagementChain(),

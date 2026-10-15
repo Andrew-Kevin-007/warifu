@@ -34,7 +34,7 @@ export interface TickSummary {
   readonly errors: number;
 }
 
-/** Re-evaluate HOLD heads (optionally only those of one milestone, e.g. right after evidence was collected). */
+/** Re-evaluate HOLD and ESCALATE heads (optionally only those of one milestone, e.g. right after evidence was collected). */
 export async function recheckHolds(d: ReleaseDeps, tenantId: string, o: { milestoneId?: Hex32 | null; recheckAfterSeconds?: number; limit?: number } = {}): Promise<number> {
   const now = nowIso(d.clock);
   const before = plusSeconds(now, -(o.recheckAfterSeconds ?? DEFAULT_TICK_OPTIONS.recheckAfterSeconds));
@@ -42,7 +42,7 @@ export async function recheckHolds(d: ReleaseDeps, tenantId: string, o: { milest
   let changed = 0;
   for (const h of holds) {
     try {
-      const r = await reevaluateStored(d, tenantId, h.intentId, { action: "intent.rechecked", actor: "kernel:scheduler", heads: ["HOLD"], onlyIfChanged: true });
+      const r = await reevaluateStored(d, tenantId, h.intentId, { action: "intent.rechecked", actor: "kernel:scheduler", heads: ["HOLD", "ESCALATE"], onlyIfChanged: true });
       if (r.recorded !== null) changed++;
     } catch (e) {
       d.logger.warn("scheduler.recheck_failed", { tenantId, intentId: h.intentId, ...errorFields(e) });
