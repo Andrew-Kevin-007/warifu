@@ -1,0 +1,100 @@
+/*
+ * Lane / safety page skins, keyed ONLY on data-sy-role attributes the lane adds (DESIGN_BRIEF 6.2).
+ * Rules: no global element selectors; applying this file to a page with none of the attributes changes
+ * nothing; nothing here reorders, clips, truncates, hides or adds content around a hands-off component.
+ * Skinning is colour, border, type weight and spacing tokens only.
+ */
+
+[data-sy-role='checks-table'] {
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+[data-sy-role='checks-table'] th {
+  font-weight: 600;
+  text-align: left;
+  border-bottom: 1px solid #000;
+}
+[data-sy-role='checks-table'] td {
+  border-bottom: 1px solid var(--sy-line, #e9e9e9);
+}
+[data-sy-role='check-row'] [data-sy-id],
+[data-sy-role='receipt-step'] code,
+[data-sy-role='typed-data'] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+[data-sy-role='verdict'] {
+  border: 1px solid #000;
+  border-radius: 2px;
+  font-weight: 600;
+}
+[data-sy-role='receipt-step'][data-status='pass'] {
+  border-left: 2px solid #000;
+}
+[data-sy-role='receipt-step'][data-status='fail'] {
+  border-left: 2px solid var(--sy-loss, #b42318);
+}
+[data-sy-role='receipt-step'][data-status='unverified'] {
+  border-left: 1px dashed var(--sy-mute, #6e6e6e);
+}
+[data-sy-role='typed-data'] {
+  background: var(--sy-tray, #f4f4f4);
+  border: 1px dashed var(--sy-mute, #6e6e6e);
+}
+[data-sy-role='approval-area'] {
+  border-top: 1px solid #000;
+}
+[data-sy-role='advisory'] {
+  border: 1px dashed var(--sy-mute, #6e6e6e);
+  background: repeating-linear-gradient(135deg, rgba(0, 0, 0, 0.06) 0 1px, transparent 1px 6px);
+}
+[data-sy-role='untrusted'] {
+  border: 1px dashed var(--sy-mute, #6e6e6e);
+  background: var(--sy-tray, #f4f4f4);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+[data-sy-role='kpi'] {
+  background: linear-gradient(#ededed, #e5e5e5);
+  border-radius: 10px;
+}
+[data-sy-role='feed-row'] {
+  border-bottom: 1px solid var(--sy-line, #e9e9e9);
+}
+[data-sy-role='stepper'] {
+  border-left: 0.5px dashed var(--sy-hair, #ccc);
+}
+[data-sy-role='stepper-node'] {
+  border: 1px solid #000;
+  border-radius: 999px;
+  background: #fff;
+}
+[data-sy-role='stepper-node'][aria-current='step'] {
+  background: #000;
+}
+[data-sy-role='form-plate'] {
+  border: 1px solid #000;
+  border-radius: 2px;
+  background: #fff;
+}
+[data-sy-role='dropzone'] {
+  border: 1px dashed var(--sy-mute, #6e6e6e);
+  background: #fff;
+}
+[data-sy-role='network-tag'] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 1px solid #000;
+  border-radius: 2px;
+  padding: 3px 7px;
+  font-size: 11px;
+}
+[data-sy-role='explorer-link'] {
+  color: var(--sy-peri-text, #5b47e6);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+[data-sy-role='breaker'][data-state='halted'] {
+  background: #000;
+  color: #fff;
+}

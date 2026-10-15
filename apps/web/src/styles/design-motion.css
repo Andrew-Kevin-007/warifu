@@ -1,0 +1,186 @@
+/*
+ * Motion for the design kit. One idea per role (never a uniform fade-up). All easing is custom (tokens in
+ * design.css). Everything below has an authored reduced-motion pose at the end of this file.
+ *
+ * Reveals are class toggles set by Appear: content is fully visible without JS; `is-armed` is only added to
+ * elements that start below the fold, `is-in` once they intersect.
+ */
+
+.sy-appear {
+  /* default: visible. No JS, no flash. */
+}
+
+/* R1 prose: opacity only, 500 ms settle, no translate */
+.sy-appear--prose.is-armed {
+  opacity: 0;
+}
+.sy-appear--prose.is-armed.is-in {
+  opacity: 1;
+  transition: opacity var(--sy-dur-reveal) var(--sy-ease-settle);
+}
+
+/* R3 figures: the stipple resolves (opacity + a 6 px-equivalent settle from 0.985) */
+.sy-appear--figure.is-armed {
+  opacity: 0;
+  transform: scale(0.985);
+}
+.sy-appear--figure.is-armed.is-in {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity var(--sy-dur-object) var(--sy-ease-settle), transform var(--sy-dur-object) var(--sy-ease-settle);
+}
+
+/* R4 rows: the hairline draws first, then the text */
+.sy-appear--rows {
+  position: relative;
+}
+.sy-appear--rows.is-armed > * {
+  opacity: 0;
+}
+.sy-appear--rows.is-armed.is-in > * {
+  opacity: 1;
+  transition: opacity 200ms var(--sy-ease-settle) 240ms;
+}
+
+/* R2 rules/frames: left-to-right draw (clip, paint-only) */
+.sy-appear--rule {
+  display: block;
+}
+.sy-appear--rule.is-armed {
+  clip-path: inset(0 100% 0 0);
+}
+.sy-appear--rule.is-armed.is-in {
+  clip-path: inset(0 0 0 0);
+  transition: clip-path var(--sy-dur-reveal) var(--sy-ease-draw);
+}
+
+/* Fracture word: the heading word rendered twice, closing from 3 px apart (ease-snap, 700 ms) */
+.sy-fw {
+  position: relative;
+  display: inline-block;
+  color: #000;
+  -webkit-text-fill-color: #000;
+}
+.sy-fw__t {
+  display: inline-block;
+  clip-path: polygon(0 -10%, 56% -10%, 56% 34%, 48% 34%, 48% 68%, 54% 68%, 54% 110%, 0 110%);
+  animation: sy-fw-left 700ms var(--sy-ease-snap) both;
+}
+.sy-fw::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  clip-path: polygon(100% -10%, 56% -10%, 56% 34%, 48% 34%, 48% 68%, 54% 68%, 54% 110%, 100% 110%);
+  animation: sy-fw-right 700ms var(--sy-ease-snap) both;
+  pointer-events: none;
+}
+@keyframes sy-fw-left {
+  from { transform: translate(-3px, 1px); }
+  to { transform: translate(0, 0); }
+}
+@keyframes sy-fw-right {
+  from { transform: translate(3px, -1px); }
+  to { transform: translate(0, 0); }
+}
+
+/* Pointer lean on Stills is script-free: a hover nudge with a long landing */
+.sy-lean {
+  transition: transform var(--sy-dur-settle) var(--sy-ease-settle);
+}
+@media (hover: hover) and (pointer: fine) {
+  .sy-lean:hover {
+    transform: rotate(-1.2deg) scale(1.012);
+  }
+}
+
+/* Idle float (the site's existing `flying` timing: 5 s, 5 px); one idle motion per scene; live mode only */
+@media (prefers-reduced-motion: no-preference) {
+  .sy-float {
+    animation: sy-float 5s var(--sy-ease-ui) infinite;
+  }
+  .sy-root[data-sy-frozen='true'] .sy-float {
+    animation: none;
+  }
+}
+@keyframes sy-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}
+
+/* Panels (R6): grid-rows expand, never layout-shifting above the fold */
+.sy-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--sy-dur-swap) var(--sy-ease-ui);
+}
+.sy-panel[data-open='true'] {
+  grid-template-rows: 1fr;
+}
+.sy-panel > * {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Fracture pulse for loading plates: the step edge brightens left to right */
+.sy-pulse-edge {
+  animation: sy-edge 1.2s var(--sy-ease-draw) infinite;
+}
+@keyframes sy-edge {
+  0%   { opacity: 0.35; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.35; }
+}
+
+/* ------------------------------------------------------------------ authored reduced-motion pose */
+@media (prefers-reduced-motion: reduce) {
+  .sy-appear--prose.is-armed,
+  .sy-appear--figure.is-armed,
+  .sy-appear--rows.is-armed > *,
+  .sy-appear--rule.is-armed {
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
+  .sy-fw__t,
+  .sy-fw::after {
+    animation: none;
+    transform: none;
+  }
+  .sy-half,
+  .sy-tetra__piece,
+  .sy-cell__cap,
+  .sy-pill,
+  .sy-panel,
+  .sy-lean {
+    transition: none;
+  }
+  .sy-token__scan,
+  .sy-pulse,
+  .sy-pulse-edge,
+  .sy-seal--stamp {
+    animation: none;
+  }
+  .sy-token__scan {
+    display: none;
+  }
+}
+
+/* Recorded / simulated / fixture things are still: motion encodes liveness. */
+.sy-root[data-sy-frozen='true'] .sy-token__scan,
+.sy-root[data-sy-frozen='true'] .sy-pulse,
+.sy-root[data-sy-frozen='true'] .sy-pulse-edge {
+  animation: none;
+}
+.sy-root[data-sy-frozen='true'] .sy-token__scan {
+  display: none;
+}
+.sy-root[data-sy-mode='recorded']::after {
+  /* the dashed page frame that says "this is a replay" */
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px dashed var(--sy-mute);
+  pointer-events: none;
+  z-index: 2;
+}

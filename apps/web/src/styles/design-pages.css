@@ -1,0 +1,401 @@
+/*
+ * Page-body layouts. Shared bits first, then one block per page (judge, attack-lab, certificate, challenge,
+ * pilot, security, home blocks). Breakpoints follow the site's compiled set: 576, 768, 1000 (lg), 1300.
+ * The compiled globals.css has no stock Tailwind 640 breakpoint: do not assume one.
+ */
+
+.sy-root {
+  --sy-gutter: max(5%, 16px);
+}
+.sy-root .container {
+  width: 100%;
+}
+
+/* ================================================================== JUDGE */
+.sy-judge {
+  padding-bottom: 96px;
+}
+.sy-judge__mode {
+  padding-top: 16px;
+}
+.sy-judge__head {
+  display: grid;
+  gap: 32px;
+  padding-top: 56px;
+  padding-bottom: 48px;
+  align-items: center;
+}
+.sy-judge__h1 {
+  margin: 12px 0 24px;
+  font-size: clamp(40px, 6.4vw, 92px);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  font-weight: 500;
+  color: #000;
+}
+.sy-judge__lede {
+  max-width: 440px;
+  color: var(--sy-mute);
+}
+.sy-judge__hero {
+  width: min(100%, 380px);
+  justify-self: center;
+}
+@media (min-width: 1000px) {
+  .sy-judge__head {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    padding-top: 88px;
+    padding-bottom: 72px;
+  }
+  .sy-judge__hero {
+    justify-self: end;
+  }
+}
+
+.sy-judge__list {
+  --sy-pad: 36px;
+  list-style: none;
+  margin: 0 auto;
+  padding: 24px 0 24px var(--sy-pad);
+  position: relative;
+  display: grid;
+  gap: 72px;
+}
+.sy-judge__list::before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 0;
+  bottom: 0;
+  border-left: 0.5px dashed var(--sy-hair);
+}
+@media (min-width: 1000px) {
+  .sy-judge__list {
+    --sy-pad: 64px;
+    gap: 112px;
+    padding-top: 56px;
+    padding-bottom: 56px;
+  }
+}
+
+.sy-jcard {
+  position: relative;
+  display: grid;
+  gap: 28px;
+  grid-template-columns: minmax(0, 1fr);
+}
+.sy-jcard__node {
+  left: calc(var(--sy-pad) * -1);
+  top: 10px;
+  width: 7px;
+  height: 7px;
+}
+.sy-jcard__meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.sy-jcard__n {
+  color: var(--sy-mute);
+}
+.sy-jcard__title {
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+}
+.sy-jcard__text {
+  margin: 0;
+  max-width: 46ch;
+  color: var(--sy-mute);
+}
+.sy-jcard__cta {
+  margin-top: 24px;
+}
+.sy-jcard__plate {
+  min-width: 0;
+}
+@media (min-width: 1000px) {
+  .sy-jcard {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 24px;
+    align-items: start;
+  }
+  /* 7 / 5, then 5 / 7: the plate side and width alternate; nothing is a symmetric row */
+  .sy-jcard--plate-left .sy-jcard__plate {
+    grid-column: 1 / span 7;
+    grid-row: 1;
+  }
+  .sy-jcard--plate-left .sy-jcard__copy {
+    grid-column: 9 / span 4;
+    grid-row: 1;
+  }
+  .sy-jcard--plate-right .sy-jcard__copy {
+    grid-column: 1 / span 6;
+    grid-row: 1;
+  }
+  .sy-jcard--plate-right .sy-jcard__plate {
+    grid-column: 8 / span 5;
+    grid-row: 1;
+  }
+  .sy-jcard__copy {
+    padding-top: 4px;
+  }
+}
+
+/* --- card 1: the two halves --------------------------------------------------- */
+.sy-duo {
+  --sy-clip-a: polygon(0 0, 52.4% 0, 52.4% 14.29%, 48.4% 14.29%, 48.4% 28.57%, 53.2% 28.57%, 53.2% 42.86%, 47.6% 42.86%, 47.6% 57.14%, 51.6% 57.14%, 51.6% 71.43%, 46.8% 71.43%, 46.8% 85.71%, 52.4% 85.71%, 52.4% 100%, 0 100%);
+  --sy-clip-b: polygon(100% 0, 52.4% 0, 52.4% 14.29%, 48.4% 14.29%, 48.4% 28.57%, 53.2% 28.57%, 53.2% 42.86%, 47.6% 42.86%, 47.6% 57.14%, 51.6% 57.14%, 51.6% 71.43%, 46.8% 71.43%, 46.8% 85.71%, 52.4% 85.71%, 52.4% 100%, 100% 100%);
+  display: grid;
+  position: relative;
+}
+.sy-duo[data-fit='mismatch'] {
+  /* the right edge is the same polyline with steps 2 and 5 moved, and the half sits 2 % apart: it will not seat */
+  --sy-clip-b: polygon(100% 0, 52.4% 0, 52.4% 14.29%, 51.9% 14.29%, 51.9% 28.57%, 53.2% 28.57%, 53.2% 42.86%, 47.6% 42.86%, 47.6% 57.14%, 48.1% 57.14%, 48.1% 71.43%, 46.8% 71.43%, 46.8% 85.71%, 52.4% 85.71%, 52.4% 100%, 100% 100%);
+}
+.sy-duo__half {
+  grid-area: 1 / 1;
+  filter: drop-shadow(0 0 0.5px #000) drop-shadow(0 0 0.5px #000);
+}
+.sy-duo__face {
+  min-height: 300px;
+  height: 100%;
+  padding: 22px;
+}
+.sy-duo__half--a .sy-duo__face {
+  clip-path: var(--sy-clip-a);
+  padding-right: 58%;
+  background-color: var(--sy-peri-tint);
+  background-image: radial-gradient(var(--sy-peri) 1px, transparent 1.5px);
+  background-size: 6px 6px;
+}
+.sy-duo__half--b .sy-duo__face {
+  clip-path: var(--sy-clip-b);
+  padding-left: 58%;
+  background: #000;
+  color: #fff;
+  background-image: linear-gradient(115deg, #0b0b0b 0%, #3a3a3a 30%, #cfcfcf 38%, #1b1b1b 46%, #050505 70%, #555 82%, #000 100%);
+}
+.sy-duo[data-fit='mismatch'] .sy-duo__half--b {
+  transform: translateX(2.4%) rotate(0.6deg);
+}
+.sy-duo[data-fit='unknown'] .sy-duo__half--a .sy-duo__face,
+.sy-duo[data-fit='unknown'] .sy-duo__half--b .sy-duo__face {
+  background: #fff;
+  background-image: none;
+  color: #000;
+}
+.sy-duo[data-fit='unknown'] .sy-duo__half--a {
+  transform: translateX(-2.4%);
+}
+.sy-duo[data-fit='unknown'] .sy-duo__half--b {
+  transform: translateX(2.4%);
+}
+.sy-duo__label {
+  margin: 0 0 12px;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 11px;
+}
+.sy-duo__half--b .sy-duo__label {
+  color: #fff;
+}
+.sy-duo[data-fit='unknown'] .sy-duo__half--b .sy-duo__label {
+  color: #000;
+}
+.sy-duo__content {
+  font-size: 15px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.sy-duo__half--a .sy-duo__content {
+  background: #fff;
+  border: 1px solid #000;
+  padding: 12px;
+}
+.sy-duo__half--b .sy-duo__content {
+  color: #fff;
+}
+.sy-duo[data-fit='unknown'] .sy-duo__half--b .sy-duo__content {
+  color: #000;
+}
+.sy-duo__ids {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+.sy-duo__half--b .sy-mini--solid {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+}
+@media (max-width: 999px) {
+  /* mobile: claim above, check below, the fracture runs horizontally */
+  .sy-duo {
+    --sy-clip-a: polygon(0 0, 100% 0, 100% 52.4%, 85.71% 52.4%, 85.71% 46.8%, 71.43% 46.8%, 71.43% 51.6%, 57.14% 51.6%, 57.14% 47.6%, 42.86% 47.6%, 42.86% 53.2%, 28.57% 53.2%, 28.57% 48.4%, 14.29% 48.4%, 14.29% 52.4%, 0 52.4%);
+    --sy-clip-b: polygon(0 100%, 100% 100%, 100% 52.4%, 85.71% 52.4%, 85.71% 46.8%, 71.43% 46.8%, 71.43% 51.6%, 57.14% 51.6%, 57.14% 47.6%, 42.86% 47.6%, 42.86% 53.2%, 28.57% 53.2%, 28.57% 48.4%, 14.29% 48.4%, 14.29% 52.4%, 0 52.4%);
+  }
+  .sy-duo[data-fit='mismatch'] {
+    --sy-clip-b: polygon(0 100%, 100% 100%, 100% 52.4%, 85.71% 52.4%, 85.71% 51.9%, 71.43% 51.9%, 71.43% 51.6%, 57.14% 51.6%, 57.14% 47.6%, 42.86% 47.6%, 42.86% 53.2%, 28.57% 53.2%, 28.57% 48.1%, 14.29% 48.1%, 14.29% 52.4%, 0 52.4%);
+  }
+  .sy-duo__face {
+    min-height: 340px;
+  }
+  .sy-duo__half--a .sy-duo__face {
+    padding: 20px 20px 52% 20px;
+  }
+  .sy-duo__half--b .sy-duo__face {
+    padding: 58% 20px 20px 20px;
+  }
+  .sy-duo[data-fit='mismatch'] .sy-duo__half--b {
+    transform: translateY(2.4%) rotate(0.5deg);
+  }
+  .sy-duo[data-fit='unknown'] .sy-duo__half--a {
+    transform: translateY(-2.4%);
+  }
+  .sy-duo[data-fit='unknown'] .sy-duo__half--b {
+    transform: translateY(2.4%);
+  }
+}
+
+.sy-judge__outcomes {
+  list-style: none;
+  margin: 22px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+}
+.sy-judge__outcome {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 4px 16px;
+  align-items: baseline;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--sy-line);
+  font-size: 15px;
+}
+.sy-judge__outcome-target {
+  font-weight: 600;
+}
+.sy-judge__outcome-word {
+  color: #000;
+}
+.sy-judge__outcome[data-kind='loss'] .sy-judge__outcome-word {
+  background: var(--sy-loss);
+  color: #fff;
+  padding: 1px 8px;
+  font-weight: 600;
+}
+.sy-judge__outcome[data-kind='blocked'] .sy-judge__outcome-word {
+  border-bottom: 3px solid #000;
+}
+.sy-judge__outcome[data-kind='notrun'] .sy-judge__outcome-word,
+.sy-judge__outcome[data-kind='notbuilt'] .sy-judge__outcome-word {
+  color: var(--sy-mute);
+}
+.sy-judge__outcome-loss {
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- card 2: seal ---------------------------------------------------------- */
+.sy-judge__seal {
+  width: min(100%, 220px);
+  margin: 0 auto;
+}
+.sy-judge__hash {
+  text-align: center;
+  margin: 12px 0 0;
+  color: #000;
+}
+
+/* --- card 3: certificate sketch ------------------------------------------- */
+.sy-judge__cert {
+  padding: 22px;
+  display: grid;
+  gap: 20px;
+}
+.sy-judge__cert-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.sy-judge__excl {
+  margin: 0;
+  max-width: 52ch;
+}
+.sy-judge__cert-body {
+  display: grid;
+  gap: 16px;
+  align-items: end;
+}
+@media (min-width: 576px) {
+  .sy-judge__cert-body {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  }
+}
+.sy-judge__cert-headline {
+  font-size: 18px;
+  line-height: 1.35;
+  min-width: 0;
+}
+.sy-judge__cert-foot {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+}
+.sy-judge__cmd {
+  display: block;
+  background: #000;
+  color: #fff;
+  padding: 12px 14px;
+  overflow-x: auto;
+  white-space: pre;
+  border-radius: 8px;
+}
+.sy-judge__whatif {
+  border-top: 0.5px dashed var(--sy-hair);
+  padding-top: 16px;
+}
+
+/* --- card 4/5 ------------------------------------------------------------- */
+.sy-judge__wall {
+  display: grid;
+  gap: 16px;
+}
+.sy-judge__score {
+  border-top: 1px solid #000;
+  padding-top: 16px;
+}
+.sy-judge__pilot {
+  padding: 24px;
+}
+
+/* --- does-not-do ---------------------------------------------------------- */
+.sy-dnd {
+  margin-top: 72px;
+}
+.sy-dnd__card {
+  padding: clamp(28px, 5vw, 72px);
+}
+.sy-dnd__head {
+  max-width: 780px;
+  margin-bottom: 24px;
+}
+.sy-dnd__eyebrow {
+  color: #939393;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 12px;
+}
+.sy-dnd__title {
+  color: #fff;
+  margin: 0;
+  letter-spacing: -0.03em;
+}
