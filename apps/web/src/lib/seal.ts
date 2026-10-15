@@ -1,7 +1,7 @@
 // The Seal: a hanko-style SVG badge whose state is the vault's Loss Bound Certificate state (docs/BRAND_AND_IDEA.md).
 // Pure: callers pass already-validated certificate fields. No untrusted text is accepted, and the only number on the badge
 // is the formatted bound the certificate document itself carries (INV-18); nothing here computes or types a figure.
-import { BRAND } from "./brand";
+import { BRAND, KANJI_FONT } from "./brand";
 
 export type SealState = "VALID" | "STALE" | "MISMATCH" | "UNVERIFIED" | "NOT_COMPUTED";
 
@@ -66,8 +66,9 @@ export function renderSealSvg(i: SealInput): string {
   o.push(`<rect x="2" y="2" width="88" height="88" rx="10" fill="none" stroke="${colour}" stroke-width="5"${blank ? ' stroke-dasharray="6 5"' : ""}/>`);
   if (!blank) {
     o.push(`<rect x="10" y="10" width="72" height="72" rx="6" fill="none" stroke="${colour}" stroke-width="1.5"/>`);
-    o.push(`<text x="46" y="46" text-anchor="middle" font-family="${serif}" font-size="17" font-weight="700" fill="${colour}">${esc(BRAND.name.toUpperCase())}</text>`);
-    o.push(`<text x="46" y="64" text-anchor="middle" font-family="${serif}" font-size="11" fill="${colour}">${cracked ? "cracked" : "intact"}</text>`);
+    // hanko face: 割 over 符, read top to bottom as a seal is
+    o.push(`<text x="46" y="44" text-anchor="middle" font-family="${KANJI_FONT}" font-size="30" font-weight="700" fill="${colour}">${esc(BRAND.kanji.slice(0, 1))}</text>`);
+    o.push(`<text x="46" y="76" text-anchor="middle" font-family="${KANJI_FONT}" font-size="30" font-weight="700" fill="${colour}">${esc(BRAND.kanji.slice(1))}</text>`);
   } else {
     o.push(`<text x="46" y="52" text-anchor="middle" font-family="${serif}" font-size="12" fill="${colour}">no claim</text>`);
   }
@@ -77,7 +78,7 @@ export function renderSealSvg(i: SealInput): string {
   }
   o.push(`</g>`);
   const x = 118;
-  o.push(`<text x="${x}" y="34" font-family="${sans}" font-size="12" fill="#555555">Loss bound certificate</text>`);
+  o.push(`<text x="${x}" y="34" font-family="${sans}" font-size="12" fill="#555555">${esc(BRAND.name.toUpperCase())} · ${blank ? "loss bound certificate" : cracked ? "seal cracked" : "seal intact"}</text>`);
   o.push(`<text x="${x}" y="58" font-family="${sans}" font-size="18" font-weight="700" fill="${colour}">${esc(sealCaption(i.state))}</text>`);
   if (showBound && i.bound !== null) {
     o.push(`<text x="${x}" y="80" font-family="${sans}" font-size="13" fill="#222222">at most ${esc(i.bound)}${horizon !== null ? ` in ${esc(horizon)}` : ""}</text>`);

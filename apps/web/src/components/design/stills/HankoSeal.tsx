@@ -16,6 +16,7 @@ import type { Validity } from '../types';
 export default function HankoSeal({
   state,
   brandName,
+  brandKanji,
   value,
   asOfBlock,
   label,
@@ -23,6 +24,8 @@ export default function HankoSeal({
 }: {
   state: Validity;
   brandName: string;
+  /** the brand's kanji mark (BRAND.kanji), set above the centre text; omitted when not given */
+  brandKanji?: string;
   /** pre-formatted bound string from the certificate, or null. Drawn only when state === 'VALID'. */
   value: string | null;
   /** the "as of block" caption, text from the certificate document */
@@ -83,6 +86,11 @@ export default function HankoSeal({
 
       {/* centre: the one number (VALID only), the word, and the block caption */}
       <g textAnchor="middle" className="sy-hanko__text">
+        {brandKanji ? (
+          <text x="120" y="94" lang="ja" className="sy-hanko__kanji" fill={blank ? '#6E6E6E' : '#fff'}>
+            {brandKanji}
+          </text>
+        ) : null}
         {intact && value ? (
           <text x="120" y="124" className="sy-hanko__value" fill="#fff">
             {value}

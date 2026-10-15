@@ -226,7 +226,7 @@ export default function Footer() {
                 </Link>
               </div>
               <p className="body-text-xxs hidden text-gray-900 lg:block">
-                {`${BRAND.name} © `}
+                {`${BRAND.name} ${BRAND.kanji} © `}
                 2026
                 . All rights reserved.
               </p>
@@ -323,7 +323,7 @@ export default function Footer() {
               </Link>
             </div>
             <p className="body-text-xxs text-gray-900">
-              {`${BRAND.name} © `}
+              {`${BRAND.name} ${BRAND.kanji} © `}
               2026
               . All rights reserved.
             </p>

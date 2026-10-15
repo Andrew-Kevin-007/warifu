@@ -4,7 +4,10 @@
 
 export const BRAND = Object.freeze({
   name: "Warifu",
-  /** Shown once, on /about. Warifu = a split tally: a token broken in two so only the matching halves prove the agreement. */
+  /**
+   * Warifu = a split tally: a token broken in two so only the matching halves prove the agreement. Used as a mark (header,
+   * footer, the hanko on the Seal and share card, the favicon, page titles); explained in full once, on /about.
+   */
   kanji: "割符",
   reading: "wah-ree-foo",
   tagline: "The treasurer that cannot be sweet-talked.",
@@ -14,3 +17,6 @@ export const BRAND = Object.freeze({
 });
 
 export type Brand = typeof BRAND;
+
+/** Font stack for the kanji mark: Japanese Mincho faces first, so the two characters render as a stamp, not a fallback glyph. */
+export const KANJI_FONT = "'Noto Serif JP', 'Yu Mincho', 'YuMincho', 'Hiragino Mincho ProN', 'MS Mincho', serif";

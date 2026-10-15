@@ -14,6 +14,7 @@ import AttackLatticeGrid, { LatticeLegend } from '../stills/AttackLatticeGrid';
 import { LatticeFocusProvider } from '../runtime/LatticeFocus';
 import type { TokenPose } from '../types';
 import { attackLabFixture, FIXTURE_BRAND, FIXTURE_HASH, latticeFromModel } from './fixtures';
+import { BRAND } from '@/lib/brand';
 
 const POSES: TokenPose[] = ['apart', 'approach', 'scan', 'seated', 'mismatch', 'hollow'];
 
@@ -65,9 +66,9 @@ export default function DesignLab() {
 
         <h2 className="heading-h4">Hanko</h2>
         <div className="sy-lab-grid">
-          <Plate caption="intact"><HankoSeal state="VALID" brandName={FIXTURE_BRAND} value="FIXTURE" asOfBlock="fixture" /></Plate>
-          <Plate caption="cracked"><HankoSeal state="STALE" brandName={FIXTURE_BRAND} value={null} asOfBlock={null} /></Plate>
-          <Plate caption="blank"><HankoSeal state="UNVERIFIED" brandName={FIXTURE_BRAND} value={null} asOfBlock={null} /></Plate>
+          <Plate caption="intact"><HankoSeal state="VALID" brandName={FIXTURE_BRAND} brandKanji={BRAND.kanji} value="FIXTURE" asOfBlock="fixture" /></Plate>
+          <Plate caption="cracked"><HankoSeal state="STALE" brandName={FIXTURE_BRAND} brandKanji={BRAND.kanji} value={null} asOfBlock={null} /></Plate>
+          <Plate caption="blank"><HankoSeal state="UNVERIFIED" brandName={FIXTURE_BRAND} brandKanji={BRAND.kanji} value={null} asOfBlock={null} /></Plate>
         </div>
         <FractureRule />
 

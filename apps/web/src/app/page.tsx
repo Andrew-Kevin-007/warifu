@@ -12,7 +12,7 @@ import SectionFeaturesGrid from '@/components/home/SectionFeaturesGrid';
 import PageGrid from '@/components/home/PageGrid';
 
 export const metadata: Metadata = {
-  title: `${BRAND.name} | Evidence-Gated Agent Treasury on Arc`,
+  title: `${BRAND.name} ${BRAND.kanji} | Evidence-Gated Agent Treasury on Arc`,
   description: `${BRAND.name} checks evidence, signed payment terms, policy and history before an Arc vault can release USDC. Agent proposals stay advisory; releases leave verifiable receipts.`,
 };
 

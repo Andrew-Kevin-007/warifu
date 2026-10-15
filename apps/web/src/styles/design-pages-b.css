@@ -1535,3 +1535,9 @@
   align-items: center;
   margin: 0;
 }
+.sy-hanko__kanji {
+  font-family: 'Noto Serif JP', 'Yu Mincho', 'YuMincho', 'Hiragino Mincho ProN', 'MS Mincho', serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}

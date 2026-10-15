@@ -2,3 +2,7 @@
    so the logo images get wider boxes to keep the dotted mark at its original size. */
 .w-\[168px\]{width:168px}
 .w-\[189px\]{width:189px}
+
+/* 割符 mark (lib/brand.ts BRAND.kanji): Mincho faces first so it reads as a stamp; seal red from lib/seal.ts. */
+.wf-kanji{font-family:'Noto Serif JP','Yu Mincho','YuMincho','Hiragino Mincho ProN','MS Mincho',serif;color:#b3202a;font-weight:400}
+.wf-kanji--header{margin-left:8px;letter-spacing:0.12em}

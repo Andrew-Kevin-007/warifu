@@ -1,6 +1,6 @@
 // Share card (plain SVG, no dependency). Inputs are enum values, a hash and a line chosen from the fixed phrase bank, so no
 // untrusted text can reach the image (INV-15). The card is copy plus a pointer to the evidence; /audit/<hash> is the evidence.
-import { BRAND } from "./brand";
+import { BRAND, KANJI_FONT } from "./brand";
 
 export interface CardInput {
   readonly verdict: string;
@@ -45,8 +45,9 @@ export function renderCardSvg(i: CardInput): string {
   o.push(`<rect width="1200" height="630" fill="#faf7f2"/>`);
   o.push(`<rect x="40" y="40" width="1120" height="550" rx="18" fill="#ffffff" stroke="#d9d4ca" stroke-width="2"/>`);
   o.push(`<rect x="80" y="80" width="150" height="150" rx="16" fill="none" stroke="${accent}" stroke-width="8"/>`);
-  o.push(`<text x="155" y="168" text-anchor="middle" font-family="${serif}" font-size="30" font-weight="700" fill="${accent}">${esc(BRAND.name.toUpperCase())}</text>`);
-  o.push(`<text x="270" y="130" font-family="${sans}" font-size="28" fill="#555555">${esc(BRAND.name)}: ${esc(BRAND.tagline)}</text>`);
+  o.push(`<text x="155" y="148" text-anchor="middle" font-family="${KANJI_FONT}" font-size="54" font-weight="700" fill="${accent}">${esc(BRAND.kanji.slice(0, 1))}</text>`);
+  o.push(`<text x="155" y="206" text-anchor="middle" font-family="${KANJI_FONT}" font-size="54" font-weight="700" fill="${accent}">${esc(BRAND.kanji.slice(1))}</text>`);
+  o.push(`<text x="270" y="130" font-family="${sans}" font-size="28" fill="#555555">${esc(BRAND.name)} ${esc(BRAND.kanji)}: ${esc(BRAND.tagline)}</text>`);
   o.push(`<text x="270" y="200" font-family="${sans}" font-size="52" font-weight="700" fill="${accent}">${esc(i.verdict)}${code !== null ? ` · ${esc(code)}` : ""}</text>`);
   lines.forEach((l, n) => {
     o.push(`<text x="80" y="${320 + n * 54}" font-family="${serif}" font-size="42" fill="#1f1f1f">${esc(l)}</text>`);

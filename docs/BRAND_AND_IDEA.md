@@ -5,7 +5,7 @@ Another Tameion project is also called "Symbolon" (payables on Arc; AduAkorful/s
 
 ## Name: Warifu (割符)
 - Warifu = a *split tally*: a token broken in two so that only the two matching halves prove the agreement. Used in medieval Japan, including as a merchant's bill of exchange. Same idea as the Greek symbolon, so the whole motif (two halves that fit; non-fit = REJECT; hollow = no claim) survives untouched.
-- Pronounced "wah-ree-foo". Say it with the kanji once on the About page, not everywhere.
+- Pronounced "wah-ree-foo". The kanji 割符 is the mark (Kevin, 2026-10-15): header, footer, the hanko face of the Seal and share card, the favicon, the home title. The full gloss is given once, on the About page. Accurate use only: a seal reads top to bottom, 割 over 符.
 - Fallbacks if it fails a check (domain, GitHub, trademark): **Tegata** (手形, Edo-era bill/promissory note), **Hanko**.
 - Single source of truth in code: `apps/web/src/lib/brand.ts` (`BRAND.name`, `BRAND.kanji`, `BRAND.tagline`, `BRAND.repoSlug`). Docs/README use the same strings. One edit renames everything public.
 - NOT renamed: workspace packages, env vars, spec ids (INV/K/ATK), DB identifiers, EIP-712 domain name (changing it would change every signature and vector; if the domain *display* name must change, it is a schemas RFC, not a find/replace).
