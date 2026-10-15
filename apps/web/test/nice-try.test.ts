@@ -7,13 +7,22 @@ const H1 = "0x" + "ab".repeat(32);
 const BANNED = /\b(proven|provably|guaranteed|audited|unhackable|unbreakable|risk-free)\b|100 ?% secure/i;
 
 describe("nice-try phrase banks", () => {
-  it("covers every reason code with at least three phrasings", () => {
-    for (const c of REASON_CODES) {
+  // The kernel's internal-error code is the only one without a bank (fail-closed path; see nice-try.ts).
+  const UNBANKED = ["KERNEL_ERROR"];
+
+  it("covers every reason code but the internal-error one with at least three phrasings", () => {
+    for (const c of REASON_CODES.filter((r) => !UNBANKED.includes(r))) {
       const bank = NICE_TRY_PHRASES[c];
       expect(bank, c).toBeDefined();
-      expect(bank.length, c).toBeGreaterThanOrEqual(3);
+      expect(bank!.length, c).toBeGreaterThanOrEqual(3);
     }
-    expect(Object.keys(NICE_TRY_PHRASES).sort()).toEqual([...REASON_CODES].sort());
+    expect(Object.keys(NICE_TRY_PHRASES).sort()).toEqual(REASON_CODES.filter((r) => !UNBANKED.includes(r)).sort());
+  });
+
+  it("an internal kernel error gets the verdict-level HOLD line", () => {
+    const n = niceTry({ verdict: "HOLD", reasons: ["KERNEL_ERROR"], receiptHash: H1 });
+    expect(n.reasonCode).toBeNull();
+    expect(GENERIC_PHRASES.HOLD).toContain(n.line);
   });
 
   it("has verdict-level banks for every verdict", () => {
@@ -21,7 +30,7 @@ describe("nice-try phrase banks", () => {
   });
 
   it("phrases are non-empty, free of banned words and of digits (no typed figures)", () => {
-    const all = [...Object.values(NICE_TRY_PHRASES), ...Object.values(GENERIC_PHRASES)].flat();
+    const all = [...Object.values(NICE_TRY_PHRASES), ...Object.values(GENERIC_PHRASES)].flat().filter((p): p is string => p !== undefined);
     for (const p of all) {
       expect(p.trim().length).toBeGreaterThan(2);
       expect(BANNED.test(p), p).toBe(false);

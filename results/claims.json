@@ -1,14 +1,14 @@
 {
   "schema": "claims/1",
   "provenance": {
-    "gitSha": "5e6537e7997eb3cbbe95814a24e15d16a8a75807",
+    "gitSha": "e7a18895cef8cdd00cfd234b4bc5ec2303014e9b",
     "inputs": {
       "attackMatrix": "results/attack-matrix.json",
       "honestCorpus": "results/honest-corpus.json",
       "blast": "packages/blast-radius/results/blast-closed-form.json",
       "tracker": "docs/pilots/pilot_tracker.csv"
     },
-    "fixtureManifestSha256": "0x09f182033293cafeaff3d490eafe5f672efd4e6bb9dae5698a009cab82fee76b"
+    "fixtureManifestSha256": "0x9a98e37726ef14d8e0063eebc61cafb815cb841c0d33c51294fd585a0bbe1fa7"
   },
   "claims": {
     "atk.attacks": {
@@ -31,13 +31,13 @@
     "atk.symbolon.loss_trials": {
       "id": "atk.symbolon.loss_trials",
       "label": "SIMULATED",
-      "display": "0 losses in 192 trials",
+      "display": "0 losses in 213 trials",
       "numbers": [
         "0",
-        "192"
+        "213"
       ],
       "source": "results/attack-matrix.json",
-      "n": 192,
+      "n": 213,
       "k": 0,
       "rule": "oracle-v1",
       "assumptions": [
@@ -52,13 +52,13 @@
     "atk.symbolon.upper95": {
       "id": "atk.symbolon.upper95",
       "label": "SIMULATED",
-      "display": "1.56% (95% upper bound, rule-of-three)",
+      "display": "1.41% (95% upper bound, rule-of-three)",
       "numbers": [
-        "1.56",
-        "1.56%"
+        "1.41",
+        "1.41%"
       ],
       "source": "results/attack-matrix.json",
-      "n": 192,
+      "n": 213,
       "k": 0,
       "rule": "rule-of-three",
       "assumptions": [
@@ -73,14 +73,14 @@
     "atk.symbolon.loss_attacks": {
       "id": "atk.symbolon.loss_attacks",
       "label": "SIMULATED",
-      "display": "loss on 1 of 24 applicable attacks",
+      "display": "loss on 0 of 24 applicable attacks",
       "numbers": [
-        "1",
+        "0",
         "24"
       ],
       "source": "results/attack-matrix.json",
       "n": 24,
-      "k": 1,
+      "k": 0,
       "assumptions": [
         "unit mode: the real kernel-core pipeline in process; engagements are fixture templates with placeholder signatures",
         "no model was called; extraction reads are the fixtures' reference reads"
@@ -94,14 +94,14 @@
     "atk.b1.loss_attacks": {
       "id": "atk.b1.loss_attacks",
       "label": "SIMULATED",
-      "display": "loss on 20 of 20 applicable attacks",
+      "display": "loss on 19 of 20 applicable attacks",
       "numbers": [
-        "20",
+        "19",
         "20"
       ],
       "source": "results/attack-matrix.json",
       "n": 20,
-      "k": 20,
+      "k": 19,
       "assumptions": [
         "B1 is a pattern reimplementation (ours), not Circle's code",
         "its validator is a deterministic SIMULATED stand-in for an LLM validator"
@@ -114,16 +114,16 @@
     "atk.b1.loss_trials": {
       "id": "atk.b1.loss_trials",
       "label": "SIMULATED",
-      "display": "104 losses in 147 trials (95% upper bound 76.90%, clopper-pearson)",
+      "display": "92 losses in 168 trials (95% upper bound 61.27%, clopper-pearson)",
       "numbers": [
-        "104",
-        "147",
-        "76.90",
-        "76.90%"
+        "92",
+        "168",
+        "61.27",
+        "61.27%"
       ],
       "source": "results/attack-matrix.json",
-      "n": 147,
-      "k": 104,
+      "n": 168,
+      "k": 92,
       "rule": "clopper-pearson",
       "assumptions": [
         "B1 is a pattern reimplementation (ours), not Circle's code"
@@ -326,16 +326,15 @@
   },
   "allowedNumbers": [
     "0",
-    "1",
-    "1.56",
-    "1.56%",
-    "104",
+    "1.41",
+    "1.41%",
     "13",
-    "147",
+    "168",
+    "19",
     "1908",
-    "192",
     "20",
     "20261112",
+    "213",
     "24",
     "3",
     "3830",
@@ -344,9 +343,10 @@
     "5.83%",
     "5000",
     "57",
+    "61.27",
+    "61.27%",
     "62",
-    "76.90",
-    "76.90%",
+    "92",
     "95"
   ]
 }

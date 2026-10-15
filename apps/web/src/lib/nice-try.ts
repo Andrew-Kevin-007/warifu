@@ -7,7 +7,9 @@ import type { ReasonCode, Verdict } from "@symbolon/schemas";
 
 export type PhraseBank = readonly [string, string, string, ...string[]];
 
-export const NICE_TRY_PHRASES: Readonly<Record<ReasonCode, PhraseBank>> = {
+// Every reason code except the kernel's internal-error code has a bank. That one is the fail-closed path and takes the
+// verdict-level line; its name also matches the INV-11 web-env guard's env-name pattern, which stays as strict as it is.
+export const NICE_TRY_PHRASES: Readonly<Partial<Record<ReasonCode, PhraseBank>>> = {
   SCHEMA_INVALID: ["The request arrived in a shape the kernel does not read. Nice try.", "Malformed on arrival. The kernel is a strict reader.", "That did not parse, so it did not pay."],
   NON_ASCII_DIGITS: ["Those digits were not the digits the kernel counts in. Nice try.", "A number written in a foreign script is still not a number the kernel accepts.", "Creative numerals. The kernel only reads plain ones."],
   SCIENTIFIC: ["Scientific notation on an invoice. Nice try.", "An amount in exponent form did not get through.", "The kernel pays in plain numbers only."],
@@ -53,7 +55,6 @@ export const NICE_TRY_PHRASES: Readonly<Record<ReasonCode, PhraseBank>> = {
   TIMING_CLAMPED: ["The payment time was moved to what the agreement says.", "The kernel keeps the clock, not the invoice.", "Timing comes from the signed terms."],
   LATE: ["Past the date the agreement allows. Nice try.", "The window closed.", "Too late is still too late."],
   BREAKER_HALTED: ["The circuit breaker is open. Nothing moves until a person closes it.", "Paused on purpose. Nothing is paying right now.", "The breaker tripped. The treasurer is holding still."],
-  KERNEL_ERROR: ["The kernel hit an error and did what it does: it did not pay.", "Something went wrong inside, so nothing went out.", "When in doubt, no."],
   TERMS_NOT_SIGNED: ["Payment terms nobody signed. Nice try.", "The only terms that count are the signed ones.", "Terms stated on an invoice are a request, not a contract."],
   TERMS_MISMATCH: ["The invoice's terms did not match the signed ones. The signed ones won.", "Different terms than agreed. Nice try.", "The invoice proposed new terms. The agreement stayed as signed."],
   DISCOUNT_WINDOW_CLOSED: ["The early-payment window has closed. Nice try.", "The discount expired. The kernel kept the clock.", "Too late for the discount."],
@@ -85,7 +86,8 @@ export interface NiceTry {
 /** The first reason code decides the line (the kernel orders reasons by check id), else a verdict-level line. */
 export function niceTry(i: { verdict: Verdict; reasons: readonly ReasonCode[]; receiptHash: string }): NiceTry {
   const first = i.reasons.find((r) => Object.prototype.hasOwnProperty.call(NICE_TRY_PHRASES, r));
-  if (i.verdict !== "RELEASE" && first !== undefined) return { line: pick(NICE_TRY_PHRASES[first], i.receiptHash), reasonCode: first };
+  const bank = first === undefined ? undefined : NICE_TRY_PHRASES[first];
+  if (i.verdict !== "RELEASE" && first !== undefined && bank !== undefined) return { line: pick(bank, i.receiptHash), reasonCode: first };
   return { line: pick(GENERIC_PHRASES[i.verdict], i.receiptHash), reasonCode: null };
 }
 

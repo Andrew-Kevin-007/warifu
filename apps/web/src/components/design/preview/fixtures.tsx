@@ -87,7 +87,7 @@ export function judgeFixture(mode: 'live' | 'recorded' | 'simulated' | 'fixture'
 // -------------------------------------------------------------------- attack lab
 const ATTACK_IDS = Array.from({ length: 24 }, (_, i) => `ATK-${String(i + 1).padStart(2, '0')}`);
 
-// The distribution below mirrors the SHAPE of attack-matrix/1 (one oracle loss on the Symbolon row, signal-scored
+// The distribution below mirrors the SHAPE of attack-matrix/1 (one oracle loss on the Warifu row, signal-scored
 // rows, N/A cells, two targets not built) so every cell grammar is exercised. It is a FIXTURE, not the results file.
 const SYM: Record<string, CellOutcome> = {};
 ATTACK_IDS.forEach((id, i) => {

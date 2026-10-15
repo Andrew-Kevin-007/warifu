@@ -24,7 +24,7 @@ export default async function Page({ params }: { params: Promise<{ vault: string
     <PageFrame
       eyebrow="Seal"
       title="The seal for this vault"
-      lede="A small badge that mirrors the state of the vault's loss bound certificate. It is a picture of a recorded state, not a guarantee; click through to recompute it yourself."
+      lede="A small badge that mirrors the state of the vault's loss bound certificate. It is a picture of a recorded state, not a promise; click through to recompute it yourself."
     >
       <p className="sy-mono">{vault}</p>
       <Section title="Preview">

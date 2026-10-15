@@ -5,7 +5,7 @@ Short, dry, honest. Each card has a button that works without login and is serve
 
 ## Card 1: Watch it get fooled and not lose money
 Copy: "Run attack ATK-10. The extractor is fooled. The kernel still says REJECT, and names the check. The naive pattern pays."
-Footnote: "Attack suite: kernel 0 losses in 192 trials; naive baseline 104 losses in 147 trials (95% upper bound 76.90%, clopper-pearson). SIMULATED, unit mode, no model called."
+Footnote: "Attack suite: kernel 0 losses in 213 trials; naive baseline 92 losses in 168 trials (95% upper bound 61.27%, clopper-pearson). SIMULATED, unit mode, no model called."
 
 ## Card 2: Verify a receipt yourself
 Copy: "Paste a receipt hash. Your browser recomputes the hash and checks the signature. Nothing is trusted from us."

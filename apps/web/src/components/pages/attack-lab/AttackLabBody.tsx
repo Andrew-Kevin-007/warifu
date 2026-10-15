@@ -12,7 +12,7 @@ import type { AttackLabModel } from './types';
 
 /**
  * /attack-lab: "Every attack. Every baseline." The matrix is the hero; the lattice is its relief map.
- * The DOM lattice is the accessible control (a canvas skin may sit above it on desktop). Symbolon's own loss
+ * The DOM lattice is the accessible control (a canvas skin may sit above it on desktop). Warifu's own loss
  * cell renders at full strength. Presentational: all data and money formatting arrive from the lane.
  */
 export default function AttackLabBody({ model }: { model: AttackLabModel }) {

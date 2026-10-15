@@ -4,7 +4,7 @@ import { formatCount } from '../../design/runtime/format';
 import type { MatrixTarget, TargetTotals } from './types';
 
 /**
- * One column per target, equal weight: the run Symbolon column has a solid ink border, other run targets a
+ * One column per target, equal weight: the run Warifu column has a solid ink border, other run targets a
  * dashed one, targets not built are hatched and say "Not built yet". Loss is stated in words, never hidden
  * behind a legend. Counts are integers (count-up allowed); rates arrive as lane slots and are stated.
  */
