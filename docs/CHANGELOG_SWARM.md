@@ -212,3 +212,9 @@ Format: `## WP-xx <title> · ROLE · <merge time IST>` — **What changed** · *
 - **Dependencies**: none.
 - **How to verify**: `pnpm exec vitest run apps/web` (brand, seal, nice-try, security tests); `pnpm lint`; build both profiles.
 - **Known gaps**: no live certificate exists yet, so the seal renders blank "not computed" until one is built; design lane bodies (components/design, components/pages) not touched; Dojo wiring waits for WP-32.
+
+## Integration + mainnet + 割符 mark · ORCH (Opus) · 2026-10-15 (`worktree-integration-final`)
+- **What changed**: merged wp-08/finish-hardening, wp-14/finish-release-path (WP-14 + WP-15), wp-17/brand-seal-nicetry, wp-36/baselines-holdout and design/site into the integration tree, with append-only doc conflicts kept from both sides. Fixed the post-merge lint and type errors. The nice-try bank no longer names the kernel's internal-error code: it falls back to the verdict-level HOLD line, so the INV-11 web-env guard stays as strict as it was. Claims regenerated. Added the 割符 mark (header, footer, Seal and share-card hanko face, favicon, home title). **Mainnet**: `NETWORK=mainnet` is accepted only for the production profile, with operator-supplied `ARC_MAINNET_CHAIN_ID` / `ARC_MAINNET_RPC_URL` checked against the live node, no stray testnet RPC, no raw-key relayer and an explicit non-test Circle identifier. Sandbox G3 now also refuses `ARC_MAINNET_*`. Runbook: `docs/DEPLOY_MAINNET.md`.
+- **Dependencies**: none added.
+- **How to verify**: `pnpm verify`; `pnpm exec vitest run packages/chain/test/config.test.ts services/kernel/test/mainnet-config.test.ts`.
+- **Known gaps**: no mainnet fact was verified by an agent (V-03 entry). Nothing has been deployed to mainnet; that is Kevin's step with his own keys.

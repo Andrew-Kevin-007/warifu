@@ -51,6 +51,7 @@ describe("boot guards (INV-16, RT-05, docs/15 s3)", () => {
   it("G1: the sandbox refuses mainnet and anything that is not testnet/local", () => {
     for (const n of ["mainnet", "MAINNET", "", "arc"]) expect(rules({ ...sandbox(), NETWORK: n }), n).toContain("G1:NETWORK");
     expect(rules({ ...sandbox(), NETWORK: "local" })).toEqual([]);
+    // production mainnet is allowed only with its own chain id and RPC (test/mainnet-config.test.ts); bare NETWORK=mainnet fails closed
     expect(() => loadConfig({ ...production(), NETWORK: "mainnet" })).toThrow(/mainnet/);
   });
 
