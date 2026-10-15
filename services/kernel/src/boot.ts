@@ -6,7 +6,7 @@
 //   G0  KERNEL_PROFILE is explicitly "production" or "sandbox"          (no default: an unset profile must not boot)
 //   G1  sandbox: NETWORK is testnet or local, never mainnet             (15 s3.1)
 //   G2  sandbox: the kernel signer (and guardian) address is not in PROD_SIGNER_ADDRESSES   (15 s3.2)
-//   G3  sandbox: no env var named ^(PROD|MAINNET)_ except the two denylists                  (15 s3.3)
+//   G3  sandbox: no env var named ^(PROD|MAINNET|ARC_MAINNET)_ except the two denylists                  (15 s3.3)
 //   G4  sandbox: DATABASE_URL / SUPABASE_URL host is not PROD_SUPABASE_HOST                  (15 s3.4)
 //   G5  sandbox: EVIDENCE_MODE=fixtures; production: EVIDENCE_MODE is live                   (15 s3.5, RT-02)
 //   G6  sandbox: CHALLENGE_LLM_DAILY_BUDGET_USD and CHALLENGE_IP_SALT set                    (15 s3.6)
@@ -137,7 +137,7 @@ export function evaluateBootGuards(env: EnvLike): BootViolation[] {
   }
 
   for (const name of Object.keys(env)) {
-    if (/^(PROD|MAINNET)_/.test(name) && !DENYLIST_NAMES.has(name) && env[name] !== undefined) {
+    if (/^(PROD|MAINNET|ARC_MAINNET)_/.test(name) && !DENYLIST_NAMES.has(name) && env[name] !== undefined) {
       add("G3", name, "a production/mainnet variable is present in the sandbox environment");
     }
   }

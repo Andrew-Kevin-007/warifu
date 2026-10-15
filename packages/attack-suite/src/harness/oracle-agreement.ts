@@ -106,7 +106,7 @@ export function agreement(f: AttackFixture): AgreementRow[] {
     const intended = byStep.get(step.stepId) ?? [];
     const scenarioId = step.kind === "submit" && step.scenarioId !== undefined ? step.scenarioId : (intended[0]?.scenarioId ?? f.scenarioId);
     let state = states.get(scenarioId);
-    if (state === undefined || (step.kind === "vault-call" && step.args["freshInstance"] === true)) {
+    if (state === undefined || (step.kind === "vault-call" && step.args["freshInstance"] === true) || (step.kind === "submit" && step.freshInstance === true)) {
       state = stateFor(scenarioId);
       states.set(scenarioId, state);
     }

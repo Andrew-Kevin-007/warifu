@@ -1,10 +1,11 @@
+import { BRAND } from '@/lib/brand';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Chip, PageFrame, Section, SourceBanner } from '@/components/product/PageFrame';
 import { loadAttackMatrix, loadAttackMeta, loadBundle } from '@/server/recorded';
 
 export const metadata: Metadata = {
-  title: 'Judge path | Symbolon',
+  title: `Judge path | ${BRAND.name}`,
   description: 'A five-card path through the evidence: watch an attack, verify a receipt, recompute a bound, try to break it, see real use.',
 };
 export const dynamic = 'force-dynamic';
@@ -39,7 +40,7 @@ export default function Page() {
             </p>
             {sym && b1 ? (
               <ul className="sy-list" style={{ marginTop: 8 }}>
-                <li>Symbolon: <Chip tone="pass">{sym.outcome}</Chip> checks fired <span className="sy-mono">{sym.checksFired.join(' ') || 'none'}</span>; loss {sym.lossBaseUnits} base units.</li>
+                <li>{BRAND.name}: <Chip tone="pass">{sym.outcome}</Chip> checks fired <span className="sy-mono">{sym.checksFired.join(' ') || 'none'}</span>; loss {sym.lossBaseUnits} base units.</li>
                 <li>B1 pattern reimplementation (ours): <Chip tone={b1.outcome === 'LOSS' ? 'fail' : 'pass'}>{b1.outcome}</Chip>; loss {b1.lossBaseUnits} base units.</li>
               </ul>
             ) : (
@@ -98,7 +99,7 @@ export default function Page() {
         <Section title="Headline figures from the committed run">
           <div className="sy-card">
             <p>
-              Symbolon: {symTotals.lossTrials} loss trials of {symTotals.trials} (upper 95 % bound {symTotals.lossRate.upper95.toFixed(4)}, {symTotals.lossRate.upper95Method}). B1: {b1Totals.lossTrials} of {b1Totals.trials}.{' '}
+              {BRAND.name}: {symTotals.lossTrials} loss trials of {symTotals.trials} (upper 95 % bound {symTotals.lossRate.upper95.toFixed(4)}, {symTotals.lossRate.upper95Method}). B1: {b1Totals.lossTrials} of {b1Totals.trials}.{' '}
               <Chip tone="warn">SIMULATED</Chip>
             </p>
             <p className="body-text-s" style={{ marginTop: 8 }}>

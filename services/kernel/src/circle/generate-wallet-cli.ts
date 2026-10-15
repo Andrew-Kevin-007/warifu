@@ -60,10 +60,16 @@ export async function runGenerateWallet(argv: readonly string[], env: Readonly<R
       return 2;
     }
     const api = io.api ?? createCircleHttpApi({ apiKey: new Secret(apiKey) });
-    const w = await generateRelayerWallet({ api, entitySecret: new Secret(entitySecret), profile, blockchain: env["CIRCLE_BLOCKCHAIN"] ?? "ARC-TESTNET" });
+    const network = env["NETWORK"] === "mainnet" ? "mainnet" : "testnet";
+    const blockchain = env["CIRCLE_BLOCKCHAIN"] ?? (network === "mainnet" ? "" : "ARC-TESTNET");
+    if (blockchain === "") {
+      io.out("NETWORK=mainnet needs CIRCLE_BLOCKCHAIN set explicitly (Circle's Arc mainnet identifier)");
+      return 2;
+    }
+    const w = await generateRelayerWallet({ api, entitySecret: new Secret(entitySecret), profile, blockchain, network });
     io.out(`RELAYER_WALLET_ID=${w.walletId}`);
     io.out(`RELAYER_WALLET_ADDRESS=${w.address}`);
-    io.out(`# wallet set ${w.walletSetId} (${w.profile}, ${w.blockchain}). Fund the address with testnet USDC for gas, then add the two lines to your private env.`);
+    io.out(`# wallet set ${w.walletSetId} (${w.profile}, ${w.blockchain}). Fund the address with ${w.blockchain === "ARC-TESTNET" ? "testnet" : "a small amount of real"} USDC for gas, then add the two lines to your private env.`);
     return 0;
   }
   io.out("usage: generate-wallet entity-secret --out <file> | wallet --profile production|sandbox");

@@ -255,12 +255,16 @@ export async function offerContaining(q: Queryable, tenantId: string, intentId: 
 
 // --- HOLD re-checks -------------------------------------------------------------------------------------------------------------
 
-/** HOLD heads of this tenant not re-checked since `before` (oldest check first). */
+/**
+ * HOLD heads of this tenant not re-checked since `before` (oldest check first). ESCALATE heads are included: an escalation that
+ * also carries an objective, machine-resolvable finding (evidence missing, liquidity) has no payable amount for the owner to
+ * approve until that finding clears, so it must be re-evaluated too (K-12 binds the approval to the amount).
+ */
 export async function holdsToRecheck(q: Queryable, tenantId: string, before: ISODateTime, limit: number, milestoneId: string | null = null): Promise<Array<{ decisionId: string; intentId: Hex32 }>> {
   const r = await q.query<{ decision_id: string; intent_id: string }>(
     `select d.decision_id, d.intent_id
        from decisions d left join decision_rechecks c on c.decision_id = d.decision_id
-      where d.tenant_id = $1 and d.verdict = 'HOLD'
+      where d.tenant_id = $1 and d.verdict in ('HOLD', 'ESCALATE')
         and not exists (select 1 from decisions s where s.supersedes = d.decision_id)
         and ($4::text is null or d.milestone_id = $4)
         and ($4::text is not null or coalesce(c.checked_at, d.created_at) <= $2::timestamptz)

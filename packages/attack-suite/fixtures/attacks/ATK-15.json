@@ -117,7 +117,8 @@
             ]
           }
         }
-      ]
+      ],
+      "freshInstance": true
     },
     {
       "kind": "submit",
@@ -228,7 +229,8 @@
             ]
           }
         }
-      ]
+      ],
+      "freshInstance": true
     }
   ],
   "intendedLoss": {

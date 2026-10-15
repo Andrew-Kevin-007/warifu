@@ -4,7 +4,7 @@ import fc from "fast-check";
 import { CheckResultSchema, inspectUntrusted } from "@symbolon/schemas";
 import type { CheckId, CheckResult, OnFail } from "@symbolon/schemas";
 import { EVALUATION_ORDER, SKIPPABLE_CHECKS, aggregate, severity, verdictForOnFail } from "../src/index";
-import { combine, fail, kernelError, pass, replayResult } from "../src/verdict";
+import { combine, fail, issueCodes, kernelError, note, pass, replayResult } from "../src/verdict";
 
 const IDS: CheckId[] = ["K-01", "K-02", "K-03"];
 const allPass = (ids: readonly CheckId[] = IDS): CheckResult[] => ids.map((id) => pass(id, "ok"));
@@ -101,6 +101,18 @@ describe("aggregate", () => {
       }),
       { numRuns: 1000 },
     );
+  });
+});
+
+describe("issueCodes (every finding of the failing checks, not only the check's own worst code)", () => {
+  it("lists secondary issues that `reasons` omits, in check order, de-duplicated; PASS and SKIP add nothing", () => {
+    const k06 = combine("K-06", [{ onFail: "ESCALATE", code: "ADDRESS_CHANGE_CLAIMED", detail: "claim" }, { onFail: "REJECT", code: "PAYEE_MISMATCH", detail: "wallet" }], "");
+    const checks = [pass("K-01", "x"), k06, fail("K-03", "HOLD", "EVIDENCE_MISSING", "x"), fail("K-04", "HOLD", "ADDRESS_CHANGE_CLAIMED", "dup")];
+    // the verdict algebra's `reasons` keeps one code per check (the worst), as documented in aggregate()
+    expect(aggregate(checks, IDS).reasons).toEqual(["PAYEE_MISMATCH", "EVIDENCE_MISSING", "ADDRESS_CHANGE_CLAIMED"]);
+    expect(issueCodes(checks)).toEqual(["ADDRESS_CHANGE_CLAIMED", "PAYEE_MISMATCH", "EVIDENCE_MISSING"]);
+    expect(issueCodes([pass("K-01", "x"), { ...pass("K-13", "x"), status: "SKIP" as const, code: "SCREENING_DISABLED" }, note("K-14", "LATE", "flag")])).toEqual([]);
+    expect(issueCodes([])).toEqual([]);
   });
 });
 

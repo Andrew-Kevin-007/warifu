@@ -1,11 +1,12 @@
+import { BRAND } from '@/lib/brand';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { EXCLUSIONS } from '@symbolon/blast-radius/lbc';
 import { Chip, PageFrame, Section } from '@/components/product/PageFrame';
 
 export const metadata: Metadata = {
-  title: 'Docs | Symbolon',
-  description: 'What Symbolon is, how a payment flows, the kernel checks, and how to verify a receipt or a certificate yourself.',
+  title: `Docs | ${BRAND.name}`,
+  description: `What ${BRAND.name} is, how a payment flows, the kernel checks, and how to verify a receipt or a certificate yourself.`,
 };
 
 const CHECKS: [string, string, string][] = [
@@ -31,12 +32,12 @@ export default function Page() {
   return (
     <PageFrame
       eyebrow="Docs"
-      title="How Symbolon works"
+      title={`How ${BRAND.name} works`}
       lede="Do not trust the agent. Bound it. Prove it. Invite attack. This page is a short map of the system and of the ways you can check it without trusting us."
     >
       <Section title="What it is">
         <p>
-          Symbolon is an evidence-gated treasury for agent-run payments on Arc. An AI agent may read an invoice and propose a payment. A deterministic kernel decides.
+          {BRAND.name} is an evidence-gated treasury for agent-run payments on Arc. An AI agent may read an invoice and propose a payment. A deterministic kernel decides.
           A vault contract enforces hard limits even if the kernel&apos;s signing key is stolen. Every decision leaves a signed receipt you can verify.
         </p>
       </Section>

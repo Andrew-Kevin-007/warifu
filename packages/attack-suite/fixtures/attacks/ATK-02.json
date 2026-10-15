@@ -211,7 +211,8 @@
           }
         }
       ],
-      "note": "negative control inside the fixture: a name collision alone must not block an otherwise correct invoice"
+      "note": "negative control inside the fixture: a name collision alone must not block an otherwise correct invoice",
+      "freshInstance": true
     }
   ],
   "intendedLoss": {

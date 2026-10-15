@@ -1,8 +1,9 @@
+import { BRAND } from '@/lib/brand';
 import type { Metadata } from 'next';
 import { PageFrame, Section } from '@/components/product/PageFrame';
 import { JsonSubmit } from '@/components/product/JsonSubmit';
 
-export const metadata: Metadata = { title: 'New payment intent | Symbolon' };
+export const metadata: Metadata = { title: `New payment intent | ${BRAND.name}` };
 
 export default function Page() {
   return (

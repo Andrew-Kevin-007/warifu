@@ -113,10 +113,13 @@ export const SIGNER_DELAY = 86_400;
 export interface Party {
   readonly account: PrivateKeyAccount;
   readonly address: Address;
+  /** The throwaway private key (so a test can hand the kernel signer role to the service under test). Never a real key. */
+  readonly key: Hex;
 }
 export function newParty(): Party {
-  const account = privateKeyToAccount(generatePrivateKey());
-  return { account, address: getAddress(account.address) };
+  const key = generatePrivateKey();
+  const account = privateKeyToAccount(key);
+  return { account, address: getAddress(account.address), key };
 }
 
 export interface VaultWorld {

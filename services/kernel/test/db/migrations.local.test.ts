@@ -20,8 +20,8 @@ describe.skipIf(!enabled)("local migrations", () => {
   it("local: every migration applies cleanly from an empty database, in order", () => {
     const db = fresh();
     applyMigrations(db);
-    expect(migrationFiles()).toEqual(["0001_init.sql", "0002_v2.sql", "0003_hardening.sql", "0004_service_token_nonces.sql", "0005_engagement_service.sql", "0006_circle_webhooks.sql", "0007_release_path.sql"]);
-    expect(Number(scalar(db, `select count(*) from pg_tables where schemaname = 'public';`))).toBe(32);
+    expect(migrationFiles()).toEqual(["0001_init.sql", "0002_v2.sql", "0003_hardening.sql", "0004_service_token_nonces.sql", "0005_engagement_service.sql", "0006_circle_webhooks.sql", "0007_release_path.sql", "0008_reconciler.sql"]);
+    expect(Number(scalar(db, `select count(*) from pg_tables where schemaname = 'public';`))).toBe(33); // + reconciler_ledger (0008)
   });
 
   it("local: the same migrations re-apply into a second fresh database (no hidden state in the first)", () => {
@@ -66,7 +66,7 @@ describe.skipIf(!enabled)("local migrations", () => {
     );
     expect(money.map((m) => `${m.table_name}.${m.column_name}`).sort()).toEqual([
       "approvals.amount_base_units", "attack_results.loss_base_units", "blast_reports.bound_24h", "blast_reports.bound_7d", "decisions.amount_base_units",
-      "decisions.release_amount_base_units", "engagements.cap_base_units", "milestones.amount_base_units", "traction_events.amount_base_units",
+      "decisions.release_amount_base_units", "engagements.cap_base_units", "milestones.amount_base_units", "reconciler_ledger.deposits_base_units", "traction_events.amount_base_units",
     ]);
     for (const m of money) {
       expect(m.data_type, `${m.table_name}.${m.column_name}`).toBe("numeric");

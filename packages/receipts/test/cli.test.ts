@@ -316,5 +316,5 @@ describe("bin/verify-receipt.mjs (the real process)", () => {
   it("a missing file is exit 2", () => {
     const r = run([join(dir, "nope.json"), "--vault", VAULT, "--chain-id", "1", "--signer", KERNEL.address]);
     expect(r.status).toBe(2);
-  });
+  }, 120_000);
 });

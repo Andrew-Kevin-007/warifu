@@ -150,6 +150,14 @@ export const SubmitStepSchema = z.strictObject({
   runs: z.array(ExtractionRunSchema).min(1).max(8),
   explainerChecks: ExplainerChecksSchema.exactOptional(),
   note: z.string().max(400).exactOptional(),
+  /**
+   * `true` = this step is an independent attempt: it starts on a FRESH scenario instance (docs/15 §2 "every attempt runs
+   * on a fresh scenario instance"). The decisions, releases and patch state of earlier steps of the fixture are not
+   * visible to it, and the steps that follow WITHOUT the flag continue in the instance it started (so a fixture can
+   * group a step with its re-sent duplicate). Absent = the step continues in the current instance, which is what
+   * sequential attacks (retry, near-duplicate, velocity, weekly re-invoice) need. WP-23 C.2 option (b).
+   */
+  freshInstance: z.literal(true).exactOptional(),
 });
 export type SubmitStep = z.infer<typeof SubmitStepSchema>;
 

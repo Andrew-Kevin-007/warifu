@@ -12,33 +12,57 @@ export const ARC_TESTNET_CHAIN_ID = 5042002;
 /** Local anvil / forge in-process chain. */
 export const LOCAL_CHAIN_ID = 31337;
 
-// VERIFY(V-03): the Arc mainnet chain id is not verified, so mainnet is deliberately absent here. Any other
-// chain id is rejected until V-03 is answered and the id is added with its source.
-export const NETWORKS = ["testnet", "local"] as const;
+// VERIFY(V-03): the Arc mainnet chain id is not hardcoded. The operator supplies it (ARC_MAINNET_CHAIN_ID, taken from
+// the Arc docs' network page) and it is accepted only where passed in explicitly (`mainnetChainId`); at boot the kernel
+// compares it with the live RPC's eth_chainId (verifyRpcChainId), so a wrong id or a wrong RPC stops the process.
+// Without that option every unknown chain id is still UNKNOWN_CHAIN, exactly as before.
+export const NETWORKS = ["mainnet", "testnet", "local"] as const;
 export type NetworkName = (typeof NETWORKS)[number];
+
+export interface NetworkOptions {
+  /** Operator-supplied Arc mainnet chain id (ARC_MAINNET_CHAIN_ID). Absent = mainnet is refused. */
+  readonly mainnetChainId?: number;
+}
 
 const CHAIN_ID_TO_NETWORK: Readonly<Record<number, NetworkName>> = {
   [ARC_TESTNET_CHAIN_ID]: "testnet",
   [LOCAL_CHAIN_ID]: "local",
 };
 
-export function networkForChainId(chainId: number): NetworkName {
-  const network = Object.hasOwn(CHAIN_ID_TO_NETWORK, chainId) ? CHAIN_ID_TO_NETWORK[chainId] : undefined;
-  if (network === undefined) {
-    throw new ChainError("UNKNOWN_CHAIN", `chain id ${String(chainId)} is not a verified Arc/local chain (mainnet id pending V-03)`);
-  }
-  return network;
+/** A mainnet chain id must be a positive safe integer and must not collide with testnet or local. */
+export function checkMainnetChainId(id: number): number {
+  if (!Number.isSafeInteger(id) || id <= 0) throw new ChainError("BAD_CONFIG", "mainnet chain id must be a positive integer");
+  if (Object.hasOwn(CHAIN_ID_TO_NETWORK, id)) throw new ChainError("BAD_CONFIG", "mainnet chain id collides with the testnet or local chain id");
+  return id;
 }
 
-export function chainIdForNetwork(network: string): number {
+export function networkForChainId(chainId: number, opts: NetworkOptions = {}): NetworkName {
+  const network = Object.hasOwn(CHAIN_ID_TO_NETWORK, chainId) ? CHAIN_ID_TO_NETWORK[chainId] : undefined;
+  if (network !== undefined) return network;
+  if (opts.mainnetChainId !== undefined && chainId === checkMainnetChainId(opts.mainnetChainId)) return "mainnet";
+  throw new ChainError("UNKNOWN_CHAIN", `chain id ${String(chainId)} is not a known Arc/local chain (mainnet needs ARC_MAINNET_CHAIN_ID, V-03)`);
+}
+
+export function chainIdForNetwork(network: string, opts: NetworkOptions = {}): number {
   switch (network) {
     case "testnet":
       return ARC_TESTNET_CHAIN_ID;
     case "local":
       return LOCAL_CHAIN_ID;
+    case "mainnet":
+      if (opts.mainnetChainId === undefined) throw new ChainError("UNKNOWN_CHAIN", "mainnet needs ARC_MAINNET_CHAIN_ID (V-03)");
+      return checkMainnetChainId(opts.mainnetChainId);
     default:
-      throw new ChainError("UNKNOWN_CHAIN", `unknown network ${JSON.stringify(network.slice(0, 20))} (mainnet pending V-03)`);
+      throw new ChainError("UNKNOWN_CHAIN", `unknown network ${JSON.stringify(network.slice(0, 20))}`);
   }
+}
+
+/** Parse ARC_MAINNET_CHAIN_ID from an env-like object; undefined when unset. */
+export function mainnetChainIdFromEnv(env: Readonly<Record<string, string | undefined>>): number | undefined {
+  const raw = env.ARC_MAINNET_CHAIN_ID;
+  if (raw === undefined || raw === "") return undefined;
+  if (!/^[1-9][0-9]{0,14}$/.test(raw)) throw new ChainError("BAD_CONFIG", "ARC_MAINNET_CHAIN_ID must be a positive decimal integer");
+  return checkMainnetChainId(Number.parseInt(raw, 10));
 }
 
 export interface ArcConfig {
@@ -69,11 +93,11 @@ function checkRpcUrl(network: NetworkName, rpcUrl: string): string {
 }
 
 /** Build a viem Chain for a known network. Gas is native USDC with 18 decimals (AGENTS.md section 3). */
-export function arcChain(network: NetworkName, rpcUrl: string): Chain {
+export function arcChain(network: NetworkName, rpcUrl: string, opts: NetworkOptions = {}): Chain {
   const checked = checkRpcUrl(network, rpcUrl);
   return defineChain({
-    id: chainIdForNetwork(network),
-    name: network === "testnet" ? "Arc Testnet" : "Local (anvil)",
+    id: chainIdForNetwork(network, opts),
+    name: network === "mainnet" ? "Arc" : network === "testnet" ? "Arc Testnet" : "Local (anvil)",
     nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 },
     rpcUrls: { default: { http: [checked] } },
   });
@@ -81,19 +105,31 @@ export function arcChain(network: NetworkName, rpcUrl: string): Chain {
 
 /**
  * Read NETWORK / ARC_RPC_URL (docs/06 B.5) from an env-like object. `local` may omit the URL (anvil default
- * port); every other network must supply it. `mainnet` is refused (V-03).
+ * port); testnet must supply ARC_RPC_URL. `mainnet` takes its own variables, ARC_MAINNET_CHAIN_ID and
+ * ARC_MAINNET_RPC_URL (https), and refuses a stray ARC_RPC_URL so a testnet endpoint can never be picked up for
+ * mainnet by accident. The caller must still run verifyRpcChainId against the live node.
  */
 export function arcConfigFromEnv(env: Readonly<Record<string, string | undefined>>): ArcConfig {
   const networkName = env.NETWORK;
   if (networkName === undefined || networkName === "") {
-    throw new ChainError("BAD_CONFIG", "NETWORK is not set (testnet|local)");
+    throw new ChainError("BAD_CONFIG", "NETWORK is not set (mainnet|testnet|local)");
   }
-  const chainId = chainIdForNetwork(networkName);
-  const network = networkForChainId(chainId);
-  const rpc = env.ARC_RPC_URL;
+  const mainnetChainId = networkName === "mainnet" ? mainnetChainIdFromEnv(env) : undefined;
+  const opts: NetworkOptions = mainnetChainId === undefined ? {} : { mainnetChainId };
+  const chainId = chainIdForNetwork(networkName, opts);
+  const network = networkForChainId(chainId, opts);
+  let rpc: string | undefined;
+  if (network === "mainnet") {
+    if (env.ARC_RPC_URL !== undefined && env.ARC_RPC_URL !== "") {
+      throw new ChainError("BAD_CONFIG", "ARC_RPC_URL must be unset on mainnet (use ARC_MAINNET_RPC_URL)");
+    }
+    rpc = env.ARC_MAINNET_RPC_URL;
+  } else {
+    rpc = env.ARC_RPC_URL;
+  }
   const rpcUrl = rpc !== undefined && rpc !== "" ? rpc : network === "local" ? "http://127.0.0.1:8545" : undefined;
-  if (rpcUrl === undefined) throw new ChainError("BAD_CONFIG", "ARC_RPC_URL is not set");
-  const chain = arcChain(network, rpcUrl);
+  if (rpcUrl === undefined) throw new ChainError("BAD_CONFIG", network === "mainnet" ? "ARC_MAINNET_RPC_URL is not set" : "ARC_RPC_URL is not set");
+  const chain = arcChain(network, rpcUrl, opts);
   return { network, chainId, rpcUrl: checkRpcUrl(network, rpcUrl), chain };
 }
 
@@ -209,8 +245,8 @@ function bad(message: string, cause?: unknown): ChainError {
   return new ChainError("BAD_DEPLOYMENT", message, cause === undefined ? undefined : { cause });
 }
 
-/** Validate an already-parsed deployments file. Pure. */
-export function parseDeployments(raw: unknown): Deployments {
+/** Validate an already-parsed deployments file. Pure. A mainnet file needs `opts.mainnetChainId` (V-03). */
+export function parseDeployments(raw: unknown, opts: NetworkOptions = {}): Deployments {
   let parsed: ReturnType<typeof FileSchema.safeParse>;
   try {
     parsed = FileSchema.safeParse(raw);
@@ -222,7 +258,7 @@ export function parseDeployments(raw: unknown): Deployments {
     throw bad(`malformed deployments file at ${first === undefined ? "?" : first.path.join(".") || "(root)"}: ${first?.message ?? "invalid"}`);
   }
   const file = parsed.data;
-  const network = networkForChainId(file.chainId);
+  const network = networkForChainId(file.chainId, opts);
   if (file.network !== network) throw bad(`network ${JSON.stringify(file.network.slice(0, 20))} does not match chain id ${String(file.chainId)} (${network})`);
 
   const groups: Record<DeploymentProfile, DeploymentGroup | null> = { production: null, sandbox: null };
@@ -273,7 +309,7 @@ export function parseDeployments(raw: unknown): Deployments {
 }
 
 /** Read and validate deployments/<network>.json from disk. */
-export function loadDeployments(path: string): Deployments {
+export function loadDeployments(path: string, opts: NetworkOptions = {}): Deployments {
   let text: string;
   try {
     text = readFileSync(path, "utf8");
@@ -286,7 +322,7 @@ export function loadDeployments(path: string): Deployments {
   } catch (cause) {
     throw bad(`deployments file ${path} is not valid JSON`, cause);
   }
-  return parseDeployments(raw);
+  return parseDeployments(raw, opts);
 }
 
 /** Pick one profile's group; a missing (null) group is an error, not a fallback to the other profile. */

@@ -65,11 +65,15 @@ export function matchExpectation(expect: StepExpect, d: TargetDecision, unimplem
   if (!(expect.verdictIn as readonly string[]).includes(d.action) && !budgetDowngrade) {
     (d.heldByUnimplementedChecks ? explained : real).push(`verdict ${d.action} not in [${expect.verdictIn.join(", ")}]`);
   }
-  const reasons = d.reasons as readonly string[];
-  if (expect.reasonsAnyOf !== undefined && !expect.reasonsAnyOf.some((r) => reasons.includes(r))) {
+  // `reasons` keeps one code per check (its worst); `issues` lists every finding of the failing checks (kernel issueCodes).
+  const reasons: readonly string[] = [...(d.reasons as readonly string[]), ...(d.issues ?? []).filter((c) => !(d.reasons as readonly string[]).includes(c))];
+  // A REPLAY returns the original decision and has no reason codes of its own (docs/04 K-04; the enum has no REPLAY): when
+  // the fixture admits REPLAY as the verdict, reason conditions are about the other verdicts and are not applied to it.
+  const replayAdmitted = d.action === "REPLAY" && (expect.verdictIn as readonly string[]).includes("REPLAY");
+  if (!replayAdmitted && expect.reasonsAnyOf !== undefined && !expect.reasonsAnyOf.some((r) => reasons.includes(r))) {
     (expect.reasonsAnyOf.some(ownedByPending) ? explained : real).push(`none of reasons [${expect.reasonsAnyOf.join(", ")}] present`);
   }
-  if (expect.reasonsAllOf !== undefined) {
+  if (!replayAdmitted && expect.reasonsAllOf !== undefined) {
     const missing = expect.reasonsAllOf.filter((r) => !reasons.includes(r));
     if (missing.length > 0) (missing.every(ownedByPending) ? explained : real).push(`reasons missing: ${missing.join(", ")}`);
   }
@@ -92,7 +96,7 @@ export function matchExpectation(expect: StepExpect, d: TargetDecision, unimplem
   };
 }
 
-interface Holder {
+export interface Holder {
   readonly states: Map<ScenarioId, SimState>;
 }
 
@@ -105,7 +109,7 @@ function stateFor(h: Holder, scenarioId: ScenarioId): SimState {
   return s;
 }
 
-interface SubmitOutcome {
+export interface SubmitOutcome {
   readonly record: StepRecord;
   /** The target's decision for each extraction run, in run order. */
   readonly decisions: readonly TargetDecision[];
@@ -117,8 +121,10 @@ interface SubmitOutcome {
   readonly lossMoney: bigint;
 }
 
-function runSubmit(h: Holder, fixtureScenario: ScenarioId, step: SubmitStep, target: Target, attackId: string): SubmitOutcome {
+export function runSubmit(h: Holder, fixtureScenario: ScenarioId, step: SubmitStep, target: Target, attackId: string): SubmitOutcome {
   const scenarioId = step.scenarioId ?? fixtureScenario;
+  // An independent attempt starts on a fresh scenario instance (docs/15 §2; WP-23 C.2 option b).
+  if (step.freshInstance === true) h.states.delete(scenarioId);
   const state = stateFor(h, scenarioId);
   const view = applyPatch(state, step.context);
   const trials = step.runs.map((run) => {

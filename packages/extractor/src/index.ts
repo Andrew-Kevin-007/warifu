@@ -8,6 +8,7 @@ export * from "./calls";
 export * from "./currency";
 export * from "./prepare";
 export * from "./prompts";
+export * from "./planner";
 export * from "./signals";
 export * from "./token";
 export * from "./tools";

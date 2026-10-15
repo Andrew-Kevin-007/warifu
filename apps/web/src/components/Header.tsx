@@ -1,5 +1,6 @@
 'use client';
 
+import { BRAND } from '@/lib/brand';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -56,7 +57,10 @@ export default function Header() {
         <div className="header__navbar flex w-full items-center justify-between">
           <div className="header__logo z-110 inline-flex items-center">
             <Link className="header__logo-link relative inline-flex select-none items-center font-sans text-[20px] font-semibold tracking-[0.02em]" href="/">
-              SYMBOLON
+              {BRAND.name.toUpperCase()}
+              <span lang="ja" className="wf-kanji wf-kanji--header">
+                {BRAND.kanji}
+              </span>
             </Link>
           </div>
           <nav className="header__menu z-[12] hidden w-full lg:absolute lg:left-1/2 lg:right-auto lg:block lg:w-auto lg:-translate-x-1/2">

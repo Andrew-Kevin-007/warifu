@@ -1,8 +1,9 @@
+import { BRAND } from '@/lib/brand';
 import type { Metadata } from 'next';
 import { Chip, PageFrame, Section } from '@/components/product/PageFrame';
 import { kernelCall } from '@/server/kernel-client';
 
-export const metadata: Metadata = { title: 'Pilot | Symbolon', description: 'Real-use figures from pilot tenants only.' };
+export const metadata: Metadata = { title: `Pilot | ${BRAND.name}`, description: 'Real-use figures from pilot tenants only.' };
 export const dynamic = 'force-dynamic';
 
 interface PilotStats {

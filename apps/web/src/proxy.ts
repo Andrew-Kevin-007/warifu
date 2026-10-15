@@ -2,7 +2,7 @@
 // `challenge` profile only serves its allow-listed public routes (INV-16).
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { PROFILE, buildCsp, isRouteAllowed, securityHeaders } from "./lib/security";
+import { PROFILE, buildCsp, isEmbeddablePath, isRouteAllowed, securityHeaders } from "./lib/security";
 
 export function proxy(request: NextRequest): NextResponse {
   const { pathname } = request.nextUrl;
@@ -25,6 +25,7 @@ export function proxy(request: NextRequest): NextResponse {
   const res = NextResponse.next({ request: { headers } });
   res.headers.set("Content-Security-Policy", csp);
   for (const [k, v] of Object.entries(securityHeaders())) res.headers.set(k, v);
+  if (isEmbeddablePath(pathname)) res.headers.set("Cross-Origin-Resource-Policy", "cross-origin");
   return res;
 }
 

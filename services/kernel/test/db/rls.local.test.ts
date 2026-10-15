@@ -72,7 +72,7 @@ describe.skipIf(!enabled)("local RLS: base tables are closed to anon and authent
 
   it("local: every base table denies SELECT and writes to anon and authenticated, with and without JWT claims", () => {
     const names = tables();
-    expect(names.length).toBe(32); // 26 + service_token_nonces (0004) + chain_cursors, payee_changes (0005) + circle_webhook_events (0006) + plan_offers, decision_rechecks (0007)
+    expect(names.length).toBe(33); // 26 + service_token_nonces (0004) + chain_cursors, payee_changes (0005) + circle_webhook_events (0006) + plan_offers, decision_rechecks (0007) + reconciler_ledger (0008)
     const stmts = names.flatMap((t) => [`select count(*) from ${t};`, `delete from ${t};`, `insert into ${t} default values;`]);
     for (const role of ROLES) {
       for (const claims of [undefined, { role: "service_role", sub: uuid(1), tenant_id: T_PILOT }]) {

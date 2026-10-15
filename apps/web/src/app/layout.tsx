@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/brand';
 import type { Metadata, Viewport } from 'next';
 import { connection } from 'next/server';
 import './globals.css';
@@ -5,7 +6,7 @@ import './additions.css';
 import './product.css';
 
 // NEXT_PUBLIC_SITE_URL is public and non-secret. The localhost fallback exists for development only.
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.NODE_ENV === 'production' ? 'https://symbolon.invalid' : 'http://localhost:3000');
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.NODE_ENV === 'production' ? `https://${BRAND.repoSlug}.invalid` : 'http://localhost:3000');
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

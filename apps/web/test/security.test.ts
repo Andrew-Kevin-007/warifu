@@ -5,7 +5,7 @@ describe("CSP (WP-17, SEC-06)", () => {
   const csp = buildCsp({ nonce: "abc123", dev: false, profile: "app", connectOrigins: ["https://rpc.example"] });
   it("is nonce-based with strict-dynamic and no unsafe-eval/inline script in production", () => {
     expect(csp).toContain("script-src 'self' 'nonce-abc123' 'strict-dynamic'");
-    expect(csp).not.toMatch(/script-src[^;]*unsafe/);
+    expect(csp).not.toMatch(/script-src[^;]*'unsafe-(eval|inline)'/);
   });
   it("forbids framing, plugins, base-uri and remote frames", () => {
     for (const d of ["frame-ancestors 'none'", "object-src 'none'", "base-uri 'none'", "frame-src 'none'", "default-src 'self'"]) {

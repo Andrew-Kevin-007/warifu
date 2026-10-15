@@ -18,3 +18,6 @@ recovery_file*
 apps/web/.next/
 apps/web/next-env.d.ts
 apps/web/tsconfig.tsbuildinfo
+
+# mutation-run scratch workspaces (contracts/script/mutation-check.mjs)
+.mutants/

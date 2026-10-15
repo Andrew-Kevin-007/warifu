@@ -44,6 +44,39 @@ export function extractorTools(): readonly LlmToolSpec[] {
   ];
 }
 
+// --- Treasury Planner (D2, docs/03 §2 guardrail 2, WP-35): exactly two tools ---------------------------------------------
+export const SUBMIT_PLAN_SELECTION = "submit_plan_selection" as const;
+
+export const PLANNER_CONTEXT_KINDS = ["plans", "terms", "liquidity", "evidence_status", "vendor_history"] as const;
+export type PlannerContextKind = (typeof PLANNER_CONTEXT_KINDS)[number];
+
+export const PlannerReadContextInputSchema = z.strictObject({ kind: z.enum(PLANNER_CONTEXT_KINDS) });
+
+/** Kernel-sanitized read-only planner data. The planner cannot write anything through it. */
+export interface PlannerContextProvider {
+  read(kind: PlannerContextKind): Promise<unknown>;
+}
+
+function submitPlanSelectionSchema(): Record<string, unknown> {
+  const { $id: _id, $schema: _schema, title: _title, ...rest } = exportJsonSchema("PlanSelection") as Record<string, unknown>;
+  return rest;
+}
+
+export function plannerTools(): readonly LlmToolSpec[] {
+  return [
+    {
+      name: SUBMIT_PLAN_SELECTION,
+      description: "Submit the chosen planId (it must be one of the feasible plans) with a short rationale. You cannot supply a date or an amount.",
+      inputSchema: submitPlanSelectionSchema(),
+    },
+    {
+      name: READ_CONTEXT,
+      description: "Read-only kernel data. kind: plans | terms | liquidity | evidence_status | vendor_history.",
+      inputSchema: { type: "object", additionalProperties: false, required: ["kind"], properties: { kind: { type: "string", enum: [...PLANNER_CONTEXT_KINDS] } } },
+    },
+  ];
+}
+
 export function advisoryTools(): readonly LlmToolSpec[] {
   return [
     {

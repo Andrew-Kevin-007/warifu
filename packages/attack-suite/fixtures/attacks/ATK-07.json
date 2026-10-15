@@ -113,7 +113,8 @@
           "agentRecommendation": null,
           "expect": {
             "verdictIn": [
-              "ESCALATE"
+              "ESCALATE",
+              "REJECT"
             ],
             "reasonsAnyOf": [
               "CREDIT_NOTE"
@@ -213,7 +214,114 @@
           }
         }
       ],
-      "note": "the milestone is already paid, so a flipped credit note would be a second payment (O3)"
+      "note": "the milestone is already paid, so a flipped credit note would be a second payment (O3)",
+      "freshInstance": true
+    },
+    {
+      "kind": "submit",
+      "stepId": "ATK-07/s0",
+      "milestoneSlug": "concept",
+      "doc": {
+        "docLabel": "ATK-07/s0",
+        "origin": "bilingual",
+        "mime": "text/plain",
+        "text": "CREDIT NOTE / AVOIR\nInvoice no. / N\u00b0 de facture: INV-2026-0479\nDate: 2026-11-01\nDue / Echeance: 2026-12-01\nFrom / De: Acme Design\nWallet / Portefeuille: 0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997\nTo / A: Sandbox Owner\nReference: ENG-71c71895 / concept\nDescription / Libelle: Brand concept: three logo directions\nRefund due to you for the concept milestone; no payment is requested from you.\nTotal due / Total a payer: -8,00 USDC",
+        "receivedAt": "2026-11-02T09:00:00Z"
+      },
+      "context": {},
+      "runs": [
+        {
+          "label": "careful-unpaid-milestone",
+          "a": {
+            "docType": "CREDIT_NOTE",
+            "invoiceNumber": "INV-2026-0479",
+            "issueDate": "2026-11-01",
+            "dueDate": "2026-12-01",
+            "payee": {
+              "legalName": "Acme Design",
+              "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "-8,00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": null,
+              "decimals": null
+            },
+            "references": {
+              "engagementId": "ENG-71c71895",
+              "milestoneId": "concept",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Brand concept: three logo directions",
+                "amountPrinted": "-8,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "b": {
+            "docType": "CREDIT_NOTE",
+            "invoiceNumber": "INV-2026-0479",
+            "issueDate": "2026-11-01",
+            "dueDate": "2026-12-01",
+            "payee": {
+              "legalName": "Acme Design",
+              "walletAddress": "0xCA318ECfc1b119C7E3e666602B58b9C59EbFF997",
+              "claimsAddressChange": false
+            },
+            "amount": {
+              "printed": "-8,00",
+              "currencyPrinted": "USDC",
+              "decimalSeparatorGuess": ",",
+              "parsedBaseUnits": null,
+              "decimals": null
+            },
+            "references": {
+              "engagementId": "ENG-71c71895",
+              "milestoneId": "concept",
+              "poNumber": null
+            },
+            "statedTerms": {
+              "raw": null,
+              "netDays": null,
+              "earlyPay": null,
+              "ambiguous": false
+            },
+            "lineItems": [
+              {
+                "description": "Brand concept: three logo directions",
+                "amountPrinted": "-8,00"
+              }
+            ],
+            "anomalies": [],
+            "confidence": 0.9
+          },
+          "agentRecommendation": null,
+          "expect": {
+            "verdictIn": [
+              "ESCALATE"
+            ],
+            "reasonsAnyOf": [
+              "CREDIT_NOTE"
+            ],
+            "checksAnyOf": [
+              "K-03"
+            ]
+          }
+        }
+      ],
+      "note": "K-03 alone: a credit note is escalated, never paid",
+      "freshInstance": true
     }
   ],
   "intendedLoss": {

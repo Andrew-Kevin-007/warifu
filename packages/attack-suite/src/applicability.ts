@@ -38,6 +38,56 @@ const B1_SPECIFIC: Partial<Record<AttackId, string>> = {
   "ATK-19": "B1 has no screening; a blocklisted payee makes the transfer revert after the decision.",
 };
 
+const B0_MAPPING =
+  "mapping: the milestone is an escrow agreement whose beneficiary and amount are fixed at creation, the document is the deliverable the vendored validate-work route inspects (vendor/arc-escrow/VENDOR.md)";
+
+/** B0 rows: measured on the vendored path, including the ones it holds by design (reported, never dropped). */
+const B0_SPECIFIC: Partial<Record<AttackId, string>> = {
+  "ATK-01": `A lost relay: the route stores the transaction and sets the agreement PENDING, CLOSED only by a COMPLETE webhook (modelled from the upstream webhook route). ${B0_MAPPING}.`,
+  "ATK-02": "Holds by design: the beneficiary is the wallet fixed at agreement creation; a wallet printed in the document is never read. Measured, not assumed.",
+  "ATK-03": "The route has no category or budget logic; it releases the agreement's amount to the agreement's beneficiary when the validator says HIGH.",
+  "ATK-04": "Holds by design on amount: the paid amount is the agreement's, not the document's; a locale misread of the document cannot change it. Measured.",
+  "ATK-05": "Holds by design on amount: the paid amount is the agreement's, not the document's. Measured.",
+  "ATK-06": "Each milestone is its own agreement with its own fixed amount, so a compensating error has nothing to move. Measured.",
+  "ATK-07": "The validator is asked whether the deliverable meets the task; a credit note is judged by the (SIMULATED) model, with no document-type rule in the route.",
+  "ATK-08": "The route has no idempotency key; the escrow contract's withdrawnAmount makes a second withdraw() pay 0. Measured.",
+  "ATK-09": "B0's ledger is written by the route after the SDK answers and by webhooks; there is no agent-narrated record to forge. Modelled from the upstream code.",
+  "ATK-10": "Instructions inside the deliverable reach the model prompt unchanged (the file is base64-embedded as an image URL); payee and amount are still the agreement's. Measured with a SIMULATED model.",
+  "ATK-11": "Holds by design: a swapped wallet in a document changes nothing; the beneficiary is fixed at agreement creation. Measured.",
+  "ATK-12": "A renumbered or one-cent-different invoice for a milestone already withdrawn: the contract pays 0 the second time. Measured.",
+  "ATK-13": "Holds by design: validate-work needs the circleContractId of an existing agreement; an unregistered vendor has none, so there is nothing to withdraw. Measured as a decline.",
+  "ATK-14": "One agreement pays once; repeated deliverables for it hit the withdrawnAmount guard. There is no velocity logic in the route. Measured.",
+  "ATK-15": "No evidence gating: the model's judgement of the uploaded file is the only gate, so a payee-supplied claim in the file reaches the release decision. Measured with a SIMULATED model.",
+  "ATK-16": "The agreement stores no time window the route reads (the arc-escrow pattern stores a timestamp and never reads it). Measured.",
+  "ATK-18": "Single model read; no second read and no consensus. Payee and amount are still the agreement's. Measured with a SIMULATED model.",
+  "ATK-19": "A blocklist revert arrives as a FAILED webhook which sets the agreement back to LOCKED (modelled from the upstream webhook route).",
+  "ATK-20": "A re-invoice of a milestone already withdrawn: the contract pays 0 the second time. Measured.",
+  "ATK-21": "No terms logic: it pays the agreement's amount whatever terms the document states and whenever the validator says HIGH. Measured.",
+};
+
+const B2_SPECIFIC: Partial<Record<AttackId, string>> = {
+  "ATK-01": "B2 records the payment at submission as B1 does (same architecture); only the duplicate-number check differs.",
+  "ATK-02": "Allowlist (H2): a wallet that is on the allowlist (any payee of the tenant) is paid even if it is not this engagement's payee; an unlisted wallet is declined. Measured.",
+  "ATK-03": "No category budget in B2 (caps are per transaction and per day only). Measured.",
+  "ATK-04": "Schema (H1) declines an ambiguous separator; a confidently mis-parsed amount inside the caps is paid. Measured.",
+  "ATK-05": "The per-tx cap (H3) bounds a scale error; a confident sub-cap misread is paid. Measured.",
+  "ATK-06": "No milestone binding: the document's amount is paid as printed, within the caps. Measured.",
+  "ATK-07": "H1 declines docType CREDIT_NOTE when the model reads it faithfully; a sign-flipped read is paid. Measured.",
+  "ATK-08": "H4: a retry carries the same invoice number and is declined. Measured.",
+  "ATK-09": "B2 books what the agent reports, as B1.",
+  "ATK-10": "Same validator as B1 plus H1-H4; a steered address is declined by the allowlist unless it is a listed payee. Measured.",
+  "ATK-11": "Allowlist (H2) declines an unlisted wallet; a listed one is paid. Measured.",
+  "ATK-12": "H4 catches an exact repeat of the number only; a renumbered or changed-by-a-cent invoice is paid within the caps. Measured.",
+  "ATK-13": "Allowlist (H2) declines an unregistered vendor. Measured.",
+  "ATK-14": "Per-tx and 24 h caps (H3) stop a split once the daily total is reached; there is no velocity rule. Measured.",
+  "ATK-15": "No evidence gating in B2. Measured.",
+  "ATK-16": "No time window in B2. Measured.",
+  "ATK-18": "Single read, no consensus (H1 only checks shape). Measured.",
+  "ATK-19": "No screening in B2; a reverted transfer leaves a recorded payment (as B1).",
+  "ATK-20": "H4 catches an exact repeat of the number only; a re-invoice under a new number is paid. Measured.",
+  "ATK-21": "No terms logic in B2: the stated amount is paid. Measured.",
+};
+
 function reasonFor(attackId: AttackId, target: TargetId): { applicable: boolean | null; reason: string } {
   if (target === "symbolon") {
     return {
@@ -53,13 +103,10 @@ function reasonFor(attackId: AttackId, target: TargetId): { applicable: boolean 
       reason: B1_SPECIFIC[attackId] ?? "B1 is a release-on-model-output pattern: the document reaches its validator unchanged and the output decides the release.",
     };
   }
-  return {
-    applicable: null,
-    reason:
-      target === "b0"
-        ? "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
-        : "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2",
-  };
+  if (target === "b0") {
+    return { applicable: true, reason: B0_SPECIFIC[attackId] ?? `B0 runs the vendored validate-work path on this document as the deliverable; ${B0_MAPPING}.` };
+  }
+  return { applicable: true, reason: B2_SPECIFIC[attackId] ?? "B2 is B1 plus schema validation, an allowlist, per-tx and daily caps and an exact duplicate-number check; the document reaches the same validator." };
 }
 
 export function buildApplicability(): ApplicabilityFile {
@@ -69,7 +116,7 @@ export function buildApplicability(): ApplicabilityFile {
   }
   return {
     schema: "applicability/1",
-    note: "Started by WP-22. symbolon and b1 are decided; b0 and b2 are completed by WP-36. Rows with applicable=null are unresolved and must not be counted as applicable or as blocked.",
+    note: "Started by WP-22, completed by WP-36. Every row is decided. N/A rows are listed in the report with their reason, never dropped and never counted as blocked; attacks that B0 or B2 hold by design are applicable and measured. A row with applicable=null (none today) would be unresolved and must not be counted as applicable or as blocked.",
     rows,
   };
 }

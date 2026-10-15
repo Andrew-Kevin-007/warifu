@@ -12,6 +12,8 @@ import {
   arcConfigFromEnv,
   assertFeeFloor,
   chainIdForNetwork,
+  checkMainnetChainId,
+  mainnetChainIdFromEnv,
   loadDeployments,
   money,
   networkForChainId,
@@ -236,5 +238,59 @@ describe("Arc fee floor (V-20)", () => {
     expect(code(() => assertFeeFloor(ARC_MIN_MAX_FEE_PER_GAS - 1n))).toBe("FEE_BELOW_FLOOR");
     expect(code(() => assertFeeFloor(ARC_MIN_MAX_FEE_PER_GAS))).toBe("no-throw");
     expect(code(() => assertFeeFloor(20 as unknown as bigint))).toBe("FEE_BELOW_FLOOR");
+  });
+});
+
+// Mainnet (V-03). The id below is a TEST value, not Arc's: the real one is operator-supplied from the Arc docs and checked
+// against the live node at boot. These tests pin that mainnet is accepted only when named explicitly, and refused otherwise.
+describe("mainnet, operator-supplied chain id (V-03)", () => {
+  const MAINNET_TEST_ID = 990_001;
+  const opts = { mainnetChainId: MAINNET_TEST_ID };
+
+  it("resolves mainnet only when the id is passed in", () => {
+    expect(chainIdForNetwork("mainnet", opts)).toBe(MAINNET_TEST_ID);
+    expect(networkForChainId(MAINNET_TEST_ID, opts)).toBe("mainnet");
+    expect(code(() => networkForChainId(MAINNET_TEST_ID))).toBe("UNKNOWN_CHAIN");
+    expect(code(() => chainIdForNetwork("mainnet"))).toBe("UNKNOWN_CHAIN");
+    expect(code(() => networkForChainId(MAINNET_TEST_ID + 1, opts))).toBe("UNKNOWN_CHAIN");
+    // known ids keep their meaning even with a mainnet id configured
+    expect(networkForChainId(ARC_TESTNET_CHAIN_ID, opts)).toBe("testnet");
+  });
+
+  it.each([ARC_TESTNET_CHAIN_ID, LOCAL_CHAIN_ID, 0, -5, 1.5, Number.NaN, 2 ** 60])("refuses %s as a mainnet id", (id) => {
+    expect(code(() => checkMainnetChainId(id))).toBe("BAD_CONFIG");
+  });
+
+  it("parses ARC_MAINNET_CHAIN_ID strictly", () => {
+    expect(mainnetChainIdFromEnv({})).toBeUndefined();
+    expect(mainnetChainIdFromEnv({ ARC_MAINNET_CHAIN_ID: String(MAINNET_TEST_ID) })).toBe(MAINNET_TEST_ID);
+    for (const raw of ["0x1", "01", "1e6", " 5", "-1", "5042002", "31337", "abc"]) {
+      expect(code(() => mainnetChainIdFromEnv({ ARC_MAINNET_CHAIN_ID: raw })), raw).toBe("BAD_CONFIG");
+    }
+  });
+
+  it("arcConfigFromEnv: mainnet uses its own id and https RPC, and refuses a stray testnet RPC", () => {
+    const env = { NETWORK: "mainnet", ARC_MAINNET_CHAIN_ID: String(MAINNET_TEST_ID), ARC_MAINNET_RPC_URL: "https://mainnet-rpc.example.invalid/" };
+    const c = arcConfigFromEnv(env);
+    expect(c).toMatchObject({ network: "mainnet", chainId: MAINNET_TEST_ID });
+    expect(c.chain.id).toBe(MAINNET_TEST_ID);
+    expect(c.chain.nativeCurrency.decimals).toBe(18);
+    expect(code(() => arcConfigFromEnv({ ...env, ARC_RPC_URL: "https://rpc.example.invalid/" }))).toBe("BAD_CONFIG");
+    expect(code(() => arcConfigFromEnv({ ...env, ARC_MAINNET_RPC_URL: "" }))).toBe("BAD_CONFIG");
+    expect(code(() => arcConfigFromEnv({ ...env, ARC_MAINNET_RPC_URL: "http://mainnet-rpc.example.invalid/" }))).toBe("BAD_CONFIG");
+    expect(code(() => arcConfigFromEnv({ ...env, ARC_MAINNET_RPC_URL: "http://127.0.0.1:8545" }))).toBe("BAD_CONFIG");
+    expect(code(() => arcConfigFromEnv({ NETWORK: "mainnet", ARC_MAINNET_RPC_URL: "https://mainnet-rpc.example.invalid/" }))).toBe("UNKNOWN_CHAIN");
+  });
+
+  it("verifyRpcChainId stops a mainnet config pointed at the testnet node", async () => {
+    const client = { getChainId: () => Promise.resolve(ARC_TESTNET_CHAIN_ID) };
+    await expect(verifyRpcChainId(client, MAINNET_TEST_ID)).rejects.toMatchObject({ code: "CHAIN_ID_MISMATCH" });
+  });
+
+  it("parses a mainnet deployments file only with the id, and keeps SEC-04", () => {
+    const f = file({ network: "mainnet", chainId: MAINNET_TEST_ID, production: group(1, MAINNET_TEST_ID), sandbox: null });
+    expect(parseDeployments(f, opts)).toMatchObject({ network: "mainnet", chainId: MAINNET_TEST_ID });
+    expect(code(() => parseDeployments(f))).toBe("UNKNOWN_CHAIN");
+    expect(code(() => parseDeployments({ ...f, network: "testnet" }, opts))).toBe("BAD_DEPLOYMENT");
   });
 });

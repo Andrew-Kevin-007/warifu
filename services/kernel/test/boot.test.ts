@@ -51,6 +51,7 @@ describe("boot guards (INV-16, RT-05, docs/15 s3)", () => {
   it("G1: the sandbox refuses mainnet and anything that is not testnet/local", () => {
     for (const n of ["mainnet", "MAINNET", "", "arc"]) expect(rules({ ...sandbox(), NETWORK: n }), n).toContain("G1:NETWORK");
     expect(rules({ ...sandbox(), NETWORK: "local" })).toEqual([]);
+    // production mainnet is allowed only with its own chain id and RPC (test/mainnet-config.test.ts); bare NETWORK=mainnet fails closed
     expect(() => loadConfig({ ...production(), NETWORK: "mainnet" })).toThrow(/mainnet/);
   });
 
@@ -172,5 +173,15 @@ describe("G10 and the secret inventory (SEC-07 review findings)", () => {
     for (const must of [pw, encodeURIComponent(pw), `kernel_user:${pw}`, `kernel_user:${encodeURIComponent(pw)}`, "kernel_user", ...Object.entries(env).filter(([k, v]) => v.length >= 16 && k !== "RELAYER_WALLET_ADDRESS").map(([, v]) => v)]) {
       expect(list, must).toContain(must);
     }
+  });
+});
+
+describe("G11: the scheduler test clock exists only outside production (WP-14)", () => {
+  it("refuses TEST_CLOCK_OFFSET_SECONDS under the production profile and under NODE_ENV=production, allows it in the sandbox", () => {
+    expect(rules({ ...production(), TEST_CLOCK_OFFSET_SECONDS: "3600" })).toEqual(["G11:TEST_CLOCK_OFFSET_SECONDS"]);
+    expect(rules({ ...sandbox(), NODE_ENV: "production", TEST_CLOCK_OFFSET_SECONDS: "3600" })).toEqual(["G11:TEST_CLOCK_OFFSET_SECONDS"]);
+    expect(rules({ ...sandbox(), TEST_CLOCK_OFFSET_SECONDS: "3600" })).toEqual([]);
+    expect(() => loadConfig({ ...production(), TEST_CLOCK_OFFSET_SECONDS: "3600" })).toThrow();
+    expect(loadConfig({ ...sandbox(), TEST_CLOCK_OFFSET_SECONDS: "3600" }).scheduler.testClockOffsetSeconds).toBe(3600);
   });
 });

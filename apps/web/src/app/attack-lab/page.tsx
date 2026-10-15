@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/brand';
 import type { Metadata } from 'next';
 import { Chip, PageFrame, Section, SourceBanner } from '@/components/product/PageFrame';
 import type { ChipTone } from '@/components/product/PageFrame';
@@ -5,8 +6,8 @@ import { loadAttackMatrix, loadAttackMeta, loadBundle } from '@/server/recorded'
 import type { AttackMatrix } from '@/server/recorded';
 
 export const metadata: Metadata = {
-  title: 'Attack lab | Symbolon',
-  description: 'Twenty-four attacks against a naive baseline, a pattern reimplementation and Symbolon, judged by an independent oracle.',
+  title: `Attack lab | ${BRAND.name}`,
+  description: `Twenty-four attacks against a naive baseline, a pattern reimplementation and ${BRAND.name}, judged by an independent oracle.`,
 };
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +15,7 @@ const TARGETS: { id: string; label: string }[] = [
   { id: 'b0', label: 'B0 vendored Circle sample path' },
   { id: 'b1', label: 'B1 pattern reimplementation (ours)' },
   { id: 'b2', label: 'B2 hardened baseline' },
-  { id: 'symbolon', label: 'Symbolon' },
+  { id: 'symbolon', label: `${BRAND.name}` },
 ];
 
 const OUTCOME_TONE: Record<string, ChipTone> = { BLOCKED: 'pass', ESCALATED: 'pass', HELD: 'pass', NOOP: 'muted', LOSS: 'fail', NOT_RUN: 'muted' };

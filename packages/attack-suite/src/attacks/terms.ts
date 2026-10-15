@@ -13,7 +13,12 @@ export function atk21({ rng, seed }: BuildCtx): AttackFixture {
   const intended: IntendedRelease[] = [];
   for (const ti of cases) {
     const built = ti.build(rng.child(ti.id), T0);
-    for (const s of built.steps) steps.push(ti.scenarioId === "S-C" ? s : { ...s, scenarioId: ti.scenarioId });
+    // Every injection is an independent attempt on a fresh instance (docs/15 §2) EXCEPT the re-sent duplicate (TI-06b),
+    // which must see the payment its original (TI-06a) made: it continues in that instance.
+    for (const s of built.steps) {
+      const step: SubmitStep = s.stepId === "ATK-21/TI-06b" ? s : { ...s, freshInstance: true };
+      steps.push(ti.scenarioId === "S-C" ? step : { ...step, scenarioId: ti.scenarioId });
+    }
     intended.push(...built.intended);
   }
   return assemble({

@@ -37,6 +37,9 @@ import { createEngagement, getEngagementView, payeeChangeFlow, signEngagement } 
 import type { EngagementServiceDeps } from "./engagement/service";
 import { assertEvidencePairing, collectEvidence, submitOwnerAck, uploadArtifact } from "./evidence/service";
 import type { EvidenceServiceDeps } from "./evidence/service";
+import * as reconcileRepo from "./reconcile/repo";
+import { BREAKER_UNFREEZE_TYPES, UNFREEZE_TTL_SECONDS, unfreeze } from "./reconcile/unfreeze";
+import type { UnfreezeDeps } from "./reconcile/unfreeze";
 import { submitApproval } from "./service/approvals";
 import type { ApprovalsDeps } from "./service/approvals";
 import { unavailablePlanProvider } from "./service/plans";
@@ -72,6 +75,8 @@ export interface AppDeps {
   readonly approvals?: ApprovalsDeps;
   /** WP-14. Called after evidence for a milestone changed (collect, ack, artifact): HOLD decisions of that milestone are re-evaluated. Errors never reach the caller. */
   readonly afterEvidence?: (tenantId: string, milestoneId: Hex32) => Promise<unknown>;
+  /** WP-15. Absent = GET /breaker and POST /breaker/unfreeze answer 501. */
+  readonly breaker?: UnfreezeDeps;
   /** WP-34. Absent = the certificate routes answer 501. */
   readonly certificates?: CertificateServiceConfig;
 }
@@ -275,6 +280,40 @@ export function createApp(d: AppDeps): Hono<AppEnv> {
     const { tenantId } = c.get("auth");
     if (d.approvals === undefined) throw new ApiError("NOT_IMPLEMENTED", "owner approvals are not available in this build");
     return c.json(await submitApproval(d.approvals, tenantId, await jsonBody(c)));
+  });
+
+  // --- circuit breaker (docs/04 K-16, WP-15): state, and the owner-signed unfreeze ---------------------------------------------------
+  v1.get("/breaker", async (c) => {
+    const { tenantId } = c.get("auth");
+    if (d.breaker === undefined) throw new ApiError("NOT_IMPLEMENTED", "the breaker is not available in this build");
+    try {
+      const tv = await resolveTenantVault(d.db, tenantId, d.chain);
+      const [row, findings, snap] = await Promise.all([reconcileRepo.loadBreakerRow(d.db, tenantId), reconcileRepo.recentFindings(d.db, tenantId, 20), d.chain.snapshot(tv.vault)]);
+      return c.json({
+        halted: row.halted || snap.paused,
+        kernelHalted: row.halted,
+        vaultPaused: snap.paused,
+        reason: row.reason,
+        haltedSince: row.since === null ? null : row.since.toString(),
+        pauseError: row.pauseError,
+        findings: findings.map((f) => ({ kind: f.kind, severity: f.severity, resolved: f.resolved, createdAt: f.createdAt })),
+        // What the owner's wallet signs to unfreeze (the reason hash and deadline are chosen by the client; deadline <= ttl).
+        unfreeze: {
+          ttlSeconds: UNFREEZE_TTL_SECONDS,
+          domain: { name: "SymbolonVault", version: "1", chainId: tv.chainId, verifyingContract: tv.vault },
+          types: BREAKER_UNFREEZE_TYPES,
+          primaryType: "BreakerUnfreeze",
+        },
+      });
+    } catch (e) {
+      throw contextFailure(e, d.logger);
+    }
+  });
+
+  v1.post("/breaker/unfreeze", tooLarge, async (c) => {
+    const { tenantId } = c.get("auth");
+    if (d.breaker === undefined) throw new ApiError("NOT_IMPLEMENTED", "the breaker is not available in this build");
+    return c.json(await unfreeze(d.breaker, tenantId, await jsonBody(c)));
   });
 
   v1.get("/intents/:id/plans", async (c) => {

@@ -35,6 +35,11 @@ import { createLogger, errorFields } from "./log";
 import { createKernelSigner } from "./receipt/build";
 import { StartupError, runStartupChecks } from "./startup";
 import { startSchedulerLoop, recheckHolds } from "./release/scheduler";
+import { viemGuardianPauser } from "./chain/guardian";
+import type { GuardianPauser } from "./chain/guardian";
+import { viemLedgerChain } from "./reconcile/ledger";
+import { startReconcilerLoop } from "./reconcile/service";
+import type { ReconcilerDeps, ReconcilerLoop } from "./reconcile/service";
 import type { ReleaseDeps } from "./release/service";
 import { pgPlanProvider } from "./service/plans";
 import { systemClock } from "./time";
@@ -79,6 +84,14 @@ async function main(): Promise<void> {
   } else if (config.relayerKey !== null) {
     relayer = viemVaultRelayer({ publicClient: client, walletClient: createWalletClient({ chain: arc.chain, transport: http(arc.rpcUrl) }), account: privateKeyToAccount(config.relayerKey.reveal() as `0x${string}`) });
   }
+  // WP-15 guardian: its own key, pause-only on the vault. Absent = the breaker halts the kernel but cannot pause the vault.
+  const guardian: GuardianPauser | null =
+    config.guardianKey === null
+      ? null
+      : viemGuardianPauser({ publicClient: client, walletClient: createWalletClient({ chain: arc.chain, transport: http(arc.rpcUrl) }), account: privateKeyToAccount(config.guardianKey.reveal() as `0x${string}`) });
+  const reconcilerDeps: ReconcilerDeps = { db, chain, ledger: viemLedgerChain(client), guardian, clock, logger };
+  // Late-bound so the webhook can trigger a pass before the loop object exists (the loop is created after the app deps).
+  let reconciler: ReconcilerLoop | null = null;
   const indexer = config.indexer.enabled
     ? startIndexerLoop({ db, chain: engagementChain, logger }, { intervalMs: config.indexer.pollMs, options: { confirmations: BigInt(config.indexer.confirmations), startBlock: BigInt(config.indexer.startBlock) } })
     : null;
@@ -94,7 +107,10 @@ async function main(): Promise<void> {
           logger,
           allowedKeyIds: config.circle.webhookKeyIds,
           trigger: () => {
-            void indexAll({ db, chain: engagementChain, logger }, { confirmations: BigInt(config.indexer.confirmations), startBlock: BigInt(config.indexer.startBlock) }).catch((e: unknown) => logger.warn("webhook.trigger_failed", { ...errorFields(e) }));
+            // Index first (chain events are the evidence), then reconcile what they show. The webhook body decides nothing.
+            void indexAll({ db, chain: engagementChain, logger }, { confirmations: BigInt(config.indexer.confirmations), startBlock: BigInt(config.indexer.startBlock) })
+              .then(() => reconciler?.trigger())
+              .catch((e: unknown) => logger.warn("webhook.trigger_failed", { ...errorFields(e) }));
             return Promise.resolve();
           },
         });
@@ -122,6 +138,9 @@ async function main(): Promise<void> {
   };
   const scheduler = config.scheduler.enabled ? startSchedulerLoop(releaseDeps, { chainId: arc.chainId, intervalMs: config.scheduler.pollMs }) : null;
   const reevalDeps = { db, chain, signer, clock, profile: config.profile, logger };
+  reconciler = config.reconciler.enabled
+    ? startReconcilerLoop(reconcilerDeps, { chainId: arc.chainId, intervalMs: config.reconciler.pollMs, options: { startBlock: BigInt(config.indexer.startBlock) } })
+    : null;
 
   const certificates = certificateConfig(client);
   const app = createApp({
@@ -132,6 +151,7 @@ async function main(): Promise<void> {
     signer,
     plans: pgPlanProvider(reevalDeps),
     approvals: { ...reevalDeps, engagementChain },
+    breaker: { db, chain, engagementChain, clock, logger },
     afterEvidence: (tenantId, milestoneId) => recheckHolds(releaseDeps, tenantId, { milestoneId }),
     clock,
     logger,
@@ -149,7 +169,7 @@ async function main(): Promise<void> {
   const port = Number.parseInt(process.env["PORT"] ?? "8787", 10);
   serve({ fetch: app.fetch, port, hostname: process.env["HOST"] ?? "127.0.0.1" });
   logger.info("kernel.listening", { profile: config.profile, count: port });
-  process.once("SIGTERM", () => void Promise.all([indexer?.stop(), scheduler?.stop()]));
+  process.once("SIGTERM", () => void Promise.all([indexer?.stop(), scheduler?.stop(), reconciler?.stop()]));
 }
 
 main().catch((e: unknown) => {

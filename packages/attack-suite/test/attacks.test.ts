@@ -237,18 +237,29 @@ describe("per-attack facts", () => {
     for (const sid of ["S-A", "S-B", "S-C"] as const) expect(WORLD[sid].payee).not.toBe(UNREGISTERED_VENDOR);
   });
 
-  it("ATK-14: twenty sub-threshold slices whose sum is far above the cap, with unique invoice numbers", () => {
+  it("ATK-14: two sequences of twenty sub-threshold slices (blunt, then cent-varied), unique invoice numbers, sum far above the cap", () => {
     const a = get("ATK-14");
-    const steps = a.steps as SubmitStep[];
-    expect(steps).toHaveLength(20);
-    const amounts = steps.map((s) => BigInt(s.runs[0]?.a.amount.parsedBaseUnits ?? "0"));
-    for (const x of amounts) expect(x).toBeLessThan(usdc(20)); // humanApprovalAbove
-    const total = amounts.reduce((acc, x) => acc + x, 0n);
-    expect(total).toBe(usdc(60));
-    expect(total).toBeGreaterThan(BigInt(WORLD["S-B"].template.engagement.capBaseUnits));
-    expect(new Set(steps.map((s) => inspectUntrusted(s.runs[0]?.a.invoiceNumber as never))).size).toBe(20);
+    const all = a.steps as SubmitStep[];
+    expect(all).toHaveLength(40);
+    const blunt = all.slice(0, 20);
+    const adaptive = all.slice(20);
+    expect(adaptive[0]?.freshInstance).toBe(true); // the adaptive sequence is its own instance
+    expect(blunt.some((s) => s.freshInstance === true)).toBe(false);
+    for (const steps of [blunt, adaptive]) {
+      const amounts = steps.map((s) => BigInt(s.runs[0]?.a.amount.parsedBaseUnits ?? "0"));
+      for (const x of amounts) expect(x).toBeLessThan(usdc(20)); // humanApprovalAbove
+      const total = amounts.reduce((acc, x) => acc + x, 0n);
+      expect(total).toBeGreaterThan(BigInt(WORLD["S-B"].template.engagement.capBaseUnits) / 4n);
+      expect(new Set(steps.map((s) => inspectUntrusted(s.runs[0]?.a.invoiceNumber as never))).size).toBe(20);
+    }
+    // blunt: identical slices (so K-04 near-duplicate can stop them); adaptive: every slice differs by a cent
+    expect(blunt.reduce((acc, s) => acc + BigInt(s.runs[0]?.a.amount.parsedBaseUnits ?? "0"), 0n)).toBe(usdc(60));
+    expect(new Set(blunt.map((s) => s.runs[0]?.a.amount.parsedBaseUnits)).size).toBe(1);
+    expect(new Set(adaptive.map((s) => s.runs[0]?.a.amount.parsedBaseUnits)).size).toBe(20);
     expect(a.intendedLoss?.mode).toBe("cumulative");
-    expect(steps[3]?.runs[0]?.expect.verdictIn).toEqual(["REJECT"]);
+    expect(adaptive[3]?.runs[0]?.expect.verdictIn).toEqual(["REJECT"]);
+    expect(adaptive[3]?.runs[0]?.expect.reasonsAnyOf).toContain("VELOCITY");
+    expect(blunt[3]?.runs[0]?.expect.reasonsAnyOf).toContain("NEAR_DUPLICATE");
   });
 
   it("ATK-15: no evidence at all, then a genuinely red CI; the LLM's RELEASE advice is present and must not matter", () => {

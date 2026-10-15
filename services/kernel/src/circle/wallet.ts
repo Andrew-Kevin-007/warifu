@@ -19,19 +19,37 @@ export interface GeneratedWallet {
   readonly blockchain: string;
 }
 
-export const SUPPORTED_BLOCKCHAINS: readonly string[] = ["ARC-TESTNET"]; // mainnet identifier is V-03: refused until verified
+export const TESTNET_BLOCKCHAIN = "ARC-TESTNET";
+/** Kept for callers that list what testnet accepts. */
+export const SUPPORTED_BLOCKCHAINS: readonly string[] = [TESTNET_BLOCKCHAIN];
+// VERIFY(V-03): Circle's identifier for Arc mainnet is operator-supplied (CIRCLE_BLOCKCHAIN, from Circle's supported-
+// blockchains page), never defaulted. It must look like an Arc identifier and must not be a testnet one; Circle itself
+// rejects an identifier it does not know, so a wrong value fails closed at wallet creation.
+const MAINNET_BLOCKCHAIN_SHAPE = /^ARC(-[A-Z0-9]{2,20})?$/;
+
+/** testnet/local accept only ARC-TESTNET; mainnet needs an explicit Arc identifier that is not a testnet one. */
+export function checkCircleBlockchain(blockchain: string, network: "mainnet" | "testnet" | "local"): string {
+  if (network !== "mainnet") {
+    if (blockchain !== TESTNET_BLOCKCHAIN) throw new RangeError(`unsupported CIRCLE_BLOCKCHAIN for ${network} (only ${TESTNET_BLOCKCHAIN})`);
+    return blockchain;
+  }
+  if (!MAINNET_BLOCKCHAIN_SHAPE.test(blockchain) || /TEST/.test(blockchain)) throw new RangeError("unsupported CIRCLE_BLOCKCHAIN for mainnet (an Arc mainnet identifier, never a testnet one)");
+  return blockchain;
+}
 
 export interface GenerateWalletInput {
   readonly api: CircleApi;
   readonly entitySecret: Secret;
   readonly profile: WalletProfile;
   readonly blockchain: string;
+  /** Network the wallet is for; default testnet. Mainnet needs an explicit Arc mainnet identifier (checkCircleBlockchain). */
+  readonly network?: "mainnet" | "testnet" | "local";
   /** Creation is idempotent under this id: re-running the script with the same id returns the same wallet set/wallet. */
   readonly runId?: string;
 }
 
 export async function generateRelayerWallet(i: GenerateWalletInput): Promise<GeneratedWallet> {
-  if (!SUPPORTED_BLOCKCHAINS.includes(i.blockchain)) throw new RangeError("unsupported CIRCLE_BLOCKCHAIN (mainnet is blocked until V-03)");
+  checkCircleBlockchain(i.blockchain, i.network ?? "testnet");
   const runId = i.runId ?? randomUUID();
   const publicKey = await i.api.entityPublicKey();
   const set = await i.api.createWalletSet({

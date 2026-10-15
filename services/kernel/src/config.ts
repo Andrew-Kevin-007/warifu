@@ -4,8 +4,10 @@ import { assertBootGuards, parseProfile } from "./boot";
 import type { EnvLike, Profile } from "./boot";
 import { Secret } from "./secret";
 import { redactionList } from "./secrets";
+import { mainnetChainIdFromEnv } from "@symbolon/chain";
+import { checkCircleBlockchain } from "./circle/wallet";
 
-export type NetworkName = "testnet" | "local";
+export type NetworkName = "mainnet" | "testnet" | "local";
 
 export interface KernelConfig {
   readonly profile: Profile;
@@ -40,6 +42,10 @@ export interface KernelConfig {
   readonly maxArtifactBytes: number;
   /** WP-14 payAt scheduler. `testClockOffsetSeconds` shifts ONLY the scheduler's clock (never token or clock-guard time); refused in production (boot guard G11). */
   readonly scheduler: { readonly enabled: boolean; readonly pollMs: number; readonly testClockOffsetSeconds: number | null };
+  /** WP-15 guardian (pause-only role of the vault, K-16). null = no automatic pause; the breaker still halts the kernel. */
+  readonly guardianKey: Secret | null;
+  /** WP-15 K-15 reconciler loop. */
+  readonly reconciler: { readonly enabled: boolean; readonly pollMs: number };
   /** Names + values that must never be logged. */
   readonly logSecrets: readonly Secret[];
 }
@@ -76,7 +82,7 @@ export const DEFAULT_MAX_JSON_BYTES = 256 * 1024;
 export const DEFAULT_MAX_BLOB_BYTES = 10 * 1024 * 1024;
 export const TOKEN_TTL_CEILING_SECONDS = 60;
 
-function loadCircle(env: EnvLike, relayerKey: string): CircleConfig | null {
+function loadCircle(env: EnvLike, relayerKey: string, network: NetworkName): CircleConfig | null {
   const apiKey = env["CIRCLE_API_KEY"] ?? "";
   const entitySecret = env["CIRCLE_ENTITY_SECRET"] ?? "";
   const walletId = env["RELAYER_WALLET_ID"] ?? "";
@@ -90,8 +96,13 @@ function loadCircle(env: EnvLike, relayerKey: string): CircleConfig | null {
   if (!/^0x[0-9a-fA-F]{40}$/.test(walletAddress)) throw new ConfigError("RELAYER_WALLET_ADDRESS", "required (0x address of the relayer wallet)");
   if (relayerKey !== "") throw new ConfigError("RELAYER_PRIVATE_KEY", "must be unset when the Circle relayer is configured (one relayer, one custody model)");
   for (const id of keyIds) if (!/^[A-Za-z0-9_-]{8,64}$/.test(id)) throw new ConfigError("CIRCLE_WEBHOOK_PUBLIC_KEY_ID", "malformed key id");
-  const blockchain = env["CIRCLE_BLOCKCHAIN"] ?? "ARC-TESTNET";
-  if (blockchain !== "ARC-TESTNET") throw new ConfigError("CIRCLE_BLOCKCHAIN", "only ARC-TESTNET is supported (mainnet identifier unverified, V-03)");
+  // Mainnet never defaults the identifier (V-03): the operator sets it from Circle's supported-blockchains page.
+  const blockchain = env["CIRCLE_BLOCKCHAIN"] ?? (network === "mainnet" ? "" : "ARC-TESTNET");
+  try {
+    checkCircleBlockchain(blockchain, network);
+  } catch {
+    throw new ConfigError("CIRCLE_BLOCKCHAIN", network === "mainnet" ? "mainnet needs an explicit Arc mainnet identifier (never a testnet one)" : "only ARC-TESTNET is supported off mainnet");
+  }
   return Object.freeze({ apiKey: new Secret(apiKey), entitySecret: new Secret(entitySecret), blockchain, walletId, walletAddress: walletAddress.toLowerCase(), webhookKeyIds: keyIds });
 }
 
@@ -109,13 +120,31 @@ export function loadConfig(env: EnvLike): KernelConfig {
   const profile = parseProfile(env);
   if (profile === null) throw new ConfigError("KERNEL_PROFILE", "invalid"); // unreachable after the guards; fail closed anyway
   const network = env["NETWORK"];
-  if (network !== "testnet" && network !== "local") throw new ConfigError("NETWORK", "mainnet is not supported (V-03)");
+  if (network !== "mainnet" && network !== "testnet" && network !== "local") throw new ConfigError("NETWORK", "must be mainnet, testnet or local");
+  if (network === "mainnet") {
+    // Real funds. The sandbox can never get here (boot guard G1); production must name the chain and its own RPC, and
+    // main.ts compares the id with the live node before anything else runs (V-03).
+    if (profile !== "production") throw new ConfigError("NETWORK", "mainnet runs only in the production profile");
+    let id: number | undefined;
+    try {
+      id = mainnetChainIdFromEnv(env);
+    } catch {
+      throw new ConfigError("ARC_MAINNET_CHAIN_ID", "must be a positive integer that is not the testnet or local chain id");
+    }
+    if (id === undefined) throw new ConfigError("ARC_MAINNET_CHAIN_ID", "required on mainnet (from the Arc docs' network page)");
+    if ((env["ARC_MAINNET_RPC_URL"] ?? "") === "") throw new ConfigError("ARC_MAINNET_RPC_URL", "required on mainnet");
+    if ((env["ARC_RPC_URL"] ?? "") !== "") throw new ConfigError("ARC_RPC_URL", "must be unset on mainnet (use ARC_MAINNET_RPC_URL)");
+    // The raw-key relayer is the local/testnet convenience (.env.example); mainnet submits through Circle or not at all.
+    if ((env["RELAYER_PRIVATE_KEY"] ?? "") !== "") throw new ConfigError("RELAYER_PRIVATE_KEY", "must be unset on mainnet (use the Circle relayer, or none)");
+  }
   const evidenceMode = env["EVIDENCE_MODE"] === "fixtures" ? "fixtures" : "live";
   const databaseUrl = env["DATABASE_URL"] ?? "";
   const serviceTokenSecret = env["SERVICE_TOKEN_SECRET"] ?? "";
   const kernelSignerKey = env["KERNEL_SIGNER_PRIVATE_KEY"] ?? "";
   const relayerKey = env["RELAYER_PRIVATE_KEY"] ?? "";
   if (relayerKey !== "" && relayerKey === kernelSignerKey) throw new ConfigError("RELAYER_PRIVATE_KEY", "must not be the kernel signer key (separate roles)");
+  const guardianKey = env["GUARDIAN_PRIVATE_KEY"] ?? "";
+  if (guardianKey !== "" && (guardianKey === kernelSignerKey || guardianKey === relayerKey)) throw new ConfigError("GUARDIAN_PRIVATE_KEY", "must be its own key (the guardian can only pause; it is not the kernel signer or the relayer)");
   const blobDir = env["BLOB_DIR"] !== undefined && env["BLOB_DIR"] !== "" ? env["BLOB_DIR"] : null;
   return Object.freeze({
     profile,
@@ -137,7 +166,7 @@ export function loadConfig(env: EnvLike): KernelConfig {
       startBlock: intOf(env, "INDEXER_START_BLOCK", 0, 0, Number.MAX_SAFE_INTEGER),
     },
     relayerKey: relayerKey === "" ? null : new Secret(relayerKey),
-    circle: loadCircle(env, relayerKey),
+    circle: loadCircle(env, relayerKey, network),
     evidenceEgressProxy: parseProxy("EVIDENCE_EGRESS_PROXY", env["EVIDENCE_EGRESS_PROXY"]),
     githubToken: env["GITHUB_TOKEN"] === undefined || env["GITHUB_TOKEN"] === "" ? null : new Secret(env["GITHUB_TOKEN"]),
     maxArtifactBytes: intOf(env, "MAX_ARTIFACT_BYTES", 5 * 1024 * 1024, 1, 64 * 1024 * 1024),
@@ -146,6 +175,8 @@ export function loadConfig(env: EnvLike): KernelConfig {
       pollMs: intOf(env, "SCHEDULER_POLL_MS", 5000, 250, 3_600_000),
       testClockOffsetSeconds: env["TEST_CLOCK_OFFSET_SECONDS"] === undefined || env["TEST_CLOCK_OFFSET_SECONDS"].trim() === "" ? null : intOf(env, "TEST_CLOCK_OFFSET_SECONDS", 0, 0, 10 * 365 * 86_400),
     },
+    guardianKey: guardianKey === "" ? null : new Secret(guardianKey),
+    reconciler: { enabled: env["RECONCILER_ENABLED"] !== "false", pollMs: intOf(env, "RECONCILER_POLL_MS", 60_000, 250, 3_600_000) },
     logSecrets: redactionList(env).map((s) => new Secret(s)),
   });
 }
