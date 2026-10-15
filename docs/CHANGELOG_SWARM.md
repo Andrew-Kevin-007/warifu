@@ -218,3 +218,9 @@ Format: `## WP-xx <title> · ROLE · <merge time IST>` — **What changed** · *
 - **Dependencies**: none added.
 - **How to verify**: `pnpm verify`; `pnpm exec vitest run packages/chain/test/config.test.ts services/kernel/test/mainnet-config.test.ts`.
 - **Known gaps**: no mainnet fact was verified by an agent (V-03 entry). Nothing has been deployed to mainnet; that is Kevin's step with his own keys.
+
+## Kernel deploy plumbing + operator setup guide · ORCH · 2026-10-15
+- **What changed**: `services/kernel/src/ops.ts` + `scripts/ops.ts` with `pnpm kernel:migrate -- --profile <p>` (applies pending migrations in order, each in a transaction, records name + sha256 in `ops_migrations`, refuses an edited applied migration, stamps the deployment profile once and refuses a flip) and `pnpm kernel:tenant` (validates the policy against the deployed vault caps and the vault owner, refuses kind/profile mixes that break INV-16/17, prints `WEB_SVC_TENANT_ID`). `pnpm kernel:start` runs the service on plain Node 22 with the repo's resolve hook. `services/kernel/Dockerfile` + `.dockerignore`. `docs/OPERATOR_SETUP.md`: every account, key and ID, step by step.
+- **Dependencies**: none added.
+- **How to verify**: `REQUIRE_PG=1 pnpm vitest run services/kernel/test/ops.local.test.ts` (4 tests, real Postgres); `pnpm kernel:start` with an empty env exits with `kernel.boot_failed` G0.
+- **Known gaps**: the Dockerfile has not been built (no Docker on the dev machine); migrations are not yet run against a real Supabase project (V-15).

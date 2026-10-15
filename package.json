@@ -27,7 +27,10 @@
     "build-replay": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./packages/blast-radius/scripts/register-ts.mjs scripts/build-replay-bundle.ts",
     "verify-bundle": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./packages/blast-radius/scripts/register-ts.mjs scripts/verify-bundle.ts",
     "sec:local": "pnpm --filter @symbolon/sec-suite run sec:local",
-    "sec:sandbox": "node scripts/sec-sandbox.mjs"
+    "sec:sandbox": "node scripts/sec-sandbox.mjs",
+    "kernel:start": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./packages/blast-radius/scripts/register-ts.mjs services/kernel/src/main.ts",
+    "kernel:migrate": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./packages/blast-radius/scripts/register-ts.mjs services/kernel/scripts/ops.ts migrate",
+    "kernel:tenant": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./packages/blast-radius/scripts/register-ts.mjs services/kernel/scripts/ops.ts tenant"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

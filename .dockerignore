@@ -1,0 +1,14 @@
+# Keep secrets, local state and big build output out of the kernel image context.
+**/node_modules
+**/.env
+**/.env.*
+!**/.env.example
+.git
+.claude
+apps/web/.next
+contracts/lib
+contracts/cache
+replay-data
+holdout
+kickoff
+**/*.log
