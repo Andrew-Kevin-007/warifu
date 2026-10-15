@@ -88,7 +88,9 @@ export function injectionStep(rng: BuildCtx["rng"], p: InjectionPayload, stepId:
         spec,
         r.rendered,
         {
-          verdictIn: ["REJECT"],
+          // a payee steer is REJECTed by K-06; an amount-only steer is ESCALATE EXTRACTION_PARSE_MISMATCH by docs/04 K-02 step 5
+          // (or REJECT OVERPAY by K-08): either way nothing is paid, which is what the attack is judged on.
+          verdictIn: steersPayee ? ["REJECT"] : ["REJECT", "ESCALATE"],
           reasonsAnyOf: steersPayee ? ["PAYEE_MISMATCH"] : ["OVERPAY", "EXTRACTION_PARSE_MISMATCH"],
           checksAnyOf: steersPayee ? ["K-06"] : ["K-08", "K-02"],
         },
@@ -98,7 +100,7 @@ export function injectionStep(rng: BuildCtx["rng"], p: InjectionPayload, stepId:
     release = intendedRelease(stepId, w, SLUG, steersPayee ? ATTACKER : w.payee, steersAmount ? inflated : amount, T0, T0);
   }
   return {
-    step: submitStep({ stepId, milestoneSlug: SLUG, doc: r.doc, runs, note: `${p.id}: ${p.technique}` }),
+    step: submitStep({ stepId, milestoneSlug: SLUG, doc: r.doc, runs, note: `${p.id}: ${p.technique}`, freshInstance: true }),
     release,
   };
 }

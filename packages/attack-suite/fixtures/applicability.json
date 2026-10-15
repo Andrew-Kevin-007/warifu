@@ -1,6 +1,6 @@
 {
   "schema": "applicability/1",
-  "note": "Started by WP-22. symbolon and b1 are decided; b0 and b2 are completed by WP-36. Rows with applicable=null are unresolved and must not be counted as applicable or as blocked.",
+  "note": "Started by WP-22, completed by WP-36. Every row is decided. N/A rows are listed in the report with their reason, never dropped and never counted as blocked; attacks that B0 or B2 hold by design are applicable and measured. A row with applicable=null (none today) would be unresolved and must not be counted as applicable or as blocked.",
   "rows": [
     {
       "attackId": "ATK-01",
@@ -11,8 +11,8 @@
     {
       "attackId": "ATK-01",
       "target": "b0",
-      "applicable": null,
-      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+      "applicable": true,
+      "reason": "A lost relay: the route stores the transaction and sets the agreement PENDING, CLOSED only by a COMPLETE webhook (modelled from the upstream webhook route). mapping: the milestone is an escrow agreement whose beneficiary and amount are fixed at creation, the document is the deliverable the vendored validate-work route inspects (vendor/arc-escrow/VENDOR.md)."
     },
     {
       "attackId": "ATK-01",
@@ -23,8 +23,8 @@
     {
       "attackId": "ATK-01",
       "target": "b2",
-      "applicable": null,
-      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+      "applicable": true,
+      "reason": "B2 records the payment at submission as B1 does (same architecture); only the duplicate-number check differs."
     },
     {
       "attackId": "ATK-02",
@@ -35,8 +35,8 @@
     {
       "attackId": "ATK-02",
       "target": "b0",
-      "applicable": null,
-      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+      "applicable": true,
+      "reason": "Holds by design: the beneficiary is the wallet fixed at agreement creation; a wallet printed in the document is never read. Measured, not assumed."
     },
     {
       "attackId": "ATK-02",
@@ -47,8 +47,8 @@
     {
       "attackId": "ATK-02",
       "target": "b2",
-      "applicable": null,
-      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+      "applicable": true,
+      "reason": "Allowlist (H2): a wallet that is on the allowlist (any payee of the tenant) is paid even if it is not this engagement's payee; an unlisted wallet is declined. Measured."
     },
     {
       "attackId": "ATK-03",
@@ -59,8 +59,8 @@
     {
       "attackId": "ATK-03",
       "target": "b0",
-      "applicable": null,
-      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+      "applicable": true,
+      "reason": "The route has no category or budget logic; it releases the agreement's amount to the agreement's beneficiary when the validator says HIGH."
     },
     {
       "attackId": "ATK-03",
@@ -71,8 +71,8 @@
     {
       "attackId": "ATK-03",
       "target": "b2",
-      "applicable": null,
-      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+      "applicable": true,
+      "reason": "No category budget in B2 (caps are per transaction and per day only). Measured."
     },
     {
       "attackId": "ATK-04",
@@ -83,8 +83,8 @@
     {
       "attackId": "ATK-04",
       "target": "b0",
-      "applicable": null,
-      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+      "applicable": true,
+      "reason": "Holds by design on amount: the paid amount is the agreement's, not the document's; a locale misread of the document cannot change it. Measured."
     },
     {
       "attackId": "ATK-04",
@@ -95,8 +95,8 @@
     {
       "attackId": "ATK-04",
       "target": "b2",
-      "applicable": null,
-      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+      "applicable": true,
+      "reason": "Schema (H1) declines an ambiguous separator; a confidently mis-parsed amount inside the caps is paid. Measured."
     },
     {
       "attackId": "ATK-05",
@@ -107,8 +107,8 @@
     {
       "attackId": "ATK-05",
       "target": "b0",
-      "applicable": null,
-      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+      "applicable": true,
+      "reason": "Holds by design on amount: the paid amount is the agreement's, not the document's. Measured."
     },
     {
       "attackId": "ATK-05",
@@ -119,8 +119,8 @@
     {
       "attackId": "ATK-05",
       "target": "b2",
-      "applicable": null,
-      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+      "applicable": true,
+      "reason": "The per-tx cap (H3) bounds a scale error; a confident sub-cap misread is paid. Measured."
     },
     {
       "attackId": "ATK-06",
@@ -131,8 +131,8 @@
     {
       "attackId": "ATK-06",
       "target": "b0",
-      "applicable": null,
-      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+      "applicable": true,
+      "reason": "Each milestone is its own agreement with its own fixed amount, so a compensating error has nothing to move. Measured."
     },
     {
       "attackId": "ATK-06",
@@ -143,8 +143,8 @@
     {
       "attackId": "ATK-06",
       "target": "b2",
-      "applicable": null,
-      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+      "applicable": true,
+      "reason": "No milestone binding: the document's amount is paid as printed, within the caps. Measured."
     },
     {
       "attackId": "ATK-07",
@@ -155,8 +155,8 @@
     {
       "attackId": "ATK-07",
       "target": "b0",
-      "applicable": null,
-      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+      "applicable": true,
+      "reason": "The validator is asked whether the deliverable meets the task; a credit note is judged by the (SIMULATED) model, with no document-type rule in the route."
     },
     {
       "attackId": "ATK-07",
@@ -167,8 +167,8 @@
     {
       "attackId": "ATK-07",
       "target": "b2",
-      "applicable": null,
-      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+      "applicable": true,
+      "reason": "H1 declines docType CREDIT_NOTE when the model reads it faithfully; a sign-flipped read is paid. Measured."
     },
     {
       "attackId": "ATK-08",
@@ -179,8 +179,8 @@
     {
       "attackId": "ATK-08",
       "target": "b0",
-      "applicable": null,
-      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+      "applicable": true,
+      "reason": "The route has no idempotency key; the escrow contract's withdrawnAmount makes a second withdraw() pay 0. Measured."
     },
     {
       "attackId": "ATK-08",
@@ -191,8 +191,8 @@
     {
       "attackId": "ATK-08",
       "target": "b2",
-      "applicable": null,
-      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+      "applicable": true,
+      "reason": "H4: a retry carries the same invoice number and is declined. Measured."
     },
     {
       "attackId": "ATK-09",
@@ -203,8 +203,8 @@
     {
       "attackId": "ATK-09",
       "target": "b0",
-      "applicable": null,
-      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+      "applicable": true,
+      "reason": "B0's ledger is written by the route after the SDK answers and by webhooks; there is no agent-narrated record to forge. Modelled from the upstream code."
     },
     {
       "attackId": "ATK-09",
@@ -215,8 +215,8 @@
     {
       "attackId": "ATK-09",
       "target": "b2",
-      "applicable": null,
-      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+      "applicable": true,
+      "reason": "B2 books what the agent reports, as B1."
     },
     {
       "attackId": "ATK-10",
@@ -227,8 +227,8 @@
     {
       "attackId": "ATK-10",
       "target": "b0",
-      "applicable": null,
-      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+      "applicable": true,
+      "reason": "Instructions inside the deliverable reach the model prompt unchanged (the file is base64-embedded as an image URL); payee and amount are still the agreement's. Measured with a SIMULATED model."
     },
     {
       "attackId": "ATK-10",
@@ -239,8 +239,8 @@
     {
       "attackId": "ATK-10",
       "target": "b2",
-      "applicable": null,
-      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+      "applicable": true,
+      "reason": "Same validator as B1 plus H1-H4; a steered address is declined by the allowlist unless it is a listed payee. Measured."
     },
     {
       "attackId": "ATK-11",
@@ -251,8 +251,8 @@
     {
       "attackId": "ATK-11",
       "target": "b0",
-      "applicable": null,
-      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+      "applicable": true,
+      "reason": "Holds by design: a swapped wallet in a document changes nothing; the beneficiary is fixed at agreement creation. Measured."
     },
     {
       "attackId": "ATK-11",
@@ -263,8 +263,8 @@
     {
       "attackId": "ATK-11",
       "target": "b2",
-      "applicable": null,
-      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+      "applicable": true,
+      "reason": "Allowlist (H2) declines an unlisted wallet; a listed one is paid. Measured."
     },
     {
       "attackId": "ATK-12",
@@ -275,8 +275,8 @@
     {
       "attackId": "ATK-12",
       "target": "b0",
-      "applicable": null,
-      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+      "applicable": true,
+      "reason": "A renumbered or one-cent-different invoice for a milestone already withdrawn: the contract pays 0 the second time. Measured."
     },
     {
       "attackId": "ATK-12",
@@ -287,8 +287,8 @@
     {
       "attackId": "ATK-12",
       "target": "b2",
-      "applicable": null,
-      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+      "applicable": true,
+      "reason": "H4 catches an exact repeat of the number only; a renumbered or changed-by-a-cent invoice is paid within the caps. Measured."
     },
     {
       "attackId": "ATK-13",
@@ -299,8 +299,8 @@
     {
       "attackId": "ATK-13",
       "target": "b0",
-      "applicable": null,
-      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+      "applicable": true,
+      "reason": "Holds by design: validate-work needs the circleContractId of an existing agreement; an unregistered vendor has none, so there is nothing to withdraw. Measured as a decline."
     },
     {
       "attackId": "ATK-13",
@@ -311,8 +311,8 @@
     {
       "attackId": "ATK-13",
       "target": "b2",
-      "applicable": null,
-      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+      "applicable": true,
+      "reason": "Allowlist (H2) declines an unregistered vendor. Measured."
     },
     {
       "attackId": "ATK-14",
@@ -323,8 +323,8 @@
     {
       "attackId": "ATK-14",
       "target": "b0",
-      "applicable": null,
-      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+      "applicable": true,
+      "reason": "One agreement pays once; repeated deliverables for it hit the withdrawnAmount guard. There is no velocity logic in the route. Measured."
     },
     {
       "attackId": "ATK-14",
@@ -335,8 +335,8 @@
     {
       "attackId": "ATK-14",
       "target": "b2",
-      "applicable": null,
-      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+      "applicable": true,
+      "reason": "Per-tx and 24 h caps (H3) stop a split once the daily total is reached; there is no velocity rule. Measured."
     },
     {
       "attackId": "ATK-15",
@@ -347,8 +347,8 @@
     {
       "attackId": "ATK-15",
       "target": "b0",
-      "applicable": null,
-      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+      "applicable": true,
+      "reason": "No evidence gating: the model's judgement of the uploaded file is the only gate, so a payee-supplied claim in the file reaches the release decision. Measured with a SIMULATED model."
     },
     {
       "attackId": "ATK-15",
@@ -359,8 +359,8 @@
     {
       "attackId": "ATK-15",
       "target": "b2",
-      "applicable": null,
-      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+      "applicable": true,
+      "reason": "No evidence gating in B2. Measured."
     },
     {
       "attackId": "ATK-16",
@@ -371,8 +371,8 @@
     {
       "attackId": "ATK-16",
       "target": "b0",
-      "applicable": null,
-      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+      "applicable": true,
+      "reason": "The agreement stores no time window the route reads (the arc-escrow pattern stores a timestamp and never reads it). Measured."
     },
     {
       "attackId": "ATK-16",
@@ -383,8 +383,8 @@
     {
       "attackId": "ATK-16",
       "target": "b2",
-      "applicable": null,
-      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+      "applicable": true,
+      "reason": "No time window in B2. Measured."
     },
     {
       "attackId": "ATK-17",
@@ -419,8 +419,8 @@
     {
       "attackId": "ATK-18",
       "target": "b0",
-      "applicable": null,
-      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+      "applicable": true,
+      "reason": "Single model read; no second read and no consensus. Payee and amount are still the agreement's. Measured with a SIMULATED model."
     },
     {
       "attackId": "ATK-18",
@@ -431,8 +431,8 @@
     {
       "attackId": "ATK-18",
       "target": "b2",
-      "applicable": null,
-      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+      "applicable": true,
+      "reason": "Single read, no consensus (H1 only checks shape). Measured."
     },
     {
       "attackId": "ATK-19",
@@ -443,8 +443,8 @@
     {
       "attackId": "ATK-19",
       "target": "b0",
-      "applicable": null,
-      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+      "applicable": true,
+      "reason": "A blocklist revert arrives as a FAILED webhook which sets the agreement back to LOCKED (modelled from the upstream webhook route)."
     },
     {
       "attackId": "ATK-19",
@@ -455,8 +455,8 @@
     {
       "attackId": "ATK-19",
       "target": "b2",
-      "applicable": null,
-      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+      "applicable": true,
+      "reason": "No screening in B2; a reverted transfer leaves a recorded payment (as B1)."
     },
     {
       "attackId": "ATK-20",
@@ -467,8 +467,8 @@
     {
       "attackId": "ATK-20",
       "target": "b0",
-      "applicable": null,
-      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+      "applicable": true,
+      "reason": "A re-invoice of a milestone already withdrawn: the contract pays 0 the second time. Measured."
     },
     {
       "attackId": "ATK-20",
@@ -479,8 +479,8 @@
     {
       "attackId": "ATK-20",
       "target": "b2",
-      "applicable": null,
-      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+      "applicable": true,
+      "reason": "H4 catches an exact repeat of the number only; a re-invoice under a new number is paid. Measured."
     },
     {
       "attackId": "ATK-21",
@@ -491,8 +491,8 @@
     {
       "attackId": "ATK-21",
       "target": "b0",
-      "applicable": null,
-      "reason": "undecided: depends on the mapping onto arc-escrow's job/deliverable API, which WP-36 vendors and publishes"
+      "applicable": true,
+      "reason": "No terms logic: it pays the agreement's amount whatever terms the document states and whenever the validator says HIGH. Measured."
     },
     {
       "attackId": "ATK-21",
@@ -503,8 +503,8 @@
     {
       "attackId": "ATK-21",
       "target": "b2",
-      "applicable": null,
-      "reason": "undecided: depends on which controls the b2 hardening (schema check, allowlist, caps, invoice-number check) covers; WP-36 writes b2"
+      "applicable": true,
+      "reason": "No terms logic in B2: the stated amount is paid. Measured."
     },
     {
       "attackId": "ATK-22",

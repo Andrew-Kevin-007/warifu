@@ -22,6 +22,7 @@
     "claims": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./packages/blast-radius/scripts/register-ts.mjs scripts/claims.ts",
     "claims:lint": "node scripts/claims-lint.mjs",
     "verify-receipt": "node packages/receipts/bin/verify-receipt.mjs",
+    "holdout": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./packages/blast-radius/scripts/register-ts.mjs ./holdout/cli.ts",
     "lbc": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./packages/blast-radius/scripts/register-ts.mjs ./packages/blast-radius/src/cli/lbc.ts",
     "build-replay": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./packages/blast-radius/scripts/register-ts.mjs scripts/build-replay-bundle.ts",
     "verify-bundle": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./packages/blast-radius/scripts/register-ts.mjs scripts/verify-bundle.ts",

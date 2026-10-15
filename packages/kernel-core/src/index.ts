@@ -25,7 +25,7 @@ export type {
   ReleasedTotals,
   ScreeningState,
 } from "./context";
-export { EVALUATION_ORDER, SKIPPABLE_CHECKS, aggregate, severity, verdictForOnFail } from "./verdict";
+export { EVALUATION_ORDER, SKIPPABLE_CHECKS, aggregate, issueCodes, severity, verdictForOnFail } from "./verdict";
 export type { Aggregate, FinalVerdict } from "./verdict";
 export { parseMoney } from "./money";
 export type { AmbiguityReason, DecimalSeparator, MoneyParse, MoneyRejectCode, ParseMoneyOptions } from "./money";

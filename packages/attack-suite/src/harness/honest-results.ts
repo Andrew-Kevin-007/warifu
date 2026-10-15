@@ -5,7 +5,10 @@
 // rebuilds everything with a counting clock and compares every field except `latency`.
 import { epochSecondsFromIso, sha256Utf8 } from "@symbolon/schemas";
 import { asciiJson, buildFixtureFiles, GENERATOR_VERSION } from "../files";
+import "./b0-prepared";
+import { b0Target, B0_PROVENANCE } from "./b0";
 import { b1Target, B1_PROVENANCE } from "./b1";
+import { b2Target, B2_PROVENANCE } from "./b2";
 import { makeSymbolonUnitTarget } from "./symbolon-unit";
 import type { Target } from "./target";
 import { checkParsers, type ParserSummary } from "./honest-parser";
@@ -143,7 +146,9 @@ export function buildHonestCorpusResults(opts: BuildOptions): HonestCorpusResult
   const symbolon = makeSymbolonUnitTarget();
   const runs: Array<{ target: Target; label: string; provenance: string }> = [
     { target: symbolon, label: symbolon.label, provenance: symbolon.provenance },
+    { target: b0Target, label: b0Target.label, provenance: B0_PROVENANCE },
     { target: b1Target, label: b1Target.label, provenance: B1_PROVENANCE },
+    { target: b2Target, label: b2Target.label, provenance: B2_PROVENANCE },
   ];
   const itemsByTarget: Record<string, HonestCorpusItem[]> = {};
   const samples: number[] = [];
@@ -247,6 +252,10 @@ export function renderHonestMarkdown(r: HonestCorpusResults): string {
   p(`- **Wrong releases (Symbolon):** ${rateText(sym.wrongRelease)}${sym.releasePathAvailable ? "" : "; no release was possible, so 0 is not evidence"}.`);
   p(`- **Held only because checks are missing (inconclusive):** ${sym.pendingChecks} of ${sym.n}.`);
   p(`- **B1 for comparison (SIMULATED baseline):** auto-released ${rateText(b1.autoRelease)}; wrong releases ${rateText(b1.wrongRelease)} (it overpays early-pay discounts it does not model); wrongful reject ${rateText(b1.wrongfulReject)}.`);
+  for (const id of ["b0", "b2"] as const) {
+    const s = r.summaries.find((x) => x.target === id);
+    if (s !== undefined) p(`- **${id.toUpperCase()} for comparison (SIMULATED baseline):** auto-released ${rateText(s.autoRelease)}; wrong releases ${rateText(s.wrongRelease)}; wrongful reject ${rateText(s.wrongfulReject)}.`);
+  }
   p(`- **LLM cost:** ${r.llm.calls} calls, ${r.llm.costMicroUsd} micro-USD (${r.llm.note})`);
   const lat = r.latency.symbolon;
   p(`- **Decision latency (Symbolon, in-process, this machine):** ${lat === null ? "n/a" : `p50 ${lat.p50} ms, p95 ${lat.p95} ms, max ${lat.max} ms over ${lat.samples} decisions`}.`);

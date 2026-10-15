@@ -112,7 +112,8 @@
             ]
           }
         }
-      ]
+      ],
+      "freshInstance": true
     },
     {
       "kind": "submit",
@@ -214,7 +215,8 @@
           }
         }
       ],
-      "note": "screening is clear at decision time; the token contract's own blocklist still reverts the transfer"
+      "note": "screening is clear at decision time; the token contract's own blocklist still reverts the transfer",
+      "freshInstance": true
     },
     {
       "kind": "fault",

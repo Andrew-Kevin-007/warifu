@@ -100,11 +100,16 @@ describe("applicability.json (started by WP-22)", () => {
     expect(n).toBe(20);
   });
 
-  it("b0 and b2 rows that depend on WP-36 are unresolved (null), never silently applicable or blocked", () => {
+  it("WP-36 decided every b0 and b2 row: N/A only where docs/07 §3.1 says so, everything else applicable with a reason", () => {
+    const notApplicable = new Set(["ATK-17", "ATK-22", "ATK-23", "ATK-24"]);
     for (const t of ["b0", "b2"] as const) {
-      const undecided = file.rows.filter((r) => r.target === t && r.applicable === null);
-      expect(undecided).toHaveLength(20);
-      for (const r of undecided) expect(r.reason).toMatch(/WP-36/);
+      const rows = file.rows.filter((r) => r.target === t);
+      expect(rows).toHaveLength(24);
+      expect(rows.filter((r) => r.applicable === null)).toHaveLength(0);
+      for (const r of rows) {
+        expect(r.applicable, `${r.attackId} x ${t}`).toBe(!notApplicable.has(r.attackId));
+        expect(r.reason.length).toBeGreaterThan(20);
+      }
     }
   });
 });

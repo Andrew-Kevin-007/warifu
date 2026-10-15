@@ -62,7 +62,7 @@ describe("ATK-22 flood criteria", () => {
     if (s === undefined || s.kind !== "flood") throw new Error("ATK-22 has no flood step");
     return s;
   };
-  const digest = (label: string, passing: number): TargetDigestItem => ({ decisionId: uuidFromLabel(label), intentId: hex32FromLabel(label), passingChecks: passing, amountBaseUnits: 8n, payeePriorPayments: 0 });
+  const digest = (label: string, passing: number): TargetDigestItem => ({ decisionId: uuidFromLabel(label), intentId: hex32FromLabel(label), passingChecks: passing, amountBaseUnits: 8n, payeePriorPayments: 0, payeeRedirect: false });
   const dec = (label: string, action: TargetDecision["action"], reasons: string[], passing = 5): TargetDecision => ({
     action, release: null, checksFired: [], reasons, note: "", heldByUnimplementedChecks: false, digest: digest(label, passing),
   });

@@ -175,12 +175,36 @@ describe("escalation budget (K-12 v2, RT-14)", () => {
 
 describe("ranked digest (ATK-22: one malicious item among 40 benign escalations ranks in the top 3)", () => {
   it("ranks fewest passing checks, then largest amount (unknown first), then newest payee, then decisionId", () => {
-    const item = (decisionId: string, passingChecks: number, amount: bigint | null, prior: number) => ({ decisionId, intentId: H(decisionId), passingChecks, amountBaseUnits: amount, payeePriorPayments: prior });
+    const item = (decisionId: string, passingChecks: number, amount: bigint | null, prior: number, payeeRedirect = false) => ({ decisionId, intentId: H(decisionId), passingChecks, amountBaseUnits: amount, payeePriorPayments: prior, payeeRedirect });
     const ranked = rankEscalationDigest([item("d", 12, 5n, 3), item("a", 12, 5n, 3), item("b", 12, null, 3), item("c", 11, 1n, 9), item("e", 12, 9n, 3), item("f", 12, 5n, 1)]);
     expect(ranked.map((r) => [r.decisionId, r.rank])).toEqual([["c", 1], ["b", 2], ["e", 3], ["f", 4], ["a", 5], ["d", 6]]);
     expect(rankEscalationDigest([item("x", 1, null, 0), item("y", 1, null, 0)]).map((r) => r.decisionId)).toEqual(["x", "y"]);
     expect(rankEscalationDigest([item("y", 1, 1n, 0), item("x", 1, null, 0)]).map((r) => r.decisionId)).toEqual(["x", "y"]);
     expect(rankEscalationDigest([item("z", 1, 1n, 0), item("z", 1, 1n, 0)]).map((r) => r.rank)).toEqual([1, 2]); // duplicates keep input order
+  });
+
+  it("a payee-redirect finding ranks before every other item, however many checks the others fail (RT-14: ranked by risk); the old order holds inside each tier", () => {
+    const item = (decisionId: string, passingChecks: number, amount: bigint | null, prior: number, payeeRedirect: boolean) => ({ decisionId, intentId: H(decisionId), passingChecks, amountBaseUnits: amount, payeePriorPayments: prior, payeeRedirect });
+    const noisy = [item("n1", 2, 9n, 0, false), item("n2", 3, 9n, 0, false), item("n3", 4, 9n, 0, false), item("n4", 5, 9n, 0, false)];
+    // an attacker pads the pile with items that fail MORE checks than the real threat does: fewest-passing-checks alone buries it
+    const ranked = rankEscalationDigest([...noisy, item("quiet-threat", 11, 1n, 5, true), item("louder-threat", 9, 1n, 5, true)]);
+    expect(ranked.map((r) => [r.decisionId, r.rank])).toEqual([["louder-threat", 1], ["quiet-threat", 2], ["n1", 3], ["n2", 4], ["n3", 5], ["n4", 6]]);
+    // positive control: with no redirect flag the same two items sit behind the noisy ones, as the spec's order says
+    const plain = rankEscalationDigest([...noisy, item("quiet-threat", 11, 1n, 5, false), item("louder-threat", 9, 1n, 5, false)]);
+    expect(plain.map((r) => r.decisionId)).toEqual(["n1", "n2", "n3", "n4", "louder-threat", "quiet-threat"]);
+  });
+
+  it("digestItem flags a payee-redirect finding of a FAILing check, also behind a more severe code and after the budget gate; a PASS note does not", () => {
+    const e = evaluate(intent(), context(), policy());
+    const withChecks = (checks: CheckResult[]) => digestItem({ ...e, checks }, "d", 0).payeeRedirect;
+    const claim = { onFail: "ESCALATE" as const, code: "ADDRESS_CHANGE_CLAIMED" as const, detail: "claim" };
+    expect(withChecks([combine("K-06", [claim], "")])).toBe(true);
+    expect(withChecks([combine("K-06", [claim, { onFail: "REJECT", code: "PAYEE_MISMATCH", detail: "w" }], "")])).toBe(true);
+    expect(withChecks([combine("K-06", [{ onFail: "HOLD", code: "PAYEE_CHANGE_PENDING", detail: "p" }], "")])).toBe(true);
+    expect(withChecks([combine("K-06", [{ onFail: "REJECT", code: "PAYEE_MISMATCH", detail: "w" }], "")])).toBe(true);
+    expect(withChecks([combine("K-06", [{ onFail: "HOLD", code: "ADDRESS_CHANGE_CLAIMED", detail: "after the budget gate" }], "")])).toBe(true);
+    expect(withChecks([note("K-06", "ADDRESS_CHANGE_CLAIMED", "a note is not a finding"), fail("K-02", "ESCALATE", "AMOUNT_AMBIGUOUS", "x")])).toBe(false);
+    expect(withChecks([])).toBe(false);
   });
 
   it("builds items from evaluations; the address-change + injection item outranks 40 ambiguous-amount items", () => {
