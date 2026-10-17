@@ -1,0 +1,30 @@
+{
+  "schema": "symbolon-deployments/1",
+  "network": "testnet",
+  "chainId": 5042002,
+  "production": {
+    "artifactPath": "contracts/out/SymbolonVault.sol/SymbolonVault.json",
+    "blockNumber": 67746248,
+    "txHash": "0x3a7e46b30ea0b7e88c0eb2c58931730147eb24c95e0ca8f8dffbe4f8a1f7a876",
+    "caps": {
+      "dailyCap": "10000000",
+      "hourlyCap": "3000000",
+      "humanThreshold": "2000000",
+      "perTxCap": "5000000"
+    },
+    "chainId": 5042002,
+    "configHash": "0x08839e63052351e36bdfc75d2fba808727448bf4f8400d9d1171f1a9d403d891",
+    "deployer": "0x72fcE71547f054F12233Ba7FFA691B4477c36bbd",
+    "gitSha": "5bec72cb4b8ceb2e43766727e8f2869ba168e475",
+    "guardian": "0x6e5b2C83052f1737ED05918751e8E974387c3CA3",
+    "kernelSigner": "0x3a931f09E34C232C36004c44361E9b7F3BD89315",
+    "owner": "0xe72F776122B87e7ED2806D882Ccbf77819bafB8C",
+    "payeeChangeDelay": 172800,
+    "runtimeCodeHash": "0x5d978126950f73db6ca49fc8942df1eca48d191fb425529141c18793401f652f",
+    "signerChangeDelay": 86400,
+    "token": "0x3600000000000000000000000000000000000000",
+    "tokenDecimals": 6,
+    "vault": "0x00B513896E67C73fC407780cF8568fdc81596c82"
+  },
+  "sandbox": null
+}
