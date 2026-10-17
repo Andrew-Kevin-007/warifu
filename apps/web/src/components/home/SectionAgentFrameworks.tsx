@@ -1,9 +1,8 @@
-import { BRAND } from '@/lib/brand';
 import Link from 'next/link';
 
 // The path every payment takes, whichever agent proposed it. No third-party marks: they would imply integrations we do not have.
 const STEPS: readonly { title: string; text: string; href: string }[] = [
-  { title: 'Proposal', text: 'An agent or an invoice extractor may suggest a payee and an amount; it cannot release funds.', href: '/docs' },
+  { title: 'Proposal', text: 'An agent or an invoice extractor suggests a payee and an amount. Nothing is paid yet.', href: '/docs' },
   { title: 'Signed terms', text: 'Signed terms bind the payee, budget cap and milestones.', href: '/docs' },
   { title: 'Kernel checks', text: 'The kernel checks evidence, policy, balances and history.', href: '/security' },
   { title: 'Re-check at release', text: 'Fresh state is checked again at release time.', href: '/docs' },
@@ -19,7 +18,7 @@ export default function SectionAgentFrameworks() {
             One payment gate for every agent stack.
           </h4>
           <p className="subtitle-s section-agent-frameworks__text mx-auto max-w-[510px]">
-            Whatever agent proposes the payment, it is untrusted. {BRAND.name} checks evidence, signed terms, policy, balances and history before a vault release.
+            Any agent stack plugs in the same way: it sends a proposal, and the gate decides. Evidence, signed terms, policy, balances and history are checked before a vault release.
           </p>
         </div>
         <div className="section-agent-frameworks__wrapper mx-auto flex max-w-[1024px] flex-col gap-sm lg:flex-row lg:items-center lg:gap-[106px]">

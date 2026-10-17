@@ -50,7 +50,7 @@ export default function SectionGateway() {
                       A confident proposal can still be wrong.
                     </h3>
                     <p className="body-text-m card-stack__text text-gray-1000 lg:max-w-[240px]">
-                      Invoice extraction suggests a payout address; that suggestion cannot move funds.
+                      A model reading an invoice can be fooled by one altered address. The vault never takes its word for it.
                     </p>
                   </div>
                 </div>

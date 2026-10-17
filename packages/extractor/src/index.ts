@@ -3,6 +3,7 @@
 export const PACKAGE_NAME = "@symbolon/extractor" as const;
 
 export * from "./extract";
+export * from "./rule-reader";
 export * from "./advisory";
 export * from "./calls";
 export * from "./currency";

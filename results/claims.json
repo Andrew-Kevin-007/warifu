@@ -1,7 +1,7 @@
 {
   "schema": "claims/1",
   "provenance": {
-    "gitSha": "12c00fa38fae6afa1924d5f3046a84a5a8ba012f",
+    "gitSha": "9865b04d66ad3fdc8c45799c16184facbf2c4bcd",
     "inputs": {
       "attackMatrix": "results/attack-matrix.json",
       "honestCorpus": "results/honest-corpus.json",
@@ -24,7 +24,7 @@
         "no model was called; extraction reads are the fixtures' reference reads"
       ],
       "exclusions": [
-        "no chain, service, or contract call is exercised; hold-out set not run; baselines B0 and B2 not built",
+        "no chain, service, or contract call is exercised; hold-out set not run",
         "trials of one fixture are not independent"
       ]
     },
@@ -45,7 +45,7 @@
         "no model was called; extraction reads are the fixtures' reference reads"
       ],
       "exclusions": [
-        "no chain, service, or contract call is exercised; hold-out set not run; baselines B0 and B2 not built",
+        "no chain, service, or contract call is exercised; hold-out set not run",
         "trials of one fixture are not independent"
       ]
     },
@@ -66,7 +66,7 @@
         "no model was called; extraction reads are the fixtures' reference reads"
       ],
       "exclusions": [
-        "no chain, service, or contract call is exercised; hold-out set not run; baselines B0 and B2 not built",
+        "no chain, service, or contract call is exercised; hold-out set not run",
         "trials of one fixture are not independent"
       ]
     },
@@ -86,7 +86,7 @@
         "no model was called; extraction reads are the fixtures' reference reads"
       ],
       "exclusions": [
-        "no chain, service, or contract call is exercised; hold-out set not run; baselines B0 and B2 not built",
+        "no chain, service, or contract call is exercised; hold-out set not run",
         "trials of one fixture are not independent",
         "attacks counted as loss on a failed stated criterion are included"
       ]
@@ -107,7 +107,7 @@
         "its validator is a deterministic SIMULATED stand-in for an LLM validator"
       ],
       "exclusions": [
-        "no chain, service, or contract call is exercised; hold-out set not run; baselines B0 and B2 not built",
+        "no chain, service, or contract call is exercised; hold-out set not run",
         "trials of one fixture are not independent"
       ]
     },
@@ -129,7 +129,7 @@
         "B1 is a pattern reimplementation (ours), not Circle's code"
       ],
       "exclusions": [
-        "no chain, service, or contract call is exercised; hold-out set not run; baselines B0 and B2 not built",
+        "no chain, service, or contract call is exercised; hold-out set not run",
         "trials of one fixture are not independent"
       ]
     },

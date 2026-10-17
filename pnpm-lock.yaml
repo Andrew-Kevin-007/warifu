@@ -247,12 +247,18 @@ importers:
       '@hono/node-server':
         specifier: 2.1.4
         version: 2.1.4(hono@4.13.13)
+      '@symbolon/attack-suite':
+        specifier: workspace:*
+        version: link:../../packages/attack-suite
       '@symbolon/blast-radius':
         specifier: workspace:*
         version: link:../../packages/blast-radius
       '@symbolon/chain':
         specifier: workspace:*
         version: link:../../packages/chain
+      '@symbolon/extractor':
+        specifier: workspace:*
+        version: link:../../packages/extractor
       '@symbolon/kernel-core':
         specifier: workspace:*
         version: link:../../packages/kernel-core

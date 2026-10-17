@@ -12,4 +12,4 @@
 | Traction | 0 pilot rows, 0 real payments, 0 base units moved | LIVE |
 | Model calls behind any figure | 0 model calls | SIMULATED |
 
-Assumptions: unit mode, the real kernel pipeline, fixture engagements with placeholder signatures, reference extraction reads (no model called). Exclusions: no chain or contract run, hold-out not run, B0 and B2 not built, trials of one fixture are not independent. Calculated from committed result files and empirically tested; not a proof. Source: `results/claims.json`.
+Assumptions: unit mode, the real kernel pipeline, fixture engagements with placeholder signatures, reference extraction reads (no model called). Exclusions: no chain or contract run, hold-out not run, trials of one fixture are not independent. Calculated from committed result files and empirically tested; not a proof. Source: `results/claims.json`.

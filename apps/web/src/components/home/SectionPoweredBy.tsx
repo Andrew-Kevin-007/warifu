@@ -13,7 +13,7 @@ export default function SectionPoweredBy() {
       <div className="container">
         <div className="logos-line flex w-full flex-col items-center gap-sm overflow-hidden">
           <p className="body-text-m logos-line__title text-center text-gray-900">
-            A model can suggest a payee. It cannot authorize the payment.
+            Built on Arc and USDC. Claude reads the invoice; it never decides.
           </p>
           <ul className="logos-line__wrapper grid w-full grid-cols-2 items-center justify-center gap-xs sm:grid-cols-3 lg:flex lg:flex-row lg:gap-md">
             {BUILT_ON.map((b) => (

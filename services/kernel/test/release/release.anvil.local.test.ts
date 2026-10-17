@@ -121,6 +121,9 @@ describe.skipIf(!enabled)("local: release path on a real anvil + the real Symbol
     const done = await row(w, intentId);
     expect(done?.status).toBe("CONFIRMED");
     expect(done?.txHash).toBe(sent?.txHash);
+    // The confirmed release is what marks the milestone PAID (so K-05 rejects a second release and sequential engagements advance).
+    const ms = await w.ew.t.db.query<{ status: string }>("select status from milestones where milestone_id = $1", [w.milestoneId]);
+    expect(ms.rows[0]?.status).toBe("PAID");
     const intent = await call(w.app(), "GET", `/v1/intents/${intentId}`, w.token());
     expect(intent.json.release).toMatchObject({ status: "CONFIRMED", txHash: sent?.txHash });
 

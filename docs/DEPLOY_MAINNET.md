@@ -21,6 +21,15 @@ Write each one into `docs/VERIFY_LOG.md` with its URL before you use it:
 3. Circle's `blockchain` identifier for Arc mainnet, and whether developer-controlled wallets support it: `https://developers.circle.com/llms.txt`. Use the **mainnet** API key; it is separate from the testnet key.
 4. Fee floor and finality on mainnet (testnet: a 20 gwei `maxFeePerGas` floor). If finality differs, set `INDEXER_CONFIRMATIONS` to match (V-24).
 
+## Preflight (read-only) and the placeholder file
+
+1. `pnpm env:init -- --mainnet` writes `services/kernel/.env.mainnet.local` (git-ignored). Only public, docs-sourced facts are pre-filled (chain id 5042, the public RPC, `CIRCLE_BLOCKCHAIN=ARC`); every secret is a `PASTE_*_HERE` placeholder. The kernel reads a placeholder as "not set", so it refuses to boot rather than run on a fake key.
+2. Paste your values, then run `pnpm mainnet:preflight`. It runs the kernel's own boot guards and mainnet rules, checks the required variables, compares your values with the docs facts (V-03 resolution in `docs/VERIFY_LOG.md`) and reports `READY` or `NOT READY`. It prints names and rules only, never a value. It sends nothing.
+3. After the vault is deployed and `deployments/mainnet.json` exists: `pnpm mainnet:preflight -- --online` also asks the live node for its chain id, the token's `decimals()` (must be 6) and the vault's code. Read calls only.
+4. Start with `pnpm kernel:start:mainnet`. The web app's `WEB_SVC_SECRET` (production project) must equal the `SERVICE_TOKEN_SECRET` in that file.
+
+Facts confirmed against the live public RPC on 2026-10-17 (read-only): chain id 5042, USDC `0x3600…0000` with 6 decimals. Still yours to confirm: the fee floor, finality (set `INDEXER_CONFIRMATIONS` accordingly), and that your Circle account has mainnet access (the Arc docs say mainnet gas USDC is requested through your Circle contact).
+
 ## Steps
 
 1. **Keys (yours, offline).** Create fresh keys for owner, kernel signer and guardian. Never reuse a testnet or sandbox key; SEC-04 rejects shared addresses. Keep the deployer in a forge keystore (`--account`), never in env.

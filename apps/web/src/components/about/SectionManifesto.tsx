@@ -31,7 +31,7 @@ export default function SectionManifesto() {
                     {BRAND.name} is a treasury control layer for agent-driven USDC payments on Arc. Each decision is reason-coded and can be checked afterward.
                   </p>
                   <p className="body-text-m image-text__paragraph">
-                    The system makes model errors visible and limits their impact under stated assumptions.
+                    Models will make mistakes. {BRAND.name} makes them visible, bounds their impact under stated assumptions, and lets anyone check the result or try to break it.
                   </p>
                 </div>
               </div>

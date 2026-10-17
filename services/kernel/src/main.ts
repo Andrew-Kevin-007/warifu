@@ -26,6 +26,7 @@ import { createCircleHttpApi } from "./circle/client";
 import { circleVaultRelayer } from "./circle/relayer";
 import { createCircleWebhookHandler } from "./circle/webhook";
 import { loadConfig } from "./config";
+import { placeholderNames, stripPlaceholders } from "./env";
 import { emptyFixtureStore } from "./evidence/fixtures";
 import { collectEvidence } from "./evidence/service";
 import type { EvidenceServiceDeps, EvidenceSource } from "./evidence/service";
@@ -57,10 +58,13 @@ function certificateConfig(client: PublicClient): CertificateServiceConfig | nul
 }
 
 async function main(): Promise<void> {
-  const config = loadConfig(process.env); // throws BootError / ConfigError: names and rules only
+  const env = stripPlaceholders(process.env); // PASTE_*_HERE template values read as unset
+  const config = loadConfig(env); // throws BootError / ConfigError: names and rules only
   const logger = createLogger({ secrets: config.logSecrets.map((s) => s.reveal()) });
+  const pending = placeholderNames(process.env);
+  if (pending.length > 0) logger.warn("kernel.env_placeholders", { count: pending.length, reasonCode: pending.join(",").slice(0, 300) });
   const db = createPgDb({ connectionString: config.databaseUrl.reveal() });
-  const arc = arcConfigFromEnv(process.env);
+  const arc = arcConfigFromEnv(env);
   const client = createArcPublicClient(arc);
   await verifyRpcChainId(client, arc.chainId);
   const chain = viemChainReader(client, arc.chainId);
@@ -143,7 +147,26 @@ async function main(): Promise<void> {
     : null;
 
   const certificates = certificateConfig(client);
+  // The public challenge (WP-32): sandbox only, and its module (which pulls the attack suite and the extractor) is imported only here,
+  // so a production process never loads it. Free-form needs the sandbox model key AND a price table (nothing is assumed about prices);
+  // without them the challenge still runs one-click and benign attempts (level L1).
+  const challenge =
+    config.profile === "sandbox"
+      ? await (async () => {
+          const [{ ChallengeService }, { PgBudgetLedger }, { makeExtractEdge, makeRuleReaderEdge, parsePrices }] = await Promise.all([import("./challenge/service"), import("./challenge/ledger"), import("./challenge/extract")]);
+          const budgetUsd = Number.parseFloat(env["CHALLENGE_LLM_DAILY_BUDGET_USD"] ?? "0");
+          const dailyBudgetMicroUsd = BigInt(Math.max(0, Math.round(budgetUsd * 1_000_000)));
+          const ledger = new PgBudgetLedger(db, { globalDailyMicroUsd: dailyBudgetMicroUsd, perPrincipalDailyMicroUsd: dailyBudgetMicroUsd / 10n });
+          const apiKey = env["ANTHROPIC_API_KEY"] ?? "";
+          // A model reader needs the key AND a price table; without them the KEYLESS rule reader (no model, no cost) answers free-form attempts.
+          const modelEdge = makeExtractEdge({ apiKey, ledger, prices: parsePrices(env["CHALLENGE_MODEL_PRICES"]) });
+          const extract = modelEdge ?? makeRuleReaderEdge();
+          const vault = env["SANDBOX_VAULT_ADDRESS"];
+          return new ChallengeService({ db, clock, logger, ipSalt: env["CHALLENGE_IP_SALT"] ?? "", enabled: config.challengeEnabled, dailyBudgetMicroUsd, ledger, extract, readerKind: modelEdge === null ? "rules" : "model", signer, onchain: vault === undefined || vault === "" ? null : { vault } });
+        })()
+      : undefined;
   const app = createApp({
+    ...(challenge === undefined ? {} : { challenge }),
     ...(circleWebhook === undefined ? {} : { circleWebhook }),
     profile: config.profile,
     db,

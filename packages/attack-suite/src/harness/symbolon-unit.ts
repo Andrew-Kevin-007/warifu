@@ -266,7 +266,16 @@ export function toDecision(e: Evaluation, ctx: KernelContext): TargetDecision {
   };
 }
 
-export function makeSymbolonUnitTarget(): Target & { observedUnimplemented(): readonly CheckId[] } {
+/** What the kernel saw and decided for one run: the inputs a receipt is built from (the challenge service signs it). Read-only. */
+export interface UnitObservation {
+  readonly evaluation: Evaluation;
+  readonly ctx: KernelContext;
+  readonly rawIntent: unknown;
+  readonly label: string;
+  readonly stepId: string;
+}
+
+export function makeSymbolonUnitTarget(onEvaluation?: (o: UnitObservation) => void): Target & { observedUnimplemented(): readonly CheckId[] } {
   const seenPending = new Set<CheckId>();
   return {
     id: "symbolon",
@@ -275,7 +284,9 @@ export function makeSymbolonUnitTarget(): Target & { observedUnimplemented(): re
 
     decide(input: DecideInput): TargetDecision {
       const ctx = buildContext(input);
-      const e = evaluate(buildIntent(input, ctx), ctx, sandboxPolicy());
+      const rawIntent = buildIntent(input, ctx);
+      const e = evaluate(rawIntent, ctx, sandboxPolicy());
+      onEvaluation?.({ evaluation: e, ctx, rawIntent, label: input.run.label, stepId: input.step.stepId });
       for (const id of pendingFailures(e)) seenPending.add(id);
       const base = toDecision(e, ctx);
       // Remember the decision for K-04 in later steps of the same instance (a REPLAY is not a new decision).

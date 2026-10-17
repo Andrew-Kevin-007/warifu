@@ -40,6 +40,7 @@ import type { EvidenceServiceDeps } from "./evidence/service";
 import * as reconcileRepo from "./reconcile/repo";
 import { BREAKER_UNFREEZE_TYPES, UNFREEZE_TTL_SECONDS, unfreeze } from "./reconcile/unfreeze";
 import type { UnfreezeDeps } from "./reconcile/unfreeze";
+import type { ChallengeService } from "./challenge/service";
 import { submitApproval } from "./service/approvals";
 import type { ApprovalsDeps } from "./service/approvals";
 import { unavailablePlanProvider } from "./service/plans";
@@ -79,6 +80,8 @@ export interface AppDeps {
   readonly breaker?: UnfreezeDeps;
   /** WP-34. Absent = the certificate routes answer 501. */
   readonly certificates?: CertificateServiceConfig;
+  /** WP-32. Sandbox profile only; absent = the challenge routes answer 501. Type-only import: a production process never loads it. */
+  readonly challenge?: ChallengeService;
 }
 
 const IDEMPOTENCY_KEY = /^[A-Za-z0-9_:.-]{1,128}$/;
@@ -98,10 +101,6 @@ function uuidParam(v: string | undefined): string {
 function releaseSummary(r: ReleaseRow | null): { status: string; txHash: string | null; attempts: number; deadline: string | null } | null {
   return r === null ? null : { status: r.status, txHash: r.txHash, attempts: r.attempts, deadline: r.deadline };
 }
-
-const notImplemented =(what: string) => (): never => {
-  throw new ApiError("NOT_IMPLEMENTED", `${what} is not available in this build`);
-};
 
 export function createApp(d: AppDeps): Hono<AppEnv> {
   const app = new Hono<AppEnv>();
@@ -263,6 +262,18 @@ export function createApp(d: AppDeps): Hono<AppEnv> {
     }
     const r = await submitIntent({ db: d.db, chain: d.chain, signer: d.signer, clock: d.clock, profile: d.profile, logger: d.logger, ...(d.newId === undefined ? {} : { newId: d.newId }) }, tenantId, body);
     return c.json(r, r.replay ? 200 : 201);
+  });
+
+  v1.get("/intents", async (c) => {
+    const { tenantId } = c.get("auth");
+    const raw = c.req.query("limit");
+    if (raw !== undefined && !/^[0-9]{1,3}$/.test(raw)) throw new ApiError("BAD_REQUEST", "limit must be a number up to 100");
+    return c.json({ intents: await repo.listIntents(d.db, tenantId, raw === undefined ? 25 : Number.parseInt(raw, 10)) });
+  });
+
+  v1.get("/pilot-stats", async (c) => {
+    c.get("auth");
+    return c.json({ stats: await repo.pilotStats(d.db), countsExclude: ["demo tenants", "challenge attempts", "house attackers", "internal self-payments"] });
   });
 
   v1.get("/intents/:id", async (c) => {
@@ -498,12 +509,29 @@ export function createApp(d: AppDeps): Hono<AppEnv> {
     const r = await buildCertificate(certDeps(), tenantId, c.req.param("vault"));
     return c.json(r.response, r.created ? 201 : 200);
   });
+  // --- the public challenge (WP-32): mounted ONLY under the sandbox profile (docs/15 section 3); absent service = 501 ----------------
   if (d.profile === "sandbox") {
-    v1.get("/challenge/scenarios", notImplemented("the challenge (WP-32)"));
-    v1.post("/challenge/attempts", notImplemented("the challenge (WP-32)"));
-    v1.get("/challenge/attempts/:id", notImplemented("the challenge (WP-32)"));
-    v1.get("/challenge/stats", notImplemented("the challenge (WP-32)"));
-    v1.post("/challenge/prove-onchain", notImplemented("the challenge (WP-32)"));
+    const ch = d.challenge;
+    const need = (): ChallengeService => {
+      if (ch === undefined) throw new ApiError("NOT_IMPLEMENTED", "the challenge is not available in this build");
+      return ch;
+    };
+    v1.get("/challenge/scenarios", async (c) => c.json(await need().catalog()));
+    v1.get("/challenge/status", async (c) => c.json(await need().status()));
+    v1.post("/challenge/attempts", tooLarge, async (c) => {
+      c.get("auth");
+      // The web tier forwards the visitor's address; it is hashed with the sandbox salt at once and never stored or logged raw.
+      const ip = (c.req.header("x-client-ip") ?? "").slice(0, 64);
+      return c.json(await need().attempt(await jsonBody(c), ip === "" ? null : ip), 201);
+    });
+    v1.get("/challenge/attempts/:id", async (c) => c.json(await need().getAttempt(c.req.param("id"))));
+    v1.get("/challenge/stats", async (c) => c.json(await need().stats()));
+    v1.get("/challenge/receipts/:hash", async (c) => {
+      const r = await need().getReceipt(c.req.param("hash"));
+      if (r === null) throw new ApiError("NOT_FOUND", "not found");
+      return c.json(r);
+    });
+    v1.post("/challenge/prove-onchain", () => need().proveOnchain());
   }
 
   app.route("/v1", v1);

@@ -182,6 +182,29 @@ describe.skipIf(!enabled)("local: kernel service over real Postgres", () => {
       expect((await call(app, "GET", `/v1/intents/${String(decision.intentId)}`, w.token())).json.decision.decisionId).toBe(decision.decisionId);
     });
 
+    it("GET /v1/intents lists the tenant's newest intents with verdict, codes and receipt hash, and nothing typed by an attacker; other tenants see none of it", async () => {
+      const app = w.app();
+      const doc = await postDoc(w, app, `${DOC_TEXT}list ${randomBytes(4).toString("hex")}`);
+      const made = await call(app, "POST", "/v1/intents", w.token(), intentFor(doc));
+      const intentId = String(made.json.decision.intentId);
+      const list = await call(app, "GET", "/v1/intents?limit=5", w.token());
+      expect(list.status).toBe(200);
+      const item = (list.json.intents as any[]).find((x) => x.intentId === intentId);
+      expect(item).toMatchObject({ verdict: made.json.decision.verdict, receiptHash: made.json.receiptHash, payee: PAYEE });
+      expect(Object.keys(item).sort()).toEqual(["amountBaseUnits", "createdAt", "intentId", "payee", "reasons", "receiptHash", "releaseAmountBaseUnits", "releaseStatus", "verdict"]);
+      expect((list.json.intents as unknown[]).length).toBeLessThanOrEqual(5);
+      expect((await call(app, "GET", "/v1/intents?limit=abc", w.token())).status).toBe(400);
+      const other = await call(app, "GET", "/v1/intents", w.token(OTHER_TENANT));
+      expect((other.json.intents as any[]).some((x) => x.intentId === intentId)).toBe(false);
+    });
+
+    it("GET /v1/pilot-stats reads only the sanitized pilot view and says what it excludes", async () => {
+      const r = await call(w.app(), "GET", "/v1/pilot-stats", w.token());
+      expect(r.status).toBe(200);
+      expect(Array.isArray(r.json.stats)).toBe(true);
+      expect(r.json.countsExclude).toEqual(expect.arrayContaining(["challenge attempts", "house attackers"]));
+    });
+
     it("an exact resubmission is a REPLAY: the ORIGINAL decision, no new rows (docs/04 K-04)", async () => {
       const app = w.app();
       const doc = await postDoc(w, app, `${DOC_TEXT}replay ${randomBytes(4).toString("hex")}`);

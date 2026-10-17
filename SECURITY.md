@@ -1,6 +1,6 @@
 # Security policy — DRAFT (Kevin: review, fill the contact, then publish; see docs/15 §9)
 
-> Intent, not a legal commitment. Symbolon is a hackathon project. The public challenge runs on **testnet only**, holds **no real funds**, offers **no cash prize**, and uses a deployment that shares nothing with any pilot (INV-16).
+> Intent, not a legal commitment. Warifu is a hackathon project. The public challenge runs on **testnet only**, holds **no real funds**, offers **no cash prize**, and uses a deployment that shares nothing with any pilot (INV-16).
 
 ## Scope for good-faith testing
 - In scope: the public challenge origin (`/challenge` and the sandbox service behind it), the sandbox vault(s) on the Arc testnet, the open-source code in this repository.

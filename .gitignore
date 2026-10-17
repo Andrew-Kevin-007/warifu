@@ -21,3 +21,4 @@ apps/web/tsconfig.tsbuildinfo
 
 # mutation-run scratch workspaces (contracts/script/mutation-check.mjs)
 .mutants/
+tmp-*.env

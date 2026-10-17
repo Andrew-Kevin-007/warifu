@@ -145,17 +145,17 @@ export default function Footer() {
           <motion.div className="footer__cta-wrapper relative z-5 mx-auto flex max-w-[672px] flex-col gap-xl text-center" initial={{ opacity: 0 }} animate={{ opacity: inView ? 1 : 0 }} transition={{ duration: 0.7, ease: "easeInOut", delay: 1 }}>
             <div className="footer__cta-heading flex flex-col gap-sm">
               <h5 className="heading-hero gradient-text-black">
-                Poison the invoice. Inspect the verdict.
+                Your turn: sweet-talk the treasurer.
               </h5>
               <p className="subtitle-s">
-                Follow a changed payout address through the agent proposal, kernel decision, vault limit and verifiable receipt.
+                A public testnet sandbox with a real kernel and an independent oracle. Make it pay the wrong person, the wrong amount, or twice, and watch what the checks say.
               </p>
             </div>
             <div className="min-w-[162px]">
               <span className="button-primary-m__wrapper min-w-[162px]">
-                <Link href="/#attack-sequence" className="button-primary-m">
+                <Link href="/challenge" className="button-primary-m">
                   <span className="block">
-                    See the attack sequence -&gt;
+                    Break the treasurer -&gt;
                   </span>
                 </Link>
               </span>

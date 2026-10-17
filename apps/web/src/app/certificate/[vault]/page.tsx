@@ -1,8 +1,8 @@
-import { BRAND } from '@/lib/brand';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { PageFrame, Section, SourceBanner } from '@/components/product/PageFrame';
-import { CertificateBody } from '@/components/product/CertificateView';
+import { BRAND } from '@/lib/brand';
+import CertificateBody from '@/components/pages/certificate/CertificateBody';
+import { certificateModel } from '@/server/certificate-model';
 import { getCertificate, isAddress } from '@/server/public-data';
 
 export const metadata: Metadata = {
@@ -11,36 +11,15 @@ export const metadata: Metadata = {
 };
 export const dynamic = 'force-dynamic';
 
+// Exclusions first, then the bound, then the assumptions (docs/16 section 7). LIVE = the kernel re-checked it against the RPC just
+// now; RECORDED = the committed bundle's copy; neither = UNVERIFIED with no number.
 export default async function Page({ params }: { params: Promise<{ vault: string }> }) {
   const { vault } = await params;
   if (!isAddress(vault)) notFound();
   const r = await getCertificate(vault);
-  return (
-    <PageFrame
-      eyebrow="Loss bound certificate"
-      title="How much can leave this vault?"
-      lede="Exclusions come first, then the bound, then the assumptions it rests on. The number is calculated from on-chain state and empirically tested; it says nothing about anything outside the stated model."
-    >
-      <p className="sy-mono">{vault}</p>
-      <p className="body-text-s">
-        <a href={`/seal/${vault}`}>Embed this certificate&apos;s seal</a>
-      </p>
-      {r.source === 'UNAVAILABLE' ? (
-        <Section title="No certificate available">
-          <div className="sy-card">
-            <p>{r.reason}.</p>
-            <p className="body-text-s" style={{ marginTop: 8 }}>
-              Nothing is shown here rather than an unverified number. Certificates are built from the vault&apos;s on-chain state with{' '}
-              <span className="sy-mono">pnpm lbc build</span> and checked with <span className="sy-mono">pnpm lbc verify</span>.
-            </p>
-          </div>
-        </Section>
-      ) : (
-        <>
-          <SourceBanner source={r.source} note="The status chip below is the recorded one, not a fresh recomputation." />
-          <CertificateBody view={r.data.view} source={r.source} />
-        </>
-      )}
-    </PageFrame>
-  );
+  const model =
+    r.source === 'UNAVAILABLE'
+      ? certificateModel({ vault, mode: 'recorded', cert: null, view: null })
+      : certificateModel({ vault, mode: r.source === 'LIVE' ? 'live' : 'recorded', cert: r.data.certificate, view: r.data.view });
+  return <CertificateBody model={model} />;
 }

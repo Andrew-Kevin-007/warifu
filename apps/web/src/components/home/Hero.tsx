@@ -242,7 +242,7 @@ export default function Hero() {
         <div className="hero__info relative mx-auto flex max-w-[1234px] flex-col gap-lg pt-[200px] md:pt-[370px] md:text-center lg:flex-row lg:justify-between lg:pt-0 lg:text-left">
           <div className="hero__info-left flex flex-col gap-xs lg:max-w-[369px] lg:gap-[14px]">
             <p className="heading-h4 font-medium">Poison the invoice. Watch the agent say PAY.</p>
-            <p className="body-text-m">The kernel checks the proposal. The vault enforces the limit. Every release leaves a receipt you can verify.</p>
+            <p className="body-text-m">The agent can be fooled. The kernel and the vault cannot be sweet-talked. Every release leaves a receipt you can check without trusting us.</p>
           </div>
           <div className="hero__info-buttons lg:order order-last flex gap-xs md:justify-center lg:absolute lg:bottom-[22px] lg:left-1/2 lg:-translate-x-1/2 lg:justify-start">
             <div className="w-full md:w-auto">
