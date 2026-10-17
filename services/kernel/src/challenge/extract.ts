@@ -47,7 +47,8 @@ export function makeExtractEdge(o: ExtractEdgeOptions): ((text: string, principa
   const cache = o.cache ?? new MemoryCallCache(512);
   return async (text, principalHash) => {
     const llm = new BudgetedLlm({ inner, ledger: o.ledger, cache, costModel: cost, principalHash });
-    const r = await extractInvoice(text, { modelA, modelB, decimals: 6 }, { llm });
+    // The sandbox policy treats a printed USD as USDC (docs/15 scenarios, `treatUsdAsUsdc`), so both spellings may yield base units; a bare "$" never does.
+    const r = await extractInvoice(text, { modelA, modelB, decimals: 6, parseEligibleCurrencies: ["USDC", "USD"] }, { llm });
     if (r.ok) return { ok: true, a: r.value.a, b: r.value.b };
     return { ok: false, code: r.failure.code, disposition: r.failure.disposition };
   };
