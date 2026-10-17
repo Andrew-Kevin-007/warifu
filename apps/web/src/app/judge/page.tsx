@@ -1,7 +1,14 @@
-import { BRAND } from '@/lib/brand';
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { Chip, PageFrame, Section, SourceBanner } from '@/components/product/PageFrame';
+import { BRAND } from '@/lib/brand';
+import JudgeBody from '@/components/pages/judge/JudgeBody';
+import type { JudgeOutcomeRow, JudgeProps } from '@/components/pages/judge/types';
+import { ratioBp } from '@/components/design/runtime/ratio';
+import type { CellOutcome } from '@/components/design/types';
+import { EXCLUSIONS } from '@symbolon/blast-radius/lbc';
+import type { Stats } from '@/components/challenge/types';
+import { money } from '@/server/attack-lab-model';
+import { kernelCall } from '@/server/kernel-client';
+import { getCertificate, isAddress } from '@/server/public-data';
 import { loadAttackMatrix, loadAttackMeta, loadBundle } from '@/server/recorded';
 
 export const metadata: Metadata = {
@@ -11,113 +18,71 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 const CHALLENGE_URL = process.env.NEXT_PUBLIC_CHALLENGE_URL ?? null;
+const OUTCOMES = new Set(['BLOCKED', 'ESCALATED', 'HELD', 'LOSS', 'NOOP', 'NOT_RUN', 'N/A']);
+const asOutcome = (o: string | undefined): CellOutcome => (o !== undefined && OUTCOMES.has(o) ? (o as CellOutcome) : 'NOT_RUN');
 
-export default function Page() {
-  const m = loadAttackMatrix();
+// Five cards, each from data that says where it came from. Card 1 reads the committed attack matrix (RECORDED, SIMULATED harness); card 3
+// the certificate (LIVE re-check or RECORDED copy, else UNVERIFIED with no number); cards 4 and 5 the sandbox and pilot figures when the
+// kernel answers. Nothing here is typed by hand.
+export default async function Page() {
+  const matrix = loadAttackMatrix();
   const meta = loadAttackMeta();
   const bundle = loadBundle();
-  const sym = m?.attacks.find((a) => a.attackId === 'ATK-10' && a.target === 'symbolon');
-  const b1 = m?.attacks.find((a) => a.attackId === 'ATK-10' && a.target === 'b1');
-  const symTotals = m?.totals.find((t) => t.target === 'symbolon');
-  const b1Totals = m?.totals.find((t) => t.target === 'b1');
-  const sandboxVault = process.env.NEXT_PUBLIC_SANDBOX_VAULT ?? null;
+  const vault = process.env.NEXT_PUBLIC_SANDBOX_VAULT ?? '';
+  const hasVault = isAddress(vault);
 
-  return (
-    <PageFrame
-      eyebrow="Judge path"
-      title="Five cards, about five minutes"
-      lede="Each card opens something you can check without logging in. Nothing on this path accepts free-form input; anything attackable lives on a separate origin."
-    >
-      <SourceBanner source="RECORDED" note={<>Cards 1 and 3 read the committed replay bundle <span className="sy-mono">{bundle?.bundleHash ?? 'n/a'}</span>.</>} />
+  const [cert, stats, pilot] = await Promise.all([
+    hasVault ? getCertificate(vault) : Promise.resolve(null),
+    kernelCall<Stats>('/v1/challenge/stats'),
+    kernelCall<{ stats: { network: string; releases: number; valueBaseUnits: string }[] }>('/v1/pilot-stats'),
+  ]);
 
-      <Section title="The path">
-        <div className="sy-grid">
-          <article className="sy-card">
-            <p className="body-text-s">1</p>
-            <h3 className="heading-h6">Watch an attack get the agent fooled and the money not move</h3>
-            <p className="body-text-s" style={{ marginTop: 8 }}>
-              {meta['ATK-10']?.caption ?? 'ATK-10 from the attack lab.'}
-            </p>
-            {sym && b1 ? (
-              <ul className="sy-list" style={{ marginTop: 8 }}>
-                <li>{BRAND.name}: <Chip tone="pass">{sym.outcome}</Chip> checks fired <span className="sy-mono">{sym.checksFired.join(' ') || 'none'}</span>; loss {sym.lossBaseUnits} base units.</li>
-                <li>B1 pattern reimplementation (ours): <Chip tone={b1.outcome === 'LOSS' ? 'fail' : 'pass'}>{b1.outcome}</Chip>; loss {b1.lossBaseUnits} base units.</li>
-              </ul>
-            ) : (
-              <p className="body-text-s" style={{ marginTop: 8 }}>ATK-10 is not in the recorded matrix.</p>
-            )}
-            <p style={{ marginTop: 12 }}><Link className="sy-btn" href="/attack-lab">Open the attack lab</Link></p>
-          </article>
+  const row = (id: string, target: string) => matrix?.attacks.find((a) => a.attackId === id && a.target === target);
+  const sym = row('ATK-10', 'symbolon');
+  const outcomes: JudgeOutcomeRow[] = [...(matrix?.targets ?? [])]
+    .sort((a, b) => (a.id === 'symbolon' ? -1 : b.id === 'symbolon' ? 1 : a.id.localeCompare(b.id)))
+    .map((t) => {
+      const r = row('ATK-10', t.id);
+      return { target: t.id === 'symbolon' ? BRAND.name : t.label, outcome: asOutcome(r?.outcome), ...(r !== undefined && r.lossBaseUnits !== '0' ? { loss: money(r.lossBaseUnits) } : {}) };
+    });
 
-          <article className="sy-card">
-            <p className="body-text-s">2</p>
-            <h3 className="heading-h6">Verify a receipt yourself</h3>
-            <p className="body-text-s" style={{ marginTop: 8 }}>
-              Your browser recomputes the hash, recovers the signer, reads the kernel signer from the vault and looks for the Released event.
-              {bundle && bundle.receipts.length === 0 ? ' The committed bundle holds no receipts yet, so paste or enter a hash from a run.' : ''}
-            </p>
-            <p style={{ marginTop: 12 }}><Link className="sy-btn" href="/audit">Open the verifier</Link></p>
-          </article>
+  const live = cert !== null && cert.source === 'LIVE';
+  const certData = cert !== null && cert.source !== 'UNAVAILABLE' ? cert.data : null;
+  const validity = certData === null ? null : certData.view.status.label === 'VALID' ? 'VALID' : certData.view.status.label === 'STALE' ? 'STALE' : 'UNVERIFIED';
+  const balance = certData?.certificate.inputs.balanceBaseUnits ?? '0';
+  const receiptHash = ((bundle?.receipts ?? []) as { receiptHash?: string }[])[0]?.receiptHash ?? null;
 
-          <article className="sy-card">
-            <p className="body-text-s">3</p>
-            <h3 className="heading-h6">Recompute the loss bound</h3>
-            <p className="body-text-s" style={{ marginTop: 8 }}>
-              Exclusions first, then the bound, then the assumptions. The command line verifier recomputes it from the chain.
-            </p>
-            <p style={{ marginTop: 12 }}>
-              <Link className="sy-btn" href={sandboxVault ? `/certificate/${sandboxVault}` : '/certificate'}>Open the certificate</Link>{' '}
-              <Link className="sy-btn sy-btn--secondary" href="/blast-radius">Try your own limits</Link>
-            </p>
-          </article>
-
-          <article className="sy-card">
-            <p className="body-text-s">4</p>
-            <h3 className="heading-h6">Try to break it</h3>
-            <p className="body-text-s" style={{ marginTop: 8 }}>
-              The challenge runs on its own origin with its own vault, signer and keys. Attack traffic is never counted as customer traffic.
-            </p>
-            <p style={{ marginTop: 12 }}>
-              {CHALLENGE_URL !== null ? (
-                <a className="sy-btn" href={CHALLENGE_URL} rel="noopener noreferrer">Open the challenge</a>
-              ) : (
-                <Chip tone="muted">CHALLENGE NOT DEPLOYED</Chip>
-              )}
-            </p>
-          </article>
-
-          <article className="sy-card">
-            <p className="body-text-s">5</p>
-            <h3 className="heading-h6">See the real users</h3>
-            <p className="body-text-s" style={{ marginTop: 8 }}>Pilot figures count pilot tenants only, with explorer links per payment when there are any.</p>
-            <p style={{ marginTop: 12 }}><Link className="sy-btn" href="/pilot">Open the pilot page</Link></p>
-          </article>
-        </div>
-      </Section>
-
-      {symTotals && b1Totals ? (
-        <Section title="Headline figures from the committed run">
-          <div className="sy-card">
-            <p>
-              {BRAND.name}: {symTotals.lossTrials} loss trials of {symTotals.trials} (upper 95 % bound {symTotals.lossRate.upper95.toFixed(4)}, {symTotals.lossRate.upper95Method}). B1: {b1Totals.lossTrials} of {b1Totals.trials}.{' '}
-              <Chip tone="warn">SIMULATED</Chip>
-            </p>
-            <p className="body-text-s" style={{ marginTop: 8 }}>
-              Calculated from the committed harness output and empirically tested only in the harness&apos;s unit mode. Trials of one fixture are not independent, so the bound is optimistic. See the attack lab for assumptions and exclusions.
-            </p>
-          </div>
-        </Section>
-      ) : null}
-
-      <Section title="What this does not do">
-        <ul className="sy-list">
-          <li>It does not judge whether the work being paid for was good.</li>
-          <li>It does not cover compromise of the owner key or the key that can change the policy.</li>
-          <li>It does not promise availability: a compromised key can use up limits to block legitimate payments.</li>
-          <li>X this is hackathon-stage software on a testnet.</li>
-          <li>Planner figures are SIMULATED, replay content is RECORDED, and the hold-out set has not been run.</li>
-        </ul>
-      </Section>
-    </PageFrame>
-  );
+  const props: JudgeProps = {
+    brandName: BRAND.name,
+    mode: stats.ok || live ? 'live' : 'recorded',
+    heroFit: 'unknown',
+    card1: { fit: 'mismatch', checkIds: sym?.checksFired ?? [], outcomes, vaultReverts: null },
+    card2: { receiptHash, sealState: receiptHash === null ? 'hollow' : 'sealed', kind: 'real' },
+    card3: {
+      validity,
+      exclusions: (certData?.view.exclusions ?? EXCLUSIONS).map((e) => ({ id: e.id, text: e.text })),
+      horizons: (certData?.view.horizons ?? []).map((h) => ({ label: h.label, bp: ratioBp(h.valueBaseUnits, balance), binding: h.binding.length > 0 })),
+      alarmed: certData === null ? null : { label: 'alarmed', bp: ratioBp(certData.certificate.bounds.T3c.alarmed.value, balance) },
+      command: certData?.view.verifyCommand ?? `pnpm lbc verify ${hasVault ? vault : '<vault>'}`,
+    },
+    hrefs: { run: '/attack-lab', audit: '/audit', certificate: hasVault ? `/certificate/${vault}` : '/certificate', challenge: CHALLENGE_URL ?? '/challenge', pilot: '/pilot' },
+    slots: {
+      card1Claim: <p className="sy-mono">{meta['ATK-10']?.caption ?? 'ATK-10, see the attack lab'}</p>,
+      card1Verdict: <p><strong>{sym?.outcome ?? 'Not recorded'}</strong> <span className="sy-muted">(recorded, simulated harness)</span></p>,
+      card3Headline: certData === null ? undefined : <p className="body-text-m">{certData.view.headline}</p>,
+      card4Scoreboard: stats.ok ? (
+        <p className="body-text-s">
+          <span className="sy-num">{stats.data.attempts.distinctHuman}</span> distinct human attempts, <span className="sy-num">{stats.data.lossEvents.total}</span> loss events.
+        </p>
+      ) : (
+        <p className="body-text-s sy-muted">The live sandbox is not answering; the challenge page shows the recorded attack set.</p>
+      ),
+      card5PilotSummary: pilot.ok && pilot.data.stats.some((s) => s.releases > 0) ? (
+        <p className="body-text-m">{pilot.data.stats.map((s) => `${s.releases} payment(s) on ${s.network}`).join('; ')}</p>
+      ) : (
+        <p className="body-text-m sy-muted">No real payments counted yet. This page will say so until someone pays.</p>
+      ),
+    },
+  };
+  return <JudgeBody {...props} />;
 }

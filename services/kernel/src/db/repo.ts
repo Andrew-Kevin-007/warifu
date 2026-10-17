@@ -542,15 +542,24 @@ export interface PilotStatsRow {
   readonly network: string;
   readonly businesses: number;
   readonly releases: number;
+  readonly payees: number;
   readonly valueBaseUnits: string;
 }
 
-/** Only the sanitized `public_pilot_stats` view (tenants.kind = 'pilot', INV-17): demo, challenge and house traffic are excluded by construction. */
+/**
+ * The sanitized `public_pilot_stats` view (tenants.kind = 'pilot', INV-17): demo, challenge and house traffic are excluded by
+ * construction. Payees are counted from the same pilot-only, CONFIRMED releases (distinct addresses, never listed).
+ */
 export async function pilotStats(q: Queryable): Promise<PilotStatsRow[]> {
-  const r = await q.query<{ network: string; businesses: string; releases: string; value_base_units: string }>(
-    "select network, businesses::text, releases::text, value_base_units::text from public_pilot_stats order by network",
+  const r = await q.query<{ network: string; businesses: string; releases: string; value_base_units: string; payees: string }>(
+    `select s.network, s.businesses::text, s.releases::text, s.value_base_units::text,
+            coalesce((select count(distinct d.payee) from tenants t
+                        join decisions d on d.tenant_id = t.id
+                        join releases r on r.decision_id = d.decision_id and r.status = 'CONFIRMED'
+                       where t.kind = 'pilot' and t.network = s.network), 0)::text as payees
+       from public_pilot_stats s order by s.network`,
   );
-  return r.rows.map((x) => ({ network: x.network, businesses: Number.parseInt(x.businesses, 10), releases: Number.parseInt(x.releases, 10), valueBaseUnits: x.value_base_units }));
+  return r.rows.map((x) => ({ network: x.network, businesses: Number.parseInt(x.businesses, 10), releases: Number.parseInt(x.releases, 10), payees: Number.parseInt(x.payees, 10), valueBaseUnits: x.value_base_units }));
 }
 
 /** Insert the intent unless it exists. Returns the tenant that owns the stored row (a different tenant is a hard conflict). */
