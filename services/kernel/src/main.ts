@@ -153,14 +153,16 @@ async function main(): Promise<void> {
   const challenge =
     config.profile === "sandbox"
       ? await (async () => {
-          const [{ ChallengeService }, { PgBudgetLedger }, { makeExtractEdge, parsePrices }] = await Promise.all([import("./challenge/service"), import("./challenge/ledger"), import("./challenge/extract")]);
+          const [{ ChallengeService }, { PgBudgetLedger }, { makeExtractEdge, makeRuleReaderEdge, parsePrices }] = await Promise.all([import("./challenge/service"), import("./challenge/ledger"), import("./challenge/extract")]);
           const budgetUsd = Number.parseFloat(env["CHALLENGE_LLM_DAILY_BUDGET_USD"] ?? "0");
           const dailyBudgetMicroUsd = BigInt(Math.max(0, Math.round(budgetUsd * 1_000_000)));
           const ledger = new PgBudgetLedger(db, { globalDailyMicroUsd: dailyBudgetMicroUsd, perPrincipalDailyMicroUsd: dailyBudgetMicroUsd / 10n });
           const apiKey = env["ANTHROPIC_API_KEY"] ?? "";
-          const extract = makeExtractEdge({ apiKey, ledger, prices: parsePrices(env["CHALLENGE_MODEL_PRICES"]) });
+          // A model reader needs the key AND a price table; without them the KEYLESS rule reader (no model, no cost) answers free-form attempts.
+          const modelEdge = makeExtractEdge({ apiKey, ledger, prices: parsePrices(env["CHALLENGE_MODEL_PRICES"]) });
+          const extract = modelEdge ?? makeRuleReaderEdge();
           const vault = env["SANDBOX_VAULT_ADDRESS"];
-          return new ChallengeService({ db, clock, logger, ipSalt: env["CHALLENGE_IP_SALT"] ?? "", enabled: config.challengeEnabled, dailyBudgetMicroUsd, ledger: extract === null ? null : ledger, extract, signer, onchain: vault === undefined || vault === "" ? null : { vault } });
+          return new ChallengeService({ db, clock, logger, ipSalt: env["CHALLENGE_IP_SALT"] ?? "", enabled: config.challengeEnabled, dailyBudgetMicroUsd, ledger, extract, readerKind: modelEdge === null ? "rules" : "model", signer, onchain: vault === undefined || vault === "" ? null : { vault } });
         })()
       : undefined;
   const app = createApp({

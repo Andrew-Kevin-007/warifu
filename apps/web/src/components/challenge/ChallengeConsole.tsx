@@ -133,9 +133,15 @@ export default function ChallengeConsole({ initial }: { initial: ConsoleInitial 
   const freeFormOn = live && (catalog?.status.freeFormAvailable ?? false);
   const writeYourOwn = (
     <div className="sy-cc__write">
-      {freeFormOn ? null : (
+      {freeFormOn ? (
+        catalog?.status.reader === 'rules' ? (
+          <p className="body-text-s sy-muted sy-cc__off">
+            Your text is read by a built-in rule reader, not an AI model: it understands common invoice layouts and leaves anything unclear empty, which the kernel then holds or escalates. The kernel, the checks and the oracle are the real ones.
+          </p>
+        ) : null
+      ) : (
         <p className="body-text-s sy-muted sy-cc__off">
-          {live ? 'Free-form attempts are paused (the sandbox model budget is used up or no model key is set). One-click attacks and benign controls still run.' : 'Free-form attempts need the live sandbox.'}
+          {live ? 'Free-form attempts are paused (the daily budget is used up, or no reader is configured). One-click attacks and benign controls still run.' : 'Free-form attempts need the live sandbox.'}
         </p>
       )}
       <WriteYourOwnPlate

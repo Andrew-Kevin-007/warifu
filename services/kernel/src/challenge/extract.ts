@@ -5,7 +5,7 @@
 //
 // Prices are supplied by the operator (CHALLENGE_MODEL_PRICES): nothing here assumes what a provider charges (VERIFY V-22), and an
 // unpriced model cannot be budgeted, so free-form stays off until the table exists.
-import { BudgetedLlm, CostModel, DEFAULT_MODELS, MemoryCallCache, createAnthropicClient, extractInvoice } from "@symbolon/extractor";
+import { BudgetedLlm, CostModel, DEFAULT_MODELS, MemoryCallCache, createAnthropicClient, extractInvoice, ruleRead } from "@symbolon/extractor";
 import type { CallCache, ModelPrice } from "@symbolon/extractor";
 import type { PgBudgetLedger } from "./ledger";
 import type { ExtractOutcome } from "./service";
@@ -24,6 +24,19 @@ export function parsePrices(raw: string | undefined): Record<string, ModelPrice>
     out[model] = { inPerMTok: BigInt(o.inPerMTok), outPerMTok: BigInt(o.outPerMTok) };
   }
   return out;
+}
+
+/**
+ * The keyless reader: the deterministic rule reader (no model, no network, no cost). One reading is cloned into the second slot because the
+ * kernel compares two readings; the attempt is labelled "rules" everywhere, so nobody mistakes it for two independent models. Anything it cannot
+ * read unambiguously is left null with an anomaly, which the kernel turns into a HOLD or an escalation.
+ */
+export function makeRuleReaderEdge(): (text: string, principalHash: string) => Promise<ExtractOutcome> {
+  return (text) => {
+    const r = ruleRead(text);
+    if (!r.ok) return Promise.resolve({ ok: false, code: r.code, disposition: r.disposition });
+    return Promise.resolve({ ok: true, a: r.value, b: structuredClone(r.value), reader: "rules" });
+  };
 }
 
 export interface ExtractEdgeOptions {
@@ -49,7 +62,7 @@ export function makeExtractEdge(o: ExtractEdgeOptions): ((text: string, principa
     const llm = new BudgetedLlm({ inner, ledger: o.ledger, cache, costModel: cost, principalHash });
     // The sandbox policy treats a printed USD as USDC (docs/15 scenarios, `treatUsdAsUsdc`), so both spellings may yield base units; a bare "$" never does.
     const r = await extractInvoice(text, { modelA, modelB, decimals: 6, parseEligibleCurrencies: ["USDC", "USD"] }, { llm });
-    if (r.ok) return { ok: true, a: r.value.a, b: r.value.b };
+    if (r.ok) return { ok: true, a: r.value.a, b: r.value.b, reader: "model" };
     return { ok: false, code: r.failure.code, disposition: r.failure.disposition };
   };
 }

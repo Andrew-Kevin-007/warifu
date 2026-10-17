@@ -1,4 +1,3 @@
-import { BRAND } from '@/lib/brand';
 import Link from 'next/link';
 
 // The path every payment takes, whichever agent proposed it. No third-party marks: they would imply integrations we do not have.

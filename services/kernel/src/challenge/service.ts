@@ -29,7 +29,7 @@ import type { ChallengeLimits, DegradeLevel } from "./limits";
 import type { PgBudgetLedger } from "./ledger";
 
 export type ExtractOutcome =
-  | { readonly ok: true; readonly a: ExtractedInvoice; readonly b: ExtractedInvoice | null }
+  | { readonly ok: true; readonly a: ExtractedInvoice; readonly b: ExtractedInvoice | null; readonly reader?: "model" | "rules" }
   | { readonly ok: false; readonly code: string; readonly disposition: "ESCALATE" | "HOLD" };
 
 export interface ChallengeDeps {
@@ -45,6 +45,8 @@ export interface ChallengeDeps {
   /** null = no sandbox LLM key / price table: free-form is off and the level is at most L1. */
   readonly ledger: PgBudgetLedger | null;
   readonly extract: ((text: string, principalHash: string) => Promise<ExtractOutcome>) | null;
+  /** What `extract` is: "model" (default) or "rules" (the keyless reader). Shown to visitors; it decides the wording, never the verdict. */
+  readonly readerKind?: "model" | "rules";
   readonly limits?: ChallengeLimits;
   readonly gate?: ConcurrencyGate;
   /** The sandbox vault the "prove it on-chain" action would use; null = not configured, the action says so. */
@@ -79,6 +81,8 @@ export interface ChallengeStatus {
   readonly level: DegradeLevel;
   readonly enabled: boolean;
   readonly freeFormAvailable: boolean;
+  /** Who reads a free-form document: a model (key + prices configured), the built-in rule reader (no key), or nobody. */
+  readonly reader: "model" | "rules" | null;
   readonly budgetUsedBp: number;
   readonly source: "live";
 }
@@ -92,6 +96,8 @@ export interface AttemptView {
   readonly text: { readonly excerpt: string; readonly length: number; readonly hash: string } | null;
   /** Why no verdict from the kernel exists for a free-form attempt (the extractor refused), else null. */
   readonly extractionRefused: string | null;
+  /** Free-form only: who read the document ("model" or the keyless "rules" reader); null for one-click and benign attempts. */
+  readonly reader: "model" | "rules" | null;
   /** One signed receipt per run (verifiable at /audit/<hash>). Signed by the sandbox kernel signer; NOT anchored on-chain in unit mode. */
   readonly receipts: readonly { readonly label: string; readonly verdict: string; readonly receiptHash: string }[];
 }
@@ -127,9 +133,11 @@ export class ChallengeService {
       healthy = false;
       this.d.logger.warn("challenge.status_failed", { ...errorFields(e) });
     }
-    const llmConfigured = this.d.ledger !== null && this.d.extract !== null;
+    // a reader exists (a model behind the ledger, or the keyless rule reader): free-form can run
+    const llmConfigured = this.d.extract !== null;
     const level = degradeLevel({ enabled: this.d.enabled, budgetUsedBp: used, llmConfigured, backendHealthy: healthy });
-    return { level, enabled: this.d.enabled, freeFormAvailable: level === "L0", budgetUsedBp: Math.min(used, 10_000), source: "live" };
+    const reader = this.d.extract === null ? null : (this.d.readerKind ?? "model");
+    return { level, enabled: this.d.enabled, freeFormAvailable: level === "L0", reader, budgetUsedBp: Math.min(used, 10_000), source: "live" };
   }
 
   async catalog(): Promise<{
@@ -217,11 +225,11 @@ export class ChallengeService {
         action: read.disposition, checksFired: [], reasons: [read.code], releases: 0, lossReleases: 0, lossBaseUnits: "0", predicates: [],
         oracleResult: "NO_LOSS", outcome: null, benign: null, runs: [], notRun: [], steps: 0,
       };
-      return this.persist({ source: "human", result: refused, ip, text: { shown, full: chk.text }, refused: read.code, benign: false, textHash, signed: [] });
+      return this.persist({ source: "human", result: refused, ip, text: { shown, full: chk.text }, refused: read.code, benign: false, textHash, signed: [], reader: this.d.readerKind ?? "model" });
     }
     const result = runFreeForm({ scenarioId: req.scenarioId, milestoneSlug: req.milestoneSlug, text: chk.text, a: read.a, b: read.b }, observe);
     if (result === null) throw new ApiError("BAD_REQUEST", "the milestone is not part of this scenario");
-    return this.persist({ source: "human", result, ip, text: { shown, full: chk.text }, refused: null, benign: false, textHash, signed: await this.signRuns(obs) });
+    return this.persist({ source: "human", result, ip, text: { shown, full: chk.text }, refused: null, benign: false, textHash, signed: await this.signRuns(obs), reader: read.reader ?? this.d.readerKind ?? "model" });
   }
 
   /** A signed receipt made by this challenge, by its hash (public: it contains codes, hashes and amounts only). Null when unknown. */
@@ -257,6 +265,7 @@ export class ChallengeService {
     benign: boolean;
     textHash: string;
     signed: readonly SignedAttemptReceipt[];
+    reader?: "model" | "rules";
   }): Promise<AttemptView> {
     await this.ensureScenarios();
     const r = p.result;
@@ -267,19 +276,19 @@ export class ChallengeService {
        returning attempt_id::text, created_at`,
       [
         r.scenarioId, p.source, r.attackId, p.ip, p.textHash, p.text?.shown.length ?? 0, p.text?.shown.excerpt ?? "", p.text?.full ?? null,
-        JSON.stringify({ result: r, refused: p.refused, signed: p.signed }), dbVerdict(r.action), [...r.reasons], [...r.checksFired], r.oracleResult, [...r.predicates], p.benign,
+        JSON.stringify({ result: r, refused: p.refused, signed: p.signed, reader: p.reader ?? null }), dbVerdict(r.action), [...r.reasons], [...r.checksFired], r.oracleResult, [...r.predicates], p.benign,
         p.signed[0]?.receiptHash ?? null,
       ],
     );
     const row = ins.rows[0];
     if (row === undefined) throw new ApiError("INTERNAL", "attempt was not stored");
     this.d.logger.info("challenge.attempt", { attemptId: row.attempt_id, ipHash: p.ip.slice(0, 16), reasonCode: r.oracleResult, count: r.releases });
-    return { attemptId: row.attempt_id, createdAt: row.created_at, source: p.source, result: r, text: p.text === null ? null : p.text.shown, extractionRefused: p.refused, receipts: p.signed.map((s) => ({ label: s.label, verdict: s.verdict, receiptHash: s.receiptHash })) };
+    return { attemptId: row.attempt_id, createdAt: row.created_at, source: p.source, result: r, text: p.text === null ? null : p.text.shown, extractionRefused: p.refused, reader: p.reader ?? null, receipts: p.signed.map((s) => ({ label: s.label, verdict: s.verdict, receiptHash: s.receiptHash })) };
   }
 
   async getAttempt(id: string): Promise<AttemptView> {
     if (!/^[0-9a-f-]{36}$/.test(id)) throw new ApiError("NOT_FOUND", "not found");
-    const r = await this.d.db.query<{ attempt_id: string; created_at: string; source: "human" | "oneclick"; extraction: { result: EngineResult; refused: string | null; signed?: SignedAttemptReceipt[] }; text_length: number; excerpt: string; text_hash: string }>(
+    const r = await this.d.db.query<{ attempt_id: string; created_at: string; source: "human" | "oneclick"; extraction: { result: EngineResult; refused: string | null; signed?: SignedAttemptReceipt[]; reader?: "model" | "rules" | null }; text_length: number; excerpt: string; text_hash: string }>(
       "select attempt_id::text, created_at, source, extraction, text_length, excerpt, text_hash from challenge_attempts where attempt_id = $1::uuid and source in ('human','oneclick')",
       [id],
     );
@@ -289,6 +298,7 @@ export class ChallengeService {
       attemptId: x.attempt_id, createdAt: x.created_at, source: x.source, result: x.extraction.result,
       text: x.source === "human" ? { excerpt: x.excerpt, length: x.text_length, hash: x.text_hash } : null,
       extractionRefused: x.extraction.refused,
+      reader: x.extraction.reader ?? null,
       receipts: (x.extraction.signed ?? []).map((s) => ({ label: s.label, verdict: s.verdict, receiptHash: s.receiptHash })),
     };
   }

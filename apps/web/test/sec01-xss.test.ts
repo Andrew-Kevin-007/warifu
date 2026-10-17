@@ -15,6 +15,7 @@ const attempt = (excerpt: string): AttemptView => ({
   createdAt: "2026-10-17 17:14:39+00",
   source: "human",
   extractionRefused: null,
+  reader: "rules",
   receipts: [{ label: "visitor-document", verdict: "REJECT", receiptHash: `0x${"cd".repeat(32)}` }],
   text: { excerpt, length: excerpt.length, hash: `0x${"ab".repeat(32)}` },
   result: {

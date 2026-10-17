@@ -38,6 +38,8 @@ export interface AttemptView {
   result: EngineResult;
   text: { excerpt: string; length: number; hash: string } | null;
   extractionRefused: string | null;
+  /** Free-form only: who read the document, a model or the built-in keyless rule reader. */
+  reader: 'model' | 'rules' | null;
   /** One signed receipt per run, verifiable at /audit/<hash>. Signed by the sandbox kernel signer; not anchored on-chain in unit mode. */
   receipts: { label: string; verdict: string; receiptHash: string }[];
 }
@@ -46,6 +48,7 @@ export interface ChallengeStatus {
   level: 'L0' | 'L1' | 'L2';
   enabled: boolean;
   freeFormAvailable: boolean;
+  reader: 'model' | 'rules' | null;
   budgetUsedBp: number;
 }
 

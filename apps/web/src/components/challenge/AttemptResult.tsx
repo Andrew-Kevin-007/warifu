@@ -62,6 +62,11 @@ export function LiveAttemptResult({ attempt, title }: { attempt: AttemptView; ti
       {attempt.extractionRefused !== null ? (
         <p className="body-text-s">The reader refused this document ({human(attempt.extractionRefused)}), so nothing reached the kernel&apos;s release path.</p>
       ) : null}
+      {attempt.reader === 'rules' ? (
+        <p className="body-text-xs sy-muted">Read by the built-in rule reader (no AI model). It reads common invoice layouts and leaves anything unclear empty, which the kernel then holds or escalates. The kernel and the oracle are the same either way.</p>
+      ) : attempt.reader === 'model' ? (
+        <p className="body-text-xs sy-muted">Read by two AI models. Their output is advisory: the kernel re-derives everything and trusts none of it.</p>
+      ) : null}
       <OracleLine lossy={lossy} predicates={r.predicates} releases={r.releases} />
 
       {r.checksFired.length > 0 ? (
