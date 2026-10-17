@@ -1,17 +1,26 @@
 import type { ReactNode } from 'react';
 import SiteShell from '@/components/SiteShell';
+import DesignRoot from '@/components/design/DesignRoot';
+import { Eyebrow, FractureRule } from '@/components/design/primitives/Layout';
 
+// The frame of every page that is not one of the designed bodies (audit, blast radius, dashboard, engagements, intents, sign): the same
+// white plate, large quiet type and fracture rule as the designed pages, so the whole site reads as one object.
 export function PageFrame({ eyebrow, title, lede, children }: { eyebrow?: string; title: string; lede?: ReactNode; children: ReactNode }) {
   return (
     <SiteShell>
-      <main className="sy-page relative z-5">
-        <div className="sy-wrap">
-          {eyebrow ? <p className="body-text-s sy-eyebrow">{eyebrow}</p> : null}
-          <h1 className="heading-h3">{title}</h1>
-          {lede ? <p className="body-text-m sy-lede">{lede}</p> : null}
-          {children}
-        </div>
-      </main>
+      <DesignRoot mode="live">
+        <main className="sy-page-d relative z-5">
+          <div className="container">
+            <header className="sy-page-d__head">
+              {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
+              <h1 className="sy-page-d__h1">{title}</h1>
+              {lede ? <p className="body-text-l sy-page-d__lede">{lede}</p> : null}
+            </header>
+            <FractureRule />
+            <div className="sy-page-d__body">{children}</div>
+          </div>
+        </main>
+      </DesignRoot>
     </SiteShell>
   );
 }
@@ -19,7 +28,7 @@ export function PageFrame({ eyebrow, title, lede, children }: { eyebrow?: string
 export function Section({ title, children, id }: { title: string; children: ReactNode; id?: string }) {
   return (
     <section className="sy-section" id={id}>
-      <h2 className="heading-h5">{title}</h2>
+      <h2 className="sy-section__h">{title}</h2>
       {children}
     </section>
   );
