@@ -22,10 +22,13 @@ export interface KernelClientConfig {
   readonly profile: KernelProfile;
 }
 
+/** A PASTE_*_HERE value is the template's "not pasted yet" marker: it reads as unset. */
+const pasted = (v: string | undefined): string | undefined => (v === undefined || /^PASTE_[A-Z0-9_]*_HERE$/.test(v.trim()) ? undefined : v);
+
 export function loadKernelClientConfig(env: Record<string, string | undefined> = process.env): KernelClientConfig | null {
-  const baseUrl = env["WEB_SVC_URL"];
-  const secret = env["WEB_SVC_SECRET"];
-  const tenantId = env["WEB_SVC_TENANT_ID"];
+  const baseUrl = pasted(env["WEB_SVC_URL"]);
+  const secret = pasted(env["WEB_SVC_SECRET"]);
+  const tenantId = pasted(env["WEB_SVC_TENANT_ID"]);
   const profile = env["WEB_SVC_PROFILE"] === "sandbox" ? "sandbox" : env["WEB_SVC_PROFILE"] === "production" ? "production" : null;
   if (!baseUrl || !secret || !tenantId || profile === null) return null;
   if (!/^https?:\/\//.test(baseUrl)) return null;

@@ -26,6 +26,7 @@ import { createCircleHttpApi } from "./circle/client";
 import { circleVaultRelayer } from "./circle/relayer";
 import { createCircleWebhookHandler } from "./circle/webhook";
 import { loadConfig } from "./config";
+import { placeholderNames, stripPlaceholders } from "./env";
 import { emptyFixtureStore } from "./evidence/fixtures";
 import { collectEvidence } from "./evidence/service";
 import type { EvidenceServiceDeps, EvidenceSource } from "./evidence/service";
@@ -57,10 +58,13 @@ function certificateConfig(client: PublicClient): CertificateServiceConfig | nul
 }
 
 async function main(): Promise<void> {
-  const config = loadConfig(process.env); // throws BootError / ConfigError: names and rules only
+  const env = stripPlaceholders(process.env); // PASTE_*_HERE template values read as unset
+  const config = loadConfig(env); // throws BootError / ConfigError: names and rules only
   const logger = createLogger({ secrets: config.logSecrets.map((s) => s.reveal()) });
+  const pending = placeholderNames(process.env);
+  if (pending.length > 0) logger.warn("kernel.env_placeholders", { count: pending.length, reasonCode: pending.join(",").slice(0, 300) });
   const db = createPgDb({ connectionString: config.databaseUrl.reveal() });
-  const arc = arcConfigFromEnv(process.env);
+  const arc = arcConfigFromEnv(env);
   const client = createArcPublicClient(arc);
   await verifyRpcChainId(client, arc.chainId);
   const chain = viemChainReader(client, arc.chainId);

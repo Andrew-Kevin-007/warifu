@@ -14,6 +14,7 @@
     "typecheck": "pnpm -r --if-present typecheck && tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
+    "env:init": "node scripts/env-init.mjs",
     "test:web-env": "node scripts/web-env-check.mjs",
     "format": "prettier --write .",
     "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:web-env && pnpm claude:check && pnpm claims:lint",
@@ -28,9 +29,9 @@
     "verify-bundle": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./packages/blast-radius/scripts/register-ts.mjs scripts/verify-bundle.ts",
     "sec:local": "pnpm --filter @symbolon/sec-suite run sec:local",
     "sec:sandbox": "node scripts/sec-sandbox.mjs",
-    "kernel:start": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./packages/blast-radius/scripts/register-ts.mjs services/kernel/src/main.ts",
-    "kernel:migrate": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./packages/blast-radius/scripts/register-ts.mjs services/kernel/scripts/ops.ts migrate",
-    "kernel:tenant": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./packages/blast-radius/scripts/register-ts.mjs services/kernel/scripts/ops.ts tenant"
+    "kernel:start": "node --env-file-if-exists=services/kernel/.env.local --experimental-transform-types --disable-warning=ExperimentalWarning --import ./packages/blast-radius/scripts/register-ts.mjs services/kernel/src/main.ts",
+    "kernel:migrate": "node --env-file-if-exists=services/kernel/.env.local --experimental-transform-types --disable-warning=ExperimentalWarning --import ./packages/blast-radius/scripts/register-ts.mjs services/kernel/scripts/ops.ts migrate",
+    "kernel:tenant": "node --env-file-if-exists=services/kernel/.env.local --experimental-transform-types --disable-warning=ExperimentalWarning --import ./packages/blast-radius/scripts/register-ts.mjs services/kernel/scripts/ops.ts tenant"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
