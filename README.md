@@ -47,12 +47,13 @@ The three upgrades on top: the **Seal** (a per-vault badge showing the certifica
 | | Naive pattern (B1, ours) | Circle sample path (B0) | Hardened baseline (B2) | Warifu kernel |
 |---|---|---|---|---|
 | What it is | our reimplementation of release-on-model-output | vendored sample decision path | our best-effort hardening | the real kernel pipeline |
-| Status in this repository | run (SIMULATED validator) | not built | not built | run (unit mode) |
+| Status in this repository | run (SIMULATED validator) | run on the vendored path, network edges stubbed | run (SIMULATED validator plus controls) | run (unit mode) |
 
-B0 and B2 are not built yet, so no figure is claimed for them. The scoreboard above is the whole result.
+Every target's per-attack result is on `/attack-lab` (rendered from the committed matrix, never edited). The scoreboard above is the headline; a figure appears there only when `scripts/claims.ts` generates it.
 
 ## Disclosures
-- **Testnet only.** Contracts are unaudited, hackathon-grade, with tiny caps. Nothing here is a mainnet deployment.
+- **Testnet first.** Contracts are unaudited, hackathon-grade, with tiny caps. The Arc mainnet path is built and checked (`pnpm mainnet:preflight`, [runbook](docs/DEPLOY_MAINNET.md)) but nothing is deployed to mainnet by this repository; that step uses the operator's own keys. The public challenge never runs on mainnet.
+- **What a challenge attempt is.** An attempt runs the real kernel pipeline on a fresh scenario instance with fixture engagements (placeholder signatures) and simulated evidence, and an independent oracle judges any release. It is not an on-chain payment and makes no signed receipt until a sandbox vault is deployed; the page says so next to every result.
 - **Simulated figures.** Attack-suite, honest-corpus and planner numbers come from unit mode: fixture engagements with placeholder signatures and reference extraction reads. No paid LLM run backs any figure; the scoreboard states the number of model calls.
 - **Not computed yet** are labelled `NOT_COMPUTED` in the scoreboard (hold-out, certificate, challenge). They are never filled with estimates.
 - **Traction** is read from `docs/pilots/pilot_tracker.csv`; a zero is a zero.
@@ -66,6 +67,13 @@ pnpm install
 make verify        # lint (purity + boundaries) · typecheck · tests · web-env guard · claims lint
 pnpm claims        # regenerate results/claims.json, the scoreboard above, and the public copy files
 ```
+
+## Run it
+```powershell
+pwsh scripts/demo-local.ps1        # Postgres + local chain + the real sandbox kernel + the web app, no real keys
+# open http://localhost:3000/challenge, press a tile, watch the kernel answer; stop with: pwsh scripts/demo-local.ps1 -Stop
+```
+Your own keys go in placeholders, never in the repo: `pnpm env:init` writes `services/kernel/.env.local` and `apps/web/.env.local` (git-ignored) with every `PASTE_*_HERE` value for you to fill in; `pnpm env:init -- --mainnet` writes the production-on-mainnet template, and `pnpm mainnet:preflight` checks it without sending anything. A variable left as a placeholder reads as unset: the kernel refuses to boot on a missing key rather than run on a fake one. Step by step: [operator setup](docs/OPERATOR_SETUP.md), [mainnet](docs/DEPLOY_MAINNET.md), [demo and video runbook](docs/DEMO_RUNBOOK.md).
 
 ## Layout
 ```
