@@ -26,7 +26,7 @@ import {
   runSubmit,
   worldMilestone,
 } from "@symbolon/attack-suite";
-import type { AttackId, AttackResult, ExtractionRun, Holder, HonestFixture, ScenarioId, SubmitStep } from "@symbolon/attack-suite";
+import type { AttackId, AttackResult, ExtractionRun, Holder, HonestFixture, ScenarioId, SubmitStep, UnitObservation } from "@symbolon/attack-suite";
 import { untrusted } from "@symbolon/schemas";
 import type { ExtractedInvoice } from "@symbolon/schemas";
 
@@ -126,9 +126,12 @@ export function oneClickCatalog(): readonly OneClickInfo[] {
   });
 }
 
-export function runOneClick(attackId: AttackId): EngineResult {
+/** Called once per extraction run with what the kernel saw and decided (the service builds and signs a receipt from it). */
+export type Observe = (o: UnitObservation) => void;
+
+export function runOneClick(attackId: AttackId, observe?: Observe): EngineResult {
   const fixture = buildAttack(attackId);
-  const target = makeSymbolonUnitTarget();
+  const target = makeSymbolonUnitTarget(observe);
   const result = runAttack(fixture, target, applicabilityFor(attackId));
   const runs = result.steps.flatMap((s) => s.runs.map(viewOfRun));
   const notRun = result.steps.filter((s) => s.status === "NOT_RUN").map((s) => `${s.stepId}: ${s.reason}`);
@@ -170,10 +173,10 @@ export function benignCatalog(): readonly BenignInfo[] {
   return benignFixtures().map((h) => ({ id: h.id, caption: h.caption, scenarioId: h.scenarioId }));
 }
 
-export function runBenign(id: string): EngineResult | null {
+export function runBenign(id: string, observe?: Observe): EngineResult | null {
   const h = benignFixtures().find((x) => x.id === id);
   if (h === undefined) return null;
-  const target = makeSymbolonUnitTarget();
+  const target = makeSymbolonUnitTarget(observe);
   const item = runHonestItem({ id: h.id, group: h.group, scenarioId: h.scenarioId, step: h.step, correctAmount: h.correctRelease.amountBaseUnits }, target);
   const lossy = item.oracle === "LOSS" || item.amountMatches === false;
   return {
@@ -216,7 +219,7 @@ export function scenarioMilestones(scenarioId: ScenarioId): readonly { slug: str
   return WORLD[scenarioId].milestones.map((m) => ({ slug: m.slug, description: m.description, amountBaseUnits: m.amount.toString() }));
 }
 
-export function runFreeForm(input: FreeFormInput): EngineResult | null {
+export function runFreeForm(input: FreeFormInput, observe?: Observe): EngineResult | null {
   const world = WORLD[input.scenarioId];
   if (!world.milestones.some((m) => m.slug === input.milestoneSlug)) return null;
   worldMilestone(world, input.milestoneSlug); // throws on an unknown slug: the guard above makes that unreachable
@@ -231,7 +234,7 @@ export function runFreeForm(input: FreeFormInput): EngineResult | null {
     freshInstance: true,
   };
   const holder: Holder = { states: new Map([[input.scenarioId, freshState(input.scenarioId)]]) };
-  const out = runSubmit(holder, input.scenarioId, step, makeSymbolonUnitTarget(), "FREEFORM");
+  const out = runSubmit(holder, input.scenarioId, step, makeSymbolonUnitTarget(observe), "FREEFORM");
   const runs = out.record.runs.map(viewOfRun);
   return {
     engine: ENGINE_VERSION,

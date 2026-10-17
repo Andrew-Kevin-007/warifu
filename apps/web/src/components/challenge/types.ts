@@ -38,6 +38,8 @@ export interface AttemptView {
   result: EngineResult;
   text: { excerpt: string; length: number; hash: string } | null;
   extractionRefused: string | null;
+  /** One signed receipt per run, verifiable at /audit/<hash>. Signed by the sandbox kernel signer; not anchored on-chain in unit mode. */
+  receipts: { label: string; verdict: string; receiptHash: string }[];
 }
 
 export interface ChallengeStatus {

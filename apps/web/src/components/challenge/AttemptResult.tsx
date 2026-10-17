@@ -122,8 +122,22 @@ export function LiveAttemptResult({ attempt, title }: { attempt: AttemptView; ti
         </div>
       ) : null}
 
+      {attempt.receipts.length > 0 ? (
+        <div className="sy-res__block">
+          <p className="sy-mono sy-res__label">Signed receipts</p>
+          <ul className="sy-res__notes">
+            {attempt.receipts.map((rc) => (
+              <li key={rc.receiptHash} className="body-text-s">
+                <a className="sy-mono" href={`/audit/${rc.receiptHash}`}>{rc.receiptHash.slice(0, 14)}…</a> <span className="sy-muted">{rc.label}, {rc.verdict.toLowerCase()}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="body-text-xs sy-muted">Open one and your browser recomputes its hash and checks the signature. Signed by the sandbox kernel signer; not anchored on-chain in this mode.</p>
+        </div>
+      ) : null}
+
       <p className="sy-res__foot sy-muted body-text-s">
-        Run on the real kernel code with fixture engagements (placeholder signatures) and simulated evidence; no model reads a one-click attack. No signed receipt is made in this mode.
+        Run on the real kernel code with fixture engagements (placeholder signatures) and simulated evidence; no model reads a one-click attack. This is not an on-chain payment.
       </p>
     </div>
   );

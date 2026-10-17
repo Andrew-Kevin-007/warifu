@@ -46,6 +46,8 @@ export async function getCertificate(vault: string): Promise<Sourced<Certificate
 export interface ReceiptResult {
   readonly signed: SignedReceipt;
   readonly tx: unknown;
+  /** Set for a unit-mode challenge receipt: the (fixture) chain and vault it was signed under. Absent for a receipt anchored on a real vault. */
+  readonly unit?: { readonly chainId: number; readonly vault: string };
 }
 
 export async function getReceipt(hash: string): Promise<Sourced<ReceiptResult>> {
@@ -54,6 +56,13 @@ export async function getReceipt(hash: string): Promise<Sourced<ReceiptResult>> 
   if (live.ok) {
     const parsed = SignedReceiptSchema.safeParse({ receipt: live.data.receipt, receiptHash: live.data.receiptHash, signature: live.data.signature, signer: live.data.signer });
     if (parsed.success) return { source: "LIVE", data: { signed: parsed.data, tx: live.data.tx } };
+  }
+  // A receipt made by the public challenge (sandbox kernel only; unit mode, signed but not anchored on-chain).
+  const ch = await kernelCall<{ receipt: unknown; receiptHash: string; signature: string; signer: string; tx: unknown; unit?: { chainId: number; vault: string } }>(`/v1/challenge/receipts/${hash}`);
+  if (ch.ok) {
+    const parsed = SignedReceiptSchema.safeParse({ receipt: ch.data.receipt, receiptHash: ch.data.receiptHash, signature: ch.data.signature, signer: ch.data.signer });
+    const unit = ch.data.unit;
+    if (parsed.success && unit !== undefined && Number.isSafeInteger(unit.chainId) && /^0x[0-9a-fA-F]{40}$/.test(unit.vault)) return { source: "LIVE", data: { signed: parsed.data, tx: null, unit } };
   }
   const rec = (loadBundle()?.receipts ?? []) as unknown[];
   for (const r of rec) {

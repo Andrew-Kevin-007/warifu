@@ -2,7 +2,12 @@
 // WP-32 acceptance over real Postgres and the real Hono app: attempts (one-click, benign, free-form), persistence without raw IPs,
 // abuse limits, the kill switch, production isolation, and the scoreboard (rule of three over DISTINCT human attempts, INV-17).
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { buildHonest } from "@symbolon/attack-suite";
+import { recoverAddress } from "viem";
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
+import { CHAIN_ID, VAULT, buildHonest } from "@symbolon/attack-suite";
+import { computeReceiptHash, eip712Digest, epochSecondsFromIso, symbolonDomain, toTypedDataJson, VERDICT_CODE } from "@symbolon/schemas";
+import { createKernelSigner } from "../../src/receipt/build";
+import { Secret } from "../../src/secret";
 import { PgBudgetLedger } from "../../src/challenge/ledger";
 import { ChallengeService } from "../../src/challenge/service";
 import type { ChallengeDeps, ExtractOutcome } from "../../src/challenge/service";
@@ -12,6 +17,7 @@ import { TENANT, call, openWorld } from "../helpers/world";
 import type { World } from "../helpers/world";
 
 const enabled = dbSuiteEnabled("challenge-service.local");
+const SIGNER_KEY = generatePrivateKey(); // a fresh throwaway key per run: never a fixed or real key in the repo
 const HONEST = buildHonest().find((x) => x.id === "BC-1")!;
 const honestA = HONEST.step.runs[0]!.a;
 
@@ -26,7 +32,7 @@ describe.skipIf(!enabled)("local: the public challenge over real Postgres (WP-32
   const sandbox = (over: Partial<ChallengeDeps> = {}): ChallengeService =>
     new ChallengeService({
       db: w.t.db, clock: () => Date.now(), logger: w.logger, ipSalt: "salt-for-tests-only-0123456789", enabled: true,
-      dailyBudgetMicroUsd: 5_000_000n, ledger, extract: fakeExtract, onchain: null, ...over,
+      dailyBudgetMicroUsd: 5_000_000n, ledger, extract: fakeExtract, onchain: null, signer: createKernelSigner(new Secret(SIGNER_KEY)), ...over,
     });
   const tok = (): string => w.token(TENANT, { profile: "sandbox" });
   const post = (svc: ChallengeService, body: unknown, ip = "203.0.113.7") => call(w.app({ profile: "sandbox", challenge: svc }), "POST", "/v1/challenge/attempts", tok(), body, { "x-client-ip": ip });
@@ -60,6 +66,35 @@ describe.skipIf(!enabled)("local: the public challenge over real Postgres (WP-32
     expect(got.json.result.attackId).toBe("ATK-02");
     expect(got.json.text).toBeNull();
     expect((await call(w.app({ profile: "sandbox", challenge: svc }), "GET", "/v1/challenge/attempts/not-an-id", tok())).status).toBe(404);
+  });
+
+  it("every run of an attempt gets a signed receipt that anyone can verify: the hash recomputes and the signature recovers to the sandbox kernel signer", async () => {
+    const svc = sandbox();
+    const r = await post(svc, { kind: "benign", benignId: "BC-1" });
+    expect(r.status).toBe(201);
+    expect(r.json.receipts.length).toBeGreaterThanOrEqual(1);
+    const hash = r.json.receipts[0].receiptHash as string;
+    const got = await call(w.app({ profile: "sandbox", challenge: svc }), "GET", `/v1/challenge/receipts/${hash}`, tok());
+    expect(got.status).toBe(200);
+    expect(got.json.mode).toBe("UNIT");
+    expect(got.json.tx).toBeNull(); // not anchored on chain in unit mode, and the response says so
+    expect(computeReceiptHash(got.json.receipt)).toBe(hash);
+    const receipt = got.json.receipt as { decision: { intentId: string; policyHash: string; verdict: string }; issuedAt: string };
+    const td = toTypedDataJson("Receipt", symbolonDomain(CHAIN_ID, VAULT), {
+      receiptHash: hash as `0x${string}`,
+      intentId: receipt.decision.intentId as `0x${string}`,
+      verdict: String(VERDICT_CODE[receipt.decision.verdict as "RELEASE"]),
+      policyHash: receipt.decision.policyHash as `0x${string}`,
+      issuedAt: epochSecondsFromIso(receipt.issuedAt as never).toString(),
+    });
+    expect(await recoverAddress({ hash: eip712Digest(td), signature: got.json.signature })).toBe(privateKeyToAccount(SIGNER_KEY).address);
+    expect(got.json.signer).toBe(privateKeyToAccount(SIGNER_KEY).address);
+    // the attempt reads back with its receipts, an unknown hash is 404, and no signer = no receipts (never invented)
+    const again = await call(w.app({ profile: "sandbox", challenge: svc }), "GET", `/v1/challenge/attempts/${String(r.json.attemptId)}`, tok());
+    expect(again.json.receipts[0].receiptHash).toBe(hash);
+    expect((await call(w.app({ profile: "sandbox", challenge: svc }), "GET", `/v1/challenge/receipts/0x${"00".repeat(32)}`, tok())).status).toBe(404);
+    const bare = await post(sandbox({ signer: null }), { kind: "benign", benignId: "BC-2" });
+    expect(bare.json.receipts).toEqual([]);
   });
 
   it("benign controls pay the right amount (never over-blocked), and an unknown control is a 404", async () => {

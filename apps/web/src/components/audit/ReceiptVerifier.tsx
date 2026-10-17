@@ -30,6 +30,7 @@ export function ReceiptVerifier({ hash, rpcUrl }: { hash: string; rpcUrl: string
     const notes: string[] = [];
     try {
       let input: unknown;
+      let unit: { chainId: number; vault: string } | null = null;
       if (pasted.trim() !== '') {
         input = JSON.parse(pasted);
       } else {
@@ -37,6 +38,21 @@ export function ReceiptVerifier({ hash, rpcUrl }: { hash: string; rpcUrl: string
         if (!res.ok) throw new Error(`the server has no receipt ${hash} (HTTP ${res.status}); paste the signed receipt JSON instead`);
         const j = (await res.json()) as Record<string, unknown>;
         input = { receipt: j['receipt'], receiptHash: j['receiptHash'], signature: j['signature'], signer: j['signer'] };
+        const u = j['unit'] as { chainId?: unknown; vault?: unknown } | undefined;
+        if (u !== undefined && typeof u.chainId === 'number' && Number.isSafeInteger(u.chainId) && typeof u.vault === 'string' && /^0x[0-9a-fA-F]{40}$/.test(u.vault)) unit = { chainId: u.chainId, vault: u.vault };
+      }
+      if (unit !== null) {
+        // A unit-mode challenge receipt: signed by the sandbox kernel signer under a fixture vault domain, never anchored on a chain. We can
+        // check that the bytes are intact and that this key signed them, but NOT who the key belongs to, so the signer is not pinned.
+        const report = await verifyReceipt(input, { domain: symbolonDomain(unit.chainId, unit.vault as Address), allowUnpinnedSigner: true, expectedReceiptHash: hash as Hex32 });
+        setPhase({
+          t: 'done',
+          report,
+          notes: [
+            'Unit-mode challenge receipt. The hash and the signature check out in this browser; the signer is not pinned to an on-chain vault and there is no on-chain release to find, so a verified result here means the receipt was not altered and this key signed it, not that the key belongs to anyone.',
+          ],
+        });
+        return;
       }
       if (!/^0x[0-9a-fA-F]{40}$/.test(vault)) throw new Error('enter the vault address (0x…, 40 hex characters)');
       if (rpcUrl === null) throw new Error('no public RPC is configured for this deployment (NEXT_PUBLIC_ARC_RPC_URL)');
@@ -70,7 +86,7 @@ export function ReceiptVerifier({ hash, rpcUrl }: { hash: string; rpcUrl: string
 
   return (
     <div className="sy-card">
-      <label className="sy-label" htmlFor="vault">Vault address</label>
+      <label className="sy-label" htmlFor="vault">Vault address <span className="sy-muted">(not needed for a challenge receipt)</span></label>
       <input id="vault" className="sy-input sy-mono" value={vault} onChange={(e) => setVault(e.target.value.trim())} placeholder="0x…" spellCheck={false} autoComplete="off" />
       <details className="sy-details" style={{ marginTop: 12 }}>
         <summary>Paste a signed receipt instead of fetching it from this server</summary>

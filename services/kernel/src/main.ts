@@ -160,7 +160,7 @@ async function main(): Promise<void> {
           const apiKey = env["ANTHROPIC_API_KEY"] ?? "";
           const extract = makeExtractEdge({ apiKey, ledger, prices: parsePrices(env["CHALLENGE_MODEL_PRICES"]) });
           const vault = env["SANDBOX_VAULT_ADDRESS"];
-          return new ChallengeService({ db, clock, logger, ipSalt: env["CHALLENGE_IP_SALT"] ?? "", enabled: config.challengeEnabled, dailyBudgetMicroUsd, ledger: extract === null ? null : ledger, extract, onchain: vault === undefined || vault === "" ? null : { vault } });
+          return new ChallengeService({ db, clock, logger, ipSalt: env["CHALLENGE_IP_SALT"] ?? "", enabled: config.challengeEnabled, dailyBudgetMicroUsd, ledger: extract === null ? null : ledger, extract, signer, onchain: vault === undefined || vault === "" ? null : { vault } });
         })()
       : undefined;
   const app = createApp({

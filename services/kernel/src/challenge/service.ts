@@ -8,17 +8,20 @@
 //
 // Logs carry attemptId, ipHash and codes only, never document text. The text is stored as an excerpt, a hash and (30 days) the full
 // text; the public surface shows it only through <UntrustedText>.
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import * as z from "zod";
-import { ATTACK_IDS } from "@symbolon/attack-suite";
-import type { AttackId, ScenarioId } from "@symbolon/attack-suite";
+import { ATTACK_IDS, CHAIN_ID, VAULT, sandboxPolicy } from "@symbolon/attack-suite";
+import type { AttackId, ScenarioId, UnitObservation } from "@symbolon/attack-suite";
 import { toExcerpt, untrusted } from "@symbolon/schemas";
 import type { ExtractedInvoice } from "@symbolon/schemas";
 import { ApiError } from "../errors";
 import type { Db } from "../db/pool";
 import type { Logger } from "../log";
 import { errorFields } from "../log";
+import { nowIso } from "../time";
 import type { Clock } from "../time";
+import { buildDecisionAndReceipt, signBuilt } from "../receipt/build";
+import type { KernelSigner } from "../receipt/build";
 import { benignCatalog, oneClickCatalog, runBenign, runFreeForm, runOneClick, scenarioMilestones, SCENARIO_IDS } from "./engine";
 import type { EngineResult } from "./engine";
 import { ConcurrencyGate, checkAttemptText, defaultLimits, degradeLevel, ipHash } from "./limits";
@@ -46,6 +49,20 @@ export interface ChallengeDeps {
   readonly gate?: ConcurrencyGate;
   /** The sandbox vault the "prove it on-chain" action would use; null = not configured, the action says so. */
   readonly onchain: { readonly vault: string } | null;
+  /** The sandbox kernel signer (its OWN key, boot guard G2). Each run of an attempt gets a signed receipt; null = no receipts. */
+  readonly signer?: KernelSigner | null;
+}
+
+/** At most this many runs of one attempt are signed (an attack fixture reads one document several ways). */
+const MAX_RECEIPTS_PER_ATTEMPT = 8;
+
+export interface SignedAttemptReceipt {
+  readonly label: string;
+  readonly verdict: string;
+  readonly receiptHash: string;
+  readonly receipt: unknown;
+  readonly signature: string;
+  readonly signer: string;
 }
 
 const OneClick = z.strictObject({ kind: z.literal("oneclick"), attackId: z.enum(ATTACK_IDS) });
@@ -75,6 +92,8 @@ export interface AttemptView {
   readonly text: { readonly excerpt: string; readonly length: number; readonly hash: string } | null;
   /** Why no verdict from the kernel exists for a free-form attempt (the extractor refused), else null. */
   readonly extractionRefused: string | null;
+  /** One signed receipt per run (verifiable at /audit/<hash>). Signed by the sandbox kernel signer; NOT anchored on-chain in unit mode. */
+  readonly receipts: readonly { readonly label: string; readonly verdict: string; readonly receiptHash: string }[];
 }
 
 /** 0x-prefixed sha256 hex: the format the challenge_attempts hash columns enforce (migration 0003). */
@@ -152,12 +171,34 @@ export class ChallengeService {
     }
   }
 
+  /** Build and sign a receipt for each observed run. A run whose receipt cannot be built is simply left without one (never invented). */
+  private async signRuns(obs: readonly UnitObservation[]): Promise<SignedAttemptReceipt[]> {
+    const signer = this.d.signer ?? null;
+    if (signer === null) return [];
+    const out: SignedAttemptReceipt[] = [];
+    for (const o of obs.slice(0, MAX_RECEIPTS_PER_ATTEMPT)) {
+      try {
+        const built = buildDecisionAndReceipt({ evaluation: o.evaluation, ctx: o.ctx, rawIntent: o.rawIntent, decisionId: randomUUID(), supersedes: null, now: nowIso(this.d.clock), policyHash: sandboxPolicy().policyHash });
+        const s = await signBuilt(built, signer, o.ctx);
+        out.push({ label: o.label, verdict: built.decision.verdict, receiptHash: s.receiptHash, receipt: s.receipt, signature: s.signature, signer: s.signer });
+      } catch (e) {
+        this.d.logger.warn("challenge.receipt_skipped", { ...errorFields(e) });
+      }
+    }
+    return out;
+  }
+
   private async run(req: z.infer<typeof AttemptRequestSchema>, ip: string): Promise<AttemptView> {
-    if (req.kind === "oneclick") return this.persist({ source: "oneclick", result: runOneClick(req.attackId as AttackId), ip, text: null, refused: null, benign: false, textHash: sha256(`oneclick:${req.attackId}`) });
+    const obs: UnitObservation[] = [];
+    const observe = this.d.signer == null ? undefined : (o: UnitObservation): void => void obs.push(o);
+    if (req.kind === "oneclick") {
+      const result = runOneClick(req.attackId as AttackId, observe);
+      return this.persist({ source: "oneclick", result, ip, text: null, refused: null, benign: false, textHash: sha256(`oneclick:${req.attackId}`), signed: await this.signRuns(obs) });
+    }
     if (req.kind === "benign") {
-      const r = runBenign(req.benignId);
+      const r = runBenign(req.benignId, observe);
       if (r === null) throw new ApiError("NOT_FOUND", "no such benign control");
-      return this.persist({ source: "oneclick", result: r, ip, text: null, refused: null, benign: true, textHash: sha256(`benign:${req.benignId}`) });
+      return this.persist({ source: "oneclick", result: r, ip, text: null, refused: null, benign: true, textHash: sha256(`benign:${req.benignId}`), signed: await this.signRuns(obs) });
     }
     // free-form: the text is checked BEFORE anything is spent on it
     const chk = checkAttemptText(req.text);
@@ -176,11 +217,24 @@ export class ChallengeService {
         action: read.disposition, checksFired: [], reasons: [read.code], releases: 0, lossReleases: 0, lossBaseUnits: "0", predicates: [],
         oracleResult: "NO_LOSS", outcome: null, benign: null, runs: [], notRun: [], steps: 0,
       };
-      return this.persist({ source: "human", result: refused, ip, text: { shown, full: chk.text }, refused: read.code, benign: false, textHash });
+      return this.persist({ source: "human", result: refused, ip, text: { shown, full: chk.text }, refused: read.code, benign: false, textHash, signed: [] });
     }
-    const result = runFreeForm({ scenarioId: req.scenarioId, milestoneSlug: req.milestoneSlug, text: chk.text, a: read.a, b: read.b });
+    const result = runFreeForm({ scenarioId: req.scenarioId, milestoneSlug: req.milestoneSlug, text: chk.text, a: read.a, b: read.b }, observe);
     if (result === null) throw new ApiError("BAD_REQUEST", "the milestone is not part of this scenario");
-    return this.persist({ source: "human", result, ip, text: { shown, full: chk.text }, refused: null, benign: false, textHash });
+    return this.persist({ source: "human", result, ip, text: { shown, full: chk.text }, refused: null, benign: false, textHash, signed: await this.signRuns(obs) });
+  }
+
+  /** A signed receipt made by this challenge, by its hash (public: it contains codes, hashes and amounts only). Null when unknown. */
+  async getReceipt(hash: string): Promise<{ receipt: unknown; receiptHash: string; signature: string; signer: string; tx: null; mode: "UNIT"; unit: { chainId: number; vault: string } } | null> {
+    if (!/^0x[0-9a-f]{64}$/.test(hash)) return null;
+    const r = await this.d.db.query<{ s: SignedAttemptReceipt }>(
+      "select s from challenge_attempts a, jsonb_array_elements(coalesce(a.extraction -> 'signed', '[]'::jsonb)) s where s ->> 'receiptHash' = $1 limit 1",
+      [hash],
+    );
+    const s = r.rows[0]?.s;
+    // `unit` is the EIP-712 domain the unit-mode receipt was signed under (fixture chain and vault), so a verifier can check the signature
+    // without a chain; the signer is NOT pinned to any vault.
+    return s === undefined ? null : { receipt: s.receipt, receiptHash: s.receiptHash, signature: s.signature, signer: s.signer, tx: null, mode: "UNIT", unit: { chainId: CHAIN_ID, vault: VAULT } };
   }
 
   private async ensureScenarios(): Promise<void> {
@@ -202,28 +256,30 @@ export class ChallengeService {
     refused: string | null;
     benign: boolean;
     textHash: string;
+    signed: readonly SignedAttemptReceipt[];
   }): Promise<AttemptView> {
     await this.ensureScenarios();
     const r = p.result;
     const ins = await this.d.db.query<{ attempt_id: string; created_at: string }>(
       `insert into challenge_attempts (scenario_id, source, attack_id, ip_hash, text_hash, text_length, excerpt, full_text, extraction, verdict, reasons, checks_fired,
-                                       oracle_result, oracle_predicates, benign_control, publishable)
-       values ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10, $11::text[], $12::text[], $13, $14::text[], $15, false)
+                                       oracle_result, oracle_predicates, benign_control, publishable, receipt_hash)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10, $11::text[], $12::text[], $13, $14::text[], $15, false, $16)
        returning attempt_id::text, created_at`,
       [
         r.scenarioId, p.source, r.attackId, p.ip, p.textHash, p.text?.shown.length ?? 0, p.text?.shown.excerpt ?? "", p.text?.full ?? null,
-        JSON.stringify({ result: r, refused: p.refused }), dbVerdict(r.action), [...r.reasons], [...r.checksFired], r.oracleResult, [...r.predicates], p.benign,
+        JSON.stringify({ result: r, refused: p.refused, signed: p.signed }), dbVerdict(r.action), [...r.reasons], [...r.checksFired], r.oracleResult, [...r.predicates], p.benign,
+        p.signed[0]?.receiptHash ?? null,
       ],
     );
     const row = ins.rows[0];
     if (row === undefined) throw new ApiError("INTERNAL", "attempt was not stored");
     this.d.logger.info("challenge.attempt", { attemptId: row.attempt_id, ipHash: p.ip.slice(0, 16), reasonCode: r.oracleResult, count: r.releases });
-    return { attemptId: row.attempt_id, createdAt: row.created_at, source: p.source, result: r, text: p.text === null ? null : p.text.shown, extractionRefused: p.refused };
+    return { attemptId: row.attempt_id, createdAt: row.created_at, source: p.source, result: r, text: p.text === null ? null : p.text.shown, extractionRefused: p.refused, receipts: p.signed.map((s) => ({ label: s.label, verdict: s.verdict, receiptHash: s.receiptHash })) };
   }
 
   async getAttempt(id: string): Promise<AttemptView> {
     if (!/^[0-9a-f-]{36}$/.test(id)) throw new ApiError("NOT_FOUND", "not found");
-    const r = await this.d.db.query<{ attempt_id: string; created_at: string; source: "human" | "oneclick"; extraction: { result: EngineResult; refused: string | null }; text_length: number; excerpt: string; text_hash: string }>(
+    const r = await this.d.db.query<{ attempt_id: string; created_at: string; source: "human" | "oneclick"; extraction: { result: EngineResult; refused: string | null; signed?: SignedAttemptReceipt[] }; text_length: number; excerpt: string; text_hash: string }>(
       "select attempt_id::text, created_at, source, extraction, text_length, excerpt, text_hash from challenge_attempts where attempt_id = $1::uuid and source in ('human','oneclick')",
       [id],
     );
@@ -233,6 +289,7 @@ export class ChallengeService {
       attemptId: x.attempt_id, createdAt: x.created_at, source: x.source, result: x.extraction.result,
       text: x.source === "human" ? { excerpt: x.excerpt, length: x.text_length, hash: x.text_hash } : null,
       extractionRefused: x.extraction.refused,
+      receipts: (x.extraction.signed ?? []).map((s) => ({ label: s.label, verdict: s.verdict, receiptHash: s.receiptHash })),
     };
   }
 

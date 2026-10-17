@@ -526,6 +526,11 @@ export function createApp(d: AppDeps): Hono<AppEnv> {
     });
     v1.get("/challenge/attempts/:id", async (c) => c.json(await need().getAttempt(c.req.param("id"))));
     v1.get("/challenge/stats", async (c) => c.json(await need().stats()));
+    v1.get("/challenge/receipts/:hash", async (c) => {
+      const r = await need().getReceipt(c.req.param("hash"));
+      if (r === null) throw new ApiError("NOT_FOUND", "not found");
+      return c.json(r);
+    });
     v1.post("/challenge/prove-onchain", () => need().proveOnchain());
   }
 

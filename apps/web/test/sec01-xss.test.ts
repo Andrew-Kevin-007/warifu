@@ -15,6 +15,7 @@ const attempt = (excerpt: string): AttemptView => ({
   createdAt: "2026-10-17 17:14:39+00",
   source: "human",
   extractionRefused: null,
+  receipts: [{ label: "visitor-document", verdict: "REJECT", receiptHash: `0x${"cd".repeat(32)}` }],
   text: { excerpt, length: excerpt.length, hash: `0x${"ab".repeat(32)}` },
   result: {
     engine: "challenge-engine/1", mode: "UNIT", kind: "freeform", attackId: null, benignId: null, scenarioId: "S-A", action: "REJECT",
@@ -28,7 +29,9 @@ const tagsOnly = (html: string): string => (html.match(/<[^>]*>/g) ?? []).join("
 const tagSequence =(html: string): string[] => [...html.matchAll(/<\/?([a-zA-Z][a-zA-Z0-9-]*)/g)].map((m) => m[0].toLowerCase());
 const attributeNames = (html: string): string[] => [...tagsOnly(html).matchAll(/\s([a-zA-Z_:][-a-zA-Z0-9_:.]*)=/g)].map((m) => m[1]?.toLowerCase() ?? "");
 // (the panel's own decorative glyph is an <svg>, which the benign baseline contains too; the structural equality below is what proves a payload adds none)
-const FORBIDDEN_TAGS = /<\/?(script|img|iframe|object|embed|form|input|meta|base|link|style|math|details|body|html|a|video|audio|source|template|textarea|select|button)\b/i;
+const FORBIDDEN_TAGS = /<\/?(script|img|iframe|object|embed|form|input|meta|base|link|style|math|details|body|html|video|audio|source|template|textarea|select|button)\b/i;
+/** Every href in the markup: the panel has exactly the receipt links it renders itself, and a payload must add none. */
+const hrefs = (html: string): string[] => [...tagsOnly(html).matchAll(/\shref="([^"]*)"/g)].map((m) => m[1] ?? "");
 
 describe("SEC-01: XSS corpus renders inert", () => {
   it("the corpus has at least 40 cases across every family", () => {
@@ -48,7 +51,9 @@ describe("SEC-01: XSS corpus renders inert", () => {
     expect(attributeNames(html).join(",")).toBe(baseAttrs); // and identical attributes: nothing the payload could add (on*, href, src, style)
     expect(tagsOnly(html)).not.toMatch(FORBIDDEN_TAGS);
     expect(tagsOnly(html)).not.toMatch(/\son[a-z]+=/i);
-    expect(tagsOnly(html)).not.toMatch(/\s(href|src|action|formaction|srcdoc|xlink:href|data)=/i); // no URL-bearing attribute exists in the panel at all
+    expect(hrefs(html)).toEqual(hrefs(baseline)); // the only links are the panel's own receipt links: a payload adds none
+    expect(hrefs(html).every((h) => /^\/audit\/0x[0-9a-f]{64}$/.test(h))).toBe(true);
+    expect(tagsOnly(html)).not.toMatch(/\s(src|action|formaction|srcdoc|xlink:href|data)=/i); // and no other URL-bearing attribute exists at all
   });
 
   it.each(XSS_CORPUS.map((c) => [c.id, c.payload] as const))("%s: <UntrustedText> emits one span holding only escaped text", (_id, payload) => {

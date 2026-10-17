@@ -3,6 +3,7 @@ export * from "./target";
 export * from "./results";
 export { b1Target, referenceValidator, REFERENCE_VALIDATOR_RULES, B1_PROVENANCE } from "./b1";
 export { makeSymbolonUnitTarget, sandboxPolicy, buildContext, buildIntent, toDecision, SYMBOLON_UNIT_PROVENANCE } from "./symbolon-unit";
+export type { UnitObservation } from "./symbolon-unit";
 export { agreement, intendedToOracleRelease, flattenSteps } from "./oracle-agreement";
 export type { AgreementRow } from "./oracle-agreement";
 export { runAttack, runHonestItem, runSubmit, lossMoney, matchExpectation } from "./run";
