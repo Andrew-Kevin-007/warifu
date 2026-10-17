@@ -10,6 +10,7 @@ const IS_CHALLENGE = process.env.NEXT_PUBLIC_PROFILE === 'challenge';
 
 const NAV = [
   { href: '/judge', label: 'Judge path' },
+  { href: '/challenge', label: 'Challenge' },
   { href: '/attack-lab', label: 'Attack lab' },
   { href: '/blast-radius', label: 'Blast radius' },
   { href: '/certificate', label: 'Certificate' },
