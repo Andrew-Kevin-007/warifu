@@ -492,6 +492,67 @@ export async function getIntentRow(q: Queryable, tenantId: string, intentId: str
   return x === undefined ? null : { intentId: Hex32Schema.parse(x.intent_id), documentId: x.document_id, payload: x.payload, createdAt: toIsoSeconds(x.created_at) };
 }
 
+export interface IntentListItem {
+  readonly intentId: Hex32;
+  readonly createdAt: ISODateTime;
+  readonly verdict: string | null;
+  readonly reasons: readonly string[];
+  readonly payee: string | null;
+  readonly amountBaseUnits: string | null;
+  readonly releaseAmountBaseUnits: string | null;
+  readonly receiptHash: string | null;
+  readonly releaseStatus: string | null;
+}
+
+/**
+ * The tenant's newest intents with their latest decision (dashboard feed). Identifiers, codes and amounts only: no document text, no
+ * payload, nothing an attacker typed (INV-15). Reason codes are re-validated against the code pattern.
+ */
+export async function listIntents(q: Queryable, tenantId: string, limit: number): Promise<IntentListItem[]> {
+  const r = await q.query<{
+    intent_id: string; created_at: string; verdict: string | null; reasons: string[] | null; payee: string | null;
+    amount: string | null; release_amount: string | null; receipt_hash: string | null; release_status: string | null;
+  }>(
+    `select i.intent_id, i.created_at, d.verdict, d.reasons, d.payee, d.amount_base_units::text as amount,
+            d.release_amount_base_units::text as release_amount, rc.receipt_hash,
+            (select x.status from releases x where x.decision_id = d.decision_id order by x.updated_at desc limit 1) as release_status
+       from intents i
+       left join lateral (select * from decisions s where s.intent_id = i.intent_id and not exists (select 1 from decisions n where n.supersedes = s.decision_id)
+                          order by s.created_at desc limit 1) d on true
+       left join receipts rc on rc.decision_id = d.decision_id
+      where i.tenant_id = $1
+      order by i.created_at desc
+      limit $2`,
+    [tenantId, Math.max(1, Math.min(limit, 100))],
+  );
+  return r.rows.map((x) => ({
+    intentId: Hex32Schema.parse(x.intent_id),
+    createdAt: toIsoSeconds(x.created_at),
+    verdict: x.verdict,
+    reasons: (x.reasons ?? []).filter((c) => /^[A-Z][A-Z0-9_]{0,63}$/.test(c)),
+    payee: x.payee,
+    amountBaseUnits: x.amount,
+    releaseAmountBaseUnits: x.release_amount,
+    receiptHash: x.receipt_hash,
+    releaseStatus: x.release_status,
+  }));
+}
+
+export interface PilotStatsRow {
+  readonly network: string;
+  readonly businesses: number;
+  readonly releases: number;
+  readonly valueBaseUnits: string;
+}
+
+/** Only the sanitized `public_pilot_stats` view (tenants.kind = 'pilot', INV-17): demo, challenge and house traffic are excluded by construction. */
+export async function pilotStats(q: Queryable): Promise<PilotStatsRow[]> {
+  const r = await q.query<{ network: string; businesses: string; releases: string; value_base_units: string }>(
+    "select network, businesses::text, releases::text, value_base_units::text from public_pilot_stats order by network",
+  );
+  return r.rows.map((x) => ({ network: x.network, businesses: Number.parseInt(x.businesses, 10), releases: Number.parseInt(x.releases, 10), valueBaseUnits: x.value_base_units }));
+}
+
 /** Insert the intent unless it exists. Returns the tenant that owns the stored row (a different tenant is a hard conflict). */
 export async function insertIntentOnce(q: Queryable, i: { intentId: string; tenantId: string; documentId: string; payloadJson: string }): Promise<{ ownerTenantId: string; created: boolean }> {
   const ins = await q.query<{ intent_id: string }>(

@@ -265,6 +265,18 @@ export function createApp(d: AppDeps): Hono<AppEnv> {
     return c.json(r, r.replay ? 200 : 201);
   });
 
+  v1.get("/intents", async (c) => {
+    const { tenantId } = c.get("auth");
+    const raw = c.req.query("limit");
+    if (raw !== undefined && !/^[0-9]{1,3}$/.test(raw)) throw new ApiError("BAD_REQUEST", "limit must be a number up to 100");
+    return c.json({ intents: await repo.listIntents(d.db, tenantId, raw === undefined ? 25 : Number.parseInt(raw, 10)) });
+  });
+
+  v1.get("/pilot-stats", async (c) => {
+    c.get("auth");
+    return c.json({ stats: await repo.pilotStats(d.db), countsExclude: ["demo tenants", "challenge attempts", "house attackers", "internal self-payments"] });
+  });
+
   v1.get("/intents/:id", async (c) => {
     const { tenantId } = c.get("auth");
     const intentId = hex32Param(c.req.param("id"));
