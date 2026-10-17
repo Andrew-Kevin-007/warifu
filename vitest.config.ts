@@ -1,6 +1,9 @@
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
+  // Lets tests import the real React components (JSX) instead of re-implementing them; apps/web's own build is unaffected.
+  // (apps/web's tsconfig says `jsx: preserve` for Next; tests need the transformed form, so it is pinned here.)
+  oxc: { jsx: { runtime: "automatic" } },
   test: {
     include: [
       "packages/*/test/**/*.test.ts",

@@ -59,8 +59,13 @@ describe("SEC suite tracker", () => {
     const set = SEC_TESTS.filter((t) => t.sandbox).map((t) => t.id);
     expect(set).toEqual(["SEC-01", "SEC-02", "SEC-03", "SEC-04", "SEC-05", "SEC-06", "SEC-07", "SEC-08", "SEC-09", "SEC-10", "SEC-14"]);
   });
-  // The remaining tests are WP-37's job (docs/13 §4.6). They stay `todo` so progress is visible, never faked.
-  for (const t of SEC_TESTS) {
-    if (t.id !== "SEC-11" && t.id !== "SEC-06") it.todo(`${t.id}: ${t.what}`);
-  }
+  // Every SEC item names where it is exercised; a test file that disappears fails here, so no item can be dropped silently.
+  it.each(SEC_TESTS.map((t) => [t.id, t.exercisedIn] as const))("%s: every test file that exercises it exists and contains tests", (_id, files) => {
+    expect(files.length).toBeGreaterThan(0);
+    for (const f of files) {
+      const p = join(ROOT, f);
+      expect(existsSync(p), f).toBe(true);
+      if (f.endsWith(".test.ts")) expect(readFileSync(p, "utf8"), f).toMatch(/\b(it|test)(\.each|\.skipIf\([^)]*\))?\(/);
+    }
+  });
 });

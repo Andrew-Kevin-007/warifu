@@ -1,7 +1,7 @@
 {
   "schema": "claims/1",
   "provenance": {
-    "gitSha": "12c00fa38fae6afa1924d5f3046a84a5a8ba012f",
+    "gitSha": "b3aaad9e6c38037bd2413780e9305ed9c50822fe",
     "inputs": {
       "attackMatrix": "results/attack-matrix.json",
       "honestCorpus": "results/honest-corpus.json",
