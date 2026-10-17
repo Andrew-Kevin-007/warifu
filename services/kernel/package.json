@@ -9,8 +9,10 @@
   "scripts": { "typecheck": "tsc --noEmit -p ." },
   "dependencies": {
     "@hono/node-server": "2.1.4",
+    "@symbolon/attack-suite": "workspace:*",
     "@symbolon/blast-radius": "workspace:*",
     "@symbolon/chain": "workspace:*",
+    "@symbolon/extractor": "workspace:*",
     "@symbolon/kernel-core": "workspace:*",
     "@symbolon/policy": "workspace:*",
     "@symbolon/receipts": "workspace:*",
