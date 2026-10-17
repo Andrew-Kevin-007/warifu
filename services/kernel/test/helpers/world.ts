@@ -134,11 +134,11 @@ export interface World {
   close(): Promise<void>;
 }
 
-async function seedTenant(w: TestDb, tenantId: string, engagement: Engagement, name: string): Promise<void> {
+async function seedTenant(w: TestDb, tenantId: string, engagement: Engagement, name: string, kind: "pilot" | "challenge" = "pilot"): Promise<void> {
   const loaded = normalizePolicy(POLICY_INPUT);
   await w.db.query(
     `insert into tenants (id, name, owner_address, vault_address, chain_id, network, kind, policy, policy_hash)
-     values ($1, $2, $3, $4, $5, 'local', 'pilot', $6::jsonb, $7)`,
+     values ($1, $2, $3, $4, $5, 'local', '${kind}', $6::jsonb, $7)`,
     [tenantId, name, OWNER, VAULT, CHAIN_ID, JSON.stringify(loaded.policy), loaded.policyHash],
   );
   await w.db.query(
@@ -160,12 +160,12 @@ async function seedTenant(w: TestDb, tenantId: string, engagement: Engagement, n
   }
 }
 
-export async function openWorld(): Promise<World> {
-  const t = openTestDb("production");
+export async function openWorld(profile: "production" | "sandbox" = "production"): Promise<World> {
+  const t = openTestDb(profile);
   const eng = makeEngagement(TENANT);
   const other = makeEngagement(OTHER_TENANT);
-  await seedTenant(t, TENANT, eng, "tenant one");
-  await seedTenant(t, OTHER_TENANT, other, "tenant two");
+  await seedTenant(t, TENANT, eng, "tenant one", profile === "sandbox" ? "challenge" : "pilot");
+  await seedTenant(t, OTHER_TENANT, other, "tenant two", profile === "sandbox" ? "challenge" : "pilot");
   const chain = fakeChain();
   for (const e of [eng, other]) {
     chain.engagements.set(e.engagementId, {

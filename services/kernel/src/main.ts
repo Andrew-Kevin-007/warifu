@@ -147,7 +147,24 @@ async function main(): Promise<void> {
     : null;
 
   const certificates = certificateConfig(client);
+  // The public challenge (WP-32): sandbox only, and its module (which pulls the attack suite and the extractor) is imported only here,
+  // so a production process never loads it. Free-form needs the sandbox model key AND a price table (nothing is assumed about prices);
+  // without them the challenge still runs one-click and benign attempts (level L1).
+  const challenge =
+    config.profile === "sandbox"
+      ? await (async () => {
+          const [{ ChallengeService }, { PgBudgetLedger }, { makeExtractEdge, parsePrices }] = await Promise.all([import("./challenge/service"), import("./challenge/ledger"), import("./challenge/extract")]);
+          const budgetUsd = Number.parseFloat(env["CHALLENGE_LLM_DAILY_BUDGET_USD"] ?? "0");
+          const dailyBudgetMicroUsd = BigInt(Math.max(0, Math.round(budgetUsd * 1_000_000)));
+          const ledger = new PgBudgetLedger(db, { globalDailyMicroUsd: dailyBudgetMicroUsd, perPrincipalDailyMicroUsd: dailyBudgetMicroUsd / 10n });
+          const apiKey = env["ANTHROPIC_API_KEY"] ?? "";
+          const extract = makeExtractEdge({ apiKey, ledger, prices: parsePrices(env["CHALLENGE_MODEL_PRICES"]) });
+          const vault = env["SANDBOX_VAULT_ADDRESS"];
+          return new ChallengeService({ db, clock, logger, ipSalt: env["CHALLENGE_IP_SALT"] ?? "", enabled: config.challengeEnabled, dailyBudgetMicroUsd, ledger: extract === null ? null : ledger, extract, onchain: vault === undefined || vault === "" ? null : { vault } });
+        })()
+      : undefined;
   const app = createApp({
+    ...(challenge === undefined ? {} : { challenge }),
     ...(circleWebhook === undefined ? {} : { circleWebhook }),
     profile: config.profile,
     db,
