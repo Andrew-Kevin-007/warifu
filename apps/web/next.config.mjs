@@ -15,6 +15,8 @@ const challengeAliases = CHALLENGE
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Development only (ignored by `next build`): lets a browser on 127.0.0.1 load dev chunks and HMR.
+  allowedDevOrigins: ['127.0.0.1'],
   // three / rapier ship ESM with wasm; workspace packages ship TypeScript source.
   transpilePackages: ['three', '@symbolon/schemas', '@symbolon/receipts', '@symbolon/blast-radius', '@symbolon/chain', '@symbolon/policy'],
   turbopack: {

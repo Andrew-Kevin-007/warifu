@@ -14,12 +14,15 @@ export default function WriteYourOwnPlate({
   captcha,
   disabled = false,
   onSubmit,
+  afterScenario,
 }: {
   maxBytes: number;
   scenarios: { id: string; label: string }[];
   captcha?: ReactNode;
   disabled?: boolean;
   onSubmit?: (v: { text: string; scenarioId: string }) => void;
+  /** A control that depends on the chosen scenario (the lane's milestone picker), rendered right under the scenario selector. */
+  afterScenario?: (scenarioId: string) => ReactNode;
 }) {
   const [text, setText] = useState('');
   const [scenario, setScenario] = useState(scenarios[0]?.id ?? '');
@@ -45,6 +48,7 @@ export default function WriteYourOwnPlate({
           ))}
         </div>
       </fieldset>
+      {afterScenario ? afterScenario(scenario) : null}
       <label className="sy-write__field">
         <span className="sy-mono">Invoice text</span>
         <textarea
