@@ -16,7 +16,7 @@ export default function Page() {
   return (
     <>
       <CertificateBody model={certificateModel({ vault: 'no vault configured', mode: 'recorded', cert: null, view: null })} />
-      <section className="container" style={{ padding: '0 0 96px' }} aria-label="Open a certificate">
+      <section className="container" style={{ paddingBottom: 96 }} aria-label="Open a certificate">
         <h2 className="heading-h4">Open a certificate by vault address</h2>
         <CertificateLookup defaultVault="" />
       </section>

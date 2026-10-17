@@ -406,6 +406,7 @@
 .sy-cert__horizons {
   margin-top: 56px;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 32px;
 }
 @media (min-width: 1000px) {
@@ -1540,4 +1541,27 @@
   font-size: 22px;
   font-weight: 700;
   letter-spacing: 0.1em;
+}
+
+/* /audit: the lookup beside a hollow seal (hollow until a receipt verifies). */
+.sy-audit-lookup {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+@media (min-width: 900px) {
+  .sy-audit-lookup {
+    grid-template-columns: minmax(0, 1fr) 220px;
+  }
+}
+.sy-audit-lookup__note {
+  margin-top: 16px;
+  opacity: 0.72;
+  max-width: 62ch;
+}
+.sy-audit-lookup__seal {
+  width: 180px;
+  max-width: 100%;
+  justify-self: center;
 }
