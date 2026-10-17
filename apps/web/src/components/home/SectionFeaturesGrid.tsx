@@ -10,7 +10,7 @@ export default function SectionFeaturesGrid() {
               </span>
             </div>
             <p className="body-text-m mx-md lg:mx-xl lg:mb-xl" style={{maxWidth: "320px"}}>
-              A familiar channel does not prove who should be paid. The kernel checks the payee, evidence and signed terms.
+              Instructions hidden in a document are data, never commands. They are flagged, and they cannot change a payee, an amount or a limit.
             </p>
           </div>
           <div className="section-features-grid__card flex flex-col gap-sm lg:gap-md">
@@ -20,7 +20,7 @@ export default function SectionFeaturesGrid() {
               </span>
             </div>
             <p className="body-text-m mx-md lg:mx-xl lg:mb-xl" style={{maxWidth: "356px"}}>
-              A familiar sender is not proof of the payee. The signed engagement binds the payout address.
+              A familiar sender or channel proves nothing about who should be paid. The signed engagement binds the payout address, and the kernel checks every payment against it.
             </p>
           </div>
           <div className="section-features-grid__card flex flex-col gap-sm lg:gap-md">

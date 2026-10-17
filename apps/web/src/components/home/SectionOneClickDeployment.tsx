@@ -20,7 +20,7 @@ export default function SectionOneClickDeployment() {
                   The agent proposes
                 </p>
                 <p className="body-text-s">
-                  Invoice text becomes a suggested payee, amount and evidence set. The proposal cannot authorize its own payment.
+                  Invoice text becomes a suggested payee, amount and evidence set: a claim to be checked, not a command.
                 </p>
               </div>
             </div>
