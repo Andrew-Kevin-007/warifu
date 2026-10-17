@@ -42,7 +42,7 @@ const SIM_ASSUMPTIONS = [
   "no model was called; extraction reads are the fixtures' reference reads",
 ];
 const SIM_EXCLUSIONS = [
-  "no chain, service, or contract call is exercised; hold-out set not run; baselines B0 and B2 not built",
+  "no chain, service, or contract call is exercised; hold-out set not run",
   "trials of one fixture are not independent",
 ];
 
@@ -303,7 +303,7 @@ export function renderFragment(doc: ClaimsDoc): string {
     `| Traction | ${g("traction.pilot").display} | LIVE |`,
     `| Model calls behind any figure | ${g("llm.calls").display} | SIMULATED |`,
     "",
-    "Assumptions: unit mode, the real kernel pipeline, fixture engagements with placeholder signatures, reference extraction reads (no model called). Exclusions: no chain or contract run, hold-out not run, B0 and B2 not built, trials of one fixture are not independent. Calculated from committed result files and empirically tested; not a proof. Source: `results/claims.json`.",
+    "Assumptions: unit mode, the real kernel pipeline, fixture engagements with placeholder signatures, reference extraction reads (no model called). Exclusions: no chain or contract run, hold-out not run, trials of one fixture are not independent. Calculated from committed result files and empirically tested; not a proof. Source: `results/claims.json`.",
   ];
   return out.join("\n");
 }
