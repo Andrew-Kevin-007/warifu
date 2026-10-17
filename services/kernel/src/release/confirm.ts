@@ -48,7 +48,41 @@ export async function confirmReleased(q: Queryable, tenantId: string, d: Record<
   }
   if (row.status === "CONFIRMED") return "ALREADY";
   await q.query("update releases set status = 'CONFIRMED', tx_hash = $2, confirmed_at = now(), error = null, updated_at = now() where release_id = $1", [row.release_id, at.txHash]);
+  await syncMilestonePaid(q, row.release_id);
   return "CONFIRMED";
+}
+
+// The milestone's gross amount covered by CONFIRMED releases (the same gross K-04 reads from RELEASE decisions).
+const CONFIRMED_GROSS = `(select coalesce(sum(d2.amount_base_units), 0) from decisions d2 join releases r2 on r2.decision_id = d2.decision_id
+                           where d2.milestone_id = m.milestone_id and d2.verdict = 'RELEASE' and r2.status = 'CONFIRMED')`;
+
+/**
+ * A milestone becomes PAID only from CONFIRMED releases (chain events, never a relayer answer): an all-or-nothing milestone after its
+ * first confirmed release, a `partialAllowed` one once the confirmed gross amounts cover the milestone amount (the reading K-04 uses,
+ * docs/04). K-05 then rejects any further release and `sequential` engagements may move to the next milestone.
+ */
+export async function syncMilestonePaid(q: Queryable, releaseId: string): Promise<void> {
+  await q.query(
+    `update milestones m set status = 'PAID'
+      where m.milestone_id = (select d.milestone_id from decisions d join releases r on r.decision_id = d.decision_id where r.release_id = $1)
+        and m.status in ('PENDING', 'EVIDENCE_OK')
+        and (not m.partial_allowed or ${CONFIRMED_GROSS} >= m.amount_base_units)`,
+    [releaseId],
+  );
+}
+
+/** A reorged release no longer covers its milestone: PAID goes back to PENDING (evidence is re-collected before any new release). */
+async function unpayMilestones(q: Queryable, tenantId: string, txHash: string): Promise<void> {
+  await q.query(
+    `update milestones m set status = 'PENDING'
+      where m.status = 'PAID'
+        and m.milestone_id in (select d.milestone_id from decisions d join releases r on r.decision_id = d.decision_id
+                                where d.tenant_id = $1 and r.tx_hash = $2)
+        and (not m.partial_allowed or ${CONFIRMED_GROSS} < m.amount_base_units)
+        and (m.partial_allowed or not exists (select 1 from decisions d3 join releases r3 on r3.decision_id = d3.decision_id
+                                                where d3.milestone_id = m.milestone_id and d3.verdict = 'RELEASE' and r3.status = 'CONFIRMED'))`,
+    [tenantId, txHash],
+  );
 }
 
 /** A reorged `Released` log: the confirmation it gave is withdrawn; the row goes back to SUBMITTED (the reconciler re-checks it). */
@@ -57,4 +91,5 @@ export async function unconfirmReleased(q: Queryable, tenantId: string, txHash: 
     "update releases set status = 'SUBMITTED', confirmed_at = null, updated_at = now() where tenant_id = $1 and tx_hash = $2 and status = 'CONFIRMED'",
     [tenantId, txHash],
   );
+  await unpayMilestones(q, tenantId, txHash);
 }
