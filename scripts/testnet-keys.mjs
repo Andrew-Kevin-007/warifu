@@ -20,7 +20,8 @@ if (!existsSync(ENV_FILE)) {
   process.exit(1);
 }
 
-const r = spawnSync('cast', ['wallet', 'new', '--number', String(ROLES.length), '--json'], { encoding: 'utf8' });
+const CAST = existsSync('D:\\tools\\foundry\\bin\\cast.exe') ? 'D:\\tools\\foundry\\bin\\cast.exe' : 'cast';
+const r = spawnSync(CAST, ['wallet', 'new', '--number', String(ROLES.length), '--json'], { encoding: 'utf8' });
 if (r.status !== 0) {
   console.error('cast wallet new failed (is D:\\tools\\foundry\\bin on PATH?)');
   process.exit(1);
