@@ -82,9 +82,63 @@ NEXT_PUBLIC_CHALLENGE_URL=         # paste the challenge origin URL once deploye
 `;
 }
 
+/** Production profile on Arc MAINNET (docs/DEPLOY_MAINNET.md). Only PUBLIC facts are pre-filled (docs, V-03 resolution); every secret is a placeholder. */
+export function mainnetKernelEnv({ serviceSecret }) {
+  return `# services/kernel/.env.mainnet.local (git-ignored). PRODUCTION profile on Arc MAINNET: real funds. Fresh keys only; never reuse a testnet or sandbox key.
+# Public values below come from the official docs (docs/VERIFY_LOG.md, V-03 resolution): confirm each on its page before the first deploy.
+# Check this file any time with: pnpm mainnet:preflight   (add --online for read-only chain checks). Start with: pnpm kernel:start:mainnet
+
+KERNEL_PROFILE=production
+NETWORK=mainnet
+EVIDENCE_MODE=live
+HOST=0.0.0.0
+PORT=8787
+
+# --- Chain (public facts, https://docs.arc.io/arc/references/rpc-endpoints.md); ARC_RPC_URL must stay unset on mainnet ---
+ARC_MAINNET_CHAIN_ID=5042
+ARC_MAINNET_RPC_URL=https://rpc.mainnet.arc.io          # public + rate-limited: use a dedicated provider URL for real traffic
+INDEXER_START_BLOCK=${P("VAULT_DEPLOY_BLOCK")}       # the vault's deployment block (from broadcast/Deploy.s.sol/<chainId>/run-latest.json)
+INDEXER_CONFIRMATIONS=2                                  # V-24: finality on mainnet is not verified; raise it if in doubt
+
+# --- Database: the PRODUCTION database (never the sandbox one) ---------------------------------------------------------
+DATABASE_URL=${P("PRODUCTION_DATABASE_URL")}
+
+# --- Keys: fresh, offline, mainnet only. Signer and guardian differ; the guardian can only pause. -----------------------
+KERNEL_SIGNER_PRIVATE_KEY=${P("MAINNET_KERNEL_SIGNER_PRIVATE_KEY")}
+GUARDIAN_PRIVATE_KEY=${P("MAINNET_GUARDIAN_PRIVATE_KEY")}
+
+# --- Circle relayer (mainnet submits only through Circle; RELAYER_PRIVATE_KEY is refused). Use the MAINNET API key. -------
+# Identifier from https://developers.circle.com/wallets/supported-blockchains.md : ARC on mainnet
+CIRCLE_BLOCKCHAIN=ARC
+CIRCLE_API_KEY=${P("CIRCLE_MAINNET_API_KEY")}
+CIRCLE_ENTITY_SECRET=${P("CIRCLE_ENTITY_SECRET")}
+RELAYER_WALLET_ID=${P("RELAYER_WALLET_ID")}
+RELAYER_WALLET_ADDRESS=${P("RELAYER_WALLET_ADDRESS")}
+CIRCLE_WEBHOOK_PUBLIC_KEY_ID=${P("CIRCLE_WEBHOOK_PUBLIC_KEY_ID")}
+
+# --- Optional -------------------------------------------------------------------------------------------------------------
+GITHUB_TOKEN=${P("GITHUB_TOKEN")}                       # CI_PASS evidence on private repos
+ANTHROPIC_API_KEY=${P("ANTHROPIC_API_KEY")}             # production extraction is done in the web tier; leave unset here unless needed
+GIT_SHA=${P("DEPLOYED_GIT_SHA")}                        # enables the Loss Bound Certificate (the deployed commit)
+
+# --- Internal (generated). The SAME value goes to the web app as WEB_SVC_SECRET. --------------------------------------------
+SERVICE_TOKEN_SECRET=${serviceSecret}
+`;
+}
+
 function main() {
   const serviceSecret = rand();
   const ipSalt = rand();
+  if (process.argv.includes("--mainnet")) {
+    const path = join(root, "services", "kernel", ".env.mainnet.local");
+    if (existsSync(path) && !force) console.log(`kept    ${path} (exists; --force to regenerate)`);
+    else {
+      writeFileSync(path, mainnetKernelEnv({ serviceSecret }), { encoding: "utf8", mode: 0o600 });
+      console.log(`wrote   ${path}\n\nNext: paste the PASTE_*_HERE values, then run: pnpm mainnet:preflight`);
+      console.log(`The web app's WEB_SVC_SECRET (production project, host env screen) must equal the SERVICE_TOKEN_SECRET in that file.`);
+    }
+    return;
+  }
   const targets = [
     [join(root, "services", "kernel", ".env.local"), kernelEnv({ serviceSecret, ipSalt })],
     [join(root, "apps", "web", ".env.local"), webEnv({ serviceSecret })],
