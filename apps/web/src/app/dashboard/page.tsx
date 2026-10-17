@@ -18,7 +18,10 @@ interface State {
 }
 
 export default async function Page() {
-  const r = await kernelCall<State>('/v1/state');
+  const [r, feed] = await Promise.all([
+    kernelCall<State>('/v1/state'),
+    kernelCall<{ intents: { intentId: string; verdict: string | null; reasons: string[]; amountBaseUnits: string | null; releaseAmountBaseUnits: string | null; receiptHash: string | null; releaseStatus: string | null }[] }>('/v1/intents?limit=15'),
+  ]);
   return (
     <PageFrame eyebrow="Owner" title="Dashboard" lede="Vault balance and breaker state, read from the chain through the kernel. Owner actions are wallet signatures; there is no session.">
       <Section title="Wallet">
@@ -52,9 +55,34 @@ export default async function Page() {
           <li><Link href="/intents/new">Submit a payment intent</Link></li>
           <li><Link href="/certificate">Loss bound certificate</Link></li>
         </ul>
-        <p className="body-text-s" style={{ marginTop: 8 }}>
-          A decisions feed needs a list route on the kernel API, which does not exist yet; open a decision from its intent id.
-        </p>
+      </Section>
+      <Section title="Recent decisions">
+        {!feed.ok ? (
+          <div className="sy-card">
+            <Chip tone="muted">UNAVAILABLE</Chip>
+            <p style={{ marginTop: 8 }}>The decisions feed could not be read ({feed.code}).</p>
+          </div>
+        ) : feed.data.intents.length === 0 ? (
+          <p className="body-text-m">No payment intents yet. Submit one and its verdict, reason codes and receipt appear here.</p>
+        ) : (
+          <div className="sy-table-wrap">
+            <table className="sy-table">
+              <thead><tr><th>Intent</th><th>Verdict</th><th>Reason codes</th><th>Amount</th><th>Release</th><th>Receipt</th></tr></thead>
+              <tbody>
+                {feed.data.intents.map((i) => (
+                  <tr key={i.intentId}>
+                    <td><Link className="sy-mono" href={`/intents/${i.intentId}`}>{i.intentId.slice(0, 10)}…</Link></td>
+                    <td>{i.verdict === null ? <Chip tone="muted">PENDING</Chip> : <Chip tone={i.verdict === 'RELEASE' ? 'pass' : i.verdict === 'REJECT' ? 'fail' : 'warn'}>{i.verdict}</Chip>}</td>
+                    <td className="sy-mono">{i.reasons.join(' ') || '—'}</td>
+                    <td>{i.amountBaseUnits === null ? '—' : formatBaseUnits(i.releaseAmountBaseUnits ?? i.amountBaseUnits, 6)}</td>
+                    <td>{i.releaseStatus ?? '—'}</td>
+                    <td>{i.receiptHash === null ? '—' : <Link className="sy-mono" href={`/audit/${i.receiptHash}`}>{i.receiptHash.slice(0, 10)}…</Link>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </Section>
     </PageFrame>
   );
