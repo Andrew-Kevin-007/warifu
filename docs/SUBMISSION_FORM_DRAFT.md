@@ -11,7 +11,7 @@ Warifu is a treasurer for AI agents that pay contractors in USDC on Arc, and it 
 Attack suite (SIMULATED, unit mode, no model called): kernel 0 losses in 213 trials, 1.41% (95% upper bound, rule-of-three); naive baseline (our reimplementation of the pattern) 92 losses in 168 trials (95% upper bound 61.27%, clopper-pearson). Honest corpus: 57 of 62 auto-released; 0 of 62 wrongly rejected (95% Wilson upper bound 5.83%). Hold-out: hold-out not run. Certificate: certificate not computed (no chain read in this build). Model calls behind these figures: 0 model calls.
 
 ## Traction
-0 pilot rows, 0 real payments, 0 base units moved. At the start of the hackathon the project was a spec with zero users and zero USDC moved. Challenge: no challenge attempts recorded. We do not count attack traffic, demo data or our own wallets.
+0 pilot rows, 0 real payments, 0 base units moved. At the start of the hackathon the project was a spec with zero users and zero USDC moved. Challenge: no challenge attempts recorded. We do not count attack traffic, demo data or our own wallets. For transparency, one internal end-to-end run on Arc testnet (chain 5042002, vault 0x00B513896E67C73fC407780cF8568fdc81596c82): a 1 USDC release between two wallets we control, registered, escalated to the owner, approved and released (tx 0x6f9997fc1e7d6254ca4e065c7841dbd79e401aac055c1ea7deb919159acf8b0b). The invoice fields were entered by hand, so no model read it, and the relayer was a plain testnet key, not Circle Wallets. It is labelled internal and is not traction.
 
 ## Why will it keep going?
 Open-source kernel and attack benchmark; Blast Radius as the free entry point; a hosted control plane for teams paying contractors in USDC. We want to keep building with Canteen and Circle.
