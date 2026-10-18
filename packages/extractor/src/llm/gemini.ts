@@ -45,6 +45,18 @@ export function toOpenApiSchema(node: unknown): unknown {
   return out;
 }
 
+/**
+ * Gemini refuses some JSON-Schema constraint keywords (found live: the extractor schema is rejected with them, accepted without). They are
+ * only hints to the model: the extractor validates every returned field against the full schema afterwards (validate.ts), so dropping them
+ * here loses no safety, only a hint.
+ */
+const UNSUPPORTED_KEYS = new Set(["pattern", "maxLength", "minLength", "maxItems", "minItems", "minimum", "maximum", "format"]);
+export function stripUnsupportedConstraints(node: unknown): unknown {
+  if (Array.isArray(node)) return node.map(stripUnsupportedConstraints);
+  if (typeof node !== "object" || node === null) return node;
+  return Object.fromEntries(Object.entries(node as Record<string, unknown>).filter(([k]) => !UNSUPPORTED_KEYS.has(k)).map(([k, v]) => [k, stripUnsupportedConstraints(v)]));
+}
+
 export function createGeminiClient(opts: GeminiClientOptions): LlmClient {
   if (opts.apiKey.length === 0) throw new Error("apiKey required");
   const baseUrl = (opts.baseUrl ?? "https://generativelanguage.googleapis.com").replace(/\/+$/, "");
@@ -95,7 +107,7 @@ export function createGeminiClient(opts: GeminiClientOptions): LlmClient {
             functionDeclarations: request.tools.map((t) => ({
               name: t.name,
               description: t.description,
-              ...(features.jsonSchema ? { parametersJsonSchema: t.inputSchema } : { parameters: toOpenApiSchema(t.inputSchema) }),
+              ...(features.jsonSchema ? { parametersJsonSchema: stripUnsupportedConstraints(t.inputSchema) } : { parameters: toOpenApiSchema(stripUnsupportedConstraints(t.inputSchema)) }),
             })),
           },
         ],

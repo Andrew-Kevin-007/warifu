@@ -1,6 +1,6 @@
 // The Gemini adapter against a fake fetch (the network edge is the only thing mocked, AGENTS.md section 5).
 import { describe, expect, it } from "vitest";
-import { createGeminiClient, toOpenApiSchema } from "../src/llm/gemini";
+import { createGeminiClient, stripUnsupportedConstraints, toOpenApiSchema } from "../src/llm/gemini";
 import { ProviderError, type LlmRequest } from "../src/llm/types";
 
 const REQ: LlmRequest = {
@@ -76,5 +76,12 @@ describe("createGeminiClient", () => {
 describe("toOpenApiSchema", () => {
   it("turns anyOf-with-null into nullable and drops additionalProperties", () => {
     expect(toOpenApiSchema({ type: "object", additionalProperties: false, properties: { a: { anyOf: [{ type: "string", maxLength: 5 }, { type: "null" }] } } })).toEqual({ type: "object", properties: { a: { type: "string", maxLength: 5, nullable: true } } });
+  });
+});
+
+describe("stripUnsupportedConstraints", () => {
+  it("drops length, range, pattern and item-count keywords at every depth and keeps the rest", () => {
+    const schema = { type: "object", properties: { a: { type: "string", maxLength: 5, pattern: "^x$" }, b: { type: "array", maxItems: 2, items: { type: "integer", minimum: 0, maximum: 9 } } }, required: ["a"], additionalProperties: false };
+    expect(stripUnsupportedConstraints(schema)).toEqual({ type: "object", properties: { a: { type: "string" }, b: { type: "array", items: { type: "integer" } } }, required: ["a"], additionalProperties: false });
   });
 });
