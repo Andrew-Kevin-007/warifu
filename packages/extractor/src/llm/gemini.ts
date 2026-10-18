@@ -127,8 +127,13 @@ export function createGeminiClient(opts: GeminiClientOptions): LlmClient {
       ];
       let res: Response | undefined;
       for (const f of ladder) {
-        res = await attempt(request, f);
-        if (res.status !== 400) break; // only a 400 means "this request shape is not accepted": try the next, plainer shape
+        // A busy (503) or rate-limited (429) answer is transient: wait and retry the same shape a few times before giving up.
+        for (let retry = 0; retry < 4; retry++) {
+          res = await attempt(request, f);
+          if (res.status !== 503 && res.status !== 429) break;
+          await new Promise((r) => setTimeout(r, retry === 3 ? 0 : 1500 * (retry + 1)));
+        }
+        if (res?.status !== 400) break; // only a 400 means "this request shape is not accepted": try the next, plainer shape
       }
       if (res === undefined) throw new ProviderError("provider request failed", true);
       if (!res.ok) throw new ProviderError(`provider returned HTTP ${res.status}`, res.status === 429 || res.status >= 500);
