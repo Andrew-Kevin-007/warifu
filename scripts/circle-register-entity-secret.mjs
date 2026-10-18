@@ -31,7 +31,8 @@ const rj = await rr.json().catch(() => null);
 if (!rr.ok) { console.error(`registration failed: HTTP ${rr.status} ${brief(rj)}`); process.exit(1); }
 const recovery = rj?.data?.recoveryFile;
 if (typeof recovery === 'string' && recovery.length > 0) {
-  writeFileSync(recoveryOut, recovery, { flag: 'wx' });
+  // Owner-only where the OS honours it (POSIX); on Windows the protection is the ACL of the folder outside the repo.
+  writeFileSync(recoveryOut, recovery, { flag: 'wx', mode: 0o600 });
   console.log(`registered. Recovery file saved to ${recoveryOut} (outside the repo; back it up in your password manager).`);
 } else {
   console.log('registered (Circle returned no recovery file; download it from the Circle console if it offers one).');
