@@ -1,3 +1,4 @@
+/* global fetch */
 // Lists the Gemini model ids your free-tier key can call with generateContent (ids only; never prints the key).
 //   $env:GEMINI_API_KEY='...'   (this window only; never paste it anywhere)
 //   node scripts/gemini-models.mjs

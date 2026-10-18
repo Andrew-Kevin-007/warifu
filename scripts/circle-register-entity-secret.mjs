@@ -1,3 +1,4 @@
+/* global fetch, Buffer */
 // Register an entity secret with Circle (developer-controlled wallets), testnet or mainnet key as given.
 //   $env:CIRCLE_API_KEY='...'                      (this window only; never paste it anywhere)
 //   node scripts/circle-register-entity-secret.mjs D:\secrets\circle-entity-secret.txt D:\secrets\circle-recovery.dat
