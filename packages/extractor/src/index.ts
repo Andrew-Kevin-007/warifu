@@ -22,3 +22,4 @@ export * from "./llm/budget";
 export * from "./llm/memory-ledger";
 export * from "./llm/recorded";
 export * from "./llm/anthropic";
+export * from "./llm/gemini";
