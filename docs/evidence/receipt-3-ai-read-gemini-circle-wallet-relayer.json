@@ -1,0 +1,197 @@
+{
+  "receipt": {
+    "receiptVersion": 1,
+    "decision": {
+      "decisionId": "33861289-d43b-4bf4-9be1-c10feb033e5b",
+      "tenantId": "10d8eff0-6141-479f-b1f0-601a65408a1c",
+      "intentId": "0x83976ca1b8c2fbf5832bd18d337f97b4189b1515fab82d771a83a474bf5023d1",
+      "verdict": "RELEASE",
+      "checks": [
+        {
+          "id": "K-16",
+          "name": "CIRCUIT_BREAKER",
+          "status": "PASS",
+          "onFail": null,
+          "code": null,
+          "detail": "circuit breaker OK",
+          "refs": []
+        },
+        {
+          "id": "K-01",
+          "name": "STRICT_SCHEMA",
+          "status": "PASS",
+          "onFail": null,
+          "code": null,
+          "detail": "strict schema, document binding, no binary payload, size limits",
+          "refs": []
+        },
+        {
+          "id": "K-02",
+          "name": "PRECISION_EXACT",
+          "status": "PASS",
+          "onFail": null,
+          "code": null,
+          "detail": "printed amount parses exactly to 1000000 base units and matches the extraction",
+          "refs": []
+        },
+        {
+          "id": "K-03",
+          "name": "DOC_TYPE_SIGN",
+          "status": "PASS",
+          "onFail": null,
+          "code": null,
+          "detail": "document is an invoice with a positive amount",
+          "refs": []
+        },
+        {
+          "id": "K-04",
+          "name": "IDEMPOTENCY_DEDUPE",
+          "status": "PASS",
+          "onFail": null,
+          "code": "NEAR_DUPLICATE",
+          "detail": "resolved by a bound owner approval: NEAR_DUPLICATE",
+          "refs": [
+            "207a3902-b45c-4510-bd9f-624745f5e1f5",
+            "a2dc8bf9-f080-49d3-ab1d-de2676be0b42",
+            "6d72e462-62a6-4469-a24e-04367e2bd7f8"
+          ]
+        },
+        {
+          "id": "K-05",
+          "name": "ENGAGEMENT_BINDING",
+          "status": "PASS",
+          "onFail": null,
+          "code": null,
+          "detail": "engagement active, signed, registered on chain with matching terms; milestone payable",
+          "refs": []
+        },
+        {
+          "id": "K-06",
+          "name": "PAYEE_BINDING",
+          "status": "PASS",
+          "onFail": null,
+          "code": null,
+          "detail": "payout address is the engagement payee 0x27F3f18Ba7E9EC099dfCD278388ec3Aa03C1750B",
+          "refs": [
+            "0x27F3f18Ba7E9EC099dfCD278388ec3Aa03C1750B"
+          ]
+        },
+        {
+          "id": "K-07",
+          "name": "CURRENCY_DECIMALS",
+          "status": "PASS",
+          "onFail": null,
+          "code": null,
+          "detail": "USDC with 6 decimals everywhere; amount within scale",
+          "refs": []
+        },
+        {
+          "id": "K-08",
+          "name": "AMOUNT_CONFORMANCE",
+          "status": "PASS",
+          "onFail": null,
+          "code": null,
+          "detail": "gross equals the signed milestone amount",
+          "refs": []
+        },
+        {
+          "id": "K-09",
+          "name": "EVIDENCE_MATCH",
+          "status": "PASS",
+          "onFail": null,
+          "code": null,
+          "detail": "all 0 evidence requirement(s) satisfied (production profile)",
+          "refs": []
+        },
+        {
+          "id": "K-10",
+          "name": "EXTRACTION_CONSENSUS",
+          "status": "PASS",
+          "onFail": null,
+          "code": null,
+          "detail": "two independent extractions agree on every compared field",
+          "refs": []
+        },
+        {
+          "id": "K-11",
+          "name": "INSTRUCTION_CHANGE_HEURISTIC",
+          "status": "PASS",
+          "onFail": null,
+          "code": null,
+          "detail": "no instruction or change-of-details pattern (symbolon-patterns/1.2.0)",
+          "refs": [
+            "patterns:symbolon-patterns/1.2.0"
+          ]
+        },
+        {
+          "id": "K-12",
+          "name": "AUTHORITY_ENVELOPE",
+          "status": "PASS",
+          "onFail": null,
+          "code": null,
+          "detail": "within caps, velocity, category budget and the human gate",
+          "refs": []
+        },
+        {
+          "id": "K-13",
+          "name": "COUNTERPARTY_SCREEN",
+          "status": "SKIP",
+          "onFail": null,
+          "code": "SCREENING_DISABLED",
+          "detail": "screening disabled by policy",
+          "refs": []
+        },
+        {
+          "id": "K-14",
+          "name": "LIQUIDITY_AND_TIMING",
+          "status": "PASS",
+          "onFail": null,
+          "code": null,
+          "detail": "no planner selection; evaluator's top safe plan; payAt 2026-10-18T01:26:51Z, amountDue 1000000, timingSource DEFAULT, plannerFallback",
+          "refs": [
+            "plan:0x2305d446261659859503cfccbbd333607a2ed0ad2dace9ddedf6499974c31d0b",
+            "payAt:2026-10-18T01:26:51Z"
+          ]
+        }
+      ],
+      "reasons": [],
+      "engagementId": "0x65c08d77c423627d7a3352120d865593254a5355b3bcdaee830b74ab9e1100ce",
+      "milestoneId": "0x47c6377b5a086a6986b56f19215f0068cc59a632fcfbc9dfae3706ff4b038d4a",
+      "payee": "0x27F3f18Ba7E9EC099dfCD278388ec3Aa03C1750B",
+      "amountBaseUnits": "1000000",
+      "payAt": "2026-10-18T01:26:51Z",
+      "timingSource": "DEFAULT",
+      "releaseAmountBaseUnits": "1000000",
+      "planId": "0x2305d446261659859503cfccbbd333607a2ed0ad2dace9ddedf6499974c31d0b",
+      "plannerFallback": true,
+      "invoiceReceivedAt": "2026-10-18T01:25:49Z",
+      "policyHash": "0x85276d1ce7a5146d4d07b3c0a5bf9a16885a7ab37998c10ebaf43b805d563489",
+      "kernelVersion": "symbolon-kernel/0.5.0",
+      "patternsVersion": "symbolon-patterns/1.2.0",
+      "contextHash": "0x6f57d0bfacc2d0a76678996796877c62b984ba06d492948899c15049ce5c179c",
+      "agentRecommendation": null,
+      "supersedes": "09dfe516-dce6-4ff2-8adf-9d64033491db",
+      "createdAt": "2026-10-18T01:26:51Z"
+    },
+    "humanExplanationHash": "0x8d0848d6ebbea0dcb177b9f082dfc9cf7e5834428ee2ee2266824a871b5e6bf8",
+    "inputs": {
+      "docHash": "0x0f1a8ebf8aae20eee96f4eac3595f20275a0830a3ac350bfb133d3ec4c61474e",
+      "extractionHashA": "0xde766e3b2cbb9ba01dcae4f6bd427e0e88a0c1e15321447da4deaf059989a886",
+      "extractionHashB": "0x871a22f304f950170fac5e6444c2ed6ef3fcaf25b3c9655d41e78937c21c8f05",
+      "promptHashA": "0xad223098c47a2e390f6f06e7b3d78eddac25718cda3c46eb6d1429fb5f9d9053",
+      "promptHashB": "0x242dba957d9a0a532dcddfb854ae8100ce5f7d468d15e36b5bee8bd3a9ea89f5",
+      "modelA": "gemini-3-flash-preview",
+      "modelB": "gemini-3.5-flash",
+      "evidence": [],
+      "engagementTermsHash": "0x41be09ed55503b55035605171cbf17166523a984716921dc0427bef5a8f671e4",
+      "normalizedDocHash": "0x0f1a8ebf8aae20eee96f4eac3595f20275a0830a3ac350bfb133d3ec4c61474e",
+      "paymentTermsHash": null,
+      "planEvaluationHash": "0xaf2a8b00a3712abc888ea910f993679161c2421ad84af68fc75ee0df0cfe3c3b",
+      "profile": "production"
+    },
+    "issuedAt": "2026-10-18T01:26:51Z"
+  },
+  "receiptHash": "0x360aaee026d6623b29203031fb5655a9b383b42587de41b077c9688c03761210",
+  "signature": "0x012e08420190327913a994d2a12758bd5eb1f79c973af665817c63094c5344b917fc3d8bf970063141006e81cf99d617f6d63b370f43c4116a3f2442bced1b731c",
+  "signer": "0x3a931f09E34C232C36004c44361E9b7F3BD89315"
+}
