@@ -49,10 +49,22 @@ const text = [
   "",
 ].join("\n");
 
+// Prints the HTTP status and Google's own error message for a refused call (never the key: it only travels in a header). The adapter itself
+// hides provider text on purpose; this is for the operator running the script.
+const debugFetch: typeof fetch = async (input, init) => {
+  const res = await fetch(input, init);
+  if (!res.ok) {
+    const body: unknown = await res.clone().json().catch(() => null);
+    const e = (body as { error?: { status?: string; message?: string } } | null)?.error;
+    console.log(`[gemini] HTTP ${String(res.status)} ${String(e?.status ?? "")} ${String(e?.message ?? "").slice(0, 300)}`);
+  }
+  return res;
+};
+
 // The free tier is free: the price table says so explicitly (the package assumes no prices); the in-memory ledger only caps token volume.
 const prices = { [modelA]: { inPerMTok: 0n, outPerMTok: 0n }, [modelB]: { inPerMTok: 0n, outPerMTok: 0n } };
 const llm = new BudgetedLlm({
-  inner: createGeminiClient({ apiKey, fetch }),
+  inner: createGeminiClient({ apiKey, fetch: debugFetch }),
   ledger: new InMemoryBudgetLedger({ globalDailyCapMicroUsd: 1_000_000n, perPrincipalDailyCapMicroUsd: 1_000_000n, day: () => new Date().toISOString().slice(0, 10) }),
   cache: new MemoryCallCache(16),
   costModel: new CostModel(prices),
