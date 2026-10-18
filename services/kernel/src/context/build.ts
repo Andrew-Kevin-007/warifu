@@ -13,6 +13,7 @@ import { checkPolicyWithinVault, makeVaultConfig } from "@symbolon/policy";
 import { AddressSchema, Hex32Schema, UUIDSchema, untrusted } from "@symbolon/schemas";
 import type { Address, Hex32, ISODateTime, UUID } from "@symbolon/schemas";
 import type { KernelContext } from "@symbolon/kernel-core";
+import { getAddress, isAddress } from "viem";
 import type { ChainReader, OnChainEngagement, VaultSnapshot } from "../chain/reader";
 import type { Queryable } from "../db/pool";
 import * as repo from "../db/repo";
@@ -76,7 +77,9 @@ export interface TenantVault {
 export async function resolveTenantVault(q: Queryable, tenantId: string, chain: ChainReader): Promise<TenantVault> {
   const t = await repo.getTenant(q, tenantId);
   if (t === null) throw new ContextError("NO_TENANT", "unknown tenant");
-  const vault = AddressSchema.safeParse(t.vaultAddress);
+  // `tenants.vault_address` is stored lowercase (kernel:tenant); the schema wants EIP-55, so checksum a well-formed address first.
+  const stored = t.vaultAddress;
+  const vault = AddressSchema.safeParse(stored !== null && isAddress(stored, { strict: false }) ? getAddress(stored) : stored);
   if (!vault.success) throw new ContextError("NO_VAULT", "tenant has no registered vault");
   if (t.chainId !== chain.chainId) throw new ContextError("CHAIN_MISMATCH", "tenant chain differs from the configured RPC chain");
   return { vault: vault.data, chainId: t.chainId };

@@ -14,6 +14,9 @@ import { checkReleasedAnchor } from '@symbolon/receipts/anchor';
 import { eip712DomainSeparator, symbolonDomain } from '@symbolon/schemas';
 import type { Address, Hex32 } from '@symbolon/schemas';
 
+const LOG_WINDOW = 4000n;
+const LOG_WINDOWS = 30n;
+const LOG_PARALLEL = 1n;
 const RELEASED = parseAbiItem(
   'event Released(bytes32 indexed intentId, bytes32 indexed engagementId, address indexed payee, uint256 amount, bytes32 receiptHash)',
 );
@@ -72,8 +75,25 @@ export function ReceiptVerifier({ hash, rpcUrl }: { hash: string; rpcUrl: string
         domain,
         expectedSigner: signer,
         checkAnchor: async (receipt, receiptHash) => {
+          const intentId = receipt.decision.intentId as Hex;
+          // The vault itself says whether this intent was released; the event then supplies the amount and payee to compare.
+          const used = (await client.readContract({ address: vaultAddr, abi: symbolonVaultAbi, functionName: 'used', args: [intentId] } as never)) as boolean;
+          if (!used) return { status: 'FAIL' as const, detail: 'the vault does not mark this intent as released' };
+          // Public RPCs refuse wide log ranges and prune old history (Arc testnet: a few thousand blocks per call, and parallel calls are rate-limited), so scan recent windows backwards.
           const latest = await client.getBlockNumber();
-          const logs = await client.getLogs({ address: vaultAddr, event: RELEASED, args: { intentId: receipt.decision.intentId as Hex }, fromBlock: 0n, toBlock: latest });
+          let logs: Awaited<ReturnType<typeof client.getLogs<typeof RELEASED>>> = [];
+          for (let w = 0n; w < LOG_WINDOWS && logs.length === 0; w += LOG_PARALLEL) {
+            const batch = await Promise.all(
+              Array.from({ length: Number(LOG_PARALLEL) }, (_, i) => {
+                const hi = latest - (w + BigInt(i)) * LOG_WINDOW;
+                const lo = hi - LOG_WINDOW + 1n;
+                if (hi < 0n) return Promise.resolve([] as typeof logs);
+                return client.getLogs({ address: vaultAddr, event: RELEASED, args: { intentId }, fromBlock: lo < 0n ? 0n : lo, toBlock: hi });
+              }),
+            );
+            logs = batch.flat();
+          }
+          if (logs.length === 0) return { status: 'FAIL' as const, detail: `the vault marks the intent released, but its Released event is not in the last ${String(LOG_WINDOWS * LOG_WINDOW)} blocks the public RPC can search; verify with pnpm verify-receipt and an archive RPC` };
           const raw: RawLog[] = logs.map((l) => ({ address: l.address, topics: l.topics, data: l.data, blockNumber: l.blockNumber, transactionHash: l.transactionHash, logIndex: l.logIndex, removed: l.removed }));
           return checkReleasedAnchor(receipt, receiptHash, raw, { vault: vaultAddr, decimals });
         },

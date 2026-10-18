@@ -2,8 +2,8 @@
 const BUILT_ON: readonly { name: string; role: string }[] = [
   { name: 'Arc', role: 'chain, USDC as gas' },
   { name: 'USDC', role: 'what the vault holds and pays' },
-  { name: 'Circle wallets', role: 'transaction relayer' },
-  { name: 'Claude', role: 'reads invoices; advisory only' },
+  { name: 'Circle wallets', role: 'developer-controlled relayer wallet (live on Arc testnet)' },
+  { name: 'Claude / Gemini', role: 'invoice readers (a Gemini pair ran live); advisory only' },
   { name: 'viem + Foundry', role: 'chain access and contract tests' },
 ];
 

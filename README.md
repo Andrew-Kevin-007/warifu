@@ -59,12 +59,12 @@ The name is the mechanism. A **warifu** (割符) is a split tally: a token broke
 
 ## Tech and tools
 - **Arc** (USDC as gas, sub-second finality) and **USDC** as the settlement asset.
-- **Circle developer-controlled wallets** as the transaction relayer, with signed webhook handling; the vendored `arc-escrow` sample path is attack-lab baseline B0.
+- **Circle developer-controlled wallets** as the transaction relayer (run live on Arc testnet: registration and release were sent from a Circle wallet), with signed webhook handling; the vendored `arc-escrow` sample path is attack-lab baseline B0.
 - **Contracts:** Solidity vault (OpenZeppelin, custom errors, fuzz and invariant tests) built and tested with **Foundry**.
 - **Chain access:** `viem`; EIP-712 typed data for engagements, approvals and receipts.
 - **Services:** TypeScript, Hono kernel service, Postgres (Supabase-compatible migrations, row-level security on every table).
 - **Web:** Next.js 16 and React 19, with strict CSP and a per-request nonce, a separate challenge build with no wallet code.
-- **Reading invoices:** optional Anthropic Claude models behind a spend-capped budget ledger, or the built-in deterministic rule reader that needs no key.
+- **Reading invoices:** optional Anthropic Claude or Google Gemini models (the Gemini free tier ran live, two different models reading one invoice) behind a budget ledger that fails closed, or the built-in deterministic rule reader that needs no key.
 - **Testing:** Vitest and fast-check, mutation runs on the kernel and vault, differential trials against an independent reference, gitleaks, dependency-cruiser boundary rules.
 
 ## How this maps to the judging criteria
@@ -84,7 +84,8 @@ The name is the mechanism. A **warifu** (割符) is a split tally: a token broke
 | 2 | `/audit` | "Verify in this browser": the hash recomputes and the signature recovers. (The signer check is skipped for a challenge receipt because there is no vault to pin it to; the page says so.) |
 | 3 | `/attack-lab` | Every attack against every baseline, from the committed harness output. |
 | 4 | `/judge` | Five cards; the tally token that does not fit when the agent is fooled. |
-| 5 | `/certificate` | Exclusions first; "Not computed" until a deployed vault exists. We do not show a number we cannot recompute. |
+| 5 | `docs/evidence/` | Three real Arc testnet payments (internal, never traction): signed receipts, explorer links, and the exact `pnpm verify-receipt` commands. One of them has two Gemini models reading the invoice and a Circle wallet sending the release. |
+| 6 | `/certificate` | Exclusions first; "Not computed" until a deployed vault exists. We do not show a number we cannot recompute. |
 
 ## Honest results
 
