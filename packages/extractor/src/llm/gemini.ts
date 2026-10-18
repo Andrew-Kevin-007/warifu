@@ -131,7 +131,8 @@ export function createGeminiClient(opts: GeminiClientOptions): LlmClient {
         for (let retry = 0; retry < 4; retry++) {
           res = await attempt(request, f);
           if (res.status !== 503 && res.status !== 429) break;
-          await new Promise((r) => setTimeout(r, retry === 3 ? 0 : 1500 * (retry + 1)));
+          // Free-tier rate limits are per minute: a 429 waits much longer than a busy 503.
+          await new Promise((r) => setTimeout(r, retry === 3 ? 0 : res.status === 429 ? 22_000 : 1500 * (retry + 1)));
         }
         if (res?.status !== 400) break; // only a 400 means "this request shape is not accepted": try the next, plainer shape
       }
